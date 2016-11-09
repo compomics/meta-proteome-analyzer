@@ -29,7 +29,7 @@
 
 ## MPA Portable ##
 
-**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines MS-GF+, X!Tandem and OMSSA taking MGF spectrum files as input. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
+**MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines [MS-GF+](https://bix-lab.ucsd.edu/pages/viewpage.action?pageId=13533355), [X!Tandem](http://www.thegpm.org/tandem/) and OMSSA taking MGF spectrum files as input. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
 *Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page).
 
 ---
