@@ -248,16 +248,18 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 
 
 
+	
 	/**
-	 * Adds a new protein with accession and description to the database..
+	* Adds a new protein with accession and description to the database..
 	 * @param fastaEntryList The list of all FASTA entries.
 	 * @param conn The database connection object.
+	 * @return Map of proteinID (key) to uniProtID
 	 * @throws SQLException when the persistence did not succeed.
 	 */
-	public static TreeMap<String, Long> addMulibleUniProtEntriesToDatabase(TreeMap<String, UniProtEntryMPA> uniProtList, Connection conn) throws SQLException{
+	public static TreeMap<Long, Long> addMultipleUniProtEntriesToDatabase(TreeMap<Long, UniProtEntryMPA> uniProtList, Connection conn) throws SQLException{
 
 		// Map with the the accession and the uniprotID
-		TreeMap<String, Long> uniProtIDMap = new TreeMap<String, Long>();
+		TreeMap<Long, Long> uniProtIDMap = new TreeMap<Long, Long>();
 		
 		
 		// Create a sql statement
@@ -265,10 +267,10 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 
 
 		// Add all FASTA entries to the sql statement
-		for (String accession : uniProtList.keySet()) {
-			if (uniProtList.get(accession) != null) {
+		for (Long protID : uniProtList.keySet()) {
+			if (uniProtList.get(protID) != null) {
 				// Get the UniProt Entry
-				UniProtEntryMPA uniProtEntry = uniProtList.get(accession);
+				UniProtEntryMPA uniProtEntry = uniProtList.get(protID);
 				
 				// UniProtEntry is unknown at the beginning
 				lStat.setNull(1, 4);
@@ -285,7 +287,8 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				List<String> ecNumberList = uniProtEntry.getEcnumbers();
 				if (ecNumberList.size() > 0) {
 					for (String ecNumber : ecNumberList) {
-						ecNumbers += ecNumber + ";";
+							ecNumbers += ecNumber + ";";
+				
 					}
 					ecNumbers = Formatter.removeLastChar(ecNumbers);
 				}
@@ -300,7 +303,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				List<String> kos = uniProtEntry.getKonumbers();
 				if (kos.size() > 0) {
 					for (String ko : kos) {
-						koNumbers += ko  + ";";
+							koNumbers += ko  + ";";
 					}
 						koNumbers = Formatter.removeLastChar(koNumbers);
 				}
@@ -353,7 +356,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 			ResultSet generatedKeys = lStat.getGeneratedKeys();
 			while (generatedKeys.next()) {
 				long uniProtId = generatedKeys.getLong(1);
-				uniProtIDMap.put(accession, uniProtId);
+				uniProtIDMap.put(protID, uniProtId);
 			}
 		}
 		lStat.close();

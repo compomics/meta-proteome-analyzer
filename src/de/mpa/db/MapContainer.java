@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
@@ -33,11 +32,6 @@ public class MapContainer {
 	  */
 	 public static FastaLoader FastaLoader;
 	 
-//    /**
-//     * Accession to proteinID mapping used for the UniProt entry querying.
-//     */
-//    public static Map<String, Long> UniprotQueryProteins;
-    
     /**
      * Mapping from protein accession to protein ID.
      */
@@ -59,8 +53,5 @@ public class MapContainer {
     	}
 		return proteinIdMap;
 	}
-    
-    
-	 
 }
 

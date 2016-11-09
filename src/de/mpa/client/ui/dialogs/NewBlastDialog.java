@@ -150,7 +150,7 @@ public class NewBlastDialog extends JDialog {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-			
+			error sie multipleBLAST
 			// gather all proteins from the experiment
 			List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
 			List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experiment.getID(), conn);

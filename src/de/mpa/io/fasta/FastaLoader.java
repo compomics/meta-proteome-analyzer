@@ -581,7 +581,7 @@ public class FastaLoader {
 		TreeMap<String, UniProtEntryMPA> uniProtMapping = utils.fetchUniProtEntriesByFastaEntryList(fastaEntryList, true);
 		
 		// Store uniProt entries
-		TreeMap<String, Long> uniProtIDMapping = UniprotentryAccessor.addMulibleUniProtEntriesToDatabase(uniProtMapping, conn);
+		TreeMap<String, Long> uniProtIDMapping = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(uniProtMapping, conn);
 		
 		// Adds the uniprotIds for the protein entries
 		for (DigFASTAEntry fastaentry : fastaEntryList) {
@@ -593,7 +593,7 @@ public class FastaLoader {
 		}
 		
 		// Store protein entries
-		ProteinAccessor.addMulibleProteinsToDatabase(fastaEntryList, conn);
+		ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
 		 
 		 // Commit everything
 		conn.commit();

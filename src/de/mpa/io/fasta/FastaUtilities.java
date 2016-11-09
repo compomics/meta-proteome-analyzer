@@ -20,7 +20,7 @@ import java.util.TreeSet;
 import com.compomics.util.protein.Header;
 
 /**
- * Class for reading and writing of fasta entries
+ * Class for reading and writing of FASTA entries
  * @author Anybody + Robert Heyer
  *
  */

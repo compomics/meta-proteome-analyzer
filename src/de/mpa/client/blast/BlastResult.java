@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.mpa.client.ui.dialogs.BlastDialog.BlastResultOption;
+
 /**
  * This class holds a BLAST query.
  * @author R. Heyer
@@ -170,6 +172,77 @@ public class BlastResult {
 			}
 		}
 		return bestBlastHits ; 
+	}
+//	String[] items = new String[] {"Best E-value","Best Identity", "Best BitScore", "First E-value", "First Identity", "First BitScore", "All Hits"};
+	public List<BlastHit> getSelectedBLASTHits(BlastResultOption resultOption) {
+		// init list
+		List<BlastHit> bestBlastHits = new ArrayList<BlastHit>();
+		// collect hits
+		if (this.blastHitsMap != null & this.blastHitsMap.size() > 0 ) {
+			Collection<BlastHit> blastHitColl = this.blastHitsMap.values();
+			switch (resultOption) {
+				case BEST_BITSCORE:
+				case FIRST_BITSCORE:
+					// bitscore of 0 for initial comparison
+					double bitscore = 0;
+					for (BlastHit blastHit : blastHitColl) {
+						if (blastHit.getScore() >= bitscore) {
+							bitscore = blastHit.getScore();
+						}
+					}
+					// take all hits with the highest shared bitscore
+					for (BlastHit blastHit_2 : blastHitColl) {
+						if (blastHit_2.getScore() == bitscore) {
+							bestBlastHits.add(blastHit_2);
+							if (resultOption == BlastResultOption.FIRST_BITSCORE) {
+								return bestBlastHits;
+							}
+						}
+					}
+					return bestBlastHits;
+				case BEST_EVALUES: 
+				case FIRST_EVALUE:
+					// evalue of 1 for initial comparison
+					double evalue_new = 1;
+					for (BlastHit blastHit : blastHitColl) {
+						if (blastHit.geteValue() <= evalue_new) {
+							evalue_new = blastHit.geteValue();
+						}
+					}
+					// take all hits with the lowest evalue
+					for (BlastHit blastHit_2 : blastHitColl) {
+						if (blastHit_2.geteValue() == evalue_new) {
+							bestBlastHits.add(blastHit_2);
+							if (resultOption == BlastResultOption.FIRST_EVALUE) {
+								return bestBlastHits;
+							}
+						}
+					}
+					return bestBlastHits;
+				case BEST_IDENTITIES:
+				case FIRST_IDENTITY:
+					// initial identity of 0% for comparison
+					double identities = 0;
+					for (BlastHit blastHit : blastHitColl) {
+						if (blastHit.getIdentities() >= identities) {
+							identities = blastHit.getIdentities();
+						}
+					}
+					// take all hits with the highest identity (max == 100%) 
+					for (BlastHit blastHit_2 : blastHitColl) {
+						if (blastHit_2.getIdentities() == identities) {
+							bestBlastHits.add(blastHit_2);
+							if (resultOption == BlastResultOption.FIRST_IDENTITY) {
+								return bestBlastHits;
+							}
+						}
+					}
+					return bestBlastHits;
+				case ALL_HITS:
+					return (List<BlastHit>) blastHitColl;
+			}
+		}
+		return bestBlastHits;
 	}
 	
 }

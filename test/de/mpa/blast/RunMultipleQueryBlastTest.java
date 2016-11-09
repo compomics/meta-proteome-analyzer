@@ -60,7 +60,7 @@ public class RunMultipleQueryBlastTest extends TestCase{
 		// Execute BLAST
 		RunMultiBlast blaster = new RunMultiBlast(Constants.BLAST_FILE, Constants.BLAST_UNIPROT_DB, Constants.BLAST_EVALUE, entryList);
 		try {
-			blaster.blast();
+			blaster.startBlast();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

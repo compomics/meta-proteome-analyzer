@@ -2,11 +2,15 @@ package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import de.mpa.analysis.taxonomy.Taxonomic;
+import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.db.accessor.UniprotentryAccessor;
 
 /**
@@ -14,7 +18,7 @@ import de.mpa.db.accessor.UniprotentryAccessor;
  * @author R. Heyer
  *
  */
-public class UniProtEntryMPA implements Serializable{
+public class UniProtEntryMPA implements Serializable, Taxonomic {
 
 	/**
 	 * 
@@ -35,6 +39,12 @@ public class UniProtEntryMPA implements Serializable{
 	 * The NCBI taxonomy ID
 	 */
 	private long taxid;
+	
+	/**
+	 * The taxon node
+	 */
+	private TaxonomyNode taxNode = null;
+	
 	
 	/**
 	 * The ec numbers
@@ -60,11 +70,30 @@ public class UniProtEntryMPA implements Serializable{
 	 * Default constructur
 	 */
 	public UniProtEntryMPA() {
-		System.out.println("this entry III");
+		
 	}
 
 	/**
-	 * Constructor
+	 * @param accession. The accesion of the protein entry.
+	 * @param taxNode. The taxonomy node.
+	 * @param ecnumbers. The list of ec numbers.
+	 * @param konumbers. The list of KO numbers.
+	 * @param keywords. The list of keywords.
+	 * @param uniRefMPA. The uniRef entries.
+	 */
+	public UniProtEntryMPA(String accession,  TaxonomyNode taxNode, List<String> ecnumbers, List<String> konumbers, List<String> keywords, UniRefEntryMPA uniRefMPA) {
+		this.accession = accession;
+		this.taxNode = taxNode;
+		this.taxid = taxNode.getID();
+		this.ecnumbers = ecnumbers;
+		this.konumbers = konumbers;
+		this.keywords = keywords;
+		this.uniRefMPA = uniRefMPA;
+	}
+	
+	
+	/**
+	 * Constructor for UniProt entries from webservice
 	 */
 	public UniProtEntryMPA(UniProtEntry uniProtEntry, UniRefEntryMPA uniRefEntry) {
 		
@@ -201,5 +230,27 @@ public class UniProtEntryMPA implements Serializable{
 	 */
 	public void setUniRefMPA(UniRefEntryMPA uniRefMPA) {
 		this.uniRefMPA = uniRefMPA;
+	}
+
+	/**
+	 * Get TaxonNode for this taxID
+	 */
+	@Override
+	public TaxonomyNode getTaxonomyNode() {
+			return taxNode;
+	}
+
+	/**
+	 * Sets the taxon node.
+	 */
+	@Override
+	public void setTaxonomyNode(TaxonomyNode taxonNode) {
+		this.taxNode = taxonNode;
+		
+	}
+
+	@Override
+	public List<? extends Taxonomic> getTaxonomicChildren() {
+		return null;
 	}
 }

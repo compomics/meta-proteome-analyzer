@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +17,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Constants;
+import de.mpa.client.blast.RunMultiBlast;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
@@ -24,17 +26,75 @@ import de.mpa.client.ui.icons.IconConstants;
  * Class for the BLAST Dialog
  * @author Robert Heyer
  */
-@SuppressWarnings("serial")
 public class BlastDialog extends JDialog {
 	
 	/**
-	 * The ClientFrame
+	 * The serial number
 	 */
-	@SuppressWarnings("unused")
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The parent (ClientFrame)
+	 */
 	private ClientFrame owner;
+	
+	/**
+	 * File of the BLAST algorithm
+	 */
 	private JTextField blastTxt;
+	
+	/**
+	 * The evalue for the BLAST algorithm
+	 */
 	private JTextField eValueTxt;
+	
+	/**
+	 * The database for the BLAST
+	 */
 	private JTextField dbTxt;
+	
+	/**
+	 * The experiment ID for the BLAST
+	 */
+	private JTextField expTxt;
+
+	/**
+	 * The result option checkbox
+	 */
+	private JComboBox<BlastResultOption> resultOptionCbx;
+	
+	/**
+	 * ENUM for the BLAST options
+	 * @author Robert H. and Kay. S
+	 *
+	 */
+	public enum BlastResultOption {
+		BEST_EVALUES("Best E-value"),
+		BEST_IDENTITIES("Best Identity"), 
+		BEST_BITSCORE("Best BitScore"),
+		FIRST_EVALUE("First E-value"),
+		FIRST_IDENTITY("First Identity"),
+		FIRST_BITSCORE("First BitScore"),
+		ALL_HITS("All Hits");
+		
+		/**
+		 * The String behind the ENUM
+		 */
+		private String val;
+		
+		/**
+		 * Method to return the String of the ENUM
+		 * @param value
+		 */
+		private BlastResultOption(String value) {
+			this.val = value;
+		}
+		
+		@Override
+		public String toString() {
+			return val;
+		}
+	}
 	
 	/**
 	 * @param owner. The owner of the dialog.
@@ -54,19 +114,31 @@ public class BlastDialog extends JDialog {
 
 		// Create BLAST dialog
 		JPanel blastDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
-		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
+		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
 		JLabel blastLbl 		= new JLabel("Path of the BLAST Algorithms");
 		blastTxt = new JTextField(Constants.BLAST_FILE); 
 		JLabel dbLbl 			= new JLabel("Path of the preformatted db (See BLAST Manual");
 		dbTxt = new JTextField(Constants.BLAST_UNIPROT_DB); 
 		JLabel eValueLbl 		= new JLabel("E-Value cut-off");
 		eValueTxt = new JTextField("" + Constants.BLAST_EVALUE); 
+		JLabel expLbl 		= new JLabel("Choose experiment ID (-1 for all)");
+		expTxt = new JTextField("-1"); 
+		JLabel resultOptionLbl = new JLabel("Select the option for hit selection");
+		BlastResultOption[] items = BlastResultOption.values();		
+		resultOptionCbx = new JComboBox<BlastResultOption>(items);
+		
+		// Add Components to the BLAST panel
 		blastSettingsPnl.add(blastLbl, 	CC.xy(2, 2));
 		blastSettingsPnl.add(blastTxt, 	CC.xy(2, 4));
 		blastSettingsPnl.add(dbLbl, 	CC.xy(2, 6));
 		blastSettingsPnl.add(dbTxt, 	CC.xy(2, 8));
 		blastSettingsPnl.add(eValueLbl, CC.xy(2, 10));
 		blastSettingsPnl.add(eValueTxt, CC.xy(2, 12));
+		blastSettingsPnl.add(expLbl, 	CC.xy(2, 14));
+		blastSettingsPnl.add(expTxt, 	CC.xy(2, 16));
+		blastSettingsPnl.add(resultOptionLbl,	CC.xy(2, 18));
+		blastSettingsPnl.add(resultOptionCbx, 	CC.xy(2, 20));
+		
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -127,10 +199,12 @@ public class BlastDialog extends JDialog {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-//			// find all proteins in the database and pass them to BLAST
-//			List<ProteinAccessor> proteins = ProteinAccessor.findAllProteinAccessors(Client.getInstance().getConnection());
+			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), (BlastResultOption) resultOptionCbx.getSelectedItem());
 //			UniProtUtilities uniprotweb = new UniProtUtilities();
-//			// filter list to proteins for blast
+			// filter list to proteins for blast
+			
+			
+//			
 //			List<ProteinAccessor> blast_list = uniprotweb.find_proteins_for_blast(proteins);
 //			// do blast from proteinlist
 //			Map<String, List<Long>> new_proteins = uniprotweb.perform_blast(blast_list, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()));

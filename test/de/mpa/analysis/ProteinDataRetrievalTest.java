@@ -17,7 +17,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.Uniprotentry;
 import de.mpa.util.Formatter;
 
 public class ProteinDataRetrievalTest {

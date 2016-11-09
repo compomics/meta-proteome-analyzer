@@ -1,4 +1,4 @@
-package de.mpa.analysis;
+package de.mpa.fastaLoader;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.io.fasta.FastaLoader;
 
 /**

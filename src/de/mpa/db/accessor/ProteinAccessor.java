@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -55,6 +56,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		return accession2IdMap;
 	}
 	
+	
 	/**
 	 * This method will find all proteins and return proteinaccessors.
 	 *
@@ -76,6 +78,29 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		ps.close();
 		return proteins;
 	}
+	
+//	/**
+//	 * This method will find all proteins for a certain experiment and return proteinaccessors.
+//	 *
+//	 * @param aConn Connection to read the spectrum File from.
+//	 * @param expID The experiment ID.
+//	 * @return ProteinAccessor-Set
+//	 * @throws SQLException when the retrieval did not succeed.
+//	 */
+//	public static ArrayList<ProteinAccessor> findAllProteinAccessorsbyExperimentID(Connection aConn, long expID) throws SQLException {
+//		ArrayList<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
+//		//PreparedStatement ps = aConn.prepareStatement(getBasicSelect());
+//		// this is likely to crash if we have too many proteins ...
+//		PreparedStatement ps = aConn.prepareStatement("SELECT * FROM protein pr WHERE");
+//		ResultSet rs = ps.executeQuery();
+//		while (rs.next()) {
+//			ProteinAccessor new_protein = new ProteinAccessor(rs);
+//			proteins.add(new_protein);
+//		}		
+//		rs.close();
+//		ps.close();
+//		return proteins;
+//	}
 	
 	/**
 	 * This method will find all protein accessions.
@@ -119,6 +144,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
        ps.close();
        return temp;
    }
+   
    
 //	/**
 //    * This method will find a protein entry that contains the string "_BLAST_"
@@ -250,6 +276,25 @@ public class ProteinAccessor extends ProteinTableAccessor {
 //		
 //		return protein;
 //    }
+   
+   /** 
+    * Static method to retrieve all proteins that do not have a uniprotentry associated to them 
+    * 
+    * @param conn. Connection to SQL
+    * @return return_list. List of ProteinAccessor Objects for the proteins
+    * @throws SQLException
+    */
+    public static List<ProteinAccessor> getAllProteinsWithoutUniProtEntry(Connection conn) throws SQLException {
+    	List<ProteinAccessor> return_list = new ArrayList<ProteinAccessor>();
+    	PreparedStatement ps = conn.prepareStatement("SELECT * FROM protein WHERE fk_uniprotentryid = -1");
+    	ResultSet rs = ps.executeQuery();
+    	while (rs.next()) {
+    		ProteinAccessor this_accessor = new ProteinAccessor(rs);
+    		return_list.add(this_accessor);
+    	}
+    	return return_list; 
+    }
+    
     
 	/**
      * Adds a new protein with accession and description to the database..
@@ -288,7 +333,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
      * @param conn The database connection object.
      * @throws SQLException when the persistence did not succeed.
      */
-    public static void addMulibleProteinsToDatabase(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException{
+    public static void addMutlipleProteinsToDatabase(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException{
     	
     	// Create a sql statement
     	PreparedStatement lStat = conn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);

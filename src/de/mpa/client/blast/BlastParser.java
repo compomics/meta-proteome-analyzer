@@ -126,7 +126,7 @@ public class BlastParser {
 									// HSP identity
 									if (cccNode.getNodeName().equals("Hsp_identity")) {
 											String identity 	= cccNode.getTextContent();
-											blastHit.setIdentities(identity);
+											blastHit.setIdentities(Double.parseDouble(identity));
 											blastRes.putBlastHitsMap(blastHit);	
 									}
 									

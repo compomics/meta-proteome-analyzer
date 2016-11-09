@@ -1,4 +1,4 @@
-package de.mpa.analysis;
+package de.mpa.blast;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,10 +11,10 @@ import java.util.TreeMap;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ExperimentTableAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
-import de.mpa.db.accessor.Uniprotentry;
 
 
 public class DeleteBLASTHits {

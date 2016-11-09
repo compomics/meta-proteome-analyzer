@@ -229,6 +229,7 @@ public class Constants {
 	 */
 	public static final double BLAST_EVALUE = 0.0001;
 	
+
 	/**
 	 * Convenience method to initialize the enzyme definition tree.
 	 * @return the root of the en

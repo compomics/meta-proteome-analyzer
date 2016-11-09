@@ -351,10 +351,8 @@ public class TaxonomyUtils {
 	 * @param proteins List of proteins hits.
 	 * @param params the parameter map containing taxonomy definition rules
 	 */
-	public static void determineProteinTaxonomy(
-			List<ProteinHit> proteins, ParameterMap params) {
-		TaxonomyUtils.determineTaxonomy(proteins,
-				(TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
+	public static void determineProteinTaxonomy(List<ProteinHit> proteins, ParameterMap params) {
+		TaxonomyUtils.determineTaxonomy(proteins, (TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
 	}
 
 	/**
@@ -367,16 +365,17 @@ public class TaxonomyUtils {
 	public static void determineTaxonomy(List<? extends Taxonomic> taxList, TaxonomyDefinition definition) {
 		// iterate taxonomic list
 		for (Taxonomic taxonomic : taxList) {
+			
 			// extract child taxonomy nodes
 			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
 			List<? extends Taxonomic> children = taxonomic.getTaxonomicChildren();
-			for (Taxonomic childTax : children) {
-				TaxonomyNode taxNode = childTax.getTaxonomyNode();
-				if (taxNode == null) {
-					System.err.println("ERROR: no taxonomic children found for " + childTax);
+				for (Taxonomic childTax : children) {
+					TaxonomyNode taxNode = childTax.getTaxonomyNode();
+					if (taxNode == null) {
+						System.err.println("ERROR: no taxonomic children found for " + childTax);
+					}
+					taxonNodes.add(taxNode);
 				}
-				taxonNodes.add(taxNode);
-			}
 			
 			// find common taxonomy node
 			TaxonomyNode ancestor = taxonNodes.get(0);
@@ -384,6 +383,7 @@ public class TaxonomyUtils {
 				System.err.println("ERROR: no taxonomic ancestor found for " + taxonomic);
 			}
 			for (int i = 1; i < taxonNodes.size(); i++) {
+		
 				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
 			

@@ -39,7 +39,7 @@ public class BlastHit {
 	/**
 	 * Identities of the BLAST hit.
 	 */
-	String identities;
+	double identities;
 	
 	/**
 	 * Posititves of the BLAST hit.
@@ -155,18 +155,18 @@ public class BlastHit {
 	}
 
 	/**
-	 * Gets the identities of a BLAST hit.
-	 * @return identies
+	 * Gets the identities of a BLAST hit as percentage.
+	 * @return identities
 	 */
-	public String getIdentities() {
+	public double getIdentities() {
 		return identities;
 	}
 
 	/**
-	 * Sets the identies of a BLAST hit.
+	 * Sets the identities of a BLAST hit as percentage.
 	 * @param identities
 	 */
-	public void setIdentities(String identities) {
+	public void setIdentities(double identities) {
 		this.identities = identities;
 	}
 

@@ -7,28 +7,29 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.UniProtUtilities;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.ScreenConfig;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.fasta.FastaLoader;
 
 
 /**
@@ -66,24 +67,22 @@ public class AddFastaDialog extends JDialog {
 
 		// Lable for the description of the dialog
 		JLabel textLbl = new JLabel("<html><p align='justify'>"
-				+ "Please select the new *.fasta databases." +
-				" For formatting reason the names of the fasta databases " +
-				"<b>may comprise maximal 6 characters or numbers</b>.</p>"
-				+ "</html>");
+				+ "Please select the *.fasta-databases" +
+				" and enter the name of the new FASTA-databases.</p></html>");
 		textLbl.setFont(new Font("Serif", Font.PLAIN, 14));
-		textLbl.setPreferredSize(new Dimension(340, 80));
+		textLbl.setPreferredSize(new Dimension(360, 30));
 		JPanel lablePnl = new JPanel(new BorderLayout());
 		lablePnl.add(textLbl, BorderLayout.NORTH);
-		lablePnl.setMaximumSize(new Dimension(350, 85));
+		lablePnl.setMaximumSize(new Dimension(370, 35));
 
 		// Checkbox for new Mascot-database
-		final JCheckBox mascotFastaCbx = new JCheckBox("<html><p align='justify'>" +"Create a new *.fasta database in the same directory as input for the Mascot Searches"+ "</p>  </html>");
+		final JCheckBox mascotFastaCbx = new JCheckBox("<html><p align='justify'>" +"Create a new *.fasta-database in the same directory as the input databases for the Mascot searches."+ 
+		" For later uploaded of Mascot dat-files please use following parsing rules: \n <b> >..|[^|]*|\\([^ ]*\\)     SwissProt</b></p>  </html>");
 		mascotFastaCbx.setFont(new Font("Serif", Font.PLAIN, 14));
-		mascotFastaCbx.setPreferredSize(new Dimension(340, 60));
+		mascotFastaCbx.setPreferredSize(new Dimension(360, 100));
 		JPanel checkboxPnl = new JPanel(new BorderLayout());
 		checkboxPnl.add(mascotFastaCbx, BorderLayout.NORTH);
-		checkboxPnl.setMaximumSize(new Dimension(350, 70));
-
+		checkboxPnl.setMaximumSize(new Dimension(370, 100));
 
 		descPnl.add(lablePnl, 	CC.xy(2, 2));
 		descPnl.add(mascotFastaCbx, 	CC.xy(2, 4));
@@ -182,24 +181,24 @@ public class AddFastaDialog extends JDialog {
 				}
 			}
 
-			// Start creation of new fasta database
-//			try {
-//				Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
-//				Client.getInstance().firePropertyChange("indeterminate", false, true);
-//				FastaUtilities.addFastaDatabases(fastaFiles, new File(outpath), mascotFlag);
-//				
-//				// Show finished message
-//				StringBuilder message = new StringBuilder();	
-//				message.append("Database successfully upload");
-//				message.append("\n\n");
-//				message.append("Please restart the MPA before you can use the new database.");
-//				message.append("\n\n");
-//				JOptionPane.showMessageDialog(ClientFrame.getInstance(), message,
-//						"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
-//				Client.getInstance().firePropertyChange("indeterminate", true, false);
-//				Client.getInstance().firePropertyChange("new message", null, "Adding new *.fasta finished");
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			// Start generation of a new fasta database
+			try {
+				Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
+				Client.getInstance().firePropertyChange("indeterminate", false, true);
+				FastaLoader.addFastaDatabases(fastaFiles, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
+				
+				// Show finished message
+				StringBuilder message = new StringBuilder();	
+				message.append("Database successfully upload");
+				message.append("\n\n");
+				message.append("Please restart the MPA before you can use the new database.");
+				message.append("\n\n");
+				JOptionPane.showMessageDialog(ClientFrame.getInstance(), message,
+						"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				Client.getInstance().firePropertyChange("new message", null, "Adding new *.fasta finished");
+			} catch (IOException | SQLException e) {
+				e.printStackTrace();
+			}
 	}		
 }

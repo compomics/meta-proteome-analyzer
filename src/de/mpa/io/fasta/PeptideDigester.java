@@ -169,7 +169,6 @@ public class PeptideDigester {
 	 * @param minLength. Minimal size of AA sequences to be recorded.
 	 * @param maxLength. Maximal size of AA sequences to be recorded.
 	 */
-	@SuppressWarnings("static-access")
 	public void createPeptidDB(String[] dbFiles, String outFile, int missedCleavage, int minLength, int maxLength) {
 		
 		// The String contains all permissible Amino acids (including * and X)
@@ -217,7 +216,6 @@ public class PeptideDigester {
 			peptideNumber = new AtomicInteger();
 			proteinNumber = new AtomicInteger();
 			log.info("Parsing and processing sequences ..");
-
 			
 			// Count the number of protein entries
 			for (String inFile : dbFiles) {
