@@ -7,7 +7,6 @@ import org.junit.runners.Suite.SuiteClasses;
 import de.mpa.analysis.UniProtJapiTest;
 import de.mpa.db.accessor.SearchSpectrumAccessorTest;
 import de.mpa.db.extractor.SpectrumExtractorTest;
-import de.mpa.fastaLoader.FastaLoaderTest;
 import de.mpa.settings.SearchEngineParameterExportTest;
 import de.mpa.taxonomy.NcbiTaxonomyTest;
 import de.mpa.webservice.ServerImplTest;
@@ -17,7 +16,6 @@ import de.mpa.webservice.ServerImplTest;
 	UniProtJapiTest.class,
 	SearchSpectrumAccessorTest.class,
 	SpectrumExtractorTest.class,
-	FastaLoaderTest.class,
 	SearchEngineParameterExportTest.class,
 	NcbiTaxonomyTest.class,
 	ServerImplTest.class,

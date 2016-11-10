@@ -493,11 +493,10 @@ public class FastaLoader {
 				String header 		= line;
 
 				// Add Sequence
-				while((line=br.readLine()) != null){
-					// increase entry number
-					
+				while( (line=br.readLine()) != null){
 					// Check whether a new entry starts
 					if (line.trim().length() > 0 && line.charAt(0) == '>' ) {
+						// increase entry number
 						entryNo = entryNo + 1;
 						// Get parsed fasta-entry and write it to the new fasta
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
@@ -510,9 +509,9 @@ public class FastaLoader {
 							// Add new protein to the already stored list
 							allProts.put(entry.getIdentifier(), entry.getUniProtID());
 						}
-						
+					 	
 						// give an update batchsize entries
-						if (entryNo % batchSize == 0) {
+						if (entryNo % batchSize == 0 || entryNo == totalCountEntries) {
 							// Store proteins and also UniProtEntries
 							saveProteinsAndUniRefBatch(fastaEntryList, conn);
 							// Reset the fastaEntryList
@@ -530,18 +529,7 @@ public class FastaLoader {
 						sequence+=line;
 					}
 				}
-
-				// Safe last entry
-				DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
-				writeEntry(bw, "", entry);
-				// Create a Protein entry in the database
-				if (allProts.get(entry.getIdentifier()) == null) {
-					fastaEntryList.add(entry);
-					allProts.put(entry.getIdentifier(), entry.getUniProtID());
-				}
-				// Store proteins and also UniProt entries
-				saveProteinsAndUniRefBatch(fastaEntryList, conn);
-			}else{
+			} else{
 				System.out.println("ERROR IN FASTA FORMAT, FIRST ROW WRONG FORMATTED");
 			}
 		}
@@ -576,26 +564,37 @@ public class FastaLoader {
 	 */
 	private static void saveProteinsAndUniRefBatch(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException {
 		
+		// Store protein entries with fk_uniProtID = "-1"
+		// get back map with key=accession and value=proteinid 
+		
+		// accession 2 proteinid mapping --> for later identification of proteins
+		TreeMap<String, Long> accesion2idMap = ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
+				 
+		
 		// Get UniProt informations
 		UniProtUtilities utils = new UniProtUtilities();
-		TreeMap<String, UniProtEntryMPA> uniProtMapping = utils.fetchUniProtEntriesByFastaEntryList(fastaEntryList, true);
+		
+		// Map with UniProt entries with UniProtAccession as key
+		TreeMap<String, UniProtEntryMPA> protacc2uniprotentryMap = utils.fetchUniProtEntriesByFastaEntryList(fastaEntryList, true);
+		
+		// combine the maps accession2idMap and uniProtIDMapping --> proteinid2uniprotid-mapping=protein2uniprotids
+		TreeMap<Long, UniProtEntryMPA> protein2uniprotEntry = new TreeMap<Long, UniProtEntryMPA>();
+		for (String accession : protacc2uniprotentryMap.keySet()) {
+			protein2uniprotEntry.put(accesion2idMap.get(accession), protacc2uniprotentryMap.get(accession));
+		}
 		
 		// Store uniProt entries
-		TreeMap<String, Long> uniProtIDMapping = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(uniProtMapping, conn);
+		TreeMap<Long, Long> proteinID2uniprotIDmap = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(protein2uniprotEntry, conn);
 		
-		// Adds the uniprotIds for the protein entries
+		// updates the uniprotIds for the protein entries
 		for (DigFASTAEntry fastaentry : fastaEntryList) {
 			// Check whether UniProt entries are availble
-			if (uniProtIDMapping.get(fastaentry.getIdentifier()) !=null)  {
-				long uniProtID = uniProtIDMapping.get(fastaentry.getIdentifier());
+			if (proteinID2uniprotIDmap.get(fastaentry.getIdentifier()) !=null)  {
+				long uniProtID = proteinID2uniprotIDmap.get(fastaentry.getIdentifier());
 				fastaentry.setUniProtID(uniProtID);
 			}
 		}
-		
-		// Store protein entries
-		ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
-		 
-		 // Commit everything
+		// Commit everything
 		conn.commit();
 		
 	}

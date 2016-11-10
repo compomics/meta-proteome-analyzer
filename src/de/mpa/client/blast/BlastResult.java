@@ -239,7 +239,10 @@ public class BlastResult {
 					}
 					return bestBlastHits;
 				case ALL_HITS:
-					return (List<BlastHit>) blastHitColl;
+					for (BlastHit blastHit : blastHitColl ) {
+						bestBlastHits.add(blastHit);
+					}
+					return bestBlastHits;
 			}
 		}
 		return bestBlastHits;

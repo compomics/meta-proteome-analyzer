@@ -220,32 +220,32 @@ public class ProjectPanel extends JPanel {
 
 		nextBtn = ClientFrame.getInstance().createNavigationButton(true, false);
 		
-		// fetch spectra button
-		specBtn = new JButton("Fetch Spectra", IconConstants.SAVE_DB_ICON);
-		specBtn.setRolloverIcon(IconConstants.SAVE_DB_ROLLOVER_ICON);
-		specBtn.setPressedIcon(IconConstants.SAVE_DB_PRESSED_ICON);
-		specBtn.setEnabled(false);
-		specBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new FetchSpectraDialog(ClientFrame.getInstance(), "Fetch Spectra from Database", getSelectedExperiment());
-			}
-		});
+//		// fetch spectra button
+//		specBtn = new JButton("Fetch Spectra", IconConstants.SAVE_DB_ICON);
+//		specBtn.setRolloverIcon(IconConstants.SAVE_DB_ROLLOVER_ICON);
+//		specBtn.setPressedIcon(IconConstants.SAVE_DB_PRESSED_ICON);
+//		specBtn.setEnabled(false);
+//		specBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				new FetchSpectraDialog(ClientFrame.getInstance(), "Fetch Spectra from Database", getSelectedExperiment());
+//			}
+//		});
 		
-		// blast results button
-		blastBtn = new JButton("Blast Results", IconConstants.SEARCH_DB_ICON);
-		blastBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
-		blastBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
-		blastBtn.setEnabled(false);
-		blastBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new NewBlastDialog(ClientFrame.getInstance(), "Blast Unlinked Results", getSelectedExperiment());
-			}
-		});
+//		// blast results button
+//		blastBtn = new JButton("Blast Results", IconConstants.SEARCH_DB_ICON);
+//		blastBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
+//		blastBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
+//		blastBtn.setEnabled(false);
+//		blastBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				new NewBlastDialog(ClientFrame.getInstance(), "Blast Unlinked Results", getSelectedExperiment());
+//			}
+//		});
 
 		// query uniprot button
-		uniBtn = new JButton("Query Uniprot", IconConstants.SEARCH_DB_ICON);
+//		uniBtn = new JButton("Query Uniprot", IconConstants.SEARCH_DB_ICON);
 //		uniBtn.setRolloverIcon(IconConstants.SEARCH_DB_ROLLOVER_ICON);
 //		uniBtn.setPressedIcon(IconConstants.SEARCH_DB_PRESSED_ICON);
 //		uniBtn.setEnabled(false);
@@ -281,9 +281,9 @@ public class ProjectPanel extends JPanel {
 //			}
 //		});
 		
-		actPnl.add(blastBtn, CC.xy(1, 1));
-		actPnl.add(uniBtn, CC.xy(3, 1));
-		actPnl.add(specBtn, CC.xy(5, 1));
+//		actPnl.add(blastBtn, CC.xy(1, 1));
+//		actPnl.add(uniBtn, CC.xy(3, 1));
+//		actPnl.add(specBtn, CC.xy(5, 1));
 		
 		navPnl.add(ClientFrame.getInstance().createNavigationButton(false, false), CC.xy(1, 1));
 		navPnl.add(skipBtn, CC.xy(3, 1));

@@ -35,8 +35,12 @@ import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.model.dbsearch.UniRefEntryMPA;
 import de.mpa.db.DBManager;
+import de.mpa.db.accessor.ProteinAccessor;
+import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.TaxonomyTableAccessor;
+import de.mpa.db.accessor.UniprotentryAccessor;
+import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.io.fasta.DigFASTAEntry;
 import de.mpa.main.Starter;
 
@@ -479,6 +483,7 @@ public class UniProtUtilities {
 
 	/**
 	 * Fetches all uniprot entries for a FASTA list
+	 * 
 	 * @param addUniRefs 
 	 * @param fastaEntryList. A list with all fasta entries
 	 * @return. Map with the accessions and the UniRefs
@@ -502,7 +507,7 @@ public class UniProtUtilities {
 		if (fastaAccessionList.size() > 0) {
 			uniRef2AccMap = this.fetchUniProtEntriesByAccessions(fastaAccessionList, addUniRefs);
 		}
-
+		
 
 		return uniRef2AccMap;
 	}
@@ -539,7 +544,7 @@ public class UniProtUtilities {
 	 * @throws SQLException
 	 * @return A map with Accessions and uniprot entries
 	 */
-	public TreeMap<String, UniProtEntryMPA>fetchUniProtEntriesByAccessions(ArrayList<String> accessionList, boolean addUniRefs) throws SQLException {
+	public TreeMap<String, UniProtEntryMPA> fetchUniProtEntriesByAccessions(ArrayList<String> accessionList, boolean addUniRefs) throws SQLException {
 
 		// The resultmap with the uniprotEntries
 		TreeMap<String, UniProtEntryMPA> uniprotResultMap = new TreeMap<String, UniProtEntryMPA>();
@@ -676,144 +681,51 @@ public class UniProtUtilities {
 
 
 
-	//	/**
-	//	 * update uniprot entries for proteins that do not hava a uniprot entry 
-	//	 * 
-	//	 * @author K.Schallert
-	//	 */	
-	//	public ReducedProteinData getUniRefs(String accession, ReducedProteinData redProtEntry) {
-	//		// start the uniref service
-	//		this.startUniRefService();
-	//		// Get the UniRefs
-	//		Query query = UniRefQueryBuilder.memberAccession(accession);
-	//		QueryResult<UniRefEntry> entries = null;
-	//		try {		
-	//			entries = this.uniRefQueryService.getEntries(query);
-	//		} catch (ServiceException e) {
-	//			e.printStackTrace();
-	//		}		
-	//		if (entries != null) {
-	//			while (entries.hasNext()) {
-	//				try {
-	//					UniRefEntry thisentry = entries.next();	
-	//					if (thisentry.getUniRefEntryId().getValue().contains("UniRef100")) {
-	//						redProtEntry.setUniRef100EntryId(thisentry.getUniRefEntryId().getValue());
-	//					}
-	//					if (thisentry.getUniRefEntryId().getValue().contains("UniRef90")) {
-	//						redProtEntry.setUniRef90EntryId(thisentry.getUniRefEntryId().getValue());
-	//					}
-	//					if (thisentry.getUniRefEntryId().getValue().contains("UniRef50")) {
-	//						redProtEntry.setUniRef50EntryId(thisentry.getUniRefEntryId().getValue());
-	//					}
-	//				} catch (Exception e) {
-	//					e.printStackTrace();
-	//					System.out.println("Accession: "+accession+ " broken uniref entries: " + redProtEntry);
-	//					break;
-	//				}
-	//			}
-	//		} else {
-	//			// TODO: add something to deal with this problem
-	//			System.out.println("query failed!");
-	//		}
-	//		// stop the unirefservice and return
-	//		this.stopUniRefService();
-	//		return redProtEntry;
-	//	}
 
-	//	/**
-	//	 * deletes blast hits
-	//	 * 
-	//	 * @author K.Schallert
-	//	 * @throws SQLException 
-	//	 */	
-	//	public static void deleteblasthits() throws SQLException {
-	//		// get client
-	//		Client.getInstance();
-	//		Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS");
-	//
-	//		// connect to db
-	//		Connection conn = DBManager.getInstance().getConnection();
-	//		// find all blast proteins -> contain "_BLAST_"
-	//		List<ProteinTableAccessor> proteinlist = ProteinAccessor.findBlastHits(conn);
-	//		// we now need to make 2 new lists: one list for entries that remain, one for entries to delete
-	//		List<ProteinTableAccessor> deletelist = new ArrayList<ProteinTableAccessor>();
-	//		Map<String, ProteinTableAccessor> revertmap = new TreeMap<String, ProteinTableAccessor>();
-	//		for (ProteinTableAccessor prot : proteinlist) {
-	//			String original_prot_accession = prot.getAccession().split("_BLAST_")[0];
-	//			// String uniprot_prot_accession = prot.getAccession().split("_BLAST_")[1];
-	//			if (revertmap.containsKey(original_prot_accession)) {
-	//				deletelist.add(prot);
-	//			} else {
-	//				revertmap.put(original_prot_accession, prot);
-	//			}
-	//		}
-	//		Client.getInstance().firePropertyChange("new message", null, "REVERTING ENTRIES");
-	//		Client.getInstance().firePropertyChange("indeterminate", false,	true);
-	//		Client.getInstance().firePropertyChange("resetall", -1L, (long) revertmap.size());
-	//		Client.getInstance().firePropertyChange("resetcur", -1L, (long) revertmap.size());
-	//		// cycle through proteins for reversion		
-	//		for (String prot_acc : revertmap.keySet()) {			
-	//			ProteinTableAccessor thisprot = revertmap.get(prot_acc);
-	//			thisprot.setAccession(prot_acc);			
-	//			thisprot.setDescription("Metagenome Unknown");			
-	//			// find the uniprotentry to this protein 
-	//			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(thisprot.getProteinid(), conn);
-	//			// and delete it
-	//			if (uniprotentry != null) {
-	//				uniprotentry.delete(conn);
-	//			}
-	//			thisprot.update(conn);
-	//			conn.commit();
-	//			Client.getInstance().firePropertyChange("progressmade", false, true);
-	//		}
-	//		conn.commit();
-	//		Client.getInstance().firePropertyChange("new message", null, "DELETING ENTRIES");
-	//		Client.getInstance().firePropertyChange("indeterminate", false,	true);
-	//		Client.getInstance().firePropertyChange("resetall", -1L, (long) deletelist.size());
-	//		Client.getInstance().firePropertyChange("resetcur", -1L, (long) deletelist.size());		
-	//		// cylce through proteins for deletion 
-	//		for (ProteinTableAccessor protein : deletelist) {
-	//			// find  omssahits to this protein 
-	//			List<OmssahitTableAccessor> omssahits = Omssahit.getHitsFromProteinid(protein.getProteinid(), conn);
-	//			for (OmssahitTableAccessor omssahit : omssahits) {
-	//				// and delete them
-	//				omssahit.delete(conn);
-	//			}
-	//			// find  mascothits to this protein 
-	//			List<MascothitTableAccessor> mascothits = Mascothit.getHitsFromProteinID(protein.getProteinid(), conn);
-	//			for (MascothitTableAccessor mascothit : mascothits) {
-	//				// and delete them
-	//				mascothit.delete(conn);
-	//			}
-	//			// find  mascothits to this protein 
-	//			List<XtandemhitTableAccessor> xtandemhits = XTandemhit.getHitsFromProteinID(protein.getProteinid(), conn);
-	//			for (XtandemhitTableAccessor xtandemhit : xtandemhits) {
-	//				// and delete them
-	//				xtandemhit.delete(conn);
-	//			}
-	//			// find  pep2prot to this protein 
-	//			List<Pep2prot> pep2prots = Pep2prot.get_pep2prots_for_proteinid(protein.getProteinid(), conn);
-	//			for (Pep2prot pep2prot : pep2prots) {
-	//				// and delete them
-	//				pep2prot.delete(conn);
-	//			}
-	//			// find the uniprotentry to this protein 
-	//			Uniprotentry uniprotentry = Uniprotentry.findFromProteinID(protein.getProteinid(), conn);
-	//			// and delete them
-	//			if (uniprotentry != null) {
-	//				uniprotentry.delete(conn);	
-	//			}			
-	//			// delete proteinhit, next item
-	//			protein.delete(conn);
-	//			conn.commit();
-	//			Client.getInstance().firePropertyChange("progressmade", false, true);
-	//		}
-	//		conn.commit();
-	//		Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS FINISHED");
-	//		Client.getInstance().firePropertyChange("indeterminate", false,	true);
-	//		Client.getInstance().firePropertyChange("resetall", -1L, 100L);
-	//		Client.getInstance().firePropertyChange("resetcur", -1L, 100L);		
-	//	}	
+
+		/**
+		 * deletes blast hits
+		 * 
+		 * @author K.Schallert
+		 * @throws SQLException 
+		 */	
+		public static void deleteblasthits() throws SQLException {
+			// connect to db
+			Connection conn = DBManager.getInstance().getConnection();
+			// find all blast proteins -> contain "_BLAST_"
+			List<ProteinTableAccessor> proteinlist = ProteinAccessor.findBlastHits(conn);
+			// Feedback
+			if (Client.getInstance() != null) {
+				long maxProgress = Long.valueOf(proteinlist.size());
+				Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS");
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
+				Client.getInstance().firePropertyChange("resetall", 0L, maxProgress);
+				Client.getInstance().firePropertyChange("resetcur", 0L, maxProgress);
+			}
+			// Iterate over proteinAccesors and delete their uniprot entries and change their description
+			for (ProteinTableAccessor prot : proteinlist) {
+				// delete uniprotentry
+				UniprotentryAccessor uniprotentry = UniprotentryAccessor.findFromID(prot.getFK_UniProtID(), conn);
+				uniprotentry.delete(conn);
+				
+				// change back protein entry
+				prot.setFK_uniProtID(-1L);
+				prot.setDescription(prot.getDescription().replace("BLAST_", ""));
+				String source_db_revert = prot.getSource().split("_")[1];
+				prot.setSource(source_db_revert);
+				prot.update(conn);
+				
+				// progress bar
+				Client.getInstance().firePropertyChange("progressmade", true, false);
+				// commit changes
+				conn.commit();
+			}
+			conn.commit();
+			// reset progress bar
+			if (Client.getInstance() != null) {
+				Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS FINISHED");
+			}
+		}	
 
 	//	/**
 	//	 * Class to create an UniProt entries in the SQL table

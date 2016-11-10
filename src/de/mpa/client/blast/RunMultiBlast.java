@@ -14,31 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.compomics.util.experiment.biology.Protein;
-
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
-import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
-import de.mpa.client.blast.DbEntry.DB_Type;
-import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.dialogs.BlastDialog.BlastResultOption;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Mascothit;
-import de.mpa.db.accessor.MascothitTableAccessor;
 import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.OmssahitTableAccessor;
-import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.ProteinAccessor;
-import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.UniprotentryAccessor;
-import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.db.accessor.XTandemhit;
-import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.io.fasta.DigFASTAEntry;
 
 /**
@@ -250,8 +237,8 @@ public class RunMultiBlast {
 				// Show progress
 				if (Client.getInstance() != null) {	
 					Client.getInstance().firePropertyChange("new message", null, "BLAST proteins " + noBLASTProts + " of " + proteins.size());
-					Client.getInstance().firePropertyChange("resetall", 0L, proteins.size());
-					Client.getInstance().firePropertyChange("resetcur", 0L, proteins.size());
+					Client.getInstance().firePropertyChange("resetall", -1L, (long) proteins.size());
+					Client.getInstance().firePropertyChange("resetcur", -1L, (long) proteins.size());
 //					Client.getInstance().firePropertyChange("indeterminate", true,	false);
 				}
 				
@@ -441,7 +428,8 @@ public class RunMultiBlast {
 			// Get list of all UniProtentries from the BLAST proposals
 			for (BlastHit blastHit : bestBlastHits) {
 				// get Uniprotentry from this uniprotid
-				Long fk_uniprotid = ProteinAccessor.findFromAttributes(blastHit.getAccession(), conn).getFK_UniProtID();
+				Long fk_uniprotid = ProteinAccessor.findUniprotidFromAccession(blastHit.getAccession(), conn);
+				//TODO: faster sql query 
 				upEntries.add(new UniProtEntryMPA(UniprotentryAccessor.findFromID(fk_uniprotid, conn)));
 			}
 			

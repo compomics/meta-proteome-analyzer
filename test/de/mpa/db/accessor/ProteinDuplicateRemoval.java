@@ -188,25 +188,6 @@ public class ProteinDuplicateRemoval {
 							conn.commit();							
 							xtandemhit_updates++;
 				        }
-						//
-						// inspecthit table
-						//
-						List<InspecthitTableAccessor> inspecthit_list = new ArrayList<InspecthitTableAccessor>();
-				        prs = conn.prepareStatement("select ih.* from inspecthit ih where ih.fk_proteinid = ?");
-				        prs.setLong(1, protid);
-				        aRS = prs.executeQuery();				        
-				        while (aRS.next()) {
-				        	InspecthitTableAccessor hit = new InspecthitTableAccessor(aRS);
-				        	inspecthit_list.add(hit);	
-				        }
-				        aRS.close();
-				        prs.close();				        
-				        for (InspecthitTableAccessor inspecthit : inspecthit_list) {
-				        	inspecthit.setFk_proteinid(current_chosen_id);
-				        	inspecthit.update(conn);
-							conn.commit();
-							inspecthit_updates++;
-				        }
 				        //
 				        // protein deletion last
 				        //

@@ -2,6 +2,7 @@ package de.mpa.blast;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import de.mpa.client.blast.BlastResult;
 import de.mpa.client.blast.DbEntry;
 import de.mpa.client.blast.DbEntry.DB_Type;
 import de.mpa.client.blast.RunMultiBlast;
+import de.mpa.io.fasta.DigFASTAEntry;
+import de.mpa.io.fasta.DigFASTAEntry.Type;
 
 /**
  * This class test to run and query a BLAST
@@ -23,33 +26,30 @@ import de.mpa.client.blast.RunMultiBlast;
  */
 public class RunMultipleQueryBlastTest extends TestCase{
 	
-	/**
-	 * The BLAST result object.
-	 */
-	private BlastResult blastRes;
 	
 	/**
 	 * input DbEntry list
 	 */
-	private List<DbEntry> entryList = new ArrayList<DbEntry>();
+	private ArrayList<DigFASTAEntry> entryList = new ArrayList<DigFASTAEntry>();
 
 	@Before
 	public void setUp() {
 
-		DbEntry dbEntry = new DbEntry("FIRST", "sp|KEY?|001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) GN=FV3-001R PE=4 SV=1", DB_Type.UNIPROTSPROT, null);
-		dbEntry.setSequence(	"MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPS" +
-				"EKGLIVGHFSGIKYKGEKAQASEVDVNKMCCWVSKFKDAMRRYQGIQTCKIPGKVLSDLD" +
-				"AKIKAYNLTVEGVEGFVRYSRVTKQHVAAFLKELRHSKQYENVNLIHYILTDKRVDIQHL" +
-				"EKDLVKDFKALVESAHRMRQGHMINVKYILYQLLKKHGHGPDGPDILTVKTGSKGVLYDD" +
-				"SFRKIYTDLGWKFTPL");
+		DigFASTAEntry dbEntry = new DigFASTAEntry("Q6GZX4", " sp|KEY?|001R_FRG3G Putative transcription factor", " Putative transcription factor",
+					"MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPS" +
+						"EKGLIVGHFSGIKYKGEKAQASEVDVNKMCCWVSKFKDAMRRYQGIQTCKIPGKVLSDLD" +
+						"AKIKAYNLTVEGVEGFVRYSRVTKQHVAAFLKELRHSKQYENVNLIHYILTDKRVDIQHL" +
+						"EKDLVKDFKALVESAHRMRQGHMINVKYILYQLLKKHGHGPDGPDILTVKTGSKGVLYDD" +
+						"SFRKIYTDLGWKFTPL", Type.Database.UNIPROTSPROT,null);
 		entryList.add(dbEntry);
-		
-		dbEntry = new DbEntry("SECOND", "sp|KEY?|001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) GN=FV3-001R PE=4 SV=1", DB_Type.UNIPROTSPROT, null);
-		dbEntry.setSequence(	"MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPS" +
+
+		dbEntry = new DigFASTAEntry("P6GZX4", " sp|KEY?|001R_FRG3G Putative transcription factor", " Putative transcription factor",
+				"AFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPS" +
 				"EKGLIVGHFSGIKYKGEKAQASEVDVNKMCCWVSKFKDAMRRYQGIQTCKIPGKVLSDLD" +
 				"AKIKAYNLTVEGVEGFVRYSRVTKQHVSAFLKELRHSKQYENVNLIHYILTDKRVDIQHL" +
 				"EKDLVKDFKALVESAHRMRQGHMINVKYILYQLLKKHGHGPDGPDILTVKTGSKGVLYDD" +
-				"SFRKIYTDLGWKFTPL");
+				"SFRKIYTDLGWKFTPL", Type.Database.UNIPROTSPROT,null);
+		
 		entryList.add(dbEntry);
 		
 	}
@@ -57,25 +57,17 @@ public class RunMultipleQueryBlastTest extends TestCase{
 	@Test
 	public void testBlast(){
 		
+		HashMap<String, BlastResult> blastRes = null; 
 		// Execute BLAST
-		RunMultiBlast blaster = new RunMultiBlast(Constants.BLAST_FILE, Constants.BLAST_UNIPROT_DB, Constants.BLAST_EVALUE, entryList);
 		try {
-			blaster.startBlast();
+			blastRes = RunMultiBlast.performBLAST(entryList, Constants.BLAST_FILE, Constants.BLAST_UNIPROT_DB, Constants.BLAST_EVALUE);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		blastRes = blaster.getBlastResultMap().get("FIRST");
-//				for (Entry<String, BlastHit> entry : blastRes.getBlastHitsMap().entrySet()) {
-//					System.out.println("key " + entry.getKey());
-//					System.out.println("hit name " + entry.getValue().getName());
-//					System.out.println("hit accesion " + entry.getValue().getAccession());
-//				}
 
 		// Check Blast hits
-		Map<String, BlastHit> blastHitsMap = blastRes.getBlastHitsMap();
-		assertEquals(3, blastHitsMap.size());
-		assertEquals(533.0, blastHitsMap.get("Q6GZX4").getScore());
-		assertEquals(0.0, blastHitsMap.get("Q6GZX4").geteValue());
+		assertEquals(2, blastRes.size());
+		assertEquals(533.0, blastRes.get("Q6GZX4").getBestBitScoreBlastHit().getScore());
+		assertEquals(0.0, blastRes.get("Q6GZX4").getBestEValueBlastHit().geteValue());
 	}
 }

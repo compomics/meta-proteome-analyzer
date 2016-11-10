@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -33,6 +35,7 @@ import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DBDumper;
+import de.mpa.db.accessor.ProteinAccessor;
 
 /**
  * The main application frame's menu bar.
@@ -274,26 +277,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 		JMenu updateMenu = new JMenu();		
 		updateMenu.setText("Update");
 
-		// fill in information for UniProt 100 90 50 etc. References
-		JMenuItem updateUniProtItem = new JMenuItem();
-		updateUniProtItem.setText("Repair UniProt-Entries");
-		updateUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
-		updateUniProtItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				new SwingWorker<Object, Object>() {
-					@Override
-					protected Object doInBackground() throws SQLException {
-						UniProtUtilities uniprot =  new UniProtUtilities();
-						// this method checks all uniprotentries and looks if there is something missing						
-//						List<RepairEntry> uniprots_for_repair = uniprot.find_incomplete_uniprotentries();
-//						System.out.println("list: "+uniprots_for_repair.size());
-//						// this method will try to fill up missing stuff
-//						uniprot.repair_uniprotentries(uniprots_for_repair);
-						return null;
-					}
-				}.execute();
-			}
-		});
 		// Find unreferenced UniProt entries in the database and try to fill them
 		JMenuItem updateEmptyUniProtItem = new JMenuItem();
 		updateEmptyUniProtItem.setText("Update empty UniProt Entries");
@@ -303,18 +286,22 @@ public class ClientFrameMenuBar extends JMenuBar {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws SQLException  {
-//						UniProtUtilities uniprotweb = new UniProtUtilities();
-//						// find all proteins in the database and pass them to BLAST
-//						Map<String, Long> proteins = ProteinAccessor.findAllProteinsWithID(Client.getInstance().getConnection());
-//						// filter list to proteins for uniprot-retrueval
-//						Map<String, List<Long>> update_protein_map = uniprotweb.find_unlinked_proteins(proteins);
-//						// make uniprotentries from proteinlist
-//						uniprotweb.make_uniprot_entries(update_protein_map);
+						UniProtUtilities uniprotweb = new UniProtUtilities();
+						// find all proteins in the database and pass them to BLAST
+						List<ProteinAccessor> proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(Client.getInstance().getConnection());
+						// update uniprot for each proteinaccessor
+						for (ProteinAccessor prot : proteins) {
+							prot.updateUniprotForProtein(Client.getInstance().getConnection());
+						}
+						Client.getInstance().firePropertyChange("new message", null, "UPDATING UNIPROT ENTRIES FINISHED");
+						Client.getInstance().firePropertyChange("indeterminate", true,	false);
 						return null;
 					}	
 				}.execute();
 			}
 		});
+		
+		
 		// Find unreferenced UniProt entries in the database and try to BLAST them if necessary
 		JMenuItem blastItem = new JMenuItem();
 		blastItem.setText("BLAST unknown Hits");
@@ -337,22 +324,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 				        "Warning", 
 				        JOptionPane.WARNING_MESSAGE);
 				if ((confirmCode != null) && (confirmCode.equals("DELETE"))) {										
-//					try {						
-////						UniProtUtilities.deleteblasthits();						
-//					} catch (SQLException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
+					try {						
+						UniProtUtilities.deleteblasthits();						
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
-		// Add items to update menu
-		updateMenu.add(updateUniProtItem);
-		updateMenu.add(updateEmptyUniProtItem);
-		updateMenu.add(blastItem);
-		updateMenu.add(blastDeleteItem);
-		updateMenu.addSeparator();
 		
+		
+
 		// Help Menu
 		JMenuItem updateNcbiTaxItem = new JMenuItem();		
 		updateNcbiTaxItem.setText("Update NCBI Taxonomy");
@@ -376,13 +359,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 		
 		// Add items to update menu
-		updateMenu.add(updateUniProtItem);
-		updateMenu.add(updateEmptyUniProtItem);
-		updateMenu.add(blastItem);
-		updateMenu.addSeparator();
+		updateMenu.add(addFastaDbItem);
 		updateMenu.add(updateNcbiTaxItem);
 		updateMenu.addSeparator();
-		updateMenu.add(addFastaDbItem);
+		updateMenu.add(updateEmptyUniProtItem);
+		updateMenu.addSeparator();
+		updateMenu.add(blastItem);
+		updateMenu.add(blastDeleteItem);
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		

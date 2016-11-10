@@ -256,7 +256,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 	 * @return Map of proteinID (key) to uniProtID
 	 * @throws SQLException when the persistence did not succeed.
 	 */
-	public static TreeMap<Long, Long> addMultipleUniProtEntriesToDatabase(TreeMap<Long, UniProtEntryMPA> uniProtList, Connection conn) throws SQLException{
+	public static TreeMap<Long, Long> addMultipleUniProtEntriesToDatabase(TreeMap<Long, UniProtEntryMPA> uniprotid2uniprotentrymap, Connection conn) throws SQLException{
 
 		// Map with the the accession and the uniprotID
 		TreeMap<Long, Long> uniProtIDMap = new TreeMap<Long, Long>();
@@ -267,10 +267,10 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 
 
 		// Add all FASTA entries to the sql statement
-		for (Long protID : uniProtList.keySet()) {
-			if (uniProtList.get(protID) != null) {
+		for (Long protID : uniprotid2uniprotentrymap.keySet()) {
+			if (uniprotid2uniprotentrymap.get(protID) != null) {
 				// Get the UniProt Entry
-				UniProtEntryMPA uniProtEntry = uniProtList.get(protID);
+				UniProtEntryMPA uniProtEntry = uniprotid2uniprotentrymap.get(protID);
 				
 				// UniProtEntry is unknown at the beginning
 				lStat.setNull(1, 4);
