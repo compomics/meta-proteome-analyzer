@@ -42,10 +42,8 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
-import de.mpa.client.ui.dialogs.FetchSpectraDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
-import de.mpa.client.ui.dialogs.NewBlastDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
 
