@@ -28,8 +28,6 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.settings.CruxParameters;
-import de.mpa.client.settings.InspectParameters;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
@@ -103,15 +101,15 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	private ParameterMap omssaParams = new OmssaParameters();
 
-	/**
-	 * Parameter map containing advanced settings for the Crux search engine.
-	 */
-	private ParameterMap cruxParams = new CruxParameters();
-
-	/**
-	 * Parameter map containing advanced settings for the InsPecT search engine.
-	 */
-	private ParameterMap inspectParams = new InspectParameters();
+//	/**
+//	 * Parameter map containing advanced settings for the Crux search engine.
+//	 */
+//	private ParameterMap cruxParams = new CruxParameters();
+//
+//	/**
+//	 * Parameter map containing advanced settings for the InsPecT search engine.
+//	 */
+//	private ParameterMap inspectParams = new InspectParameters();
 
 	/**
 	 * Parameter map containing advanced settings for uploading imported Mascot search engine results.
@@ -133,15 +131,15 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	private JCheckBox omssaChk;
 	
-	/**
-	 * Checkbox for using Crux search engine.
-	 */
-	private JCheckBox cruxChk;
-	
-	/**
-	 * Checkbox for using InsPect search engine.
-	 */
-	private JCheckBox inspectChk;
+//	/**
+//	 * Checkbox for using Crux search engine.
+//	 */
+//	private JCheckBox cruxChk;
+//	
+//	/**
+//	 * Checkbox for using InsPect search engine.
+//	 */
+//	private JCheckBox inspectChk;
 	
 	/**
 	 * Checkbox for using Mascot search engine.
@@ -283,35 +281,35 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		cruxChk = new JCheckBox("Crux", false);
-		cruxChk.setIconTextGap(10);
-		final JButton cruxSetBtn = this.createSettingsButton();
-		cruxSetBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
-			}
-		});
-		cruxChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				cruxSetBtn.setEnabled(cruxChk.isSelected());
-			}
-		});
-		
-		inspectChk = new JCheckBox("InsPecT", false);
-		inspectChk.setIconTextGap(10);
-		final JButton inspectSetBtn = this.createSettingsButton();
-		inspectSetBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
-			}
-		});
-		inspectChk.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				inspectSetBtn.setEnabled(inspectChk.isSelected());
-			}
-		});
+//		cruxChk = new JCheckBox("Crux", false);
+//		cruxChk.setIconTextGap(10);
+//		final JButton cruxSetBtn = this.createSettingsButton();
+//		cruxSetBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent evt) {
+//				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Crux Advanced Parameters", true, cruxParams);
+//			}
+//		});
+//		cruxChk.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent evt) {
+//				cruxSetBtn.setEnabled(cruxChk.isSelected());
+//			}
+//		});
+//		
+//		inspectChk = new JCheckBox("InsPecT", false);
+//		inspectChk.setIconTextGap(10);
+//		final JButton inspectSetBtn = this.createSettingsButton();
+//		inspectSetBtn.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent evt) {
+//				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "InsPecT Advanced Parameters", true, inspectParams);
+//			}
+//		});
+//		inspectChk.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent evt) {
+//				inspectSetBtn.setEnabled(inspectChk.isSelected());
+//			}
+//		});
 		
 		mascotChk = new JCheckBox("Mascot", false);
 		mascotChk.setIconTextGap(10);
@@ -356,12 +354,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
 		searchEngPnl.add(omssaChk, CC.xy(2, 4));
 		searchEngPnl.add(omssaSetBtn, CC.xy(4, 4));
-		searchEngPnl.add(cruxChk, CC.xy(2, 6));
-		searchEngPnl.add(cruxSetBtn, CC.xy(4, 6));
-		searchEngPnl.add(inspectChk, CC.xy(2, 8));
-		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
-		searchEngPnl.add(mascotChk, CC.xy(2, 10));
-		searchEngPnl.add(mascotSetBtn, CC.xy(4, 10));
+//		searchEngPnl.add(cruxChk, CC.xy(2, 6));
+//		searchEngPnl.add(cruxSetBtn, CC.xy(4, 6));
+//		searchEngPnl.add(inspectChk, CC.xy(2, 8));
+//		searchEngPnl.add(inspectSetBtn, CC.xy(4, 8));
+		searchEngPnl.add(mascotChk, CC.xy(2, 6));
+		searchEngPnl.add(mascotSetBtn, CC.xy(4, 6));
 //		searchEngPnl.add(specLibChk, CC.xy(2, 12));
 //		searchEngPnl.add(specLibSetBtn, CC.xy(4, 12));
 
@@ -408,15 +406,15 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			dbSettings.setOmssaParams(omssaParams.toString());
 		}
 		
-		if (cruxChk.isSelected()) {
-			dbSettings.setCrux(true);
-			dbSettings.setCruxParams(cruxParams.toString());
-		}
-		
-		if (inspectChk.isSelected()) {
-			dbSettings.setInspect(true);
-			dbSettings.setInspectParams(inspectParams.toString());
-		}
+//		if (cruxChk.isSelected()) {
+//			dbSettings.setCrux(true);
+//			dbSettings.setCruxParams(cruxParams.toString());
+//		}
+//		
+//		if (inspectChk.isSelected()) {
+//			dbSettings.setInspect(true);
+//			dbSettings.setInspectParams(inspectParams.toString());
+//		}
 		
 		dbSettings.setMascot(mascotChk.isSelected());
 		
@@ -497,21 +495,21 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		return omssaParams;
 	}
 	
-	/**
-	 * Returns the Crux parameter map.
-	 * @return ParameterMap for Crux.
-	 */
-	public ParameterMap getCruxParameterMap() {
-		return cruxParams;
-	}
-	
-	/**
-	 * Returns the Inspect parameter map.
-	 * @return ParameterMap for Inspect
-	 */
-	public ParameterMap getInspectParameterMap() {
-		return inspectParams;
-	}
+//	/**
+//	 * Returns the Crux parameter map.
+//	 * @return ParameterMap for Crux.
+//	 */
+//	public ParameterMap getCruxParameterMap() {
+//		return cruxParams;
+//	}
+//	
+//	/**
+//	 * Returns the Inspect parameter map.
+//	 * @return ParameterMap for Inspect
+//	 */
+//	public ParameterMap getInspectParameterMap() {
+//		return inspectParams;
+//	}
 	
 	/**
 	 * Returns the MASCOT parameter map.

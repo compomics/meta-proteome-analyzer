@@ -2,7 +2,6 @@ package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
@@ -10,7 +9,6 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.db.accessor.UniprotentryAccessor;
 
 /**

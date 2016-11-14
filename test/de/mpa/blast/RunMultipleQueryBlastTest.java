@@ -3,8 +3,6 @@ package de.mpa.blast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -12,10 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.mpa.client.Constants;
-import de.mpa.client.blast.BlastHit;
 import de.mpa.client.blast.BlastResult;
-import de.mpa.client.blast.DbEntry;
-import de.mpa.client.blast.DbEntry.DB_Type;
 import de.mpa.client.blast.RunMultiBlast;
 import de.mpa.io.fasta.DigFASTAEntry;
 import de.mpa.io.fasta.DigFASTAEntry.Type;

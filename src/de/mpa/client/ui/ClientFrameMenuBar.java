@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;

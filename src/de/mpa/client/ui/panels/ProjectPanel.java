@@ -130,21 +130,21 @@ public class ProjectPanel extends JPanel {
 	 */
 	private JButton skipBtn;
 	
-	/**
-	 * The 'Fetch Spectra' button
-	 */
-	private JButton specBtn;
-	
-	/**
-	 * The 'Blast Results' button
-	 */
-	private JButton blastBtn;
-
-	/**
-	 * The 'Query Uniprot' button
-	 */
-	private JButton uniBtn;
-	
+//	/**
+//	 * The 'Fetch Spectra' button
+//	 */
+//	private JButton specBtn;
+//	
+//	/**
+//	 * The 'Blast Results' button
+//	 */
+//	private JButton blastBtn;
+//
+//	/**
+//	 * The 'Query Uniprot' button
+//	 */
+//	private JButton uniBtn;
+//	
 	/**
 	 * Flag denoting whether this panel is currently busy.
 	 */
@@ -593,9 +593,9 @@ public class ProjectPanel extends JPanel {
 				// enable buttons
 				modifyExperimentBtn.setEnabled(true);
 				deleteExperimentBtn.setEnabled(true);
-				specBtn.setEnabled(true);
-				blastBtn.setEnabled(true);
-				uniBtn.setEnabled(true);
+//				specBtn.setEnabled(true);
+//				blastBtn.setEnabled(true);
+//				uniBtn.setEnabled(true);
 				
 				clientFrame.getResultsPanel().setProcessingEnabled(false);
 				
@@ -902,9 +902,9 @@ public class ProjectPanel extends JPanel {
 		this.deleteExperimentBtn.setEnabled(!busy);
 		this.nextBtn.setEnabled(!busy);
 		this.skipBtn.setEnabled(!busy);
-		this.specBtn.setEnabled(!busy);
-		this.blastBtn.setEnabled(!busy);
-		this.uniBtn.setEnabled(!busy);
+//		this.specBtn.setEnabled(!busy);
+//		this.blastBtn.setEnabled(!busy);
+//		this.uniBtn.setEnabled(!busy);
 		
 		this.experimentTbl.setEnabled(!busy);
 		this.projectTbl.setEnabled(!busy);

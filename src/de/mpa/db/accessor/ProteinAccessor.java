@@ -13,8 +13,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.ws.rs.core.NewCookie;
-
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.io.fasta.DigFASTAEntry;
@@ -280,32 +278,36 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	//		return protein;
 	//    }
 
-	//	/**
-	//     * Adds a new protein with a specific peptide id, accession and description to the database..
-	//     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
-	//     * @param accession String with the accession of the protein to find.
-	//     * @param description String with the description of the protein to find.
-	//     * @param conn The database connection object.
-	//     * @return protein The newly created Protein object.
-	//     * @throws SQLException when the persistence did not succeed.
-	//     */
-	//    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, Connection conn) throws SQLException{
-	//    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(4);
-	//		dataProtein.put(ProteinAccessor.ACCESSION, accession);
-	//		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
-	//		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
-	//		ProteinAccessor protein = new ProteinAccessor(dataProtein);
-	//		protein.persist(conn);
-	//
-	//		// get the protein id from the generated keys.
-	//		Long proteinID = (Long) protein.getGeneratedKeys()[0];
-	//		
-	//		// since this is a new protein we also create a new pep2prot entry
-	//		// to link it to the peptide (no redundancy check needed)
-	//		Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-	//		
-	//		return protein;
-	//    }
+		/**
+	     * Adds a new protein with a specific peptide id, accession and description to the database..
+	     * @param peptideID Long with the peptide id of the peptide belonging to the new protein.
+	     * @param accession String with the accession of the protein to find.
+	     * @param description String with the description of the protein to find.
+	     * @param source. The type of the fasta entry.
+	     * @param uniprotId. The id of the uniprot table.
+	     * @param conn The database connection object.
+	     * @return protein The newly created Protein object.
+	     * @throws SQLException when the persistence did not succeed.
+	     */
+	    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, DigFASTAEntry.Type source, Long uniprotid, Connection conn) throws SQLException{
+	    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(6);
+			dataProtein.put(ProteinAccessor.ACCESSION, accession);
+			dataProtein.put(ProteinAccessor.DESCRIPTION, description);
+			dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
+			dataProtein.put(ProteinAccessor.SOURCE, source.toString());
+			dataProtein.put(ProteinAccessor.FK_UNIPROTID, uniprotid);
+			ProteinAccessor protein = new ProteinAccessor(dataProtein);
+			protein.persist(conn);
+	
+			// get the protein id from the generated keys.
+			Long proteinID = (Long) protein.getGeneratedKeys()[0];
+			
+			// since this is a new protein we also create a new pep2prot entry
+			// to link it to the peptide (no redundancy check needed)
+			Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+			
+			return protein;
+	    }
 
 	/** 
 	 * Static method to retrieve all proteins that do not have a uniprotentry associated to them 
@@ -362,13 +364,13 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return protein The newly created Protein object.
 	 * @throws SQLException when the persistence did not succeed.
 	 */
-	public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, String type, Long UniProtID, Connection conn) throws SQLException{
+	public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, DigFASTAEntry.Type type, Long UniProtID, Connection conn) throws SQLException{
 		HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(5);
 		dataProtein.put(ProteinAccessor.ACCESSION, accession);
 		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
 		dataProtein.put(ProteinAccessor.SEQUENCE, sequence);
 		dataProtein.put(ProteinAccessor.FK_UNIPROTID, UniProtID);
-		dataProtein.put(ProteinAccessor.SOURCE, type);
+		dataProtein.put(ProteinAccessor.SOURCE, type.toString());
 		ProteinAccessor protein = new ProteinAccessor(dataProtein);
 		protein.persist(conn);
 

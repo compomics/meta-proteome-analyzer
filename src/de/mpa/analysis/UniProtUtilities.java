@@ -38,9 +38,7 @@ import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.Taxonomy;
-import de.mpa.db.accessor.TaxonomyTableAccessor;
 import de.mpa.db.accessor.UniprotentryAccessor;
-import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.io.fasta.DigFASTAEntry;
 import de.mpa.main.Starter;
 

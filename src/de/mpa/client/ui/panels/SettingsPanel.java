@@ -406,6 +406,7 @@ public class SettingsPanel extends JPanel {
 						client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
 						// Store Mascot results
 						settings.setExpID(datFileEntry.getKey());
+						
 						MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), 
 									datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
 						storager.run();
