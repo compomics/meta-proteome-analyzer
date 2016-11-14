@@ -1,23 +1,37 @@
 package de.mpa.db;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.ui.ClientFrame;
+import de.mpa.db.accessor.ProjectAccessor;
 
+/**
+ * Class to dump and restore sql databases
+ * @author R. Heyer
+ *
+ */
 public class DBDumper {
 	
+	/**
+	 * Method to dump the database
+	 * @param filePath. The file for the dump
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public static void dumpDatabase(String filePath) throws SQLException, IOException {
 		
-		// get connection settings
+		// get connection settings + database parameters
 		ParameterMap para = Client.getInstance().getConnectionParameters();
-		String user = (String) para.get("dbUsername").getValue();
-		String pass = (String) para.get("dbPass").getValue();
+		String dbUser = (String) para.get("dbUsername").getValue();
+		String dbPass = (String) para.get("dbPass").getValue();
+		String dbName = (String) para.get("dbName").getValue();
 		File targetFile = new File(filePath);
 		
 		// check operating system
@@ -37,39 +51,43 @@ public class DBDumper {
 			command = "mysqldump";
 		}
 		
-		Client.getInstance().firePropertyChange("new message", null, "DUMPING DATABASE TO " + targetFile.getName());
-		Client.getInstance().firePropertyChange("indeterminate", false,	true);
-		
-		// run MYSQLDUMP
-		Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec(command + " -u " + user + " -p " + pass + " " + " --add-drop-database metaprot");
-        // get streams
-        InputStream in = pr.getInputStream();
-        FileOutputStream out = new FileOutputStream(targetFile);
-        // write the output to file
-        byte[] buf=new byte[1024];
-        int bytes_read;
-        while ((bytes_read = in.read(buf)) != -1) {
-            out.write(buf, 0, bytes_read);
-        }
-        try {
-			pr.waitFor();
+		// Show progress
+		if (Client.getInstance() != null) {
+			Client.getInstance().firePropertyChange("new message", null, "DUMPING DATABASE TO " + targetFile.getName());
+			Client.getInstance().firePropertyChange("indeterminate", false,	true);	
+		}
+		//***********************************************************/
+		// Execute Shell Command
+		//***********************************************************/
+		String executeCmd = "";
+		executeCmd = command +" -u "+dbUser+" -p"+dbPass+" "+ dbName + " -r " + targetFile.getAbsolutePath();
+		Process runtimeProcess =Runtime.getRuntime().exec(executeCmd);
+		try {
+			runtimeProcess.waitFor();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        out.close();
-        
-        Client.getInstance().firePropertyChange("indeterminate", true, false);
-		Client.getInstance().firePropertyChange("new message", null, "DATABSE DUMP FINISHED");
-		
+
+		// Show progress
+		if (Client.getInstance() != null) {
+	        Client.getInstance().firePropertyChange("indeterminate", true, false);
+			Client.getInstance().firePropertyChange("new message", null, "DATABSE DUMP FINISHED");
+		}
 	}
 	
+	/**
+	 * DROPP the old database and restore the selected one from the back
+	 * @param filePath. The path of the sql backup
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public static void restoreDatabase(String filePath) throws SQLException, IOException {
 		
-		// get connection settings
+		// get connection settings + database parameters
 		ParameterMap para = Client.getInstance().getConnectionParameters();
-		String user = (String) para.get("dbUsername").getValue();
-		String pass = (String) para.get("dbPass").getValue();
+		String dbUser = (String) para.get("dbUsername").getValue();
+		String dbPass = (String) para.get("dbPass").getValue();
+		String dbName = (String) para.get("dbName").getValue();
 		File targetFile = new File(filePath);
 		
 		// check operating system
@@ -89,38 +107,35 @@ public class DBDumper {
 			command = "mysql";
 		}
 		
-		Client.getInstance().firePropertyChange("new message", null, "RESTORING DATABASE FROM " + targetFile.getName());
-		Client.getInstance().firePropertyChange("indeterminate", false,	true);
-		Client.getInstance().closeDBConnection();
+		// Show progress
+		if (Client.getInstance() != null) {
+			Client.getInstance().firePropertyChange("new message", null, "RESTORING DATABASE FROM " + targetFile.getName());
+			Client.getInstance().firePropertyChange("indeterminate", false,	true);	
+		}
 		
-		// run MYSQLDUMP
-        try {
-		Runtime rt = Runtime.getRuntime();
-		String runner = (command + " -u" + user + " -p" + pass + " metaprot < " + targetFile.getAbsolutePath());
-		// batch file work around because Runtime.exec does not work
-			String fileEnd = winOS ? ".bat" : ".sh";
-			File f = winOS ?
-					File.createTempFile("dumper", fileEnd):
-					new File("/scratch/metaprot/sql/" + "dumper" + fileEnd);
-		    FileOutputStream fos = new FileOutputStream(f);
-		    fos.write(runner.getBytes());
-		    fos.close();
-			f.setReadable(true, false);
-			f.setWritable(true, false);
-			f.setExecutable(true, false);
-		    Process pr = rt.exec(f.getAbsolutePath());
-        
-			pr.waitFor();
-		f.delete();
-		} catch (Exception e) {
+		//***********************************************************/
+		// Execute Shell Command
+		//***********************************************************/
+		// Delete database
+		Connection conn = DBManager.getInstance().getConnection();
+		 Statement statement = conn.createStatement();
+         // create the DB .. 
+         statement.executeUpdate("DROP DATABASE IF EXISTS " + dbName) ;
+         // create table ...
+         statement.executeUpdate("CREATE DATABASE " + dbName);
+		
+		String[] executeCmd = new String[]{"/bin/sh", "-c", "mysql -u" + dbUser+ " -p"+dbPass+" " + dbName+ " < " +  targetFile.getAbsolutePath() };
+		Process runtimeProcess =Runtime.getRuntime().exec(executeCmd);
+		try {
+			runtimeProcess.waitFor();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        
-        Client.getInstance().firePropertyChange("indeterminate", true, false);
-		Client.getInstance().firePropertyChange("new message", null, "DATABASE RESTORE FINISHED");
-		Client.getInstance().connectToServer();
-		
-		// refresh the ProjectPanel to reflect new state of the database
-		ClientFrame.getInstance().getProjectPanel().refreshProjectTable();
+
+		// Show progress
+		if (Client.getInstance() != null) {
+	        Client.getInstance().firePropertyChange("indeterminate", true, false);
+			Client.getInstance().firePropertyChange("new message", null, "DATABASE RESTORE FINISHED");
+		}
 	}
 }
