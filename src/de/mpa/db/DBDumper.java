@@ -3,14 +3,11 @@ package de.mpa.db;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.db.accessor.ProjectAccessor;
 
 /**
  * Class to dump and restore sql databases

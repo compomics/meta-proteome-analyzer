@@ -24,6 +24,7 @@ import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.panels.ComparePanel.CompareData;
+import de.mpa.io.fasta.DigFASTAEntry;
 
 
 /**
@@ -108,6 +109,11 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * The Exponentially Modified Protein Abundance Index of the protein hit.
 	 */
 	private double empai = -1.0;
+	
+	/**
+	 * The type of database this protein originated in.
+	 */
+	private DigFASTAEntry.Type databaseType; 
 
 	/**
 	 * The UniProt entry hit object containing additional meta-data.
@@ -198,6 +204,25 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		return accession;
 	}
 	
+	
+	/**
+	 * 	Return the database type
+	 * 
+	 * @return databaseType
+	 */
+	public DigFASTAEntry.Type getDatabaseType() {
+		return databaseType;
+	}
+	
+	/**
+	 * Set the database type.
+	 * 
+	 * @param databaseType
+	 */
+	public void setDatabaseType(DigFASTAEntry.Type databaseType) {
+		this.databaseType = databaseType;
+	}
+
 	/**
 	 * Sets the protein accession.
 	 * @param accession the accession to set

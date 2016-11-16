@@ -455,7 +455,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 					// start of mascot block
 					// construct result set --> should reduce select * to specific columns to save memory? 
 					ps = conn.prepareStatement("SELECT mascothit.mascothitid, mascothit.fk_searchspectrumid, mascothit.fk_proteinid, " +
-							"searchspectrum.searchspectrumid, searchspectrum.fk_spectrumid, protein.accession, " + 
+							"searchspectrum.searchspectrumid, searchspectrum.fk_spectrumid, protein.accession,protein.fk_uniprotentryid, " + 
 							"searchspectrum.fk_experimentid " +
 							"FROM searchspectrum " +
 							"INNER JOIN mascothit on mascothit.fk_searchspectrumid=searchspectrum.searchspectrumid " + 
@@ -468,12 +468,15 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 					while (rs.next()) {
 						String complete_accession = rs.getString("protein.accession");
 						PreparedStatement ps2 = conn.prepareStatement("SELECT mascothit.*, " +
-								"protein.description, protein.sequence, protein.proteinid, protein.accession, " + 
+								"protein.description, protein.sequence, protein.proteinid, protein.accession,protein.fk_uniprotentryid, " + 
 								"peptide.sequence " +
 								"FROM mascothit " +
 								"INNER JOIN protein on protein.proteinid=mascothit.fk_proteinid " +
 								"INNER JOIN peptide on peptide.peptideid=mascothit.fk_peptideid " +
 								"WHERE mascothit.mascothitid = ?");
+						
+						
+						
 						ps2.setLong(1, rs.getLong("mascothit.mascothitid"));
 						ResultSet rs2 = ps2.executeQuery();
 						rs2.next();

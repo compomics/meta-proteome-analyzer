@@ -65,8 +65,7 @@ public class DigFASTAEntry {
 	 * The type of DB_Type
 	 */
 	private Type type;
-	
-	
+
 	/**
 	 * The type of DB_Type
 	 */

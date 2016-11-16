@@ -25,7 +25,10 @@ import com.compomics.mascotdatfile.util.mascot.Query;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.SearchSettings;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.settings.MascotParameters.FilteringParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
@@ -36,9 +39,11 @@ import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.UniprotentryAccessor;
+import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.db.extractor.SpectrumExtractor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.SixtyFourBitStringSupport;
+import de.mpa.io.fasta.DigFASTAEntry;
 import de.mpa.io.fasta.FastaLoader;
 
 public class MascotStorager extends BasicStorager {
@@ -132,6 +137,8 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("new message", null, "CACLULATING SCORE THRESHOLD");
 		client.firePropertyChange("indeterminate", true, true);
 		double scoreThreshold = this.getScoreThreshold();	
+		// instantiate uniprot-webservice
+		UniProtUtilities uniprotweb = new UniProtUtilities();
 		// Get experiment id.
 		long experimentId = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID();
 		// This code extracts spectra that are added through other search engines
@@ -167,7 +174,7 @@ public class MascotStorager extends BasicStorager {
 		// protein map with accession as key
 		HashMap<String, MascotProteinHit> protein_map = new HashMap<>();
 		// we can't store all spectra in memory, instead we have to do this while parsing
-		try {		           
+		try {    
 			if (!(this.file.exists())) {
 				throw new IllegalArgumentException("raw Mascot datfile from " + this.file + " does not exist.");
 			}		            
@@ -256,7 +263,7 @@ public class MascotStorager extends BasicStorager {
 							}	
 						}
 						// peptide section contains a lot of useful stuff
-						if ("peptides".equalsIgnoreCase(currentsection)) {		            			
+						if ("peptides".equalsIgnoreCase(currentsection)) {
 							if (line.startsWith("q")) {
 								String[] general_peptideentry_split = line.split("=");
 								// we only need the main entries (not "terms" and "subst")
@@ -308,14 +315,15 @@ public class MascotStorager extends BasicStorager {
 										// at this point i can add protein data
 										for (String accession : proteinlist) {
 											if (protein_map.containsKey(accession)) {
+												// TODO: this if clause is obsolete
 												// add new peptide to protein
-												protein_map.get(accession).addPeptide(pep_hit);
+												protein_map.get(accession).addPeptideHit(pep_hit);
 											} else {
 												// add new protein to map
 												MascotProteinHit protein_hit = new MascotProteinHit(accession);
 												// and then add the peptide
 												//TODO KAY this order was changed might be the reason of the error
-												protein_hit.addPeptide(pep_hit);
+//												protein_hit.addPeptide(pep_hit);
 												protein_map.put(accession, protein_hit);
 
 											}
@@ -337,7 +345,7 @@ public class MascotStorager extends BasicStorager {
 										String description = split[1].split("[,]",2)[1]; 
 										// If map does not contain this entry, it was filtered out.
 										if (protein_map.containsKey(accession)) {
-											protein_map.get(accession).adddescription(description);
+											protein_map.get(accession).setDescription(description);
 										}
 									}
 								}
@@ -361,37 +369,23 @@ public class MascotStorager extends BasicStorager {
 								// first get accessions and proteinids from the protein table
 								client.firePropertyChange("new message", null, "QUERYING DATABASE FOR PROTEIN ENTRIES");
 								client.firePropertyChange("indeterminate", true, true);
+								// TODO: check if this leads to crashes for very large protein tables
 								PreparedStatement prs = conn.prepareStatement("SELECT protein.proteinid, protein.accession, protein.fk_uniprotentryid FROM protein");
 								ResultSet aRS = prs.executeQuery();
 								// look through them
 								while (aRS.next()) {
 									//if ((test_count_1 % 1000) == 0) {System.out.println("DB-lookup: "+test_count_1);}
 									// and determine if an accession is already in there
-									String accession = (String)aRS.getObject("accession");
+									String accession = (String) aRS.getObject("accession");
 									if (protein_map.containsKey(accession)) {
-										if (protein_map.get(accession).set_this_protein_was_submitted()) {
+										// Check whether this protein is redundant in the DAT file
+										if (protein_map.get(accession).was_this_protein_submitted()) {
 											System.out.println("Duplicate protein entry: "+accession);		            							
 										} else {
-											// and store the info
+											// and store the proteinid
 											long proteinID = aRS.getLong("proteinid");
-											protein_map.get(accession).addproteinid(proteinID);
+											protein_map.get(accession).setProteinID(proteinID);
 											protein_map.get(accession).set_this_protein_is_in_DB();
-											long uniprotID = aRS.getLong("fk_uniprotentryid");
-										 	
-											
-											// for uniprot, protein is already stored in database, re-use existing ID
-											UniprotentryAccessor uniprotEntry = UniprotentryAccessor.findFromID(uniprotID, conn);
-											// unless it misses a uniprot entry
-											//TODO FIX new mascot uniprots
-											if (upe == null) {
-												if (uniProtCandidates.containsKey(accession)) {
-													uniProtCandidates.get(accession).add(proteinID);
-												} else {
-													List<Long> prot_id_list = new ArrayList<Long>();
-													prot_id_list.add(proteinID);
-													uniProtCandidates.put(accession, prot_id_list);
-												}
-											}
 										}
 									}
 								}
@@ -421,7 +415,6 @@ public class MascotStorager extends BasicStorager {
 									Long spectrumId = specTitleMap.get(current_query.getTitle());
 									Long searchspectrumID = null;
 									if (spectrumId != null) {
-										//TODO: CHECK IF THIS METHOD WORKS PROPERLY
 										searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumId, experimentId, conn).getSearchspectrumid();
 									} else {
 										spectrumId = this.storeSpectrum(current_query);			        						
@@ -439,7 +432,7 @@ public class MascotStorager extends BasicStorager {
 									for (int peptide_number : peptidemap.keySet()) {					
 										// Fill the peptide table and get peptideID
 										MascotPeptideHit current_pephit = peptidemap.get(peptide_number);
-										String pep_sequence = current_pephit.getsequence();	        						
+										String pep_sequence = current_pephit.getSequence();	        						
 										long peptideID = this.storePeptide(pep_sequence);
 										// Store peptide-spectrum association 
 										this.storeSpec2Pep(searchspectrumID, peptideID);
@@ -448,26 +441,45 @@ public class MascotStorager extends BasicStorager {
 										// we need accession protein description and full sequence and the proteinID
 										Long proteinID = null;
 										// get all accessions from current peptide
-										for (String prot_acc : peptidemap.get(peptide_number).getproteins()) {
+										for (String prot_acc : peptidemap.get(peptide_number).getProteinHitlist()) {
 											// if protein was already submitted, just update pep2prot ref
-											if (protein_map.get(prot_acc).set_this_protein_was_submitted()) {
-												proteinID = protein_map.get(prot_acc).getproteinid();
+											if (protein_map.get(prot_acc).was_this_protein_submitted()) {
+												proteinID = protein_map.get(prot_acc).getProteinID();
 												// this just updates the pep2prot to a given protein
 												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);	
 											} else {
-												String accession = protein_map.get(prot_acc).getaccession();
+												String accession = protein_map.get(prot_acc).getAccession();
 
 												// Get the protein description from fasta or from the dat file
-												String description = protein_map.get(prot_acc).getdescription();
+												String description = protein_map.get(prot_acc).getDescription();
 												if (!(description == null || description.length()<1)) {
 
-													String sequence = protein_map.get(prot_acc).getsequence();
+													String sequence = protein_map.get(prot_acc).getSequence();
+													// save the protein
+													ProteinAccessor prot_accessor = ProteinAccessor.addProteinToDatabase(accession, description, pep_sequence, protein_map.get(prot_acc).getDatabaseType(), -1L, conn);
+													proteinID = prot_accessor.getProteinid();
+													// save the peptide to protein link
+													Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
+													// fetch uniprot data (if applicable) and store the uniprot entry 
+													// Length of uniProt accessions is 6 for swissprot and 6 or 12 for trembl
+													if (accession.length() == 6 || accession.length() == 10 ) {
+														ArrayList<String> this_accession_as_list = new ArrayList<String>();
+														this_accession_as_list.add(accession);
+														TreeMap<String, UniProtEntryMPA> uniprotentry_as_map = uniprotweb.fetchUniProtEntriesByAccessions(this_accession_as_list, true);
+														for (UniProtEntryMPA mpa_entry : uniprotentry_as_map.values()) {
+															TreeMap<Long, UniProtEntryMPA> prot_id_2_uniprotentry = new TreeMap<Long, UniProtEntryMPA>();
+															prot_id_2_uniprotentry.put(proteinID, mpa_entry);
+															TreeMap<Long, Long> proteinid2uniprotid = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(prot_id_2_uniprotentry, conn);
+															prot_accessor.setFK_uniProtID(proteinid2uniprotid.get(proteinID));
+														}
+													}
+													
 													// this adds a new protein
-													ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
-													proteinID = (Long) protAccessor.getGeneratedKeys()[0];
+//													ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
+//													proteinID = (Long) protAccessor.getGeneratedKeys()[0];
 													// update this protein so its not submitted twice
 													protein_map.get(prot_acc).set_this_protein_is_in_DB();
-													protein_map.get(prot_acc).addproteinid(proteinID);
+													protein_map.get(prot_acc).setProteinID(proteinID);
 													// this is a new protein so we mark for uniprot lookup
 													if (uniProtCandidates.containsKey(accession)) {
 														uniProtCandidates.get(accession).add(proteinID);
@@ -477,7 +489,7 @@ public class MascotStorager extends BasicStorager {
 														uniProtCandidates.put(accession, prot_id_list);
 													}
 												}else{
-													System.out.println("Entries which belonged not to the proteinsection, but were in the queryPeptideMap");
+													System.out.println("Protein-entries not found in section 'proteins', but found in the queryPeptideMap");
 													System.out.println("Problem descriptions " + accession );
 												}
 
@@ -487,7 +499,7 @@ public class MascotStorager extends BasicStorager {
 											// finally we submit the mascothit
 											this.storeMascotHit(searchspectrumID, peptideID, proteinID, current_query, current_pephit);
 
-										}else {System.out.println("A not stored hit");}
+										} else {System.out.println("A not stored hit");}
 
 									}
 									// finally commit data, is done once for every query
@@ -514,8 +526,7 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
 		
-		UniProtUtilities uniprotweb = new UniProtUtilities();
-		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
+//		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
 		//Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
 		
 		client.firePropertyChange("indeterminate", true, false);		
@@ -938,77 +949,103 @@ public class MascotStorager extends BasicStorager {
 	}
 
 	/**
-	 * Helper class to store a protein hit
+	 * Helper class to store a protein hit. Shows whether a protein from the mascot dat file was already
+	 * in the sql database or was already stored to the sql database
+	 *
 	 * @author Kay Schallert
 	 */	
-	public class MascotProteinHit {
+	public class MascotProteinHit extends ProteinHit {
+
 		/**
-		 * local values        
+		 * Default serial number
 		 */
-		private String accession;
-		private String description;
-		private String sequence;
-		private long protid;
-		private List<MascotPeptideHit> peptides = new ArrayList<MascotPeptideHit>();
-		private boolean wassubmitted = false;		
+		private static final long serialVersionUID = 1L;
+
 		/**
-		 * Constructor method.        
-		 * @param accession -> the accession of this protein (its main identifier)
+		 * The boolean added through this class, denotes if protein was submitted to database.
 		 */
-		public MascotProteinHit(String accession) {		
-			this.accession = accession;		
-		}
+		private boolean wassubmitted = false;
+		
 		/**
-		 * methods        
+		 * The boolean added through this class, denotes if protein was submitted to database.
+		 * The proteinID needs to be stored for proteins which were found in the SQL-database.
 		 */
-		public void addPeptide(MascotPeptideHit pephit) {
-			this.peptides.add(pephit);
+		private long proteinID;
+		
+		/**
+		 * Set proteinID (from SQL-database)
+		 * 
+		 * @return proteinID
+		 */
+		public long getProteinID() {
+			return proteinID;
 		}
-		public void addsequence(String protsequence) {
-			this.sequence = protsequence;
+
+		/**
+		 * Return proteinID (from SQL-database)
+		 * 
+		 * @param proteinID
+		 */
+		public void setProteinID(long proteinID) {
+			this.proteinID = proteinID;
 		}
-		public void adddescription(String protdescription) {
-			this.description = protdescription;
+
+		/**
+		 * Constructor, pass on the accession to parent class. 
+		 * 
+		 * @param accession
+		 */
+		public MascotProteinHit(String accession) {
+			super(accession);
 		}
-		public void addproteinid(Long protid) {
-			this.protid = protid;
-		}
+		
+		/**
+		 * Set the protein to submitted 
+		 */
 		public void set_this_protein_is_in_DB() {
 			this.wassubmitted = true;
 		}
-		public boolean set_this_protein_was_submitted() {
+		
+		/**
+		 * Return the boolean value for database-protein submitted or not. 
+		 * 
+		 * @return wassubmitted
+		 */
+		public boolean was_this_protein_submitted() {
 			return this.wassubmitted;
-		}
-		public Long getproteinid() {
-			return this.protid;
-		}
-		public String getaccession() {
-			return this.accession;
-		}
-		public String getdescription() {
-			return this.description;
-		}
-		public String getsequence() {
-			return this.sequence;
 		}
 	}
 
 	/**
-	 * Helper class to store a peptide hit
+	 * Helper class to store additional peptide information
+	 * 
 	 * @author Kay Schallert
 	 */	
-	public class MascotPeptideHit {		
+	public class MascotPeptideHit extends PeptideHit {
+		
 		/**
-		 * local values        
+		 * Because we want to make comparisons with this type
 		 */
-		private String peptide_sequence;
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 *  Mascot query peptide score         
+		 */
 		private Double peptide_score;
-		private List<String> protein_accesion_list;
-		private double deltamass; 
+		
+		/**
+		 *  Deltamass of peptide hit
+		 */
+		private double deltamass;
+		
+		/**
+		 *  Evalue of the peptide hit.
+		 */
 		private double Evalue;
 
 		/**
 		 * Constructor method.        
+		 * 
 		 * @param pepseq --> peptide sequence
 		 * @param pepscore --> peptide score
 		 * @param proteins --> List of proteins (accessions) this peptide belongs to
@@ -1016,27 +1053,36 @@ public class MascotStorager extends BasicStorager {
 		 * @param eval --> excpectancy value
 		 */
 		public MascotPeptideHit(String pepseq, Double pepscore, List<String> proteins, Double dmass, Double eval) {
+			super(pepseq, 0, 1);
 			this.peptide_score = pepscore;
-			this.peptide_sequence = pepseq;
-			this.protein_accesion_list = proteins;	
 			this.deltamass = dmass;
 			this.Evalue = eval;
+			this.setProteinHitlist(proteins);
 		}		
+		
 		/**
-		 *  methods        
+		 * Return score
+		 * 
+		 *  @return peptide_score        
 		 */
-		public String getsequence() {
-			return this.peptide_sequence;
-		}
 		public Double getscore() {
 			return this.peptide_score;
 		}
-		public List<String> getproteins() {
-			return this.protein_accesion_list;			
-		}
+		
+		/**
+		 * Return evalue
+		 * 
+		 *  @return Evalue        
+		 */
 		public double getEvalue() {
 			return this.Evalue;
 		}
+		
+		/**
+		 * Return deltamass
+		 * 
+		 *  @return deltamass        
+		 */
 		public double getdeltamass() {
 			return this.deltamass;
 		}		

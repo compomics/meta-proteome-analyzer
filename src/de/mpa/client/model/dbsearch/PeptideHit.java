@@ -54,6 +54,11 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 *  The list of protein hits associated with this peptide hit.
 	 */
 	private List<ProteinHit> proteinHits;
+	
+	/**
+	 *  List containing only the accessions of the proteins
+	 */
+	private List<String> proteinAccessions;
 
 	/**
 	 * The peptide spectrum match(es) for this peptide hit.
@@ -85,6 +90,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.spectrumMatches = new HashMap<String, SpectrumMatch>();
 		this.experimentIDs = new HashSet<Long>();
+		this.proteinHits = new ArrayList<ProteinHit>();
 		addSpectrumMatch(sequence, spectrumMatch);
 	}
 
@@ -99,6 +105,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.start = start;
 		this.end = end;
 		this.experimentIDs = new HashSet<Long>();
+		this.proteinHits = new ArrayList<ProteinHit>();
 	}
 
 	/**
@@ -206,8 +213,30 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public void addProteinHit(ProteinHit proteinHit) {
 		// to replace a protein hit we need to remove it first,
 		// does nothing if provided hit is new anyway
-		proteinHits.remove(proteinHit);
-		proteinHits.add(proteinHit);
+		if (proteinHits != null) {
+			proteinHits.remove(proteinHit);
+			proteinHits.add(proteinHit);
+		} else {
+			System.out.println("weird error");
+		}
+	}
+	
+	/**
+	 * Sets the list of protein accessions for this peptide 
+	 * 
+	 * @param accession_list. List containing protein accessions from this peptide
+	 */
+	public void setProteinHitlist(List<String> accession_list) {
+		this.proteinAccessions = accession_list;
+	}
+	
+	/**
+	 * Return the list of protein accessions.
+	 *  
+	 * @return proteinAccessions. 
+	 */
+	public List<String> getProteinHitlist() {
+		return this.proteinAccessions;
 	}
 
 	/**
