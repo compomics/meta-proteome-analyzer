@@ -237,7 +237,6 @@ public class FastaLoader {
 						// update the mascotproteinhit with sequence, description and database type data
 						MascotProteinHit m_hit = proteinmap.get(entry.getIdentifier());
 						// but only if found in the mascot dat file
-						// TODO: Show KAY update
 						if (m_hit != null) {
 							m_hit.setDatabaseType(entry.getType());
 							m_hit.setDescription(entry.getDescription());

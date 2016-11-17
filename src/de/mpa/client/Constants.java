@@ -157,6 +157,16 @@ public class Constants {
 	public static final String FASTA_FORMATER_PATH = FASTA_PATHS + "fastaformat.sh";
 	
 	/**
+	 * This constant is used for database backups, the executable file is used to run mysql-scripts for restoring databases 
+	 */
+	public static final String DB_DUMPER_SH_PATH = SEP + "scratch" + SEP + "metaprot" + SEP + "sql" + SEP + "dump_database.sh";
+	
+	/**
+	 * This constant is used for database backups, the Sql-Query file is run by the sh script DB_DUMPER_SH_PATH 
+	 */
+	public static final String DB_DUMPER_SQL_PATH = SEP + "scratch" + SEP + "metaprot" + SEP + "sql" + SEP + "dump_database.sql";
+	
+	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree());
