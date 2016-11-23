@@ -1787,31 +1787,29 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		for (TableColumn column : columns) {
 			visible.add(((TableColumnExt) column).isVisible());
 		}
-		
+		// Collect all columns of the table and marks them selected if the columns were visible
 		ParameterMap params = new ParameterMap() {
 			@Override
 			public void initDefaults() {
 				List<TableColumn> columns = treeTbl.getColumns(true);
 				List<Integer> indexes = new ArrayList<>();
+				// Collect the names of the columns
 				for (int i = 0; i < columns.size(); i++) {
 					Object id = columns.get(i).getIdentifier();
 					if (id instanceof String) {
 						indexes.add(i);
 					}
 				}
-//				int size = columns.size();
+				// Count the number of column headers
 				int size = indexes.size();
 				int width = 2;
 				int height = (size + 1) / 2;
 				Boolean[] selected = new Boolean[size];
 				String[] names = new String[size];
-//				for (int i = 0; i < size; i++) {
+				// Goes thorugh all columns and puts them in the parameter map
 				for (Integer index : indexes) {
 					TableColumnExt column = (TableColumnExt) columns.get(index);
 					Object id = column.getIdentifier();
-					if (id instanceof String) {
-						
-					}
 					selected[index] = column.isVisible();
 					names[index] = column.getToolTipText();
 				}
@@ -1822,10 +1820,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				return null;
 			}
 		};
+		// Shows the export Dialog with the collected parameters
 		int res = AdvancedSettingsDialog.showDialog(
 				ClientFrame.getInstance(), "Export Table Contents", true, params);
-		
-		if (res == AdvancedSettingsDialog.DIALOG_ACCEPTED) {
+		// If save was selected start new filechooser to select the storing file and directory
+		if (res == AdvancedSettingsDialog.DIALOG_ACCEPTED || res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED ) {
 			JFileChooser chooser = new JFileChooser();
 			chooser.setDialogTitle("Select Export Destination");
 			chooser.setFileFilter(Constants.TSV_FILE_FILTER);
@@ -1839,7 +1838,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					for (int i = 0; i < selections.length; i++) {
 						((TableColumnExt) columns.get(i)).setVisible(selections[i]);
 					}
-					
 					// dump table contents to selected file
 					TableConfig.dumpTableToCSV(treeTbl, chooser.getSelectedFile());
 					
@@ -1847,16 +1845,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					JOptionPane.showMessageDialog(
 							ClientFrame.getInstance(), "Successfully dumped table data to file.",
 							"Export Success", JOptionPane.INFORMATION_MESSAGE);
-//					res = JOptionPane.showOptionDialog(ClientFrame.getInstance(),
-//							"Successfully dumped table data to file.",
-//							"Export Success", JOptionPane.OK_CANCEL_OPTION,
-//							JOptionPane.INFORMATION_MESSAGE, null,
-//							new String[] { "OK", "Go to File" }, "OK");
-//					if (res == 1) {
-//						File parent = chooser.getSelectedFile().getParentFile();
-////						Desktop.getDesktop().open(parent);
-//						Desktop.getDesktop().browse(parent.toURI());
-//					}
 				} catch (IOException e) {
 					// show error message
 					JXErrorPane.showDialog(ClientFrame.getInstance(),

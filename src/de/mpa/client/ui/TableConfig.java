@@ -138,9 +138,13 @@ public class TableConfig {
 	 * @throws IOException if an I/O error occurs
 	 */
 	public static void dumpTableToCSV(CheckBoxTreeTable treeTbl, File file) throws IOException {
+		// Create a writer to save the table
 		try (FileWriter fw = new FileWriter(file)) {
+			// Table is a checkbox treetable, so get at first the rootmpde
 			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
+			// Get maximum tree length 
 			int maxDepth = getMaximumDepth(0, root);
+			// Get separators for the csv file
 			String rowSep = System.getProperty("line.separator");
 			String colSep = Constants.TSV_FILE_SEPARATOR;
 			
@@ -151,7 +155,7 @@ public class TableConfig {
 			int rowCount = treeTbl.getRowCount();
 			int colCount = treeTbl.getColumnCount();
 			
-			// write header line
+			// write header line and go though all levels
 			for (int i = 1; i < maxDepth; i++) {
 				fw.write("Level " + i);
 				fw.write(colSep);
