@@ -90,7 +90,7 @@ public class DBManager {
 	 */
 	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException, InterruptedException {
 		// Store the spectra from the spectrum file for a given experiment.	
-		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid, false);
+		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid);
 		spectraThread = new Thread(specStorager);
 		spectraThread.start();
 		spectraThread.join();

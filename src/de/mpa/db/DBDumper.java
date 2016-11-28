@@ -70,7 +70,7 @@ public class DBDumper {
 		// Show progress
 		if (Client.getInstance() != null) {
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
-			Client.getInstance().firePropertyChange("new message", null, "DATABSE DUMP FINISHED");
+			Client.getInstance().firePropertyChange("new message", null, "DATABASE DUMP FINISHED");
 		}
 	}
 

@@ -515,7 +515,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                     // See which header line is encountered.
                     if (line.startsWith(TITLE)) {
                         // TITLE line found.
-                        this.setTitle(line.substring(equalSignIndex + 1));
+                    	// the final title format is "File: #### Spectrum: #### scans: ####"
+                    	// sometimes the title contains an "id" which is removed here
+                    	String title;
+                    	title = line.substring(equalSignIndex + 1);
+                    	title = title.split("( \\(id)")[0];
+                    	this.setTitle(title);
                     	titleFound = true;
                     } else if (line.startsWith(PEPMASS)) {
                         // PEPMASS line found.

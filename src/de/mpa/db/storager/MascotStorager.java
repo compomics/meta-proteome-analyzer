@@ -411,13 +411,29 @@ public class MascotStorager extends BasicStorager {
 											precursor_charge_map.get(query_number), precursor_mass_map.get(query_number), 
 											current_intensity, query_number);
 									// here we finally have the query and can start storing stuff
-									// submit spectrum and searchspectrum
+									// submit spectrum and searchspectrum, if not already stored
 									Long spectrumId = specTitleMap.get(current_query.getTitle());
 									Long searchspectrumID = null;
+									// Not already stored for this file
 									if (spectrumId != null) {
+										// If already stored get searchspectra ID
 										searchspectrumID = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumId, experimentId, conn).getSearchspectrumid();
 									} else {
-										spectrumId = this.storeSpectrum(current_query);			        						
+										// Not stored for this file, then get title
+										String spectrum_title = current_query.getTitle();
+										// title formatting
+										spectrum_title = spectrum_title.split("( \\(id)")[0];
+										// Redundancy check if already in sql database (e.g. from other search engines)
+										Spectrum query =  Spectrum.findFromTitle(spectrum_title, conn);
+										if (query == null) {
+											// update the spectrum title to the shortend one
+											current_query.setTitle(spectrum_title);
+											// not stored spectra will be stored
+											spectrumId = this.storeSpectrum(current_query);
+										} else {
+											// get id if already stored
+											spectrumId = query.getSpectrumid();
+										}
 										HashMap<Object, Object> data = new HashMap<Object, Object>(5);
 										data.put(Searchspectrum.FK_SPECTRUMID, spectrumId);
 										data.put(Searchspectrum.FK_EXPERIMENTID, searchSettings.getExpID());
@@ -783,6 +799,7 @@ public class MascotStorager extends BasicStorager {
 	 * @throws SQLException 
 	 */
 	private Long storeSpectrum(Query query) throws SQLException {
+		
 		Long spectrumid = null;
 		HashMap<Object, Object> data = new HashMap<Object, Object>(12);
 		data.put(Spectrum.TITLE, query.getTitle().trim());

@@ -48,12 +48,6 @@ public class SpectrumStorager extends BasicStorager {
      */
 	private List<MascotGenericFile> spectra;
 
-	/**
-	 * Flag denoting whether the database shall be searched to determine whether
-	 * a certain spectrum is already stored in it.
-	 */
-	private boolean redundancyCheck;
-	
     /**
      * Constructor with experiment id as additional parameter:
      * Used for storing the search spectra.
@@ -62,11 +56,10 @@ public class SpectrumStorager extends BasicStorager {
      * @param file The spectrum search file.
      * @param experimentid The experiment id.
      */
-    public SpectrumStorager(Connection conn, File file, long experimentid, boolean redundancyCheck) {
+    public SpectrumStorager(Connection conn, File file, long experimentid) {
     	this.conn = conn;
     	this.file = file;
     	this.experimentid = experimentid;
-    	this.redundancyCheck = redundancyCheck;
     }
 
     /**
@@ -100,13 +93,13 @@ public class SpectrumStorager extends BasicStorager {
         for (MascotGenericFile mgf : spectra) {
             
             // The filename, remove leading and trailing whitespace.
-            String title = mgf.getTitle().trim();
-
-            Spectrum query = (redundancyCheck) ? Spectrum.findFromTitle(title, conn) : generateQuery(mgf);
-            
+            String title = mgf.getTitle();
+            Spectrum query =  Spectrum.findFromTitle(title, conn);
             Long searchspectrumid;
 			if (query == null) {
-	            /* New spectrum section */
+				/* New spectrum section */
+				// generate a new query 
+				query = generateQuery(mgf);
 	            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
             
 	            // The spectrum title
@@ -140,7 +133,7 @@ public class SpectrumStorager extends BasicStorager {
 				Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
 				data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
                 
-				// TODO changed these database inputs purely for cluster file compatibility
+				// TODO: insert retention times
 				
                 // The total intensity.
                 data.put(Spectrum.TOTAL_INT, 0.0); //mgf.getTotalIntensity());

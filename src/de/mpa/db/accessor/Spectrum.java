@@ -33,9 +33,8 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {
     	Spectrum temp = null;
-        // Only get the last 1500 records
         PreparedStatement ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
-        		" WHERE title = ? ORDER BY creationdate");
+        		" WHERE title = ?");
         ps.setString(1, title);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
