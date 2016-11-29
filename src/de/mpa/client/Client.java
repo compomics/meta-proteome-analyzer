@@ -736,8 +736,10 @@ public class Client {
 		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
 		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
 				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
-			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
-			currentExperiment.setSearchResult(dbSearchResult);
+			DbSearchResult restoredDbSearchResult = (DbSearchResult) ois.readObject();
+			currentExperiment.setSearchResult(restoredDbSearchResult);
+			// Has to update the dbSearchResult object in the client, too
+			dbSearchResult = restoredDbSearchResult;
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
