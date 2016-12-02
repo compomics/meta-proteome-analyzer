@@ -65,6 +65,10 @@ import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
+import de.mpa.client.settings.Parameter.OptionParameter;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -421,17 +425,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 		processResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				int res = AdvancedSettingsDialog.showDialog(
-						ClientFrame.getInstance(),
-						"Result Processing Settings",
-						true, Client.getInstance().getResultParameters());
-				if (res != AdvancedSettingsDialog.DIALOG_CANCELLED) {
-					if (dbSearchResult.isRaw() ||
-							(res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED)) {
+				int res = AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(),
+															"Result Processing Settings",
+															true, Client.getInstance().getResultParameters());
+					if ((res != AdvancedSettingsDialog.DIALOG_CANCELLED)) {
+//					if (dbSearchResult.isRaw() ||(res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED)) {
 						new ProcessResultsTask().execute();
 					}
 				}
-			}
 		});
 
 		// initially disable process button
@@ -1022,6 +1023,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					newResult = client.getMultipleSearchResults(experimentList);
 				}
 
+				// Make a dump if the result object is new
 				if (newResult != null) {
 					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
 						// Update result object reference
@@ -1097,8 +1099,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				}
 
 				// process results
-				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(
-						dbSearchResult, client.getResultParameters());
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, client.getResultParameters());
 				dbSearchResult.setRaw(false);
 
 				return 1;
@@ -1115,8 +1116,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 			ResultsPanel.this.updateOverview();
 			// Populate tables in database search result panel
 			dbPnl.refreshProteinViews();
+			dbPnl.refreshChart(true);
 		}
-
 	}
 
 	/**
@@ -1218,11 +1219,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 	}
 
-	/**
-	 * Returnsn the dbSearchResultObject from the Resultpanel.
-	 * @return dbSearchResultObject
-	 */
-	public DbSearchResult getDBSearchResultObj(){
-		return dbSearchResult;
-	}
+//	/**
+//	 * Returns the dbSearchResultObject from the Resultpanel.
+//	 * @return dbSearchResultObject
+//	 */
+//	public DbSearchResult getDBSearchResultObj(){
+//		return dbSearchResult;
+//	}
 }
