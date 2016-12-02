@@ -210,9 +210,17 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 		// do nothing
 	}
 
+	/**
+	 * Calculate visibility if at least one peptide for this spectra is visible
+	 */
 	@Override
 	public boolean isVisible() {
-		return true;
+		for (PeptideHit pep : peptideHits) {
+			if (pep.isVisible()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
