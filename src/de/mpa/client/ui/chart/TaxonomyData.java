@@ -37,7 +37,7 @@ public class TaxonomyData implements ChartData {
 	private ProteinHitList data;
 	
 	/**
-	 * The hierarchy-level map reference.
+	 * The hierarchy-level map reference (spectra, peptides, proteins, metaproteins).
 	 */
 	private Map<HierarchyLevel, Collection<? extends Hit>> hierarchyMap;
 

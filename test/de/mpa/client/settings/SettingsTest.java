@@ -39,25 +39,5 @@ public class SettingsTest extends TestCase {
 		OmssaParameters parameters = new OmssaParameters();
 		assertEquals("-e 0 -tom 0 -tem 0 -zt 3 -ht 6 -nt 4 -hm 2 -hl 30 -he 1000.0", parameters.toString());
 	}
-	
-	@Test
-	public void testCruxParameters() {
-		CruxParameters parameters = new CruxParameters();
-		assertEquals("enzyme=trypsin\n" + 
-					 "fragment-mass=mono\n" + 
-					 "min-peaks=20\n" + 
-					 "use-flanking-peaks=false\n" + 
-					 "top-match=5\n" + 
-					 "min-length=7\n" + 
-					 "max-length=50\n" + 
-					 "min-mass=200.0\n" + 
-					 "max-mass=7200.0\n", parameters.toString());
-	}
-	
-	@Test
-	public void testInspectParameters() {
-		InspectParameters parameters = new InspectParameters();
-		assertEquals("protease,Trypsin\nmod,+57,C,fix\nmod,+16,M,opt\nMods,1\nUnrestrictive,0\nMultiCharge,1\nInstrument,ESI-ION-TRAP\nTagCount,100\nTagLength,3\n", parameters.toString());
-	}
 
 }

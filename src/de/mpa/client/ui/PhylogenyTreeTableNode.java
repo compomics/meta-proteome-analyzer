@@ -81,7 +81,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 				case ProteinTreeTables.SEQUENCE_COLUMN:
 					return ph.getSequence();
 				case ProteinTreeTables.UNIREF_COLUMN:
-					if (ph.getUniProtEntry() == null) {
+					if (ph.getUniProtEntry() == null || ph.getUniProtEntry().getAccession() == null) {
 						return null;
 					}
 					ResultParameters parameters =

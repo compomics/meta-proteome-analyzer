@@ -111,7 +111,7 @@ public class DbSearchResult implements Serializable {
 			proteinHit = currentProteinHit;
 		} else {
 			// wrap new protein in meta-protein
-			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + proteinHit.getAccession(), proteinHit);
+			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + proteinHit.getAccession(), proteinHit, proteinHit.getUniProtEntry());
 			proteinHit.setMetaProteinHit(mph);
 			this.metaProteins.add(mph);
 		}
@@ -166,7 +166,11 @@ public class DbSearchResult implements Serializable {
 	 * @return the list of metaproteins.
 	 */
 	public ProteinHitList getMetaProteins() {
-		return (visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+		if (this.visMetaProteins == null) {
+			return this.metaProteins;
+		} else {
+			return this.visMetaProteins; 
+		}
 	}
 	
 	/**

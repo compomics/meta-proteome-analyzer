@@ -31,7 +31,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	/**
 	 * The accession
 	 */
-	private String accession;
+	private String accession = null;
 	
 	/**
 	 * The NCBI taxonomy ID
@@ -235,7 +235,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 */
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
-			return taxNode;
+		return taxNode;
 	}
 
 	/**

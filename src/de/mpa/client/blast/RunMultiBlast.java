@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import de.mpa.analysis.UniProtUtilities;
+import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.ui.dialogs.BlastDialog.BlastResultOption;
@@ -412,7 +413,7 @@ public class RunMultiBlast {
 	 * @throws SQLException 
 	 */
 	private static void storeBLASTinDB(HashMap<String, BlastResult> resultMapBLAST, double evalue, BlastResultOption resultOption,
-			Map<Long, Taxonomy> taxonomyMap, TreeMap<Long, ProteinAccessor> proteinAccessorMap,String database) throws SQLException {
+		Map<Long, Taxonomy> taxonomyMap, TreeMap<Long, ProteinAccessor> proteinAccessorMap,String database) throws SQLException {
 		// get connection
 		Connection conn = DBManager.getInstance().getConnection();
 		// Go through all result entries
@@ -434,7 +435,7 @@ public class RunMultiBlast {
 			}
 			
 			// Create a common ancestor UNIPROT ENTRY
-			UniProtEntryMPA common_ancestor = UniProtUtilities.getCommonUniprotEntry(upEntries, taxonomyMap);
+			UniProtEntryMPA common_ancestor = UniProtUtilities.getCommonUniprotEntry(upEntries, taxonomyMap, TaxonomyDefinition.COMMON_ANCESTOR);
 			// Treemap containing sql-Protein ID and the UniprotentryMPA
 			TreeMap<Long, UniProtEntryMPA> uniProtMap = new TreeMap<Long, UniProtEntryMPA>();
 			uniProtMap.put(Long.valueOf(key), common_ancestor);

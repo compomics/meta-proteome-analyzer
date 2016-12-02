@@ -2028,21 +2028,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	protected void refreshChart(boolean refreshData) {
 		if (refreshData) {
-			// build list of visible meta-proteins from result object
-//			ProteinHitList metaProteins = new ProteinHitList();
-//			for (ProteinHit mph : dbSearchResult.getMetaProteins()) {
-//				for (ProteinHit ph : ((MetaProteinHit) mph).getProteinHitList()) {
-//					if (ph.isSelected()) {
-//						metaProteins.add(mph);
-//						break;
-//					}
-//				}
-//			}
 			ProteinHitList metaProteins = new ProteinHitList(dbSearchResult.getMetaProteins());
 			// update chart data containers
 			ontologyData.setData(metaProteins);
 			taxonomyData.setData(metaProteins);
 		}
+		
+
 		
 		Chart chart = null;
 
@@ -2089,6 +2081,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
 				
 				
+				
+				
 				// Begin by clearing all views
 				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 					TableConfig.clearTable(ptt.getTreeTable());
@@ -2099,8 +2093,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				spectrumPnl.clearSpectrum();
 				
 				// Fetch search result object				
-				resultPnl.dbSearchResult = Client.getInstance().fetchResults();					
-
+				resultPnl.dbSearchResult = 	Client.getInstance().fetchResults();	
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
 				resultPnl.ontologyData = new OntologyData(resultPnl.dbSearchResult, hl);
@@ -2181,7 +2174,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						metaChildNode.setURI(uri);
 						metaNode.add(metaChildNode);
 						
-						if (proteinHit.getUniProtEntry() == null) {
+						if ((proteinHit.getUniProtEntry() == null) || (proteinHit.getUniProtEntry().getAccession() == null)) {
 							if (Client.isDebug()) {
 								System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
 							}

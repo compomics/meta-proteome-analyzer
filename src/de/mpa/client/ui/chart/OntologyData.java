@@ -213,8 +213,10 @@ public class OntologyData implements ChartData {
 			occMap.remove(othersKey);
 			Set<Entry<String, ProteinHitList>> entrySet = occMap.entrySet();
 
+			// Calculate for each subgroup of the pie its size
 			for (Entry<String, ProteinHitList> entry : entrySet) {
 				ProteinHitList metaProteins = entry.getValue();
+//				System.out.println("KEYS" + entry.getKey());
 				Integer absVal = this.getSizeByHierarchy(metaProteins, hierarchyLevel);
 				@SuppressWarnings("rawtypes")
 				Comparable key = entry.getKey();
@@ -277,6 +279,8 @@ public class OntologyData implements ChartData {
 	 * @return the data size
 	 */
 	private int getSizeByHierarchy(ProteinHitList mphl, HierarchyLevel hl) {
+		
+//		System.out.println("I updated the size " + mphl.size() +" " + hl);
 		if (mphl == null) {
 			System.out.println("uh oh");
 		}
@@ -312,11 +316,13 @@ public class OntologyData implements ChartData {
 			Set<ProteinHit> proteinSet = mphl.getProteinSet();
 			Set<SpectrumMatch> matchSet = new HashSet<SpectrumMatch>();
 			for (ProteinHit prot : proteinSet) {
-				if (prot.isSelected()) {
+//				System.out.println("prot " + prot.getAccession() +" " + prot.isVisible());
+				if (prot.isSelected() && prot.isVisible()) {
 					for (PeptideHit pep : prot.getPeptideHitList()) {
-						if (pep.isSelected()) {
+						if (pep.isSelected() && pep.isVisible()) {
 							for (SpectrumMatch match : pep.getSpectrumMatches()) {
-								if (match.isSelected()) {
+								if (match.isSelected() && match.isVisible()) {
+//									System.out.println("Match " + match.getTitle() + " " + pep.getSequence() +" " + prot.getAccession());
 									matchSet.add(match);
 								}
 							}

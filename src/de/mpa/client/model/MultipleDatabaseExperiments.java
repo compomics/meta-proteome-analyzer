@@ -279,7 +279,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							prothit.addExperimentIDs(experimentIDs);				        
 						}else {
 							// Define uniprot entry
-							UniProtEntryMPA uniprot = null;
+							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Define taxon node
 							TaxonomyNode taxonomyNode;
 							// Fetch Uniprot entry
@@ -297,7 +297,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								}
 								taxonomyNode = unclassifiedNode;
 							}
-
+							uniprot.setTaxonomyNode(taxonomyNode);
 							// create new protein-hit
 							ProteinHit prothit = new ProteinHit(complete_accession, 
 									rs2.getString("protein.description"), 
@@ -307,7 +307,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							// add peptidehit - maybe unneccassary 
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
-							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit);
+							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);
@@ -404,7 +404,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							ProteinHit prothit = protmap.get(rs.getObject("protein.accession"));
 							prothit.addPeptideHit(peptideHit);				        
 						} else {
-							UniProtEntryMPA uniprot = null;
+							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Fetch Uniprot entry
 							TaxonomyNode taxonomyNode;
 							if (rs2.getLong("protein.fk_uniprotentryid") != -1L) {
@@ -421,6 +421,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								}
 								taxonomyNode = unclassifiedNode;
 							}
+							uniprot.setTaxonomyNode(taxonomyNode);
 							// create new protein-hit
 							ProteinHit prothit = new ProteinHit(complete_accession, 
 									rs2.getString("protein.description"), 
@@ -430,7 +431,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							// add peptidehit - maybe unneccassary 
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
-							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit);
+							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);
@@ -535,7 +536,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						}
 						else {
 
-							UniProtEntryMPA uniprot = null;
+							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Fetch Uniprot entry
 							TaxonomyNode taxonomyNode;
 							if (rs2.getLong("protein.fk_uniprotentryid") != -1L) {
@@ -552,6 +553,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								}
 								taxonomyNode = unclassifiedNode;
 							}
+							uniprot.setTaxonomyNode(taxonomyNode);
 							// create new protein-hit
 							ProteinHit prothit = new ProteinHit(complete_accession, 
 									rs2.getString("protein.description"), 
@@ -561,7 +563,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							// add peptidehit - maybe unneccassary 
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
-							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit);
+							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);

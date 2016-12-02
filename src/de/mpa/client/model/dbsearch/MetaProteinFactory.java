@@ -1,5 +1,6 @@
 package de.mpa.client.model.dbsearch;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,13 +8,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
 import de.mpa.client.settings.ResultParameters;
+import de.mpa.db.DBManager;
+import de.mpa.db.accessor.Taxonomy;
 
 /**
  * Factory class providing methods to merge meta-proteins and to determine common properties (i.e. taxonomy).
@@ -168,7 +173,7 @@ public class MetaProteinFactory {
 		public boolean shouldCondense(MetaProteinHit mphA, MetaProteinHit mphB) {
 			UniProtEntryMPA upeA = mphA.getProteinHitList().get(0).getUniProtEntry();
 			UniProtEntryMPA upeB = mphB.getProteinHitList().get(0).getUniProtEntry();
-			if ((upeA == null) || (upeB == null)) {
+			if (((upeA == null) || (upeA.getAccession() == null) || (upeB == null) || (upeB.getAccession()== null))) {
 				return false;
 			}
 			String refA = null;
@@ -181,7 +186,6 @@ public class MetaProteinFactory {
 				case UNIREF90:
 					refA = upeA.getUniRefMPA().getUniRef90();
 					refB = upeB.getUniRefMPA().getUniRef90();
-//					System.out.println("" + refA + " " + refB + " " + ((refA != null) && refA.equals(refB)));
 					break;
 				case UNIREF50:
 					refA = upeA.getUniRefMPA().getUniRef50();
@@ -550,13 +554,6 @@ public class MetaProteinFactory {
 
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
 
-		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY");
-		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
-		
-		// Determine meta-protein taxonomy
-		TaxonomyUtils.determineMetaProteinTaxonomy(result.getMetaProteins(), params);
-		
-		client.firePropertyChange("new message", null, "DETERMINING META-PROTEIN TAXONOMY FINISHED");
 	}
 	
 	/**
@@ -565,13 +562,23 @@ public class MetaProteinFactory {
 		 * @param metaProteins the list of meta-proteins to condense
 		 * @param params the result processing parameters
 		 */
-		private static void condenseMetaProteins(
-				ProteinHitList metaProteins, ResultParameters params) {
+		private static void condenseMetaProteins(ProteinHitList metaProteins, ResultParameters params) {
+			
+			// taxonomy map for common ancestor retrieval
+			Map<Long, Taxonomy> taxonomyMap = null;
+			try {
+				taxonomyMap = Taxonomy.retrieveTaxonomyMap(DBManager.getInstance().getConnection());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			// Extract parameters
 			ClusterRule clusterRule = (ClusterRule) params.get("clusterRule").getValue();
 			PeptideRule peptideRule = (PeptideRule) params.get("peptideRule").getValue();
 			TaxonomyRule taxonomyRule = (TaxonomyRule) params.get("taxonomyRule").getValue();
 			
+			// Decide whether leucine and isoleucine should be considered distinct or not
 			boolean distinctIL = peptideRule.isDistinctIL();
 			
 			// Iterate (initially single-protein) meta-proteins
@@ -591,7 +598,7 @@ public class MetaProteinFactory {
 					}
 					rowPepSeqs.add(sequence);
 				}
-	
+
 				// Nested iteration of the same meta-protein list, stop when outer and inner iteration element 
 				// are identical, iterate backwards from the end of the list
 				ListIterator<ProteinHit> colIter = metaProteins.listIterator(metaProteins.size());
@@ -601,7 +608,7 @@ public class MetaProteinFactory {
 					if (rowMP == colMP) {
 						break;
 					}
-	
+
 					// Get set of peptide sequences (of inner iteration element)
 					Set<PeptideHit> colPeps = colMP.getPeptideSet();
 					Set<String> colPepSeqs = new HashSet<String>() ;
@@ -614,14 +621,30 @@ public class MetaProteinFactory {
 						}
 						colPepSeqs.add(sequence);
 					}
-	
+
 					// Merge meta-proteins if rules apply
 					if (clusterRule.shouldCondense(rowMP, colMP)
 							&& peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
-	//						&& levRule.shouldCondense(rowPepSeqs, colPepSeqs, levThreshold)
 							&& taxonomyRule.shouldCondense(rowMP, colMP)) {
 						// Add all proteins of outer meta-protein to inner meta-protein
 						colMP.addAll(rowMP.getProteinHitList());
+						ArrayList<UniProtEntryMPA> uniprotList = new ArrayList<UniProtEntryMPA>();
+						if (colMP.getUniProtEntry() != null) {
+							uniprotList.add(colMP.getUniProtEntry());
+						}
+						if (rowMP.getUniProtEntry() != null) {
+							uniprotList.add(rowMP.getUniProtEntry());
+						} 
+						UniProtEntryMPA commonUniprotEntry;
+						if (uniprotList.size() > 1) {
+							commonUniprotEntry = UniProtUtilities.getCommonUniprotEntry(uniprotList, taxonomyMap, (TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
+						} else if (uniprotList.size() == 1){
+							commonUniprotEntry = uniprotList.get(0);
+						} else {
+							commonUniprotEntry = null;
+						}
+						// 
+						colMP.setUniprotEntry(commonUniprotEntry);
 						// Remove emptied outer meta-protein from list
 						rowIter.remove();
 						// Abort inner iteration as outer element has been removed and 
@@ -629,6 +652,7 @@ public class MetaProteinFactory {
 						break;
 					}
 				}
+				
 				// Fire progress notification
 				Client.getInstance().firePropertyChange("progressmade", false, true);
 			}

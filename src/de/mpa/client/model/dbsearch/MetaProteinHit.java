@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.ui.chart.ChartType;
 
@@ -39,9 +41,12 @@ public class MetaProteinHit extends ProteinHit {
 	 * protein hit list.
 	 * @param identifier the identifier string
 	 * @param phl the protein hit list
+	 * @param upa. Uniprotentry to initialize this metaprotein with.
 	 */
-	public MetaProteinHit(String identifier, ProteinHit ph) {
+	public MetaProteinHit(String identifier, ProteinHit ph, UniProtEntryMPA upa) {
 		super(identifier);
+		this.setUniprotEntry(upa);
+		this.setTaxonomyNode(upa.getTaxonomyNode());
 		this.proteinHits = new LinkedHashMap<String, ProteinHit>();
 		this.proteinHits.put(ph.getAccession(), ph);
 	}
@@ -204,12 +209,7 @@ public class MetaProteinHit extends ProteinHit {
 	}
 	
 	@Override
-	public UniProtEntryMPA getUniProtEntry(){
-		for (ProteinHit protHit : this.getProteinSet()) {
-			if (protHit.getUniProtEntry() != null) {
-				return protHit.getUniProtEntry();
-			}
-		}
-		return null;
+	public UniProtEntryMPA getUniProtEntry() {
+		return this.getUniProtEntry();
 	}
 }

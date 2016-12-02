@@ -27,6 +27,7 @@ import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
 import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
 import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
 import uk.ac.ebi.uniprot.dataservice.query.Query;
+import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
@@ -34,6 +35,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.model.dbsearch.UniRefEntryMPA;
+import de.mpa.client.settings.ParameterMap;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
@@ -1184,9 +1186,10 @@ public class UniProtUtilities {
 	 * Method to generate the common ancestor Uniprot entry
 	 * @param upEntries. A list with UniProtMPAentries.
 	 * @param taxnonmyMap. The full taxonomy map necessary for finding common ancestor taxonomies.
+	 * @param tax_def, TaxonomyDefinition used to create a common taxonomy (common ancestor or most specific)
 	 * @return commonUniProtMPAentry. The common UniProtMPAentry
 	 */
-	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries, Map<Long, Taxonomy> taxonomyMap) {
+	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries, Map<Long, Taxonomy> taxonomyMap, TaxonomyDefinition tax_def) {
 
 		// Items of uniProtMPAentries
 		Set<String> ecnumbers = new TreeSet<String>();
@@ -1195,21 +1198,11 @@ public class UniProtUtilities {
 		Set<String> uniRef100s = new TreeSet<String>();
 		Set<String> uniRef90s = new TreeSet<String>();
 		Set<String> uniRef50s = new TreeSet<String>();
-
-		// The taxonomy node
-		TaxonomyNode commonNode = null;
-		
+		// Collect all tax ids and calculate taxonomy at the end.
+		TaxonomyNode commonNode = TaxonomyUtils.createTaxonomyNode(upEntries.get(0).getTaxonomyNode().getID(), taxonomyMap);
 		// Get fused UniProtEntryMPA
 		for (UniProtEntryMPA uniProtEntryMPA : upEntries) {
-			// Create new common ancestor taxonomy
-			TaxonomyNode taxNode = TaxonomyUtils.createTaxonomyNode(uniProtEntryMPA.getTaxid(), taxonomyMap);
-			// Calculate common ancestor
-			if (commonNode != null) {
-				commonNode = TaxonomyDefinition.COMMON_ANCESTOR.getCommonTaxonomyNode(commonNode, taxNode);
-			}else{
-				commonNode = taxNode;
-			}
-			
+			commonNode = tax_def.getCommonTaxonomyNode(commonNode, uniProtEntryMPA.getTaxonomyNode());
 			// add other metadata to sets
 			ecnumbers.addAll(uniProtEntryMPA.getEcnumbers());
 			konumbers.addAll(uniProtEntryMPA.getKonumbers());
@@ -1218,7 +1211,6 @@ public class UniProtUtilities {
 			uniRef90s.add(uniProtEntryMPA.getUniRefMPA().getUniRef90());
 			uniRef50s.add(uniProtEntryMPA.getUniRefMPA().getUniRef50());
 		}	
-		
 		// common Unirefs are used if all non-"EMPTY" Unirefs are equal (there is just one of them) 
 		// If there are two different unirefs the common entry remains "EMPTY" denoting no common uniref cluster
 		String common_uniref100 = "EMPTY";
@@ -1242,7 +1234,6 @@ public class UniProtUtilities {
 				common_uniref50 = uniRef50s.iterator().next();
 			}
 		}
-
 		// construct new common uniprotMPAEntry
 		UniRefEntryMPA uniRefMPA = new UniRefEntryMPA(common_uniref100, common_uniref90, common_uniref50);
 		UniProtEntryMPA commonUniProtMPAentry = new UniProtEntryMPA(upEntries.get(0).getAccession(),

@@ -128,8 +128,7 @@ public class TaxonomyUtils {
 		 * @param nodeB the second taxonomy node
 		 * @return the common taxonomy node
 		 */
-		public abstract TaxonomyNode getCommonTaxonomyNode(
-				TaxonomyNode nodeA, TaxonomyNode nodeB);
+		public abstract TaxonomyNode getCommonTaxonomyNode(TaxonomyNode nodeA, TaxonomyNode nodeB);
 	}
 
 	/**
@@ -339,10 +338,8 @@ public class TaxonomyUtils {
 	 *  taxonomies shall be determined
 	 * @param params the parameter map containing taxonomy definition rules
 	 */
-	public static void determineMetaProteinTaxonomy(
-			ProteinHitList metaProteins, ParameterMap params) {
-		TaxonomyUtils.determineTaxonomy(metaProteins,
-				(TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
+	public static void determineMetaProteinTaxonomy(ProteinHitList metaProteins, ParameterMap params) {
+		TaxonomyUtils.determineTaxonomy(metaProteins, (TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
 	}
 
 	/**
@@ -383,7 +380,6 @@ public class TaxonomyUtils {
 				System.err.println("ERROR: no taxonomic ancestor found for " + taxonomic);
 			}
 			for (int i = 1; i < taxonNodes.size(); i++) {
-		
 				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i));
 			}
 			
