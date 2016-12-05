@@ -350,6 +350,13 @@ public class TaxonomyUtils {
 	 */
 	public static void determineProteinTaxonomy(List<ProteinHit> proteins, ParameterMap params) {
 		TaxonomyUtils.determineTaxonomy(proteins, (TaxonomyDefinition) params.get("proteinTaxonomy").getValue());
+		for (ProteinHit proteinHit : proteins) {
+			TaxonomyNode taxNode = proteinHit.getTaxonomyNode();
+			if (taxNode != null) {
+				proteinHit.getUniProtEntry().setTaxonomyNode(taxNode);
+			}
+		}
+		
 	}
 
 	/**
