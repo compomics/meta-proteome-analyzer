@@ -1,4 +1,4 @@
-package de.mpa.client.model.dbsearch;
+package de.mpa.analysis;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -11,11 +11,16 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
+import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.MetaProteinHit;
+import de.mpa.client.model.dbsearch.PeptideHit;
+import de.mpa.client.model.dbsearch.ProteinHit;
+import de.mpa.client.model.dbsearch.ProteinHitList;
+import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Taxonomy;
