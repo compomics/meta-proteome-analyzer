@@ -207,9 +207,4 @@ public class MetaProteinHit extends ProteinHit {
 		}
 		return super.getTaxonomyNode();
 	}
-	
-	@Override
-	public UniProtEntryMPA getUniProtEntry() {
-		return this.getUniProtEntry();
-	}
 }
