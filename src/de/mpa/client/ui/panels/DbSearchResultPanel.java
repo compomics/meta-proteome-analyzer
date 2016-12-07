@@ -150,10 +150,10 @@ import de.mpa.util.ColorUtils;
 @SuppressWarnings("serial")
 public class DbSearchResultPanel extends JPanel implements Busyable {
 	
-	/**
-	 * The database search result object.
-	 */
-	private DbSearchResult dbSearchResult;
+//	/**
+//	 * The database search result object.
+//	 */
+//	private DbSearchResult dbSearchResult;
 
 	/**
 	 * Peptide table.
@@ -1398,7 +1398,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						if (focusPeptideBtn.isSelected()) {
 							focusSpectraBtn.setSelected(false);
 							view = focus.PEPTIDE;
-							refreshPeptideViews(dbSearchResult.getMetaProteins().getPeptideSet());
+							refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getMetaProteins().getPeptideSet());
 						} else {
 							view = focus.PROTEIN;
 						}
@@ -1493,7 +1493,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					focusPeptideBtn.setSelected(false);
 					view = focus.SPECTRUM;
 					List<SpectrumMatch> matches = new ArrayList<SpectrumMatch>();
-					for (ProteinHit protHit : dbSearchResult.getProteinHitList()) {
+					for (ProteinHit protHit : Client.getInstance().getDatabaseSearchResult().getProteinHitList()) {
 						for (PeptideHit pepHit : protHit.getPeptideHitList()) {
 							matches.addAll(pepHit.getSpectrumMatches());
 						}
@@ -2027,8 +2027,28 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 *  <code>false</code> otherwise
 	 */
 	protected void refreshChart(boolean refreshData) {
+		
+		DbSearchResult fetchResults = Client.getInstance().fetchResults();
+		
 		if (refreshData) {
-			ProteinHitList metaProteins = new ProteinHitList(dbSearchResult.getMetaProteins());
+			ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
+			for (ProteinHit proteinHit : metaProteins) {
+				MetaProteinHit mp = (MetaProteinHit) proteinHit;
+//				System.out.println("MP " + mp.getAccession() + mp.getProteinSet().size());
+				if (mp.getUniProtEntry() != null) {
+					// Get all proteins with apoptosis
+					List<String> keywords = mp.getUniProtEntry().getKeywords();
+					for (String string : keywords) {
+						if (string.equals("Apoptosis")) {
+							System.out.println("Protein " + mp.getAccession() + mp.getProteinSet().size() + " " + mp.getPeptideCount());
+						}
+					}
+				} else {
+//					System.out.println("Wrong uniprot " + mp.getAccession());
+				}
+			}
+			//TODO maybe relevant Robert und Kay
+//			ProteinHitList metaProteins = new ProteinHitList(fetchResults.getMetaProteins());
 			// update chart data containers
 			ontologyData.setData(metaProteins);
 			taxonomyData.setData(metaProteins);
@@ -2079,10 +2099,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			
 			try {
 				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
-				
-				
-				
-				
 				// Begin by clearing all views
 				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 					TableConfig.clearTable(ptt.getTreeTable());
@@ -2093,11 +2109,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				spectrumPnl.clearSpectrum();
 				
 				// Fetch search result object				
-				resultPnl.dbSearchResult = 	Client.getInstance().fetchResults();	
+//				resultPnl.dbSearchResult = 	Client.getInstance().fetchResults();	
 				// Build local chart data objects
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
-				resultPnl.ontologyData = new OntologyData(resultPnl.dbSearchResult, hl);
-				resultPnl.taxonomyData = new TaxonomyData(resultPnl.dbSearchResult, hl);
+				resultPnl.ontologyData = new OntologyData(Client.getInstance().getDatabaseSearchResult(), hl);
+				resultPnl.taxonomyData = new TaxonomyData(Client.getInstance().getDatabaseSearchResult(), hl);
 
 				// Insert new result data into tables
 				this.refreshProteinTables();
@@ -2115,9 +2131,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		 * Refreshes the contents of the protein tree tables.
 		 */
 		private void refreshProteinTables() {		
-			if (dbSearchResult != null && !dbSearchResult.isEmpty()) {
+			if (Client.getInstance().getDatabaseSearchResult() != null && !(Client.getInstance().getDatabaseSearchResult().isEmpty())) {
 		
-				ProteinHitList metaProteins = dbSearchResult.getMetaProteins();
+				ProteinHitList metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 				long metaProtCount = metaProteins.size();
 		
 				// Notify status bar
@@ -2146,7 +2162,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							maxNSAF = Math.max(maxNSAF, nsaf);
 							if (nsaf < 0.0) {
 								// Calculate NSAF
-								nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(),	proteinHit);
+								nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), Client.getInstance().getDatabaseSearchResult().getProteinHits(),	proteinHit);
 								proteinHit.setNSAF(nsaf);
 							}
 						} else {

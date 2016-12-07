@@ -66,6 +66,7 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.looks.plastic.PlasticButtonUI;
 
+import de.mpa.analysis.MetaProteinFactory;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.AbstractExperiment;
@@ -73,7 +74,6 @@ import de.mpa.client.model.AbstractProject;
 import de.mpa.client.model.ProjectExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
-import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;

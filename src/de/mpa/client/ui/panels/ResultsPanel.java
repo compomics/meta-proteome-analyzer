@@ -57,17 +57,17 @@ import org.jfree.data.general.PieDataset;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.MetaProteinFactory;
+import de.mpa.analysis.MetaProteinFactory.ClusterRule;
+import de.mpa.analysis.MetaProteinFactory.PeptideRule;
+import de.mpa.analysis.MetaProteinFactory.TaxonomyRule;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.MetaProteinFactory;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
-import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
-import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
-import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
 import de.mpa.client.settings.Parameter.OptionParameter;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
@@ -1165,6 +1165,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
 					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
 					distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
+					//TODO may throws errors due to concurrent methods interaction
 					uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
 					metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
@@ -1219,11 +1220,19 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 	}
 
-//	/**
-//	 * Returns the dbSearchResultObject from the Resultpanel.
-//	 * @return dbSearchResultObject
-//	 */
-//	public DbSearchResult getDBSearchResultObj(){
-//		return dbSearchResult;
-//	}
+	/**
+	 * Returns the dbSearchResultObject from the Resultpanel.
+	 * @return dbSearchResultObject
+	 */
+	public DbSearchResult getDBSearchResultObj(){
+		return dbSearchResult;
+	}
+	/**
+	 * Sets the dbSearchResultObject of the Resultpanel.
+	 * @param 
+	 */
+	public void setDBSearchResultObj(DbSearchResult dbsearchresults){
+		this.dbSearchResult = dbsearchresults;
+	}
+	
 }
