@@ -24,14 +24,10 @@ public class CometParameters extends ParameterMap {
 	public void initDefaults() {
 		// Spectrum section
 		this.put("search_enzyme_number", new OptionParameter(new Object[] { "0 (No enzyme)", "1 (Trypsin)", "2 (Trypsin/P)", "3 (Lys_C)", "4 (Lys_N)", "5 (Arg_C)", "6 (Asp_N)", "7 (CNBr)", "8 (Glu_C)"}, 1, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
-		this.put("inst", new OptionParameter(new Object[] { "0 (low-res LCQ/LTQ default)", "1 (high-res LTQ)", "2 (TOF)", "3 (Q-Exactive)" }, 0, "InstrumentID", "MS Instrument Type", "Spectrum"));
-		this.put("protocol", new OptionParameter(new Object[] { "0 (No Protocol default)", "1 (Phoshorylation)", "2 (iTRAQ)", "3 (iTRAQPhospho)" }, 0, "ProtocolID", "MS Protocol, e.g. iTRAQ labeling", "Spectrum"));
-		this.put("ntt", new NumberParameter(2, 0, 2, "Number of tolerable termini", "E.g. for trypsin, 0: non-tryptic, 1: semi-tryptic, 2: fully-tryptic peptides only. ", "Spectrum")); 
-		this.put("minCharge", new NumberParameter(2, 1, 6, "MinCharge", "Minimum precursor charge to consider if charges are not specified in the spectrum file, default: 2.", "Spectrum"));
-		this.put("maxCharge", new NumberParameter(3, 1, 6, "MaxCharge", "Maximum precursor charge to consider if charges are not specified in the spectrum file, default: 3.", "Spectrum"));
-		this.put("minLength", new NumberParameter(6, 6, null, "MinPepLength", "Minimum peptide length to consider, default: 6.", "Spectrum"));
-		this.put("maxLength", new NumberParameter(40, 6, null, "MaxPepLength", "Maximum peptide length to consider, default: 40.", "Spectrum"));
-		this.put("thread", new NumberParameter(4, 1, null, "Search threads", "The number of search threads to use", "Spectrum"));
+		this.put("minimum_peaks", new NumberParameter(10, 0, null, "MinimumPeaks", "Required minimum number of peaks in spectrum to search (default 10)", "Spectrum")); 
+		this.put("minimum_intensity", new NumberParameter(0, 0, null, "MinimumIntensity", "Minimum intensity value to read in", "Spectrum"));
+		this.put("remove_precursor_peak", new OptionParameter(new Object[] { "0 (No)", "1 (Yes)", "2 (All charge reduced precursor peaks)"}, 0, "RemovePrecursorPeak", "Removes the precursor peak from the spectrum.", "Spectrum"));
+		this.put("thread", new NumberParameter(0, 0, 64, "Search threads", "The number of search threads to use: 0 = auto-poll", "Spectrum"));
 	}
 
 	@Override
@@ -69,7 +65,7 @@ public class CometParameters extends ParameterMap {
 					value = ((Boolean) value) ? 1 : 0;
 				}
 				// Write commandline parameter containing non-default value
-				sb.append("-" + key + " " + value + " ");
+				sb.append(value + ";");
 			}
 		}
 		return sb.toString().trim();

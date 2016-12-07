@@ -92,6 +92,9 @@ public class CometTask extends Task {
     public void buildParametersFile() {
     	parameterFile = new File(cometExecutable, PARAMETER_FILE);
     	String[] parameters = params.split(";");
+    	for (String string : parameters) {
+			System.out.println(string);
+		}
     	
     	String precursorUnit; 
     	if (isPrecursorTolerancePpm) {
@@ -116,7 +119,7 @@ public class CometTask extends Task {
             bw.newLine();
             bw.append("");
             bw.newLine();
-            bw.append("num_threads = 0                        # 0=poll CPU to set num threads; else specify num threads directly (max 64)");
+            bw.append("num_threads = " + parameters[4] + "# 0=poll CPU to set num threads; else specify num threads directly (max 64)");
             bw.newLine();
             bw.append("");
             bw.newLine();
@@ -146,9 +149,9 @@ public class CometTask extends Task {
             bw.newLine();
             bw.append("#");
             bw.newLine();
-            bw.append("search_enzyme_number = 1               # choose from list at end of this params file");
+            bw.append("search_enzyme_number = " + parameters[0]);
             bw.newLine();
-            bw.append("num_enzyme_termini = 2                 # 1 (semi-digested), 2 (fully digested, default), 8 C-term unspecific , 9 N-term unspecific");
+            bw.append("num_enzyme_termini = 2");
             bw.newLine();
             bw.append("allowed_missed_cleavage = " + nMissedCleavages);
             bw.newLine();
@@ -202,7 +205,7 @@ public class CometTask extends Task {
             bw.newLine();
             bw.append("fragment_bin_tol = " + fragmentTol);
             bw.newLine();
-            bw.append("fragment_bin_offset = 0.4              # offset position to start the binning (0.0 to 1.0)");
+            bw.append("fragment_bin_offset = 0.0              # offset position to start the binning (0.0 to 1.0)");
             bw.newLine();
             bw.append("theoretical_fragment_ions = 0          # 0=use flanking peaks, 1=M peak only");
             bw.newLine();
@@ -308,11 +311,11 @@ public class CometTask extends Task {
             bw.newLine();
             bw.append("#");
             bw.newLine();
-            bw.append("minimum_peaks = 10                     # required minimum number of peaks in spectrum to search (default 10)");
+            bw.append("minimum_peaks = " + parameters[1] + "  # required minimum number of peaks in spectrum to search (default 10)");
             bw.newLine();
-            bw.append("minimum_intensity = 0                  # minimum intensity value to read in");
+            bw.append("minimum_intensity = " + parameters[2] + " # minimum intensity value to read in");
             bw.newLine();
-            bw.append("remove_precursor_peak = 0              # 0=no, 1=yes, 2=all charge reduced precursor peaks (for ETD)");
+            bw.append("remove_precursor_peak = " + parameters[3] + " # 0=no, 1=yes, 2=all charge reduced precursor peaks (for ETD)");
             bw.newLine();
             bw.append("remove_precursor_tolerance = 1.5       # +- Da tolerance for precursor removal");
             bw.newLine();
