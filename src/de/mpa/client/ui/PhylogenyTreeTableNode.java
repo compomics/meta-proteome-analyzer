@@ -7,10 +7,10 @@ import java.util.Iterator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+import de.mpa.analysis.MetaProteinFactory.ClusterRule;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
-import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;

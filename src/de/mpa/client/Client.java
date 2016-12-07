@@ -740,11 +740,12 @@ public class Client {
 			currentExperiment.setSearchResult(restoredDbSearchResult);
 			// Has to update the dbSearchResult object in the client, too
 			dbSearchResult = restoredDbSearchResult;
+			ClientFrame.getInstance().getResultsPanel().setDBSearchResultObj(dbSearchResult);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();
-		}
+		} 
 		return currentExperiment.getSearchResult();
 	}
 
