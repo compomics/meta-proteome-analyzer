@@ -62,7 +62,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	/**
 	 * The uniRef entry.
 	 */
-	private UniRefEntryMPA uniRefMPA;
+	private UniRefEntryMPA uniRefMPA = null;
 	
 	/**
 	 * Default constructur
