@@ -106,8 +106,7 @@ public class DbSearchResult implements Serializable {
 			peptideHit = currentPeptideHit;
 		}
 		
-		ProteinHit currentProteinHit =
-				this.getProteinHit(proteinHit.getAccession());
+		ProteinHit currentProteinHit = this.getProteinHit(proteinHit.getAccession());
 		if (currentProteinHit != null) {
 			currentProteinHit.addExperimentIDs(experimentIDs);
 			proteinHit = currentProteinHit;
@@ -149,9 +148,8 @@ public class DbSearchResult implements Serializable {
 	public boolean isEmpty() {
 		if (visMetaProteins == null) {
 			return this.metaProteins.isEmpty();
-		} else {
-			return this.visMetaProteins.isEmpty();
-		}
+		} 
+		return this.visMetaProteins.isEmpty();
 	}
 
 	/**

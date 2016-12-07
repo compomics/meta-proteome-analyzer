@@ -28,10 +28,9 @@ import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
-import de.mpa.job.ResourceProperties;
+import de.mpa.task.ResourceProperties;
 
 public class SettingsPanel extends JPanel {
 	
@@ -95,7 +94,7 @@ public class SettingsPanel extends JPanel {
 	/**
 	 * Worker class for starting the identification searches.
 	 * 
-	 * @author Thilo Muth
+	 * @author T. Muth
 	 */
 	private class ProcessWorker extends SwingWorker<Object, Object> {
 
@@ -103,10 +102,10 @@ public class SettingsPanel extends JPanel {
 			ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
 //			TODO: long experimentID = projectPanel.getSelectedExperiment().getID();
 //			if (experimentID != 0L) {
-				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
+//				CheckBoxTreeTable checkBoxTree = ClientFrame.getInstance().getFilePanel().getCheckBoxTree();
 				// reset progress
 				Client client = Client.getInstance();
-				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
+//				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
 				// appear busy
 				firePropertyChange("progress", null, 0);
 				processBtn.setEnabled(false);
@@ -114,8 +113,8 @@ public class SettingsPanel extends JPanel {
 		
 				try {
 					// Collect search settings.
-					DbSearchSettings searchSettings = databasePnl.gatherDBSearchSettings();
-					FileExperiment selectedExperiment = (FileExperiment) projectPanel.getSelectedExperiment();
+					DbSearchSettings searchSettings = databasePnl.collectSearchSettings();
+					FileExperiment selectedExperiment = projectPanel.getSelectedExperiment();
 					selectedExperiment.setSpectrumFiles(Client.getInstance().getMgfFiles());
 					
 					// Run the searches.
@@ -134,7 +133,7 @@ public class SettingsPanel extends JPanel {
 			clientFrame.setTabEnabledAt(ClientFrame.INDEX_RESULTS_PANEL, true);
 			
 			Client client = Client.getInstance();
-			FileExperiment selectedExperiment = (FileExperiment) ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+			FileExperiment selectedExperiment = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
 			if (selectedExperiment.getSearchResult() != null) {
 				DbSearchResult searchResult = selectedExperiment.getSearchResult();
 				clientFrame.getProjectPanel().setResultsButtonState(true);
@@ -149,7 +148,6 @@ public class SettingsPanel extends JPanel {
 					e.printStackTrace();
 				}
 			}
-			
 		}
 	}
 

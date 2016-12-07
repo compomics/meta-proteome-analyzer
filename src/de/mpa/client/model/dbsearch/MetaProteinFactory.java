@@ -250,15 +250,14 @@ public class MetaProteinFactory {
 				// other meta-protein or vice versa (strict similarity criterion)
 				List<String> seqsA = new ArrayList<>(pepSeqsA);
 				List<String> seqsB = new ArrayList<>(pepSeqsB);
-				boolean notInB = false;
 				// check whether peptides in first list have corresponding
 				// elements in second list, stop at first mismatch
 				Iterator<String> iterA = seqsA.iterator();
 				while (iterA.hasNext()) {
-					String seqA = (String) iterA.next();
+					String seqA = iterA.next();
 					Iterator<String> iterB = seqsB.iterator();
 					while (iterB.hasNext()) {
-						String seqB = (String) iterB.next();
+						String seqB = iterB.next();
 						if (seqA.equals(seqB) || ((this.getMaximumDistance() > 0) 
 								&& (MetaProteinFactory.computeLevenshteinDistance(seqA, seqB) <= this.getMaximumDistance()))) {
 							// match found, remove from lists
@@ -281,8 +280,6 @@ public class MetaProteinFactory {
 		/**
 		 * The maximum allowed pairwise peptide sequence Levenshtein distance.
 		 */
-		// TODO: maybe implement Levenshtein distance evaluation in PeptideHit#equals()
-		// TODO: maybe encapsulate globals
 		private int maxDistance;
 		
 		/**

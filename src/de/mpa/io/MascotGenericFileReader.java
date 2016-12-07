@@ -421,14 +421,12 @@ public class MascotGenericFileReader extends InputFileReader {
     	if (res != len) {
     		if (res < 0) {
     			throw new IOException("End of file has been reached prematurely.");
-    		} else {
-        		throw new IOException("Less bytes were read than expected.");
-    		}
+    		} 
+    		throw new IOException("Less bytes were read than expected.");
     	}
     	
     	// Generate MGF from buffered bytes (interpreted as String)
-    	MascotGenericFile mgf = new MascotGenericFile(
-    			createSpectrumFilename(index), new String(bytes));
+    	MascotGenericFile mgf = new MascotGenericFile(createSpectrumFilename(index), new String(bytes));
     	
 		return mgf;
 	}

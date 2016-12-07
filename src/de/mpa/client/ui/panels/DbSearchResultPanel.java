@@ -859,7 +859,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// Install column names
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
-						"ID", "z", "Pep", "MS-GF+", "X!Tandem", "OMSSA"}));
+						"ID", "z", "Pep", "X!Tandem", "Comet", "MS-GF+"}));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -868,7 +868,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (newChild instanceof PhylogenyTreeTableNode) {
 					super.insertNodeInto(newChild, parent, index);
 				} else {
-					throw new IllegalArgumentException("This tree table requires Phylogeny nodes!");
+					throw new IllegalArgumentException("This tree table requires nodes!");
 				}
 			}
 		};
@@ -925,9 +925,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Spectrum Match ID",
 				"Precursor Charge",
 				"Peptide Sequences",
-				"MS-GF+ Confidence",
 				"X!Tandem Confidence",
-				"Omssa Confidence"
+				"Comet Confidence",
+				"MS-GF+ Confidence",
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
 		treeTbl.setTableHeader(ch);

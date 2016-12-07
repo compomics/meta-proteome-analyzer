@@ -12,6 +12,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import de.mpa.client.Constants;
 
@@ -44,18 +45,27 @@ public class SplashScreen extends JFrame implements Runnable {
 		    imageLbl.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
 			
 			// create the version label
-			JLabel versionLbl = new JLabel("Version: " + Constants.VER_NUMBER + " ", JLabel.RIGHT);
-			versionLbl.setOpaque(false);
-			versionLbl.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		    JPanel panel = new JPanel(new BorderLayout());
 		    
+			JLabel versionLbl1 = new JLabel("Current Version: " + Constants.VER_NUMBER, JLabel.RIGHT);
+			JLabel versionLbl2 = new JLabel("Release Date: " + Constants.VER_DATE , JLabel.RIGHT);
+			versionLbl1.setOpaque(false);
+			versionLbl1.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+			versionLbl2.setOpaque(false);
+			versionLbl2.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+			panel.setOpaque(false);
+			panel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		    panel.add(versionLbl1, BorderLayout.NORTH);
+		    panel.add(versionLbl2, BorderLayout.SOUTH);
+			
 		    // create the copyright label
-		    JLabel copyrightLbl = new JLabel("\u00a92014 - Max Planck Institute Magdeburg, Germany", JLabel.CENTER);
-		    copyrightLbl.setFont(new Font("Sans-Serif", Font.BOLD, 12));
+		    JLabel copyrightLbl = new JLabel("\u00a9" +" MPA Portable Version " + Constants.VER_NUMBER + " (" + Constants.VER_DATE + ")", JLabel.CENTER);
+		    copyrightLbl.setFont(new Font("Sans-Serif", Font.BOLD, 14));
 		    copyrightLbl.setOpaque(false);
 		    copyrightLbl.setBorder(BorderFactory.createEmptyBorder(2, 2, 4, 2));
 		    
 		    // add text labels to image label
-		    imageLbl.add(versionLbl, BorderLayout.NORTH);
+		    imageLbl.add(panel, BorderLayout.NORTH);
 		    imageLbl.add(copyrightLbl, BorderLayout.SOUTH);
 		    
 		    // add image label to content pane

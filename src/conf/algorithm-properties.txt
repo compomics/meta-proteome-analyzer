@@ -4,11 +4,8 @@ path.fasta=built/fasta/
 # X!Tandem
 app.xtandem=tandem.exe
 
-# OMSSA
-app.omssa=omssacl
-
-# QVality
-app.qvality=qvality.exe
+# Comet
+app.comet=comet.exe
 
 # MS-GF+
 app.msgf=MSGFPlus.jar

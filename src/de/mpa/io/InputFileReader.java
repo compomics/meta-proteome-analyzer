@@ -99,7 +99,7 @@ public abstract class InputFileReader {
      * @return Vector with the currently held spectrumFiles.
      */
     public List<MascotGenericFile> getSpectrumFiles() {
-        return this.getSpectrumFiles(true);
+        return this.getSpectrumFiles(false);
     }
 
     /**
@@ -125,7 +125,7 @@ public abstract class InputFileReader {
      * @return Vector with the currently held spectrumPositions.
      */
     public List<Long> getSpectrumPositions() {
-		return getSpectrumPositions(true);
+		return getSpectrumPositions(false);
 	}
     
     public void setSpectrumPositions(List<Long> spectrumPositions) {

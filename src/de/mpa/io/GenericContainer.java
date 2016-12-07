@@ -3,20 +3,23 @@ package de.mpa.io;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import de.mpa.analysis.TargetDecoyAnalysis;
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.io.fasta.FastaLoader;
 
 /**
- * Generic container with global variables.
+ * Generic container with global variables and collections.
  * 
- * @author Thilo Muth
+ * @author T. Muth
  *
  */
 public class GenericContainer {
@@ -52,6 +55,16 @@ public class GenericContainer {
 	public static List<SearchHit> SearchHits = new ArrayList<SearchHit>();
 	
 	/**
+	 * List of protein accessions.
+	 */
+	public static Set<String> ProteinAccs = new HashSet<String>();
+	
+	/**
+	 * The absolute path to the created FASTA file.
+	 */
+	public static String CreatedFastaFilePath;
+	
+	/**
 	 * Number of total spectra.
 	 */
 	public static int numberTotalSpectra;
@@ -76,18 +89,24 @@ public class GenericContainer {
 	 */
 	protected SearchEngineType searchEngineType;
     
-    /**
-     * The q-value file.
-     */
-	protected File qValueFile = null;
-    
 	/**
 	 * File containing the original PSM scores.
 	 */
 	protected File targetScoreFile;
 	
+	/**
+	 * The FastaLoader instance. 
+	 */
 	public static FastaLoader FastaLoader;
 	
+	/**
+	 * The current TargetDecoyAnalysis instance.
+	 */
+	public static TargetDecoyAnalysis currentTDA = null;
+	
+	/**
+	 * The absolute number of hits (peptide-spectrum matches) for each search.
+	 */
 	protected int nHits = 0;
 	
     /**

@@ -32,10 +32,9 @@ import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.fasta.FastaLoader;
-import de.mpa.job.JobManager;
-import de.mpa.job.ResourceProperties;
-import de.mpa.job.SearchTask;
-import de.mpa.job.instances.SpectraJob;
+import de.mpa.task.ResourceProperties;
+import de.mpa.task.SearchTask;
+import de.mpa.task.TaskManager;
 
 public class Client {
 
@@ -118,15 +117,15 @@ public class Client {
 	public void runSearches(DbSearchSettings settings) {
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
-		fastaLoader.setFastaFile(new File(settings.getFastaFile()));
+		fastaLoader.setFastaFile(new File(settings.getFastaFilePath()));
 
 		try {
-			File indexFile = new File(settings.getFastaFile() + ".fb");
+			File indexFile = new File(settings.getFastaFilePath() + ".fb");
 			if(indexFile.exists()) {
 				fastaLoader.setIndexFile(indexFile);
 				fastaLoader.readIndexFile();
 			} else {
-				throw new Exception("Index file does not exist: " + settings.getFastaFile() + ".fb");
+				throw new Exception("Index file does not exist: " + settings.getFastaFilePath() + ".fb");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -134,14 +133,14 @@ public class Client {
 		}
 		GenericContainer.FastaLoader = fastaLoader;
 		if (mgfFiles != null) {
-			JobManager jobManager = JobManager.getInstance();
+			TaskManager jobManager = TaskManager.getInstance();
 			// Clear the job manager to account for unfinished jobs in the queue.
 			jobManager.clear();
 			
-			// Parse spectrum titles + add spectrumIds.
-			SpectraJob spectraJob = new SpectraJob(mgfFiles);
-			jobManager.addJob(spectraJob);
-			jobManager.run();
+			// FIXME: do this only once!!! Parse spectrum titles + add spectrumIds.
+//			SpectraJob spectraJob = new SpectraJob(mgfFiles);
+//			jobManager.addJob(spectraJob);
+//			jobManager.run();
 			
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
 			Client.getInstance().firePropertyChange("new message", null, "DATABASE SEARCH RUNNING");
@@ -366,7 +365,7 @@ public class Client {
 			DbSearchResult dbSearchResult = (DbSearchResult) ois.readObject();
 			currentExperiment.setSearchResult(dbSearchResult);
 		} catch (Exception e) {
-			File file = new File(path + Constants.BACKUP_RESULT);
+			new File(path + Constants.BACKUP_RESULT);
 			e.printStackTrace();
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();

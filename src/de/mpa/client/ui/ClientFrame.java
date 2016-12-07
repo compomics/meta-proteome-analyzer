@@ -38,12 +38,12 @@ import de.mpa.io.ExportHeader;
 import de.mpa.main.Parameters;
 
 /**
- * <b> ClientFrame </b>
+ * <b> ClientFrame</b>
  * <p>
  * 	Represents the main graphical user interface for the MetaProteomeAnalyzer-Client.
  * </p>
  * 
- * @author Alexander Behne, Thilo Muth
+ * @author A. Behne, T. Muth
  */
 
 public class ClientFrame extends JFrame {
@@ -171,21 +171,18 @@ public class ClientFrame extends JFrame {
 				IconConstants.PROJECT_ICON,
 				IconConstants.INPUT_ICON,
 				IconConstants.RESULTS_ICON, 
-//				IconConstants.RESULTS_ICON,
 				IconConstants.LOGGING_ICON
 		};
 		String[] titles = new String[] {
 				"Project",
 				"Input Spectra",
 				"View Results",
-//				"Spectrum Results",
 				"Logging"
 		};
 		Component[] panels = new Component[] {
 				projectPnl,
 				filePnl,
 				resultPnl, 
-//				spectrumResultPnl,
 				loggingPnl
 		};
 
@@ -239,6 +236,7 @@ public class ClientFrame extends JFrame {
 	private void initComponents() {
 		// Menu
 		menuBar = new ClientFrameMenuBar();
+		
 		// Status Bar
 		statusPnl = new StatusPanel();
 		

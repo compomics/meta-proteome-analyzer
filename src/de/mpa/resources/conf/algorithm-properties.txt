@@ -1,15 +1,11 @@
 # Path to the FASTA database folder
-path.fasta=/fasta/
+path.fasta=built/fasta/
 
 # X!Tandem
-path.xtandem.output=/output/xtandem/
 app.xtandem=tandem.exe
 
-# OMSSA
-path.omssa.output=/output/omssa/
-app.omssa=omssacl
+# Comet
+app.comet=comet.exe
 
-# QVality
-app.qvality=qvality.exe
-
-
+# MS-GF+
+app.msgf=MSGFPlus.jar

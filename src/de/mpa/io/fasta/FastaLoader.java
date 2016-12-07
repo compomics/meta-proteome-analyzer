@@ -161,8 +161,8 @@ public class FastaLoader {
 				}
 			}
 		}
+		//  
 		Long pos = acc2pos.get(id);
-		
 		if (pos == null || !acc2pos.containsKey(id))  {
 			log.error("Provided string does not match any protein entry: " + id);
 			throw new IOException("Provided string does not match any protein entry: " + id);
@@ -174,21 +174,21 @@ public class FastaLoader {
 
 		raf.seek(pos);
 		String line = "";
-		String temp = "";
+		String sequence = "";
 
 		String header = "";
 		while ((line = raf.readLine()) != null) {
 			line = line.trim();
 			if (line.startsWith(">")) {
-				if (!temp.equals("")) {
+				if (!sequence.equals("")) {
 					break;
 				}
 				header = line;
 			} else {
-				temp += line;
+				sequence += line;
 			}
 		}
-		return new Protein(header, temp);
+		return new Protein(header, sequence);
 	}
 	
 	/**

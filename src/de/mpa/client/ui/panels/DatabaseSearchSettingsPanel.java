@@ -3,6 +3,8 @@ package de.mpa.client.ui.panels;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,8 +39,9 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.settings.IterativeSearchParams;
 import de.mpa.client.settings.MSGFParameters;
-import de.mpa.client.settings.OmssaParameters;
+import de.mpa.client.settings.CometParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
@@ -48,8 +51,7 @@ import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.FastaUtilities;
-import de.mpa.job.ResourceProperties;
-import de.mpa.job.instances.MakeBlastdbJob;
+import de.mpa.task.ResourceProperties;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -99,9 +101,9 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private ParameterMap xTandemParams = new XTandemParameters();
 	
 	/**
-	 * Parameter map containing advanced settings for the OMSSA search engine.
+	 * Parameter map containing advanced settings for the Comet search engine.
 	 */
-	private ParameterMap omssaParams = new OmssaParameters();
+	private ParameterMap cometParams = new CometParameters();
 
 	/**
 	 * Parameter map containing advanced settings for the MS-GF+ search engine.
@@ -109,34 +111,62 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	private ParameterMap msgfParams = new MSGFParameters();
 	
 	/**
+	 * Parameter map containing the settings for the iterative search.
+	 */
+	private ParameterMap iterativeSearchParams = new IterativeSearchParams();
+	
+	/**
 	 * Checkbox for using X!Tandem search engine.
 	 */
 	private JCheckBox xTandemChk;
 
 	/**
-	 * Checkbox for using OMSSA search engine.
+	 * Checkbox for using Comet search engine.
 	 */
-	private JCheckBox omssaChk;
+	private JCheckBox cometChk;
 	
 	/**
 	 * Checkbox for using MG-GF+ search engine.
 	 */
 	private JCheckBox msgfChk;
-
+	
+	/**
+	 * Button for choosing the FASTA database file.
+	 */
 	private JButton fastaFileBtn;
 	
+	/**
+	 * Button for starting the MS/MS data processing.
+	 */
 	private JButton processBtn;
 	
+	/**
+	 * Selected FASTA target database file.
+	 */
 	private File fastaFile;
 	
+	/**
+	 * Selected FASTA decoy database file.
+	 */
 	private File decoyFastaFile;
 	
-	private boolean hasError = false;
-
-	private File indexFile;
+	/**
+	 * Created FASTA index file.
+	 */
+	private File fastaIndexFile;
+	
+	/**
+	 * Flag showing whether any error occurred during database formatting.
+	 */
+	private boolean dbFormattingError = false;
+	
+	/**
+	 * Selected search mode combobox.
+	 */
+	private JComboBox<String> searchModeCbx;
 
 	/**
-	 * The default database search panel constructor.
+	 * The database search settings panel constructor.
 	 */
 	public DatabaseSearchSettingsPanel() {
 		initComponents();
@@ -146,21 +176,17 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * Method to initialize the panel's components.
 	 */
 	private void initComponents() {
-		
-		this.setLayout(new FormLayout("7dlu, p:g, 5dlu, p, 7dlu",
-									  "5dlu, p, 5dlu, f:p:g, 0dlu"));
+
+		this.setLayout(new FormLayout("7dlu, p:g, 5dlu, p, 7dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
 
 		// Protein Database Panel
 		final JPanel protDatabasePnl = new JPanel();
-		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
-		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database"), protDatabasePnl));
+		protDatabasePnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu, p, 5dlu", "5dlu, p, 5dlu, p, 5dlu"));
+		protDatabasePnl.setBorder(new ComponentTitledBorder(new JLabel("Protein Database Search"), protDatabasePnl));
 
 		// FASTA file ComboBox
 		fastaFileTtf = new JTextField(20);
 		fastaFileTtf.setEditable(false);
-		
-		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
-		protDatabasePnl.add(fastaFileTtf, CC.xy(4, 2));
 		
 		fastaFileBtn = new JButton("Choose...");
 		fastaFileBtn.addActionListener(new ActionListener() {
@@ -170,14 +196,50 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				fastaFileBtnTriggered();
 			}
 		});
+		
+		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
+		protDatabasePnl.add(fastaFileTtf, CC.xy(4, 2));
 		protDatabasePnl.add(fastaFileBtn, CC.xy(6, 2));
+
+		// Normal vs. iterative search.
+		String[] searchOptions = { "Normal Search", "Iterative Search"};
+
+		searchModeCbx = new JComboBox<String>(searchOptions);
+		
+		final JButton iterativeSearchSetBtn = this.createSettingsButton();
+		iterativeSearchSetBtn.setEnabled(false);
+		iterativeSearchSetBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Iterative Search Parameters", true, iterativeSearchParams);
+			}
+		});
+		
+		searchModeCbx.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent evt) {
+				
+				// Check for selection state of combobox item.
+				if (evt.getStateChange() == ItemEvent.SELECTED) {
+					if (searchModeCbx.getSelectedIndex() == 1) {
+						iterativeSearchSetBtn.setEnabled(true);
+					} else {
+						iterativeSearchSetBtn.setEnabled(false);
+					}
+				}
+			}
+	    });
+	    
+		protDatabasePnl.add(new JLabel("Search Type:"), CC.xy(2, 4));
+		protDatabasePnl.add(searchModeCbx, CC.xy(4, 4));
+		protDatabasePnl.add(iterativeSearchSetBtn, CC.xy(6, 4));
 		
 		// General Settings Panel
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
-				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu, p, 5dlu"));
-		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
+				"0dlu, p, 5dlu, p, 5dlu, p, 5dlu, 2px:g, 5dlu"));
+		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
 		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
@@ -208,7 +270,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		searchEngPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		searchEngPnl.setBorder(new ComponentTitledBorder(new JLabel("Search Engines"), searchEngPnl));
 
-		xTandemChk = new JCheckBox("X!Tandem", false);
+		xTandemChk = new JCheckBox("X!Tandem", true);
 		xTandemChk.setIconTextGap(10);
 		final JButton xTandemSetBtn = this.createSettingsButton();
 		xTandemSetBtn.addActionListener(new ActionListener() {
@@ -223,22 +285,22 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		omssaChk = new JCheckBox("OMSSA", false);
-		omssaChk.setIconTextGap(10);
-		final JButton omssaSetBtn = this.createSettingsButton();
-		omssaSetBtn.addActionListener(new ActionListener() {
+		cometChk = new JCheckBox("Comet", false);
+		cometChk.setIconTextGap(10);
+		final JButton cometSetBtn = this.createSettingsButton();
+		cometSetBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "OMSSA Advanced Parameters", true, omssaParams);
+				AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), "Comet Advanced Parameters", true, cometParams);
 			}
 		});
-		omssaChk.addActionListener(new ActionListener() {
+		cometChk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				omssaSetBtn.setEnabled(omssaChk.isSelected());
+				cometSetBtn.setEnabled(cometChk.isSelected());
 			}
 		});	
 		
-		msgfChk = new JCheckBox("MS-GF+", true);
+		msgfChk = new JCheckBox("MS-GF+", false);
 		msgfChk.setIconTextGap(10);
 		final JButton msgfSetBtn = this.createSettingsButton();
 		msgfSetBtn.addActionListener(new ActionListener() {
@@ -248,6 +310,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 						ClientFrame.getInstance(), "MS-GF+ Advanced Parameters", true, msgfParams);
 			}
 		});
+		
 		msgfChk.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -255,12 +318,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
-		searchEngPnl.add(msgfChk, CC.xy(2, 2));
-		searchEngPnl.add(msgfSetBtn, CC.xy(4, 2));
-		searchEngPnl.add(xTandemChk, CC.xy(2, 4));
-		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 4));
-		searchEngPnl.add(omssaChk, CC.xy(2, 6));
-		searchEngPnl.add(omssaSetBtn, CC.xy(4, 6));
+		searchEngPnl.add(xTandemChk, CC.xy(2, 2));
+		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
+		searchEngPnl.add(cometChk, CC.xy(2, 4));
+		searchEngPnl.add(cometSetBtn, CC.xy(4, 4));
+		searchEngPnl.add(msgfChk, CC.xy(2, 6));
+		searchEngPnl.add(msgfSetBtn, CC.xy(4, 6));
 
 		// add everything to main panel
 		this.add(protDatabasePnl, CC.xywh(2, 2, 3, 1));
@@ -302,23 +365,20 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
             	if (!decoyFastaFile.exists()) {
             		new DecoyFastaFileWorker().execute();
-            	} else {
-            	  	// Optional formatting
-               		new FormatFastaFileWorker().execute();
             	}
             	
-            	indexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
-            	if (!indexFile.exists()) {
+            	fastaIndexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
+            	if (!fastaIndexFile.exists()) {
             		new IndexFastaFileWorker().execute();
             	}    
          
                 
                    
             } catch (Exception e) {
-            	hasError = true;
+            	dbFormattingError = true;
             	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
             }
-            if (indexFile.exists() && fastaFile.exists() & !hasError) {
+            if (fastaIndexFile.exists() && fastaFile.exists() & !dbFormattingError) {
             	processBtn.setEnabled(true);
             }
         }
@@ -387,7 +447,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	    		client.firePropertyChange("indeterminate", false, true);
 	    		decoyFastaFile = FastaUtilities.createDecoyDatabase(fastaFile);
 			} catch (Exception e) {
-				hasError = true;
+				dbFormattingError = true;
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 	    		client.firePropertyChange("indeterminate", true, false);
 	    		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FAILED");
@@ -409,101 +469,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			if (res == 1) {
         		client.firePropertyChange("indeterminate", true, false);
         		client.firePropertyChange("new message", null, "CREATING DECOY FASTA FILE FINISHED");
-        		
-            	// Optional formatting after decoy creation.
-           		new FormatFastaFileWorker().execute();
-			}
-		}
-	}
-	
-	/**
-	 * Class to format the FASTA file (for OMSSA) in a background thread.
-	 * 
-	 * @author T. Muth
-	 */
-	private class FormatFastaFileWorker extends SwingWorker<Integer, Object> {
-		Client client = Client.getInstance();
-		
-		@Override
-		protected Integer doInBackground() {
-
-			try {
-            	boolean formatTargetFile = checkForFormatting(fastaFile);
-            	boolean formatDecoyFile = checkForFormatting(decoyFastaFile);
-
-            	if (formatTargetFile) {
-            		client.firePropertyChange("indeterminate", false, true);
-            		MakeBlastdbJob formatTargetJob = new MakeBlastdbJob(fastaFile);
-            		formatTargetJob.run();
-            		client.firePropertyChange("new message", null, "FORMATTING TARGET FASTA FILE");
-            	}
-	            	
-            	if (formatDecoyFile) {
-            		client.firePropertyChange("indeterminate", false, true);
-            		MakeBlastdbJob formatDecoyJob = new MakeBlastdbJob(decoyFastaFile);
-            		formatDecoyJob.run();
-            		client.firePropertyChange("new message", null, "FORMATTING DECOY FASTA FILE");
-            	}
-            	// Already formatted target and decoy: no message is provided
-            	if (!formatTargetFile && !formatDecoyFile) return 2;
-	    		
-			} catch (Exception e) {
-				hasError = true;
-				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-	    		client.firePropertyChange("indeterminate", true, false);
-	    		client.firePropertyChange("new message", null, "FORMATTING FASTA FILE FAILED");
-	    		return 0;
-			}
-			return 1;
-		}
-
-		private boolean checkForFormatting(File fastaFile) {
-			File[] files = fastaFile.getParentFile().listFiles();
-			String name = fastaFile.getName();
-			boolean formatFile = true;
-			boolean phr;
-			boolean pin;
-			boolean psq;
-			// Find all three processed files.
-			phr = false;
-			pin = false;
-			psq = false;
-			
-			for (File file : files) {
-			    if (file.isFile()) {
-			    	String fileName = file.getName();
-			        if (fileName.startsWith(name) && fileName.endsWith(".phr")) {
-			            phr = true;
-			        }
-			        if (fileName.startsWith(name) && fileName.endsWith(".pin")) {
-			        	pin = true;
-			        }
-			        if (fileName.startsWith(name) && fileName.endsWith(".psq")) {
-			        	psq = true;
-			        }
-			    	
-			    }
-			}
-			if (phr && pin && psq) {
-				formatFile = false;
-			}
-			return formatFile;
-		}
-	
-		@Override
-		protected void done() {
-			// Get worker result
-			int res = 0;
-			try {
-				res = this.get().intValue();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			// If new results have been fetched...
-			if (res == 1) {
-        		client.firePropertyChange("indeterminate", true, false);
-        		client.firePropertyChange("new message", null, "FORMATTING FASTA FILE FINISHED");
 			}
 		}
 	}
@@ -556,7 +521,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				client.firePropertyChange("indeterminate", true, false);
 				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FINISHED");
 
-				if (indexFile.exists() && fastaFile.exists() & !hasError) {
+				if (fastaIndexFile.exists() && fastaFile.exists() & !dbFormattingError) {
 					processBtn.setEnabled(true);
 				}
 			}
@@ -567,7 +532,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * Convenience method to return a settings button.
 	 * @return a settings button
 	 */
-	private JButton createSettingsButton() {
+	private static JButton createSettingsButton() {
 		JButton button = new JButton(IconConstants.SETTINGS_SMALL_ICON);
 		button.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		button.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);
@@ -579,37 +544,40 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * Utility method to collect and consolidate all relevant database search settings.
 	 * @return the database search settings object instance.
 	 */
-	public DbSearchSettings gatherDBSearchSettings() {
-		DbSearchSettings dbSettings = new DbSearchSettings();
-		dbSettings.setFragIonTol((Double) fragTolSpn.getValue());
-		dbSettings.setPrecIonTol((Double) precTolSpn.getValue());
-		dbSettings.setPrecIonTolPpm(precTolCbx.getSelectedIndex()==1);
-		dbSettings.setMissedCleavages((Integer) missClvSpn.getValue());
+	public DbSearchSettings collectSearchSettings() {
+		DbSearchSettings searchSettings = new DbSearchSettings();
+		searchSettings.setFragIonTol((Double) fragTolSpn.getValue());
+		searchSettings.setPrecIonTol((Double) precTolSpn.getValue());
+		searchSettings.setPrecIonTolPpm(precTolCbx.getSelectedIndex()==1);
+		searchSettings.setMissedCleavages((Integer) missClvSpn.getValue());
 		
 		if (xTandemChk.isSelected()) {
-			dbSettings.setXTandem(true);
-			dbSettings.setXTandemParams(xTandemParams.toString());
+			searchSettings.setXTandem(true);
+			searchSettings.setXTandemParams(xTandemParams.toString());
 		}
 		
-		if (omssaChk.isSelected()) {
-			dbSettings.setOmssa(true);
-			dbSettings.setOmssaParams(omssaParams.toString());
+		if (cometChk.isSelected()) {
+			searchSettings.setComet(true);
+			searchSettings.setCometParams(cometParams.toString());
 		}
 		
 		if (msgfChk.isSelected()) {
-			dbSettings.setMSGF(true);
-			dbSettings.setMsgfParams(msgfParams.toString());
+			searchSettings.setMSGF(true);
+			searchSettings.setMsgfParams(msgfParams.toString());
 		}
 		
+		if (searchModeCbx.getSelectedIndex() == 1) {
+			searchSettings.setIterativeSearch(true);;
+			searchSettings.setIterativeSearchSettings(iterativeSearchParams.toString());
+		}
 		
 		if (fastaFileTtf.getText().length() > 0) {
-			dbSettings.setFastaFile(fastaFileTtf.getText());
+			searchSettings.setFastaFilePath(fastaFileTtf.getText());
 		}
-		
 		
 		// Set the current experiment id for the database search settings.
 //		TODO: dbSettings.setExperimentid(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
-		return dbSettings;
+		return searchSettings;
 	}
 	
 	/**
@@ -618,7 +586,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * @param params
 	 */
 	protected void showAdvancedSettings(String title, ParameterMap params) {
-		gatherDBSearchSettings();
+		collectSearchSettings();
 		AdvancedSettingsDialog.showDialog(ClientFrame.getInstance(), title, true, params);
 	}
 
@@ -679,7 +647,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 * @return ParameterMap for OMSSA.
 	 */
 	public ParameterMap getOmssaParameterMap() {
-		return omssaParams;
+		return cometParams;
 	}
 	
 	/**
@@ -690,6 +658,14 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		return msgfParams;
 	}
 	
+	/**
+	 * Returns the iterative search parameter map.
+	 * @return ParameterMap for iterative search settings.
+	 */
+	public ParameterMap getIterativeSearchParams() {
+		return iterativeSearchParams;
+	}
+
 	/**
 	 * Sets the enable state of the Mascot search engine selector.
 	 * @param enabled

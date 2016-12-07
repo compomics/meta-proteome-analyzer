@@ -16,11 +16,6 @@ import org.jdesktop.swingx.treetable.TreeTableNode;
 
 import de.mpa.util.AlphanumComparator;
 
-/**
- * TODO: API
- * 
- * @author behne
- */
 public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 		implements SortableTreeNode {
 

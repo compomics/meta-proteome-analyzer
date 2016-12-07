@@ -1,76 +1,106 @@
 
 package de.mpa.client;
 
-import de.mpa.job.SearchType;
+import de.mpa.task.SearchType;
 
 
 public class DbSearchSettings {
-	
-	private boolean omssa;
-	private boolean xtandem;
+	private boolean iterativeSearch;
 	private boolean msgf;
+	private boolean xtandem;
+	private boolean comet;
 	private double fragIonTol;
 	private double precIonTol;
 	private int nMissedCleavages;
 	private boolean isPrecIonTolPpm;
-	private String fastaFile;
+	private String fastaFilePath;
 	private long experimentid;
 	private SearchType searchType;
 	private String xtandemParams;
-	private String omssaParams;
+	private String cometParams;
 	private String msgfParams;
+	private String iterativeSearchSettings;
 	
+	/**
+	 * Returns the value of the iterative search property.
+	 * @return flag whether iterative search is used or not.
+	 */
+    public boolean useIterativeSearch() {
+		return iterativeSearch;
+	}
+    
     /**
-     * Gets the value of the omssa property.
-     * 
+     * Sets the boolean flag whether iterative search is used or not. 
+     * @param iterativeSearch Iterative search boolean flag
      */
-    public boolean isOmssa() {
-        return omssa;
-    }
-
+	public void setIterativeSearch(boolean iterativeSearch) {
+		this.iterativeSearch = iterativeSearch;
+	}
+	
+	/**
+	 * Returns the iterative search settings.
+	 * @return Iterative search settings string.
+	 */
+    public String getIterativeSearchSettings() {
+		return iterativeSearchSettings;
+	}
+    
     /**
-     * Sets the value of the omssa property.
-     * 
+     * Sets the iterative search settings string
+     * @param iterativeSearchSettings Iterative search settings. 
      */
-    public void setOmssa(boolean omssa) {
-        this.omssa = omssa;
-    }  
+	public void setIterativeSearchSettings(String iterativeSearchSettings) {
+		this.iterativeSearchSettings = iterativeSearchSettings;
+	}
 
-    /**
-     * Gets the value of the xTandem property.
-     * 
-     */
-    public boolean isXTandem() {
-        return xtandem;
-    }
-
-    /**
-     * Sets the value of the xTandem property.
-     * 
-     */
-    public void setXTandem(boolean xtandem) {
-        this.xtandem = xtandem;
-    }
-
-    /**
+	/**
      * Gets the value of the MS-GF+ property.
-     * 
+     * @return boolean flag whether MS-GF+ is used or not.
      */
-    public boolean isMSGF() {
+    public boolean useMSGF() {
         return msgf;
     }
 
     /**
-     * Sets the value of the MS-GF+ property.
-     * 
+     * Sets the flag whether MS-GF+ is used or not. 
+     * @param msgf MS-GF+ boolean flag
      */
     public void setMSGF(boolean msgf) {
         this.msgf = msgf;
     }
+    
+    /**
+     * Gets the value of the X!Tandem property.
+     * @return flag whether X!Tandem is used or not.
+     */
+    public boolean useXTandem() {
+        return xtandem;
+    }
+
+    /**
+     * Sets the value of the X!Tandem property.
+     */
+    public void setXTandem(boolean xtandem) {
+        this.xtandem = xtandem;
+    }
+    
+	/**
+     * Gets the value of the Comet property.
+     * @return flag whether Comet is used or not.
+     */
+    public boolean useComet() {
+        return comet;
+    }
+
+    /**
+     * Sets the value of the Comet property.
+     */
+    public void setComet(boolean comet) {
+        this.comet = comet;
+    }  
 
     /**
      * Gets the value of the experimentid property.
-     * 
      */
     public long getExperimentid() {
         return experimentid;
@@ -78,7 +108,6 @@ public class DbSearchSettings {
 
     /**
      * Sets the value of the experimentid property.
-     * 
      */
     public void setExperimentid(long value) {
         this.experimentid = value;
@@ -116,12 +145,12 @@ public class DbSearchSettings {
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 	}
 
-	public String getFastaFile() {
-		return fastaFile;
+	public String getFastaFilePath() {
+		return fastaFilePath;
 	}
 
-	public void setFastaFile(String fastaFile) {
-		this.fastaFile = fastaFile;
+	public void setFastaFilePath(String fastaFilePath) {
+		this.fastaFilePath = fastaFilePath;
 	}
 
 	public SearchType getSearchType() {
@@ -140,12 +169,12 @@ public class DbSearchSettings {
 		this.xtandemParams = xtandemParams;
 	}
 
-	public String getOmssaParams() {
-		return omssaParams;
+	public String getCometParams() {
+		return cometParams;
 	}
 
-	public void setOmssaParams(String omssaParams) {
-		this.omssaParams = omssaParams;
+	public void setCometParams(String cometParams) {
+		this.cometParams = cometParams;
 	}
 
 	public String getMsgfParams() {

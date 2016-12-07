@@ -2,7 +2,7 @@
 <bioml>
 	<note type="input" label="list path, default parameters">parameters.xml</note>
 	<note type="input" label="list path, taxonomy information">taxonomy.xml</note>
-	<note type="input" label="protein, taxon">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Databases\pfu_yeast.fasta</note>
-	<note type="input" label="spectrum, path">S:\OE\NG4\staff\Thilo\Projects\MPA_Portable\Test Samples\Pyro_Velos.mgf</note>
+	<note type="input" label="protein, taxon">P:\Temp\PFU\pfu_yeast.fasta</note>
+	<note type="input" label="spectrum, path">P:\Temp\PFU\Pyro_Velos.mgf</note>
 	<note type="input" label="output, path">P:\git\meta-proteome-analyzer\built\output\X!Tandem\Pyro_Velos_target.xml</note>
 </bioml>

@@ -51,7 +51,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 		this.spectrumId = spectrumid;
 		this.spectrumFilename = searchHit.getSpectrumFilename();
 		this.spectrumTitle = searchHit.getSpectrumTitle();
-		this.charge = (int) searchHit.getCharge();
+		this.charge = searchHit.getCharge();
 		this.searchHits = new HashMap<SearchEngineType, SearchHit>();
 		this.searchHits.put(searchHit.getType(), searchHit);
 	}

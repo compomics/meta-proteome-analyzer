@@ -1,7 +1,5 @@
 package de.mpa.client.model;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -221,9 +219,8 @@ public class FileExperiment implements ProjectExperiment {
 			if (this.getClass().equals(that.getClass())) {
 				if ((this.getID() != null) && (that.getID() != null)) {
 					return this.getID().equals(that.getID());
-				} else {
-					return this.getCreationDate().equals(that.getCreationDate());
-				}
+				} 
+				return this.getCreationDate().equals(that.getCreationDate());
 			}
 		}
 		return false;
@@ -280,8 +277,7 @@ public class FileExperiment implements ProjectExperiment {
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 				
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 				
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FAILED");
 			}

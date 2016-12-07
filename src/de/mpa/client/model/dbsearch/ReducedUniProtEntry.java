@@ -76,7 +76,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @param concatenatedString
 	 * @return List of strings.
 	 */
-	private List<String> formatToList(String concatenatedString) {
+	private static List<String> formatToList(String concatenatedString) {
 		List<String> stringList = new ArrayList<String>();
 		String[] strings = concatenatedString.split(";");
 		for (String string : strings) {

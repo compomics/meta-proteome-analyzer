@@ -16,7 +16,7 @@ import de.mpa.client.model.dbsearch.Tax;
 import de.mpa.client.ui.SortableTreeNode;
 import de.mpa.io.parser.ec.ECEntry;
 import de.mpa.io.parser.ec.ECReader;
-import de.mpa.job.ResourceProperties;
+import de.mpa.task.ResourceProperties;
 
 /**
  * This class initializes the parameters.

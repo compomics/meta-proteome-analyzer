@@ -1,16 +1,11 @@
 package de.mpa.io.parser.xtandem;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -19,9 +14,9 @@ import org.xml.sax.SAXException;
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
 
+import de.mpa.analysis.TargetDecoyAnalysis;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.io.GenericContainer;
-import de.mpa.job.scoring.ValidatedPSMScore;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
 import de.proteinms.xtandemparser.xtandem.PeptideMap;
@@ -37,20 +32,18 @@ public class XTandemParser extends GenericContainer {
     private XTandemFile xTandemFile;
 	
 	/**
-	 * Mapping for the original PSM scores to the validated ones.
+	 * TargetDecoyAnalysis instance.
 	 */
-	private HashMap<Double, ValidatedPSMScore> validatedPSMScores;
+	private TargetDecoyAnalysis targetDecoyAnalysis;
 	
     /**
      * Constructor for storing results from a target-decoy search with X!Tandem.
      * @param file X!Tandem file
-     * @param targetScoreFile File containing the original PSM scores.
-     * @param qValueFile File containing the validated PSM scores.
+     * @param targetDecoyAnalysis TargetDecoyAnalysis instance
      */
-	public XTandemParser(final File file, File targetScoreFile, File qValueFile) {
+	public XTandemParser(final File file, TargetDecoyAnalysis targetDecoyAnalysis) {
 		this.file = file;
-		this.targetScoreFile = targetScoreFile;
-		this.qValueFile = qValueFile;
+		this.targetDecoyAnalysis = targetDecoyAnalysis;
 		this.searchEngineType = SearchEngineType.XTANDEM;
 		load();
 	}
@@ -67,7 +60,6 @@ public class XTandemParser extends GenericContainer {
         } catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-        if(qValueFile != null) this.processQValues();
     }
     
     /**
@@ -77,7 +69,6 @@ public class XTandemParser extends GenericContainer {
      */
     @Override
     public void parse() {
-               
         // Iterate over all the spectra
         @SuppressWarnings("unchecked")
 		Iterator<de.proteinms.xtandemparser.xtandem.Spectrum> iter = xTandemFile.getSpectraIterator();
@@ -113,15 +104,9 @@ public class XTandemParser extends GenericContainer {
 						if (SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	long spectrumId = SpectrumTitle2IdMap.get(spectrumTitle);
                 	    	String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
-                	        Double qValue = 1.0;
+                	    	
+                	    	double qValue = targetDecoyAnalysis.getQValue((float) domain.getDomainHyperScore());
             	            Double pep = 1.0;
-                	    	if (validatedPSMScores != null) {
-                	    		ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
-                	    		if (validatedPSMScore != null) {
-                	    	    	qValue = validatedPSMScore.getQvalue();
-                	    	    	pep = validatedPSMScore.getPep();
-                	    	    } 
-                	    	}
             	    	    	
             				if (qValue < 0.05) {
             					XTandemHit hit = new XTandemHit();
@@ -133,8 +118,6 @@ public class XTandemParser extends GenericContainer {
                                 Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
                                 String accession = header.getAccession();
                                 hit.setAccession(accession);
-                                
-//                                hitdata.put(XtandemhitTableAccessor.EVALUE, domain.getDomainExpect());
                                 hit.setScore(domain.getDomainHyperScore());                
                                 hit.setPep(pep);
                                 hit.setQValue(qValue);
@@ -168,39 +151,4 @@ public class XTandemParser extends GenericContainer {
         }
         log.debug("No. of X!Tandem hits saved: " + nHits);
     }
-    
-    private void processQValues() {
-		BufferedReader qValueFileReader;
-		BufferedReader targetFileReader;
-		try {
-			qValueFileReader = new BufferedReader(new FileReader(qValueFile));
-			targetFileReader = new BufferedReader(new FileReader(targetScoreFile));
-			validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
-			String nextLine;
-			// Skip the first line
-			qValueFileReader.readLine();
-			// Iterate over all the lines of the file.
-			while ((nextLine = qValueFileReader.readLine()) != null) {
-				
-				StringTokenizer tokenizer = new StringTokenizer(nextLine, "\t");
-				List<String> tokenList = new ArrayList<String>();
-				// Iterate over all the tokens
-				while (tokenizer.hasMoreTokens()) {
-					tokenList.add(tokenizer.nextToken());
-				}
-				ValidatedPSMScore validatedPSMScore = new ValidatedPSMScore(Double.valueOf(tokenList.get(0)), Double.valueOf(tokenList.get(1)), Double.valueOf(tokenList.get(2)));
-				
-				// Get original target score
-				double score = Double.valueOf(targetFileReader.readLine());
-				validatedPSMScores.put(score, validatedPSMScore);
-			}
-			qValueFileReader.close();
-			targetFileReader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}	
-
 }

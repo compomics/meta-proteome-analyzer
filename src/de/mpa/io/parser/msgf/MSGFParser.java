@@ -2,7 +2,6 @@ package de.mpa.io.parser.msgf;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
@@ -16,12 +15,12 @@ import de.mpa.io.GenericContainer;
 public class MSGFParser extends GenericContainer {
 	
 	 /**
-     * Variable holding an xTandemFile.
+     * Variable holding an msgfFile instance.
      */
     private File msgfFile;
 	
     /**
-     * Constructor for storing results from a target-decoy search with X!Tandem.
+     * Constructor for storing results from a target-decoy search with MS-GF+.
      * @param file Original MS-GF+ output file
      */
 	public MSGFParser(final File file) {

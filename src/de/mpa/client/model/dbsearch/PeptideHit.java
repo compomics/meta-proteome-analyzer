@@ -182,9 +182,8 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	public SpectrumMatch getSpectrumMatch(long id) {
 		if (visSpectrumMatches != null) {
 			return visSpectrumMatches.get(id);
-		} else {
-			return spectrumMatches.get(id);
-		}
+		} 
+		return spectrumMatches.get(id);
 	}
 
 	/**
@@ -301,7 +300,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	@Override
 	public int hashCode() {
 		if (this.getSequence() == null) return super.hashCode();
-		else return this.getSequence().hashCode();
+		return this.getSequence().hashCode();
 	}
 
 	/**

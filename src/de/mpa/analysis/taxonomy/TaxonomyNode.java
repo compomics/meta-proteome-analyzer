@@ -14,7 +14,7 @@ import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
  * 
  * @author R. Heyer and A. Behne
  */
-public class TaxonomyNode implements Comparable, Serializable {
+public class TaxonomyNode implements Comparable<Object>, Serializable {
 	
 	/**
 	 * Serialization ID set to default == 1L;

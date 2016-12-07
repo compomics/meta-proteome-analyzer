@@ -222,7 +222,7 @@ public class KeggAccessor {
 		Enumeration<TreeNode> dfEnum = ((DefaultMutableTreeNode) pathwayRoot).depthFirstEnumeration();
 		// iterate nodes of pathway
 		while (dfEnum.hasMoreElements()) {
-			TreeNode treeNode = (TreeNode) dfEnum.nextElement();
+			TreeNode treeNode = dfEnum.nextElement();
 			// extract data from leaf nodes only
 			if (treeNode.isLeaf()) {
 				String leafName = (String) ((DefaultMutableTreeNode) treeNode).getUserObject();

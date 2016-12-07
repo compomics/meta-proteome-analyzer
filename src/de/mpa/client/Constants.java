@@ -51,7 +51,12 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.3";
+	public final static String VER_NUMBER = "1.3.0";
+	
+	/**
+	 * The application version date.
+	 */
+	public final static String VER_DATE = "2016/11/11";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -187,9 +192,8 @@ public class Constants {
 	public static File getUserQueriesFile() throws URISyntaxException {
 		if (Starter.isJarExport()) {
 			return new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "userqueries.xml");
-		} else {
-			return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
-		}
+		} 
+		return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
 	}
 	
 	/**

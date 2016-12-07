@@ -266,8 +266,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @param peptides the peptides to map onto the proteins
 	 * @return the coverage mapping
 	 */
-	private Map<ProteinHit, List<Interval>> createCoverageMapping(
-			Collection<ProteinHit> proteins, Collection<PeptideHit> peptides) {
+	private static Map<ProteinHit, List<Interval>> createCoverageMapping(Collection<ProteinHit> proteins, Collection<PeptideHit> peptides) {
 		Map<ProteinHit, List<Interval>> coverageMap = new LinkedHashMap<ProteinHit, List<Interval>>();
 		
 		for (ProteinHit protein : proteins) {
@@ -299,7 +298,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @param peptides the peptides
 	 * @return the color map
 	 */
-	private Map<String, Color> createColorMapping(Collection<PeptideHit> peptides) {
+	private static Map<String, Color> createColorMapping(Collection<PeptideHit> peptides) {
 //		DefaultDrawingSupplier drawingSupplier = new DefaultDrawingSupplier();
 		Map<String, Color> colorMap = new HashMap<String, Color>();
 		for (PeptideHit peptide : peptides) {
@@ -381,7 +380,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 							((AbstractButton) label).setModel(cachedLbl.getModel());
 						} else {
 							// cache label
-							hoverLabels.put((String) sequence, (HoverLabel) label);
+							hoverLabels.put(sequence, (HoverLabel) label);
 //							// put label in button group
 //							hoverGroup.add((AbstractButton) label);
 							

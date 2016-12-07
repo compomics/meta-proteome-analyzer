@@ -1,14 +1,7 @@
 package de.mpa.main;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.SplashScreen;
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.net.URL;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +16,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
 
-import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
@@ -50,16 +42,6 @@ public class Starter {
 	 * Flag denoting whether the application is in jar export mode.
 	 */
 	private static boolean jarExport = false;
-	
-	/**
-	 * The logger instance.
-	 */
-	private static Logger log = Logger.getLogger(Starter.class);
-	
-	/**
-	 * Flag denoting whether an application lock is in effect. 
-	 */
-	private final static boolean LOCK_ACTIVE = true;
 	
 	/**
 	 * This method sets the look&feel for the application.
@@ -178,36 +160,25 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		
-		// Lock file instance.
-//		boolean unlocked = true;
-//		if (LOCK_ACTIVE) {
-//			unlocked = lockInstance("filelock");
-//		}
-		
-//		if (unlocked) {
-//			// Display splash screen
-//			new Thread(new SplashRunnable()).start();
-			
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// Set the look&feel
-						setLookAndFeel();
-						
-						// Default = no debug mode.
-						ClientFrame clientFrame = ClientFrame.getInstance(false);
-						clientFrame.toFront();
-						
-					} catch (Exception e) {
-						JXErrorPane.showDialog(null, new ErrorInfo(
-								"Error", "The application could not be launched due to an error.",
-								e.getMessage(), null, e, Level.SEVERE, null));
-					}
+		// Display splash screen
+		SplashScreen splashScreen = new SplashScreen();
+		splashScreen.run();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					// Set the look&feel
+					setLookAndFeel();
+					// Default = no debug mode.
+					ClientFrame clientFrame = ClientFrame.getInstance(false);
+					clientFrame.toFront();
+					splashScreen.close();
+				} catch (Exception e) {
+					JXErrorPane.showDialog(null, new ErrorInfo("Error", "The application could not be launched due to an error.", e.getMessage(), null, e, Level.SEVERE, null));
 				}
-			});
-//		}
+			}
+		});
 	}
 	
 	/**
@@ -234,79 +205,4 @@ public class Starter {
 	public static boolean isJarExport() {
 		return jarExport;
 	}
-	
-	/**
-	 * Locks an instance to a file by random access.
-	 * @param lockFile Lock file string.
-	 * @return <code>true</code> if the instance has been locked.
-	 */
-	private static boolean lockInstance(final String lockFile) {
-	    try {
-	        final File file = new File(lockFile);
-	        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-	        final FileLock fileLock = randomAccessFile.getChannel().tryLock();
-	        if (fileLock != null) {
-	            Runtime.getRuntime().addShutdownHook(new Thread() {
-	                public void run() {
-	                    try {
-	                        fileLock.release();
-	                        randomAccessFile.close();
-	                        file.delete();
-	                    } catch (Exception e) {
-	                        log.error("Unable to remove lock file: " + lockFile, e);
-	                    }
-	                }
-	            });
-	            return true;
-	        }
-	    } catch (Exception e) {
-	        log.error("Unable to create and/or lock file: " + lockFile, e);
-	    }
-	    return false;
-	}
-	
-	/**
-	 * Custom runnable for painting onto a splash screen image.
-	 * @author A. Behne
-	 */
-	private static class SplashRunnable implements Runnable {
-
-		@Override
-		public void run() {
-			SplashScreen splashScreen = SplashScreen.getSplashScreen();
-			if (splashScreen != null) {
-				Graphics2D g2d = splashScreen.createGraphics();
-				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				g2d.setColor(new Color(0, 0, 0, 20));
-				
-				FontMetrics fm = g2d.getFontMetrics();
-				int textH = fm.getHeight();
-				
-				String versionStr = "Version: " + Constants.VER_NUMBER;
-				int versionW = fm.stringWidth(versionStr);
-				int versionX = splashScreen.getBounds().width - versionW - 5;
-				int versionY = textH;
-				
-				String copyrightStr = "\u00a92014 - MPA Portable Team";
-				int copyrightW = fm.stringWidth(copyrightStr);
-				int copyrightX = (splashScreen.getBounds().width - copyrightW) / 2;
-				int copyrightY = splashScreen.getBounds().height - 8;
-				
-				int time = 960;
-				int inc = 60;
-				for (int i = 0; i < time; i += inc) {
-					g2d.drawString(versionStr, versionX, versionY);
-					g2d.drawString(copyrightStr, copyrightX, copyrightY);
-					splashScreen.update();
-					try {
-						Thread.sleep(inc);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-	}
-	
 }

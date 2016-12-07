@@ -186,9 +186,8 @@ public class FileProject implements ProjectExperiment {
 			FileProject that = (FileProject) obj;
 			if ((this.getID() != null) && (that.getID() != null)) {
 				return this.getID().equals(that.getID());
-			} else {
-				return this.getCreationDate().equals(that.getCreationDate());
-			}
+			} 
+			return this.getCreationDate().equals(that.getCreationDate());
 		}
 		return false;
 	}

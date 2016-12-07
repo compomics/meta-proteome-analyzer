@@ -69,7 +69,7 @@ public class MSGFParameters extends ParameterMap {
 					// turn true/false into 1/0
 					value = ((Boolean) value) ? 1 : 0;
 				}
-				// Write commandline parameter containing non-default value
+				// Write CLI parameter containing non-default value
 				sb.append("-" + key + " " + value + " ");
 			}
 		}

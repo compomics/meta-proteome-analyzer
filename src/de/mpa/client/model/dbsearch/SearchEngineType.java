@@ -5,7 +5,8 @@ import java.io.Serializable;
 public enum SearchEngineType implements Serializable {
 	MSGF("MS-GF+"),
 	XTANDEM("X!Tandem"), 
-	OMSSA("OMSSA"); 
+	COMET("Comet"),
+	FIRSTROUND("First Round");
 
 	SearchEngineType(final String searchEngineName){
 		this.searchEngineName = searchEngineName;
