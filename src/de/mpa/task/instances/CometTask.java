@@ -92,9 +92,6 @@ public class CometTask extends Task {
     public void buildParametersFile() {
     	parameterFile = new File(cometExecutable, PARAMETER_FILE);
     	String[] parameters = params.split(";");
-    	for (String string : parameters) {
-			System.out.println(string);
-		}
     	
     	String precursorUnit; 
     	if (isPrecursorTolerancePpm) {
