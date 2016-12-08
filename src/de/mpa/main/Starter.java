@@ -41,7 +41,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = false;
+	private static boolean jarExport = true;
 	
 	/**
 	 * This method sets the look&feel for the application.

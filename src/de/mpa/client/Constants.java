@@ -56,7 +56,7 @@ public class Constants {
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "2016/11/11";
+	public final static String VER_DATE = "09/12/2016";
 	
 	/**
 	 * The client frame minimum width in pixels.

@@ -37,7 +37,7 @@ import uk.ac.ebi.uniprot.dataservice.query.Query;
 public class UniProtUtilities {
 	
 	// Max clause count == BATCH SIZE is set to 1024
-	private static final int BATCH_SIZE = 1024;
+	private static final int BATCH_SIZE = 100;
 	
 	/**
 	 * Enumeration holding ontology keywords.

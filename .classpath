@@ -123,7 +123,6 @@
 	<classpathentry kind="lib" path="lib/paranamer-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-20081211.jar"/>
 	<classpathentry kind="lib" path="lib/snappy-java-1.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/solr-solrj-5.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/ST4-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/stax2-api-3.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
