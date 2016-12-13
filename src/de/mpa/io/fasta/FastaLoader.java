@@ -212,7 +212,6 @@ public class FastaLoader {
 			acc2pos.putAll(tempMap);
 			tempMap.clear();
 		}		
-		
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
 		oos.writeObject(acc2pos);
 		oos.flush();
