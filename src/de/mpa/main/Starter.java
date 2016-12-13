@@ -161,7 +161,7 @@ public class Starter {
 	 */
 	public static void main(final String[] args) {
 		// Display splash screen
-		SplashScreen splashScreen = new SplashScreen();
+		final SplashScreen splashScreen = new SplashScreen();
 		splashScreen.run();
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -179,6 +179,8 @@ public class Starter {
 				}
 			}
 		});
+		
+
 	}
 	
 	/**

@@ -36,13 +36,11 @@ public class MSGFParserTest extends TestCase {
 			String title = mgf.getTitle().trim();
 			
 			// Fill the cache maps
-			GenericContainer.SpectrumTitle2IdMap.put(title, ++spectrumCounter);
+			GenericContainer.SpectrumId2TitleMap.put(++spectrumCounter, title);
 			GenericContainer.SpectrumTitle2FilenameMap.put(title, file.getAbsolutePath());
 		}
 		GenericContainer.MGFReaders.put(file.getAbsolutePath(), reader);
 		GenericContainer.numberTotalSpectra = spectra.size();
-		// Provide a bidirectional mapping.
-		GenericContainer.SpectrumId2TitleMap = GenericContainer.reverse(GenericContainer.SpectrumTitle2IdMap);
 		
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();

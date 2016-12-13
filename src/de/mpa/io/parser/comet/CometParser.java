@@ -56,7 +56,7 @@ public class CometParser extends GenericContainer {
 					Long spectrumId = Long.valueOf(split[0]);
 
 					// Only store if the search spectrum id is referenced.
-					if (SpectrumTitle2IdMap.containsValue(spectrumId)) {
+					if (SpectrumId2TitleMap.containsKey(spectrumId)) {
 						String spectrumTitle = SpectrumId2TitleMap.get(spectrumId);
 						String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
 				        

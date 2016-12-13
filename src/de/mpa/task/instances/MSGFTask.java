@@ -1,6 +1,9 @@
 package de.mpa.task.instances;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.task.Task;
@@ -58,11 +61,14 @@ public class MSGFTask extends Task {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob(){
-
+		
+		String maxHeapSize = "-Xmx3500m";
+		  
         // Full path to executable
         procCommands.add("java");
         procCommands.add("-jar");
-        procCommands.add("-Xmx3000m");
+        procCommands.add(maxHeapSize);
+        procCommands.add("-XX:+UseConcMarkSweepGC");
         procCommands.add(msgfExecutable.getAbsolutePath() + File.separator + algorithmProperties.getProperty("app.msgf"));
         
         // Input MGF file

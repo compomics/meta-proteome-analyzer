@@ -950,8 +950,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 					}
 				}
 				
-				
-				
 				return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),

@@ -48,7 +48,7 @@ public class SearchTask {
 	 * Initializes the task.
 	 */
 	private void init() {
-		TaskManager jobManager = TaskManager.getInstance();
+		TaskManager taskManager = TaskManager.getInstance();
 		
 		/*
 		 *  OPTIONAL (aka. FIRST) SEARCH ROUND
@@ -59,18 +59,18 @@ public class SearchTask {
 			
 			// First search job.
 			Task firstSearchJob = new XTandemTask(mgfFile, searchSettings);
-			jobManager.addJob(firstSearchJob);
+			taskManager.addJob(firstSearchJob);
 			
 			// Parse the results and create new protein database.
 			ParseTask xTandemParseJob = new ParseTask(SearchEngineType.FIRSTROUND, firstSearchJob.getFilename());
-			jobManager.addJob(xTandemParseJob);
-			jobManager.addJob(new DeleteTask(firstSearchJob.getFilename()));
+			taskManager.addJob(xTandemParseJob);
+			taskManager.addJob(new DeleteTask(firstSearchJob.getFilename()));
 			
 			// Create a new (reduced) protein FASTA database.
 			
 			CreateDatabaseTask createDbJob = new CreateDatabaseTask(searchSettings);
-			jobManager.addJob(createDbJob);
-			jobManager.run();
+			taskManager.addJob(createDbJob);
+			taskManager.run();
 			
 			// Assign newly created (reduced) FASTA database file to the search settings --> used in the second search!
 			searchSettings.setFastaFilePath(createDbJob.getFilename());
@@ -83,53 +83,53 @@ public class SearchTask {
 		if (searchSettings.useXTandem()) {
 			searchSettings.setSearchType(SearchType.TARGET);
 			Task xtandemTargetJob = new XTandemTask(mgfFile, searchSettings);
-			jobManager.addJob(xtandemTargetJob);
+			taskManager.addJob(xtandemTargetJob);
 			
 			searchSettings.setSearchType(SearchType.DECOY);
 			Task xtandemDecoyJob = new XTandemTask(mgfFile, searchSettings);
-			jobManager.addJob(xtandemDecoyJob);
+			taskManager.addJob(xtandemDecoyJob);
 			
 			// The score job evaluates X!Tandem target + decoy results
 			Task xTandemScoreJob = new XTandemScoreTask(xtandemTargetJob.getFilename(), xtandemDecoyJob.getFilename());
-			jobManager.addJob(xTandemScoreJob);
+			taskManager.addJob(xTandemScoreJob);
 			
 			// Parse the results.
 			ParseTask xTandemParseJob = new ParseTask(SearchEngineType.XTANDEM, xtandemTargetJob.getFilename());
-			jobManager.addJob(xTandemParseJob);
-			jobManager.addJob(new DeleteTask(xtandemTargetJob.getFilename()));
+			taskManager.addJob(xTandemParseJob);
+			taskManager.addJob(new DeleteTask(xtandemTargetJob.getFilename()));
 		}
 		
 		// Comet search setup
 		if (searchSettings.useComet()) {
 			searchSettings.setSearchType(SearchType.TARGET_DECOY);
 			Task cometJob = new CometTask(mgfFile, searchSettings);
-			jobManager.addJob(cometJob);
+			taskManager.addJob(cometJob);
 			
 			// The score job evaluates Comet target + decoy results
 			Task cometScoreJob = new CometScoreTask(cometJob.getFilename(), ((CometTask)cometJob).getDecoyFilename());
-			jobManager.addJob(cometScoreJob);
+			taskManager.addJob(cometScoreJob);
 			
 			// Parse the results.
 			ParseTask cometParseJob = new ParseTask(SearchEngineType.COMET, cometJob.getFilename());
-			jobManager.addJob(cometParseJob);
-			jobManager.addJob(new DeleteTask(cometParseJob.getFilename()));
+			taskManager.addJob(cometParseJob);
+			taskManager.addJob(new DeleteTask(cometParseJob.getFilename()));
 		}
 		
 		// MS-GF+ search setup
 		if (searchSettings.useMSGF()) {
 			searchSettings.setSearchType(SearchType.TARGET_DECOY);
 			Task msgfJob = new MSGFTask(mgfFile, searchSettings);
-			jobManager.addJob(msgfJob);
+			taskManager.addJob(msgfJob);
 			
 			// This job converts the final results of MG-GF+ from MZID to TSV format.
 			Task msgfConvertJob = new MSGFConvertTask(msgfJob.getFilename());
-			jobManager.addJob(msgfConvertJob);
+			taskManager.addJob(msgfConvertJob);
 			
 			// Parse the results.
 			ParseTask msgfParseJob = new ParseTask(SearchEngineType.MSGF, msgfConvertJob.getFilename());
-			jobManager.addJob(msgfParseJob);
-			jobManager.addJob(new DeleteTask(msgfParseJob.getFilename()));
+			taskManager.addJob(msgfParseJob);
+			taskManager.addJob(new DeleteTask(msgfParseJob.getFilename()));
 		}
-		jobManager.addJob(new UniProtTask());
+		taskManager.addJob(new UniProtTask());
 	}
 }

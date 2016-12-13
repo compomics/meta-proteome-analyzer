@@ -113,46 +113,34 @@ public class Client {
 	 * Runs the searches by retrieving a bunch of spectrum file names and the global search settings.
 	 * @param filenames The spectrum file names
 	 * @param settings Global search settings
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
 	 */
-	public void runSearches(DbSearchSettings settings) {
+	public void runSearches(DbSearchSettings settings) throws IOException, ClassNotFoundException  {
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
 		fastaLoader.setFastaFile(new File(settings.getFastaFilePath()));
-
-		try {
-			File indexFile = new File(settings.getFastaFilePath() + ".fb");
-			if(indexFile.exists()) {
-				fastaLoader.setIndexFile(indexFile);
-				fastaLoader.readIndexFile();
-			} else {
-				throw new Exception("Index file does not exist: " + settings.getFastaFilePath() + ".fb");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		
+		File indexFile = new File(settings.getFastaFilePath() + ".fb");
+		if (indexFile.exists()) {
+			fastaLoader.setIndexFile(indexFile);
+			fastaLoader.readIndexFile();
+		} else {
+			throw new IOException("Index file does not exist: " + settings.getFastaFilePath() + ".fb");
 		}
+		
 		GenericContainer.FastaLoader = fastaLoader;
 		if (mgfFiles != null) {
-			TaskManager jobManager = TaskManager.getInstance();
-			// Clear the job manager to account for unfinished jobs in the queue.
-			jobManager.clear();
-			
-			// FIXME: do this only once!!! Parse spectrum titles + add spectrumIds.
-//			SpectraJob spectraJob = new SpectraJob(mgfFiles);
-//			jobManager.addJob(spectraJob);
-//			jobManager.run();
+			TaskManager taskManager = TaskManager.getInstance();
+			// Clear the task manager to account for unfinished jobs in the queue.
+			taskManager.clear();
 			
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
 			Client.getInstance().firePropertyChange("new message", null, "DATABASE SEARCH RUNNING");
 			
 			for (File mgfFile : mgfFiles) {
-				try {
-					new SearchTask(mgfFile, settings);
-					jobManager.run();
-				} catch (Exception e) {
-					e.printStackTrace();
-					JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				}
+				new SearchTask(mgfFile, settings);
+				taskManager.run();
 			}
 		}
 	}

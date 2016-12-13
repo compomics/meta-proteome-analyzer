@@ -43,7 +43,8 @@ public class SplashScreen extends JFrame implements Runnable {
 		    JLabel imageLbl = new JLabel(new ImageIcon(image), JLabel.CENTER);
 		    imageLbl.setLayout(new BorderLayout(20, 20));
 		    imageLbl.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
-			
+		    imageLbl.setOpaque(false);
+		    
 			// create the version label
 		    JPanel panel = new JPanel(new BorderLayout());
 		    

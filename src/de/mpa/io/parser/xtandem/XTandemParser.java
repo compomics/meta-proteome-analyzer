@@ -81,13 +81,10 @@ public class XTandemParser extends GenericContainer {
         
         nHits = 0;
         while (iter.hasNext()) {
-
             // Get the next spectrum.
             Spectrum spectrum = iter.next();
             int spectrumNumber = spectrum.getSpectrumNumber();
-            
-            String spectrumTitle = xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
-            spectrumTitle = formatSpectrumTitle(spectrumTitle);
+            long spectrumId = (long) spectrum.getSpectrumId();
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
@@ -99,10 +96,11 @@ public class XTandemParser extends GenericContainer {
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
 					if (!peptides.contains(sequence)) {
-						
                 	    // Only store if the search spectrum id is referenced.
-						if (SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
-                	    	long spectrumId = SpectrumTitle2IdMap.get(spectrumTitle);
+						if (SpectrumId2TitleMap.containsKey(spectrumId)) {
+							
+                	    	String spectrumTitle = SpectrumId2TitleMap.get(spectrumId);
+                	    	spectrumTitle = formatSpectrumTitle(spectrumTitle);
                 	    	String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
                 	    	
                 	    	double qValue = targetDecoyAnalysis.getQValue((float) domain.getDomainHyperScore());

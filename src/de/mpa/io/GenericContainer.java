@@ -23,12 +23,6 @@ import de.mpa.io.fasta.FastaLoader;
  *
  */
 public class GenericContainer {
-
-	/**
-	 * Map from spectrum title to spectrum id.
-	 */
-	public static Map<String, Long> SpectrumTitle2IdMap = new HashMap<String, Long>();
-
 	/**
 	 * Map from spectrum title to spectrum file name.
 	 */

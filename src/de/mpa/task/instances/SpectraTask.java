@@ -50,7 +50,7 @@ public class SpectraTask extends Task {
 					String title = mgf.getTitle().trim();
 					
 					// Fill the cache maps
-					GenericContainer.SpectrumTitle2IdMap.put(title, ++spectrumCounter);
+					GenericContainer.SpectrumId2TitleMap.put(++spectrumCounter, title);
 					GenericContainer.SpectrumTitle2FilenameMap.put(title, file.getAbsolutePath());
 					totalSpectra++;
 				}
@@ -63,8 +63,5 @@ public class SpectraTask extends Task {
 			}
 		}
 		GenericContainer.numberTotalSpectra = totalSpectra;
-		
-		// Provide a bi-directional mapping.
-		GenericContainer.SpectrumId2TitleMap = GenericContainer.reverse(GenericContainer.SpectrumTitle2IdMap);
 	}
 }

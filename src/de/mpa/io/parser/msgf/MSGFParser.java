@@ -51,7 +51,7 @@ public class MSGFParser extends GenericContainer {
 					Long spectrumId = Long.valueOf(split[1].substring(6)) + 1L;
 
 					// Only store if the search spectrum id is referenced.
-					if (SpectrumTitle2IdMap.containsValue(spectrumId)) {
+					if (SpectrumId2TitleMap.containsKey(spectrumId)) {
 						String spectrumTitle = SpectrumId2TitleMap.get(spectrumId);
 						String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
 						Set<String> proteinAccessions = new HashSet<String>();

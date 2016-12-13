@@ -121,6 +121,7 @@ public class SettingsPanel extends JPanel {
 					client.runSearches(searchSettings);
 					
 				} catch (Exception e) {
+					Client.getInstance().firePropertyChange("new message", null, "DATABASE SEARCH FAILED");
 					e.printStackTrace();
 				}
 				return 0;
@@ -145,6 +146,7 @@ public class SettingsPanel extends JPanel {
 					selectedExperiment.setResultFile(experimentFile);
 					selectedExperiment.serialize();
 				} catch (Exception e) {
+					Client.getInstance().firePropertyChange("new message", null, "DATABASE SEARCH FAILED");
 					e.printStackTrace();
 				}
 			}
