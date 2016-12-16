@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import scala.collection.mutable.HashMap;
 import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities;
@@ -19,6 +20,7 @@ import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
+import de.mpa.client.ui.PhylogenyTreeTableNode;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
 import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
@@ -35,6 +37,27 @@ import de.mpa.io.fasta.DigFASTAEntry;
  */
 public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonomic, Hit {
 	
+	
+	/*
+	 * The cousin list is a crutch to assign table nodes to proteinhits for table-consistency and exporters
+	 */
+	// XXX
+	private List<PhylogenyTreeTableNode> cousin_list = new ArrayList<PhylogenyTreeTableNode>();
+	
+	public List<PhylogenyTreeTableNode> getCousin_list() {
+		return cousin_list;
+	}
+
+	public void setCousin_list(List<PhylogenyTreeTableNode> cousin_list) {
+		this.cousin_list = cousin_list;
+	}
+	
+	public void addCousinNode(PhylogenyTreeTableNode node) {
+		this.cousin_list.add(node);
+	}
+	// XXX
+	
+
 	/**
 	 * Serialization ID set to default == 1L;
 	 */
@@ -83,7 +106,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * Visible peptide hits.
 	 */
-	private Map<String, PeptideHit> visPeptideHits;
+	private Map<String, PeptideHit> visPeptideHits = new LinkedHashMap<String, PeptideHit>();
 	
 	/**
 	 * The spectral count, i.e. the number of spectra which relate to the protein.
@@ -332,7 +355,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the number of peptides found in the protein hit
 	 */
 	public int getPeptideCount() {
-		if (visPeptideHits == null) {
+		if (visPeptideHits.isEmpty()) {
 			return peptideHits.size();
 		}
 		return visPeptideHits.size();
@@ -430,7 +453,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return The peptide hits as list.
 	 */
 	public List<PeptideHit> getPeptideHitList() {
-		if (visPeptideHits == null) {
+		if (visPeptideHits.isEmpty()) {
 			return new ArrayList<PeptideHit>(peptideHits.values());
 		}
 		return new ArrayList<PeptideHit>(visPeptideHits.values());
@@ -441,7 +464,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the map of peptide hits
 	 */
 	public Map<String, PeptideHit> getPeptideHits() {
-		if (visPeptideHits == null) {
+		if (visPeptideHits.isEmpty()) {
 			return peptideHits;
 		}
 		return visPeptideHits;
@@ -644,7 +667,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			case SPECTRUM_LEVEL:
 				for (PeptideHit ph : this.getPeptideHitList()) {
 					for (SpectrumMatch sm : ph.getSpectrumMatches()) {
-//						System.out.println(sm.getSearchSpectrumID());
 						// TODO: implement title caching for spectrum matches
 						res.add(sm.getSearchSpectrumID());
 					}
