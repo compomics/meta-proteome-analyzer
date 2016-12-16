@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -91,8 +92,15 @@ public enum ProteinTreeTables {
 		public void insertNode(PhylogenyTreeTableNode protNode) {
 			DefaultTreeTableModel treeTblMdl =
 					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
-		
+
 			((PhylogenyTreeTableNode) treeTblMdl.getRoot()).add(protNode);
+
+			// if this returns a proteinHit
+			Object protHit = protNode.getUserObject();
+			if (protHit instanceof ProteinHit) {
+				// add this node to list of proteinhits
+				((ProteinHit) protHit).addCousinNode(protNode);
+			}
 		}
 	},
 	META("Meta-Protein View") {
@@ -101,11 +109,18 @@ public enum ProteinTreeTables {
 			if (metaNode.getChildCount() == 1) {
 				metaNode = (PhylogenyTreeTableNode) metaNode.getChildAt(0);
 			}
-			
+
 			DefaultTreeTableModel treeTblMdl =
 					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
-		
+
 			((PhylogenyTreeTableNode) treeTblMdl.getRoot()).add(metaNode);
+
+			// if this returns a proteinHit
+			Object protHit = metaNode.getUserObject();
+			if (protHit instanceof ProteinHit) {
+				// add this node to list of proteinhits
+				((ProteinHit) protHit).addCousinNode(metaNode);
+			}
 		}
 	},
 	ONTOLOGY("Ontology View") {
@@ -115,13 +130,11 @@ public enum ProteinTreeTables {
 			DefaultTreeTableModel treeTblMdl =
 					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
 			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
-
 			// extract protein hit from provided node
 			ProteinHit ph = (ProteinHit) protNode.getUserObject();
-			
 			// init insertion node as root
 			PhylogenyTreeTableNode parent = root;
-			
+
 			UniProtEntryMPA upe = ph.getUniProtEntry();
 			if (upe != null) {
 				Map<String, Keyword> ontologies = UniProtUtilities.ONTOLOGY_MAP;
@@ -152,6 +165,14 @@ public enum ProteinTreeTables {
 						// add clone of protein node to keyword node
 						PhylogenyTreeTableNode cloneNode = protNode.clone();
 						child.add(cloneNode);
+
+						// if this returns a proteinHit
+						Object protHit = cloneNode.getUserObject();
+						if (protHit instanceof ProteinHit) {
+							// add this node to list of proteinhits
+							((ProteinHit) protHit).addCousinNode(cloneNode);
+						}
+
 					} else {
 						// unknown keyword, put node under 'Unknown'
 						parent = this.getChildByUserObject(root, "Unknown");
@@ -163,6 +184,14 @@ public enum ProteinTreeTables {
 						// add clone of protein node to parent
 						PhylogenyTreeTableNode cloneNode = protNode.clone();
 						parent.add(cloneNode);
+
+						// if this returns a proteinHit
+						Object protHit = cloneNode.getUserObject();
+						if (protHit instanceof ProteinHit) {
+							// add this node to list of proteinhits
+							((ProteinHit) protHit).addCousinNode(cloneNode);
+						}
+
 					}
 				}
 			} else {
@@ -176,7 +205,7 @@ public enum ProteinTreeTables {
 				parent.add(protNode);
 			}
 		}
-		
+
 		/**
 		 * Searches the child nodes of the provided parent node for one featuring a
 		 * user object matching the provided one.
@@ -202,10 +231,8 @@ public enum ProteinTreeTables {
 			DefaultTreeTableModel treeTblMdl =
 					(DefaultTreeTableModel) this.getTreeTable().getTreeTableModel();
 			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
-
 			// extract protein hit from provided node
 			ProteinHit ph = (ProteinHit) protNode.getUserObject();
-			
 			// traverse tree along the taxonomy path
 			TaxonomyNode[] taxPath = ph.getTaxonomyNode().getPath();
 			PhylogenyTreeTableNode parent = root;
@@ -223,6 +250,13 @@ public enum ProteinTreeTables {
 			}
 			// insert protein node as leaf
 			parent.add(protNode);
+
+			// if this returns a proteinHit
+			Object protHit = protNode.getUserObject();
+			if (protHit instanceof ProteinHit) {
+				// add this node to list of proteinhits
+				((ProteinHit) protHit).addCousinNode(protNode);
+			}
 		}
 	},
 	ENZYME("Enzyme View") {
@@ -247,7 +281,7 @@ public enum ProteinTreeTables {
 			if (ecNumbers.isEmpty()) {
 				ecNumbers.add(unclassifiedStr);
 			}
-			
+
 			PhylogenyTreeTableNode unclassifiedNode = null;
 
 			// iterate E.C. numbers, insert cloned instance of protein node for each number
@@ -255,7 +289,7 @@ public enum ProteinTreeTables {
 			for (String ecNumber : ecNumbers) {
 				// init insertion node using tree root
 				PhylogenyTreeTableNode parent = root;
-				
+
 				// check for 'Unclassified'
 				if (unclassifiedStr.equals(ecNumber)) {
 					if (unclassifiedNode == null) {
@@ -267,7 +301,7 @@ public enum ProteinTreeTables {
 				} else {
 					// get path to root in enzyme tree
 					ECNode[] path = ECReader.getPath(ecRoot, ecNumber);
-					
+
 					if (path != null) {
 						// determine insertion point
 						for (int i = 1; i < path.length; i++) {
@@ -280,7 +314,7 @@ public enum ProteinTreeTables {
 								// create link to ExPASy website
 								URI uri = URI.create("http://enzyme.expasy.org/EC/" + path[i]);
 								child.setURI(uri);
-								
+
 								parent.add(child);
 							}
 							parent = child;
@@ -289,10 +323,17 @@ public enum ProteinTreeTables {
 						System.err.println("ERROR: unrecognized E.C. number: " + ecNumber);
 					}
 				}
-				
+
 				// add clone of protein node to parent
 				PhylogenyTreeTableNode cloneNode = protNode.clone();
 				parent.add(cloneNode);
+
+				// if this returns a proteinHit
+				Object protHit = protNode.getUserObject();
+				if (protHit instanceof ProteinHit) {
+					// add this node to list of proteinhits
+					((ProteinHit) protHit).addCousinNode(cloneNode);
+				}
 			}
 		}
 	},
@@ -305,14 +346,14 @@ public enum ProteinTreeTables {
 			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) treeTblMdl.getRoot();
 
 			ProteinHit ph = (ProteinHit) protNode.getUserObject();
-			
+
 			// gather KO numbers for pathway lookup
-						List<String> keys = new ArrayList<>();
-						UniProtEntryMPA upe = ph.getUniProtEntry();
-						if (upe != null) {
-							keys.addAll(upe.getKonumbers());
-						}
-			
+			List<String> keys = new ArrayList<>();
+			UniProtEntryMPA upe = ph.getUniProtEntry();
+			if (upe != null) {
+				keys.addAll(upe.getKonumbers());
+			}
+
 			// write KEGG keys to nodes
 			Set<KEGGOrthologyNode> koNodes = new LinkedHashSet<>();
 			for (String key : keys) {
@@ -321,9 +362,9 @@ public enum ProteinTreeTables {
 					koNodes.add(node);
 				}
 			}
-			
+
 			PhylogenyTreeTableNode parent = root;
-			
+
 			// iterate found pathways
 			if (!koNodes.isEmpty()) {
 				// iterate pathway IDs
@@ -342,10 +383,10 @@ public enum ProteinTreeTables {
 						PhylogenyTreeTableNode child = 
 								(PhylogenyTreeTableNode) parent.getChildByName(node.getName());
 						if (child == null) {
-								child = new PhylogenyTreeTableNode(
-										node.getName(), node.getDescription());
-										parent.add(child);
-								parent = child;
+							child = new PhylogenyTreeTableNode(
+									node.getName(), node.getDescription());
+							parent.add(child);
+							parent = child;
 						} else {
 							parent = child;
 						}					
@@ -368,7 +409,7 @@ public enum ProteinTreeTables {
 				if (parent == root) {
 					// 'Unclassified' node does not exist yet, therefore create it
 					parent = new PhylogenyTreeTableNode("Unclassified");
-//								treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
+					//								treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
 					root.add(parent);
 				}
 				// add clone of protein node to 'Unclassified' branch
@@ -381,12 +422,12 @@ public enum ProteinTreeTables {
 		private PhylogenyTreeTableNode findPathway(String pw) {
 			Enumeration<? extends MutableTreeTableNode> children = 
 					((MutableTreeTableNode) ProteinTreeTables.PATHWAY.getTreeTable().getTreeTableModel().getRoot()).children();
-					while (children.hasMoreElements()) {
-						MutableTreeTableNode childC = (MutableTreeTableNode) children.nextElement();
-						if (((String) childC.getUserObject()).startsWith(pw)) {
-							return (PhylogenyTreeTableNode) childC;
-						}
-					}
+			while (children.hasMoreElements()) {
+				MutableTreeTableNode childC = (MutableTreeTableNode) children.nextElement();
+				if (((String) childC.getUserObject()).startsWith(pw)) {
+					return (PhylogenyTreeTableNode) childC;
+				}
+			}
 			return null;
 		}
 
@@ -470,7 +511,7 @@ public enum ProteinTreeTables {
 				if (parent == root) {
 					// 'Unclassified' node does not exist yet, therefore create it
 					parent = new PhylogenyTreeTableNode("Unclassified");
-//					treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
+					//					treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
 					root.add(parent);
 				}
 				// add clone of protein node to 'Unclassified' branch
@@ -496,7 +537,7 @@ public enum ProteinTreeTables {
 					Enumeration<? extends MutableTreeTableNode> childrenC = childB.children();
 					while (childrenC.hasMoreElements()) {
 						MutableTreeTableNode childC = (MutableTreeTableNode) childrenC.nextElement();
-//						if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
+						//						if (((String) childC.getUserObject()).startsWith(String.format("%05d", pw))) {
 						if (((String) childC.getUserObject()).startsWith(pw)) {
 							return (PhylogenyTreeTableNode) childC;
 						}
@@ -511,94 +552,94 @@ public enum ProteinTreeTables {
 	 * The model index of the accession column
 	 */
 	public static final int ACCESSION_COLUMN = 0;
-	
+
 	/**
 	 * The model index of the description column.
 	 */
 	public static final int DESCRIPTION_COLUMN = 1;
-	
+
 	/**
 	 * The model index of the taxonomy column.
 	 */
 	public static final int TAXONOMY_COLUMN = 2;
-	
+
 	/**
 	 * The model index of the UniRef column.
 	 */
 	public static final int UNIREF_COLUMN = 3;
-	
+
 	/**
 	 * The model index of the protein sequence column.
 	 */
 	public static final int SEQUENCE_COLUMN = 4;
-	
+
 	/**
 	 * The model index of the sequence coverage column.
 	 */
 	public static final int SEQUENCE_COVERAGE_COLUMN = 5;
-	
+
 	/**
 	 * The model index of the molecular weight column.
 	 */
 	public static final int MOLECULAR_WEIGHT_COLUMN = 6;
-	
+
 	/**
 	 * The model index of the isoelectric point column.
 	 */
 	public static final int ISOELECTRIC_POINT_COLUMN = 7;
-	
+
 	/**
 	 * The model index of the peptide count column.
 	 */
 	public static final int PEPTIDE_COUNT_COLUMN = 8;
-	
+
 	/**
 	 * The model index of the spectral count column.
 	 */
 	public static final int SPECTRAL_COUNT_COLUMN = 9;
-	
+
 	/**
 	 * The model index of the emPAI column.
 	 */
 	public static final int EMPAI_COLUMN = 10;
-	
+
 	/**
 	 * The model index of the NSAF column.
 	 */
 	public static final int NSAF_COLUMN = 11;
-	
+
 	/**
 	 * The model index of the web resources column.
 	 */
 	public static final int WEB_RESOURCES_COLUMN = 12;
-	
+
 	/**
 	 * The descriptive label of the protein tree table.
 	 */
 	private String label;
-	
+
 	/**
 	 * The tree table associated with this enum member.
 	 */
 	private CheckBoxTreeTable treeTable;
-	
+
 	/**
 	 * Flag indicating whether checkbox selections inside the tree table are
 	 * currently in the middle of being synched programmatically.
 	 */
 	private boolean synching = false;
-	
+
 	/**
 	 * The cached list of checkbox selection paths of the tree table.
 	 */
 	private Set<TreePath> checkSelection;
-	
+
 	/**
 	 * Flag indicating whether checkbox selections inside the tree table are in
 	 * need of updating.
 	 */
 	private boolean checkSelectionNeedsUpdating = false;
-	
+
 	/**
 	 * Creates an enum member using the provided label string.
 	 * @param label the label
@@ -609,6 +650,10 @@ public enum ProteinTreeTables {
 				label, null, null, null, null, null, null, null, null, null, null, null));
 	}
 	
+	public ProteinTreeTables getPTTs() {
+		return this;
+	}
+	
 	/**
 	 * Returns the descriptive label string.
 	 * @return the label
@@ -616,17 +661,17 @@ public enum ProteinTreeTables {
 	public String getLabel() {
 		return label;
 	}
-	
+
 	public CheckBoxTreeTable getTreeTable() {
 		return treeTable;
 	}
-	
+
 	/**
 	 * Inserts a protein node into the hierarchy.
 	 * @param protNode the protein node to insert
 	 */
 	public abstract void insertNode(PhylogenyTreeTableNode protNode);
-	
+
 	/**
 	 * Returns the enum member with the specified label.
 	 * @param label the label identifying the enum member
@@ -670,11 +715,11 @@ public enum ProteinTreeTables {
 			@Override
 			public boolean isCellEditable(Object node, int column) {
 				switch (column) {
-					case ACCESSION_COLUMN:
-					case WEB_RESOURCES_COLUMN:
-						return true;
-					default:
-						return false;
+				case ACCESSION_COLUMN:
+				case WEB_RESOURCES_COLUMN:
+					return true;
+				default:
+					return false;
 				}
 			}
 		};
@@ -778,7 +823,7 @@ public enum ProteinTreeTables {
 				return strWidth;
 			}
 		};
-		
+
 		// Install component header
 		TableColumnModel tcm = treeTbl.getColumnModel();
 		String[] columnToolTips = {
@@ -792,9 +837,9 @@ public enum ProteinTreeTables {
 				"Isoelectric Point",
 				"Peptide Count",
 				"Spectral Count",
-//				"Exponentially Modified Protein Abundance Index",
+				//				"Exponentially Modified Protein Abundance Index",
 				"emPAI",
-//				"Normalized Spectral Abundance Factor",
+				//				"Normalized Spectral Abundance Factor",
 				"NSAF",
 				"External Web Resources"
 		};
@@ -809,10 +854,10 @@ public enum ProteinTreeTables {
 		MouseAdapter ma = createHeaderMouseAdapter(treeTbl);
 		ch.addMouseListener(ma);
 		ch.addMouseMotionListener(ma);
-		
+
 		// Force column factory to generate columns to properly cache widths
 		((AbstractTableModel) treeTbl.getModel()).fireTableStructureChanged();
-		
+
 		// Initialize table column aggregate functions (all NONE except for accession, description 
 		// and web resource columns, which are not aggregatable)
 		for (int i = SEQUENCE_COVERAGE_COLUMN; i <= NSAF_COLUMN; i++) {
@@ -820,7 +865,7 @@ public enum ProteinTreeTables {
 		}
 		((TableColumnExt2) tcm.getColumn(PEPTIDE_COUNT_COLUMN)).setAggregateFunction(AggregateFunction.DISTINCT);
 		((TableColumnExt2) tcm.getColumn(SPECTRAL_COUNT_COLUMN)).setAggregateFunction(AggregateFunction.DISTINCT);
-		
+
 		// Configure column widths
 		TableConfig.setColumnWidths(treeTbl, new double[] { 8.25, 20, 10, 8, 0, 5, 4, 3, 4, 4, 4.5, 5, 1 });
 		TableConfig.setColumnMinWidths(
@@ -830,7 +875,7 @@ public enum ProteinTreeTables {
 		webColumn.setMaxWidth(19);
 		webColumn.setResizable(false);
 		webColumn.setSortable(false);
-		
+
 		// Create shared web resource action
 		@SuppressWarnings("serial")
 		Action webResourceAction = new AbstractAction() {			
@@ -840,11 +885,11 @@ public enum ProteinTreeTables {
 			}
 		};
 		ButtonColumn bc = new ButtonColumn(treeTbl, webResourceAction, WEB_RESOURCES_COLUMN);
-		
+
 		webColumn.setCellRenderer(bc);
 		webColumn.setCellEditor(bc);
 		treeTbl.addMouseListener(bc);
-		
+
 		// Pre-select root node
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
@@ -852,61 +897,48 @@ public enum ProteinTreeTables {
 
 		// Set default sort order (spectral count, descending)
 		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(SPECTRAL_COUNT_COLUMN, SortOrder.DESCENDING);
-		
-		// Add listener to synchronize selection state of nodes throughout multiple trees
+
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
-			
 			@SuppressWarnings("unchecked")
 			@Override
 			public void valueChanged(TreeSelectionEvent tse) {
-				// Check whether synching is in progress
 				if (!synching) {
-					// Skip hidden tree tables
-					if (treeTbl.getParent().getParent().isVisible()) {
-						// Perform synchronization only on final event (checkbox selection changes typically fire multiple events)
-						if (tse.getPath() == null) {
-							synching = true;
-							
-							// Force re-sort (i.e. re-apply filtering)
-							treeTbl.setRowFilter((RowFilter<TreeModel, Integer>) treeTbl.getRowFilter());
-							
-							// Forward selection change to result object in background thread
-							new SwingWorker<Object, Object>() {
-								@Override
-								protected Object doInBackground() throws Exception {
-									if (treeTbl != null) {
-										CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
-										DefaultTreeTableModel model = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
-										PhylogenyTreeTableNode root =
-												(PhylogenyTreeTableNode) model.getRoot();
-										Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
-										while (dfe.hasMoreElements()) {
-											TreeNode treeNode = (TreeNode) dfe.nextElement();
-											if (treeNode.isLeaf()) {
-												Object userObject = ((TreeTableNode) treeNode).getUserObject();
-												// sanity check
-												if (userObject instanceof ProteinHit) {
-													TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
-													boolean selected = cbtsm.isPathSelected(path, true);
-													((ProteinHit) userObject).setSelected(selected);
-												}
-											}
+					if (tse.getPath() == null) {
+						if (treeTbl != null) {
+							CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+							DefaultTreeTableModel model = (DefaultTreeTableModel) treeTbl.getTreeTableModel();
+							PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) model.getRoot();
+							Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+							// this way of checking changed selections is shit, it looks through the entire tree ...
+							TreeMap<String, ProteinHit> prothitmap = new TreeMap<String, ProteinHit>();
+							while (dfe.hasMoreElements()) {
+								TreeNode treeNode = (TreeNode) dfe.nextElement();
+								if (treeNode.isLeaf()) {
+									Object userObject = ((TreeTableNode) treeNode).getUserObject();
+									// sanity check
+									if (userObject instanceof ProteinHit) {
+										TreePath path = new TreePath(model.getPathToRoot((TreeTableNode) treeNode));
+										boolean selected = cbtsm.isPathSelected(path, true);
+										ProteinHit protHit = (ProteinHit) userObject;
+										if (protHit.isSelected() != selected) {
+											prothitmap.put(protHit.getAccession(), protHit);
 										}
 									}
-									return null;
 								}
-								
-								@Override
-								protected void done() {
-									synching = false;
-									// notify listeners
-									treeTbl.firePropertyChange("checkboxSelectionDone", false, true);
+							}
+							for (ProteinHit prothit : prothitmap.values()) {
+								boolean final_selection;
+								if (prothit.isSelected()) {
+									final_selection = false;
+								} else {
+									final_selection = true;
 								}
-							}.execute();
+								prothit.setSelected(final_selection);
+							}
+							getPTTs().updateCheckSelection();
 						}
 					}
 				}
-
 			}
 		});
 
@@ -938,7 +970,7 @@ public enum ProteinTreeTables {
 			}
 		};
 		treeTbl.setIconValue(iv);
-		
+
 		// Install renderers and highlighters
 		FontMetrics fm = treeTbl.getFontMetrics(treeTbl.getFont());
 
@@ -970,10 +1002,10 @@ public enum ProteinTreeTables {
 
 		treeTbl.getColumnExt(NSAF_COLUMN).addHighlighter(new BarChartHighlighter(
 				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
-		
+
 		// Install non-leaf highlighter
 		Color hlCol = new Color(237, 246, 255);	// light blue
-//		Color hlCol = new Color(255, 255, 237);	// light yellow
+		//		Color hlCol = new Color(255, 255, 237);	// light yellow
 		HighlightPredicate notLeaf = new NotHighlightPredicate(HighlightPredicate.IS_LEAF);
 		HighlightPredicate notSel = new NotHighlightPredicate(HighlightPredicate.IS_SELECTED);
 		treeTbl.addHighlighter(new CompoundHighlighter(
@@ -981,7 +1013,7 @@ public enum ProteinTreeTables {
 						notSel, notLeaf, HighlightPredicate.EVEN), hlCol, null),
 						new ColorHighlighter(new AndHighlightPredicate(
 								notSel, notLeaf, HighlightPredicate.ODD), ColorUtils.getRescaledColor(hlCol, 0.95f), null)));
-		
+
 		// Initially hide UniRef and sequence columns
 		TableColumnExt urCol = treeTbl.getColumnExt(UNIREF_COLUMN);
 		TableColumnExt sqCol = treeTbl.getColumnExt(SEQUENCE_COLUMN);
@@ -990,7 +1022,7 @@ public enum ProteinTreeTables {
 
 		// Enable column control widget
 		TableConfig.configureColumnControl(treeTbl);
-		
+
 		return treeTbl;
 	}
 
@@ -1006,7 +1038,7 @@ public enum ProteinTreeTables {
 			 * The column view index of the last pressed column header.<br>
 			 */
 			private int col = -1;
-	
+
 			/**
 			 * Creates and configures the current column header's context menu.
 			 * @return the context menu
@@ -1023,18 +1055,18 @@ public enum ProteinTreeTables {
 						super.setVisible(b);
 					}
 				};
-	
+
 				// Create sub-menu containing sorting-related items
 				JMenu sortMenu = new JMenu("Sort");
 				sortMenu.setIcon(IconConstants.SORT_ICON);
-				
+
 				int modelCol = treeTbl.convertColumnIndexToModel(col);
 				@SuppressWarnings("rawtypes")
 				SortOrder order = ((TreeTableRowSorter) treeTbl.getRowSorter()).getSortOrder(modelCol);
 				JMenuItem ascChk = new JRadioButtonMenuItem("Ascending", order == SortOrder.ASCENDING);
 				JMenuItem desChk = new JRadioButtonMenuItem("Descending", order == SortOrder.DESCENDING);
 				JMenuItem unsChk = new JRadioButtonMenuItem("Unsorted", order == SortOrder.UNSORTED);
-				
+
 				ActionListener sortListener = new ActionListener() {
 					@SuppressWarnings("rawtypes")
 					@Override
@@ -1048,15 +1080,15 @@ public enum ProteinTreeTables {
 				ascChk.addActionListener(sortListener);
 				desChk.addActionListener(sortListener);
 				unsChk.addActionListener(sortListener);
-				
+
 				sortMenu.add(ascChk);
 				sortMenu.add(desChk);
 				sortMenu.add(unsChk);
-				
+
 				// Create sub-menu containing non-leaf value aggregation functions
 				JMenu aggrMenu = new JMenu("Aggregate Function");
 				aggrMenu.setIcon(IconConstants.CALCULATOR_ICON);
-	
+
 				ActionListener aggrListener = new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent evt) {
@@ -1080,7 +1112,7 @@ public enum ProteinTreeTables {
 					aggrMenu.add(new JMenuItem());
 					aggrMenu.setEnabled(false);
 				}
-				
+
 				// Create item for hiding column
 				JMenuItem hideItem = new JMenuItem("Hide Column", IconConstants.CROSS_ICON);
 				hideItem.addActionListener(new ActionListener() {
@@ -1091,13 +1123,13 @@ public enum ProteinTreeTables {
 					}
 				});
 				hideItem.setEnabled(col != treeTbl.getHierarchicalColumn());
-	
+
 				popup.add(sortMenu);
 				popup.add(aggrMenu);
 				popup.add(hideItem);
 				return popup;
 			}
-	
+
 			@Override
 			public void mousePressed(MouseEvent me) {
 				int col = ch.columnAtPoint(me.getPoint());
@@ -1107,7 +1139,7 @@ public enum ProteinTreeTables {
 					lower();
 				}
 			}
-			
+
 			@Override
 			public void mouseReleased(MouseEvent me) {
 				if ((me.getButton() == MouseEvent.BUTTON3) && 
@@ -1120,7 +1152,7 @@ public enum ProteinTreeTables {
 					}
 				}
 			}
-			
+
 			@Override
 			public void mouseDragged(MouseEvent me) {
 				TableColumn draggedColumn = ch.getDraggedColumn();
@@ -1131,7 +1163,7 @@ public enum ProteinTreeTables {
 					}
 				}
 			}
-			
+
 			@Override
 			public void mouseExited(MouseEvent me) {
 				if ((this.col != -1) && 
@@ -1139,7 +1171,7 @@ public enum ProteinTreeTables {
 					raise();
 				}
 			}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent me) {
 				if ((this.col != -1) && 
@@ -1147,7 +1179,7 @@ public enum ProteinTreeTables {
 					lower();
 				}
 			}
-			
+
 			/**
 			 * Convenience method to configure the column header to appear pressed.
 			 */
@@ -1162,7 +1194,7 @@ public enum ProteinTreeTables {
 					ch.repaint(ch.getHeaderRect(this.col));
 				}
 			}
-			
+
 			/**
 			 * Convenience method to configure the column header to not appear pressed.
 			 */
@@ -1176,7 +1208,7 @@ public enum ProteinTreeTables {
 				}
 			}
 		};
-		
+
 		return ma;
 	}
 
@@ -1209,12 +1241,12 @@ public enum ProteinTreeTables {
 		uniProtMenuItem.putClientProperty("url", "http://www.uniprot.org/uniprot/" + accession);
 		uniProtMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(uniProtMenuItem);
-		
+
 		JMenuItem ncbiMenuItem = new JMenuItem("NCBI", IconConstants.WEB_NCBI_ICON);
 		ncbiMenuItem.putClientProperty("url", "http://www.ncbi.nlm.nih.gov/protein/" + accession);
 		ncbiMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(ncbiMenuItem);
-		
+
 		JMenuItem keggMenuItem = new JMenuItem("KEGG", IconConstants.WEB_KEGG_ICON);
 		String keggURL = "";
 		ProteinHit proteinHit = Client.getInstance().getDatabaseSearchResult().getProteinHit(accession);
@@ -1223,7 +1255,7 @@ public enum ProteinTreeTables {
 			if (uniprotEntry != null) {
 				List<String> kNumbers = uniprotEntry.getKonumbers();
 				int size = kNumbers.size();
-	
+
 				for (int i = 0; i < size; i++) {
 					keggURL  = "http://www.genome.jp/dbget-bin/www_bget?ko:" + kNumbers.get(i);
 					if(i < size - 1) keggURL += "+";
@@ -1235,44 +1267,44 @@ public enum ProteinTreeTables {
 		// disable KEGG item if no UniProt entry is present or it contains no K numbers
 		keggMenuItem.setEnabled(!keggURL.isEmpty());
 		webresourceMenu.add(keggMenuItem);
-		
+
 		JMenuItem blastMenuItem = new JMenuItem("BLAST", IconConstants.WEB_BLAST_ICON);
 		String sequence = proteinHit.getSequence();
 		String blastURL = "http://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastp&BLAST_PROGRAMS=blastp&PAGE_TYPE=BlastSearch&SHOW_DEFAULTS=on&LINK_LOC=blasthome&QUERY=" + sequence;
 		blastMenuItem.putClientProperty("url", blastURL);
 		blastMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(blastMenuItem);
-		
+
 		JMenuItem pfamMenuItem = new JMenuItem("PFAM", IconConstants.WEB_PFAM_ICON);
 		pfamMenuItem.putClientProperty("url", "http://pfam.sanger.ac.uk/protein/" + accession);
 		pfamMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(pfamMenuItem);
-		
+
 		JMenuItem interproMenuItem = new JMenuItem("InterPro", IconConstants.WEB_INTERPRO_ICON);
 		interproMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/interpro/protein/" + accession);
 		interproMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(interproMenuItem);
-		
+
 		JMenuItem pdbMenuItem = new JMenuItem("PDB", IconConstants.WEB_PDB_ICON);
 		pdbMenuItem.putClientProperty("url", "http://www.rcsb.org/pdb/protein/" + accession);
 		pdbMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(pdbMenuItem);
-		
+
 		JMenuItem reactomeMenuItem = new JMenuItem("Reactome", IconConstants.WEB_REACTOME_ICON);
 		reactomeMenuItem.putClientProperty("url", "http://www.reactome.org/cgi-bin/search2?DB=test_reactome_46&SPECIES=&OPERATOR=ALL&QUERY=" + accession);
 		reactomeMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(reactomeMenuItem);
-		
+
 		JMenuItem quickGoMenuItem = new JMenuItem("QuickGO", IconConstants.WEB_QUICKGO_ICON);
 		quickGoMenuItem.putClientProperty("url", "http://www.ebi.ac.uk/QuickGO/GProtein?ac=" + accession);
 		quickGoMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(quickGoMenuItem);
-		
+
 		JMenuItem eggNogMenuItem = new JMenuItem("eggNOG", IconConstants.WEB_EGGNOG_ICON);
 		eggNogMenuItem.putClientProperty("url", "http://eggnog.embl.de/uniprot=" + accession);
 		eggNogMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(eggNogMenuItem);
-		
+
 		Rectangle cellRect = table.getCellRect(selRow, table.getSelectedColumn(), true);
 		webresourceMenu.show(table, cellRect.x, cellRect.y + cellRect.height);
 		return webresourceMenu;
@@ -1296,7 +1328,7 @@ public enum ProteinTreeTables {
 				this.getTreeTable().getCheckBoxTreeSelectionModel().getSelectionPaths()));
 		checkSelectionNeedsUpdating = false;
 	}
-	
+
 	/**
 	 * Sets whether the checkbox selection needs to be updated.
 	 * @param needsUpdating <code>true</code> if the selection is in need of updating
@@ -1304,27 +1336,30 @@ public enum ProteinTreeTables {
 	public void setCheckSelectionNeedsUpdating(boolean needsUpdating) {
 		checkSelectionNeedsUpdating |= needsUpdating;
 	}
-	
+
 	/**
 	 * Convenience method to update the checkbox selection state of the
 	 * tree table to what's stored separately in its nodes.
 	 */
 	@SuppressWarnings("unchecked")
 	public void updateCheckSelection() {
+
+		// XXX: this one is broken, needs different implementation
+
 		CheckBoxTreeTable treeTbl = this.getTreeTable();
 		RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
-		
-		if (checkSelectionNeedsUpdating) {
+
+//		if (checkSelectionNeedsUpdating) {
 			// prevent selection listener from capturing events fired during synchronization
 			synching = true;
-			
+
 			CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 			SortableTreeTableModel model = (SortableTreeTableModel) treeTbl.getTreeTableModel();
 			PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) model.getRoot();
-			
+
 			// temporarily disable row filter
 			treeTbl.setRowFilter(null);
-			
+
 			// iterate nodes
 			Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
 			while (dfe.hasMoreElements()) {
@@ -1344,13 +1379,12 @@ public enum ProteinTreeTables {
 					}
 				}
 			}
-			
+
 			// cache selection
 			this.cacheCheckSelection();
-			
 			synching = false;
-		}
-		
+//		}
+
 		// re-apply row filter
 		treeTbl.setRowFilter(filter);
 	}
