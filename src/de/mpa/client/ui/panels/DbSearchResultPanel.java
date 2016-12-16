@@ -422,16 +422,15 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Configures the protein tree table views.
 	 */
 	private void setupProteinTables() {
-		
+		// sets up all the different protein tables
 		for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-			
+			// there are 7 differemt ptts
 			final CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-			
+			// there are 7 different ttbls
 			// checkbox tree selection accounting for changes on pathway string building
 			final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
-			
+			// there are 7 different cbtsms
 			cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
-				
 				@Override
 				public void valueChanged(TreeSelectionEvent tse) {
 					if (tse.getPath() == null) {
@@ -444,6 +443,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
 				public void valueChanged(TreeSelectionEvent evt) {
+					
+					// this one is responsible for "highlighted" selection
 					Set<ProteinHit> proteins = new LinkedHashSet<>();
 					int[] rows = treeTbl.getSelectedRows();
 					for (int row : rows) {
@@ -1185,7 +1186,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		expandAllBtn.setPressedIcon(IconConstants.EXPAND_ALL_PRESSED_ICON);
 		expandAllBtn.setToolTipText("Expand All");
 		expandAllBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(expandAllBtn));
-		
 		expandAllBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -1207,7 +1207,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		collapseAllBtn.setPressedIcon(IconConstants.COLLAPSE_ALL_PRESSED_ICON);
 		collapseAllBtn.setToolTipText("Collapse All");
 		collapseAllBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(collapseAllBtn));
-		
 		collapseAllBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -1258,7 +1257,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
 		exportBtn.setToolTipText("Export Table Contents");
 		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
-		
 		exportBtn.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -1294,10 +1292,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		ActionListener hierarchyListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
+				
 				// Determine tree table to be made visible
 				String label = ((AbstractButton) evt.getSource()).getText();
 				ProteinTreeTables ptt = ProteinTreeTables.valueOfLabel(label);
-				
 				// Determine currently visible tree table
 				for (ProteinTreeTables curPtt : ProteinTreeTables.values()) {
 					if (curPtt.getTreeTable().getParent().getParent().isVisible()) {
@@ -1313,14 +1311,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 						// Update checkbox selection of targeted tree table, also re-sorts/filters
 						ptt.updateCheckSelection();
-						
 						break;
 					}
 				}
 				
 				// Show card
 				protCardLyt.show(protCardPnl, label);
-				
 				// Reset peptide table
 				refreshPeptideViews(null);
 			}
@@ -2028,26 +2024,24 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	protected void refreshChart(boolean refreshData) {
 		
-		DbSearchResult fetchResults = Client.getInstance().fetchResults();
+		// this method doesnt refresh anything -.-
 		
+		DbSearchResult fetchResults = Client.getInstance().fetchResults();
 		if (refreshData) {
 			ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
 			for (ProteinHit proteinHit : metaProteins) {
 				MetaProteinHit mp = (MetaProteinHit) proteinHit;
-//				System.out.println("MP " + mp.getAccession() + mp.getProteinSet().size());
 				if (mp.getUniProtEntry() != null) {
 					// Get all proteins with apoptosis
 					List<String> keywords = mp.getUniProtEntry().getKeywords();
 					for (String string : keywords) {
 						if (string.equals("Apoptosis")) {
-							System.out.println("Protein " + mp.getAccession() + mp.getProteinSet().size() + " " + mp.getPeptideCount());
 						}
 					}
 				} else {
 //					System.out.println("Wrong uniprot " + mp.getAccession());
 				}
 			}
-			//TODO maybe relevant Robert und Kay
 //			ProteinHitList metaProteins = new ProteinHitList(fetchResults.getMetaProteins());
 			// update chart data containers
 			ontologyData.setData(metaProteins);
@@ -2060,13 +2054,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		// create chart instance
 		if (chartType instanceof OntologyChartType) {
-			chart = ChartFactory.createOntologyChart(
-					ontologyData, chartType);
+			chart = ChartFactory.createOntologyChart(ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
-			chart = ChartFactory.createTaxonomyChart(
-					taxonomyData, chartType);
+			chart = ChartFactory.createTaxonomyChart(taxonomyData, chartType);
 		}
 		
+		// the highlighting kind of works 
 		if (chart != null) {
 			// insert chart into panel
 			chartPane.setChart(chart.getChart(), true);
@@ -2096,7 +2089,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		@Override
 		protected Object doInBackground() throws Exception {
 			Thread.currentThread().setName("RefreshTablesThread");
-			
 			try {
 				DbSearchResultPanel resultPnl = DbSearchResultPanel.this;
 				// Begin by clearing all views
@@ -2117,7 +2109,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 				// Insert new result data into tables
 				this.refreshProteinTables();
-				
 				// Refresh chart
 				resultPnl.refreshChart(false);
 			} catch (Exception e) {
@@ -2130,7 +2121,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		/**
 		 * Refreshes the contents of the protein tree tables.
 		 */
-		private void refreshProteinTables() {		
+		private void refreshProteinTables() {
 			if (Client.getInstance().getDatabaseSearchResult() != null && !(Client.getInstance().getDatabaseSearchResult().isEmpty())) {
 		
 				ProteinHitList metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
@@ -2155,6 +2146,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						double nsaf = proteinHit.getNSAF();
 						maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
 						maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
+						// nsaf and empai calculations can be skipped through this flag
 						if (!(Client.getInstance().isfast_results())) {
 							maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
 							max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
@@ -2170,10 +2162,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								proteinHit.setNSAF(1.0);
 							}
 						}
-						// XXX END OF CHANGES
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
 						
+						// XXX Handling of meta nodes is weird
 						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 							if (ptt == ProteinTreeTables.META) {
 								continue;
@@ -2252,12 +2244,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		protected void done() {
 			// Stop appearing busy
 			DbSearchResultPanel.this.setBusy(false);
-			
 			// Set up graph database contents
 			ResultsPanel resPnl =
 					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
 			resPnl.setProcessingEnabled(true);
-			
 			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
 		}
 		
