@@ -19,10 +19,10 @@ import javax.swing.SpinnerNumberModel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.analysis.MetaProteinFactory.ClusterRule;
 import de.mpa.analysis.MetaProteinFactory.PeptideRule;
 import de.mpa.analysis.MetaProteinFactory.TaxonomyRule;
-import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.settings.Parameter.NumberParameter;
 import de.mpa.client.settings.Parameter.OptionParameter;
 

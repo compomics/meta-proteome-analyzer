@@ -2,7 +2,8 @@ package de.mpa.webservice;
 
 import javax.xml.ws.Endpoint;
 
-import de.mpa.db.job.ServerProperties;
+import de.mpa.util.PropertyLoader;
+
 
 public class WSPublisher {
 	
@@ -22,11 +23,9 @@ public class WSPublisher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// Server properties
-		ServerProperties serverProperties = ServerProperties.getInstance();
-				
 		// Default hard-coded endpoint - do not change!
-		Endpoint.publish("http://0.0.0.0:" + serverProperties.getProperty("app.port") + "/WS/Server", new ServerImpl());
+		Endpoint.publish("http://0.0.0.0:" + PropertyLoader.getProperty(PropertyLoader.APP_PORT) + "/WS/Server", new ServerImpl());
+		
 	}
 	
 	

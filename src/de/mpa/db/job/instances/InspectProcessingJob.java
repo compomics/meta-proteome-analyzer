@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import de.mpa.db.job.Job;
+import de.mpa.util.PropertyLoader;
 
 public class InspectProcessingJob extends Job {
 	
@@ -17,8 +18,14 @@ public class InspectProcessingJob extends Job {
 	 * @param searchDB
 	 */
 	public InspectProcessingJob(File mgfFile) {
-		this.inspectFile = new File(jobProperties.getProperty("path.inspect"));
-		filename = jobProperties.getProperty("path.inspect.output.pvalued") + mgfFile.getName() + ".out";
+		
+		String pathInspect = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT);
+		String pathInspectOutputPValued = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT_OUTPUT_PVALUED);
+		
+		this.inspectFile = new File(pathInspect);
+		filename = pathInspectOutputPValued + mgfFile.getName() + ".out";
 		initJob();
 	}
 	
@@ -29,13 +36,22 @@ public class InspectProcessingJob extends Job {
 	private void initJob() {
 		setDescription("POST-PROCESSING JOB");
 		procCommands = new ArrayList<String>();
+		
+		String pathInspect = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT);
+		String pathInspectOutputPValued = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT_OUTPUT_PVALUED);
+		String pathInspectOutputRaw = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT_OUTPUT_RAW);
+		
+		
 		// Link to the output file.
 		procCommands.add("python");
-		procCommands.add(jobProperties.getProperty("path.inspect") + "PValue.py");
+		procCommands.add(pathInspect + "PValue.py");
 		procCommands.add("-r");
-		procCommands.add(jobProperties.getProperty("path.inspect.output.raw"));
+		procCommands.add(pathInspectOutputRaw);
 		procCommands.add("-w");
-		procCommands.add(jobProperties.getProperty("path.inspect.output.pvalued"));
+		procCommands.add(pathInspectOutputPValued);
 		procCommands.add("-S");
 		procCommands.add("0.5");
 		procCommands.trimToSize();

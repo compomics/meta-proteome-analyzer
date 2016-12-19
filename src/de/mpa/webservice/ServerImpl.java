@@ -42,6 +42,7 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.PeptideDigester;
+import de.mpa.util.PropertyLoader;
 
 
 //Service Implementation Bean
@@ -105,10 +106,9 @@ public class ServerImpl implements Server {
 	 */
 	@SuppressWarnings("static-access")
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
-		File file = new File(ServerProperties.getInstance().getProperty("path.transfer") + filename);
+		String pathTransfer = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_TRANSFER);
+		File file = new File(pathTransfer + filename);
 		
-		// Get general parameters.
-		ServerProperties jobProperties = ServerProperties.getInstance();
 		String searchDB = dbSearchSettings.getFastaFile();
 		double fragIonTol = dbSearchSettings.getFragmentIonTol();
 		double precIonTol = dbSearchSettings.getPrecursorIonTol();
@@ -117,7 +117,8 @@ public class ServerImpl implements Server {
 		
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
-		fastaLoader.setFastaFile(new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta"));
+		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
+		fastaLoader.setFastaFile(new File(pathFasta + searchDB  + ".fasta"));
 		
 		// Check for additional peptide FASTA file and create if needed
 		if (dbSearchSettings.isXTandem() || dbSearchSettings.isOmssa()) {
@@ -136,7 +137,8 @@ public class ServerImpl implements Server {
 		}
 
 		try {
-			File indexFile = new File(jobProperties.getProperty("path.fasta") + searchDB  + ".fasta.fb");
+			pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
+			File indexFile = new File(pathFasta + searchDB  + ".fasta.fb");
 			if(indexFile.exists()) {
 				fastaLoader.setIndexFile(indexFile);
 				fastaLoader.readIndexFile();
@@ -221,7 +223,8 @@ public class ServerImpl implements Server {
 	 */
 	@Override
 	public synchronized String uploadFile(String filename,  byte[] bytes) {		
-	       String filePath = ServerProperties.getInstance().getProperty("path.transfer") + filename;
+		String pathTransfer = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_TRANSFER);  
+		String filePath = pathTransfer + filename;
 	        try {
 	            FileOutputStream fos = new FileOutputStream(filePath);
 	            BufferedOutputStream outputStream = new BufferedOutputStream(fos);
@@ -252,7 +255,8 @@ public class ServerImpl implements Server {
 				int i = 1;
 				for (String filename : filenames) {
 					// Store uploaded spectrum files to DB
-					File file = new File(ServerProperties.getInstance().getProperty("path.transfer") + filename);
+					String pathTransfer = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_TRANSFER);
+					File file = new File(pathTransfer + filename);
 					
 					// Repair spectra
 //					repairSpectra(file, dbManager.getConnection());

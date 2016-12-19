@@ -71,11 +71,9 @@ public class RunMultiBlast {
 		// The temporary output file for the BLAST
 		File outputFile = File.createTempFile("blast_output", ".out");
 		
-		int count = 0;
 		// Create a temporary FASTA-File to serve as input for the BLAST
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fastaFile));		
 		for (DigFASTAEntry dbEntry : queryList) {
-			count++;
 			// write the identifier
 			writer.write(">" + dbEntry.getIdentifier());
 			writer.newLine();

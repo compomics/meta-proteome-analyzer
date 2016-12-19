@@ -34,6 +34,7 @@ import de.mpa.io.parser.ec.ECReader;
 import de.mpa.io.parser.kegg.KEGGMap;
 import de.mpa.io.parser.kegg.KEGGReader;
 import de.mpa.main.Starter;
+import de.mpa.util.PropertyLoader;
 
 /**
  * Class providing general constants and methods used throughout the whole
@@ -42,17 +43,21 @@ import de.mpa.main.Starter;
  * @author T. Muth, A. Behne, R. Heyer
  */
 public class Constants {
+
+	static{
+		
+	}
 	
 	/**
 	 * User directory of the MPA
 	 */
 	public static final String DIR = System.getProperty("user.dir");
-	
+
 	/**
-	 * File separator of the MPA 
+	 * File separator of the MPA
 	 */
 	public static final String SEP = System.getProperty("file.separator");
-	
+
 	/**
 	 * The application title.
 	 */
@@ -62,59 +67,55 @@ public class Constants {
 	 * The application version number.
 	 */
 	public final static String VER_NUMBER = "1.3.0";
-	
+
 	/**
 	 * The client frame minimum width in pixels.
 	 */
 	public static final int MAINFRAME_WIDTH = 1280;
-	
+
 	/**
 	 * The client frame minimum height in pixels.
 	 */
 	public static final int MAINFRAME_HEIGHT = 800;
-	
+
 	/**
 	 * The default tooltip initial delay.
 	 */
 	public static final int DEFAULT_TOOLTIP_DELAY = 750;
-	
+
 	/**
 	 * The application splash screen image
 	 * <img src="../resources/images/mpa.png">
 	 */
-	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP  + "de" + SEP + "mpa" + SEP +"resources" + SEP + "images" + SEP + "mpa.png";
-	
+	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP
+			+ "images" + SEP + "mpa.png";
+
 	/**
-	 * Entities for the graph query dialog (Compound section: First parameter after GET).
+	 * Entities for the graph query dialog (Compound section: First parameter
+	 * after GET).
 	 */
-	public static final String[] QUERY_ENTITIES_GET = { "Proteins", "Peptides", "Unique Peptides", "Shared Peptides", "PSMs"};
-	
+	public static final String[] QUERY_ENTITIES_GET = { "Proteins", "Peptides", "Unique Peptides", "Shared Peptides",
+			"PSMs" };
+
 	/**
-	 * Entities for the graph query dialog (Compound section: Second parameter after BY).
+	 * Entities for the graph query dialog (Compound section: Second parameter
+	 * after BY).
 	 */
-	public static final String[] QUERY_ENTITIES_BY = {  "Protein Accession",
-														"Protein Sequence",
-														"Peptide Sequence", 
-														"Species", 
-														"Enzyme",
-														"Pathway",
-														"Biological Process", 
-														"Molecular Function", 
-														"Cellullar Component"};
+	public static final String[] QUERY_ENTITIES_BY = { "Protein Accession", "Protein Sequence", "Peptide Sequence",
+			"Species", "Enzyme", "Pathway", "Biological Process", "Molecular Function", "Cellullar Component" };
 
 	/**
 	 * An MGF file that is empty save for two peaks which serve to auto-generate
 	 * default bounds in a spectrum viewer panel.
 	 */
-	public static final MascotGenericFile EMPTY_MGF = new MascotGenericFile(
-			"empty", ("BEGIN IONS\n" + "0.0\t999.0\n" + "90.909\t0.0\n"
-					+ "END IONS"));
+	public static final MascotGenericFile EMPTY_MGF = new MascotGenericFile("empty",
+			("BEGIN IONS\n" + "0.0\t999.0\n" + "90.909\t0.0\n" + "END IONS"));
 
 	/**
 	 * Filter panel constant denoting alphanumeric contents.
 	 */
 	public static final int ALPHANUMERIC = 0;
-	
+
 	/**
 	 * Filter panel constant denoting numeric contents.
 	 */
@@ -124,66 +125,72 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH =  SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
-	
-	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP +"de" +SEP +"mpa" + SEP + "resources" + SEP + "conf" +SEP;
-	
+	public static final String CONFIGURATION_PATH = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
+
+	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP + "de" + SEP + "mpa" + SEP + "resources"
+			+ SEP + "conf" + SEP;
+
 	/**
-	 * Path string of folder containing configuration resources for the jar build.<br>
+	 * Path string of folder containing configuration resources for the jar
+	 * build.<br>
 	 * <i>conf</i>
 	 */
-	//public static final String CONFIGURATION_PATH_JAR = "conf";
-	public static final String CONFIGURATION_PATH_JAR =  SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "MPApackage" + SEP + "conf"; // Path for university install package
-	
-	
+	// public static final String CONFIGURATION_PATH_JAR = "conf";
+	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP
+			+ "MPApackage" + SEP + "conf"; // Path for university install
+											// package
+
 	/**
 	 * Path string of folder containing spectrum resources.
 	 */
-	public static final String DEFAULT_SPECTRA_PATH = "test" + SEP +  "de"+ SEP + "mpa" + SEP + "resources" + SEP;
+	public static final String DEFAULT_SPECTRA_PATH = "test" + SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP;
 
 	/**
 	 * Path string of the temporary backup database search result object.
 	 */
 	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
-	
+
 	/**
 	 * Path of the FASTA directory
 	 */
-	public static final String FASTA_PATHS =  SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP ;
-	
+	public static final String FASTA_PATHS = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP;
+
 	/**
 	 * Path of the fastaformater script
 	 */
 	public static final String FASTA_FORMATER_PATH = FASTA_PATHS + "fastaformat.sh";
-	
+
 	/**
-	 * This constant is used for database backups, the executable file is used to run mysql-scripts for restoring databases 
+	 * This constant is used for database backups, the executable file is used
+	 * to run mysql-scripts for restoring databases
 	 */
-	public static final String DB_DUMPER_SH_PATH = SEP + "scratch" + SEP + "metaprot" + SEP + "sql" + SEP + "dump_database.sh";
-	
+	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "sql" + SEP
+			+ "dump_database.sh";
+
 	/**
-	 * This constant is used for database backups, the Sql-Query file is run by the sh script DB_DUMPER_SH_PATH 
+	 * This constant is used for database backups, the Sql-Query file is run by
+	 * the sh script DB_DUMPER_SH_PATH
 	 */
-	public static final String DB_DUMPER_SQL_PATH = SEP + "scratch" + SEP + "metaprot" + SEP + "sql" + SEP + "dump_database.sql";
-	
+	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "sql" + SEP
+			+ "dump_database.sql";
+
 	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree());
-	
+
 	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
-	
+
 	/**
 	 * Units for precurcor and MS/MS tolerance
 	 */
-	public static final String[] TOLERANCE_UNITS = {"Da", "ppm"};
-	
+	public static final String[] TOLERANCE_UNITS = { "Da", "ppm" };
+
 	public static final FileFilter MGF_FILE_FILTER = new ExtensionFileFilter(".mgf", false,
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Experiment File (*.mpa)");
-	public static final FileFilter FASTA_FILE_FILTER = new ExtensionFileFilter(".fasta", false,
-			"FASTA File (*.fasta)");
+	public static final FileFilter FASTA_FILE_FILTER = new ExtensionFileFilter(".fasta", false, "FASTA File (*.fasta)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
 	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
@@ -203,58 +210,59 @@ public class Constants {
 
 	public static final String CSV_FILE_SEPARATOR = ",";
 	public static final String TSV_FILE_SEPARATOR = "\t";
-	
+
 	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "none");
-	
-	
-	//  Get constants for BLAST
-		// Check for OS
-		public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
+
+	// Get constants for BLAST
+	// Check for OS
+	public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB = winOS ? 
-			(SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta"):
-			(SEP + "scratch" + SEP + "metaprot" + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta");
+	public static final String BLAST_UNIPROT_DB = winOS
+			? (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta")
+			: (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta");
 
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = winOS ? 
-			(SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp"):
-			(SEP + "scratch" + SEP + "metaprot" + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp");
+	public static final String BLAST_FILE = winOS
+			? (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp")
+			: (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp");
 
 	/**
 	 * File for a dummy fasta for each BLAST query
 	 */
-	public static final String BLAST_DUMMY_FASTA_FILE = DIR  + SEP + "out" + SEP + "dummy.fasta";
+	public static final String BLAST_DUMMY_FASTA_FILE = DIR + SEP + "out" + SEP + "dummy.fasta";
 
 	/**
 	 * Output file for the results of each BLAST query
 	 */
-	public static final String BLAST_OUTPUT_XML = DIR  + SEP + "out" + SEP + "output.xml";
+	public static final String BLAST_OUTPUT_XML = DIR + SEP + "out" + SEP + "output.xml";
 
 	/**
 	 * Evalue for the BLAST query
 	 */
 	public static final double BLAST_EVALUE = 0.0001;
-	
 
 	/**
 	 * Convenience method to initialize the enzyme definition tree.
+	 * 
 	 * @return the root of the en
 	 */
 	private static ECNode createEnzymeTree() {
-		
-		ECNode root= ECReader.readEnzymeClasses();
+
+		ECNode root = ECReader.readEnzymeClasses();
 		ECReader.readEnzymes(root);
 		return root;
 	}
 
 	/**
 	 * Returns the graph database user queries file.
+	 * 
 	 * @return the user queries file
-	 * @throws URISyntaxException if the file could not be found
+	 * @throws URISyntaxException
+	 *             if the file could not be found
 	 */
 	public static File getUserQueriesFile() throws URISyntaxException {
 		if (Starter.isJarExport()) {
@@ -263,11 +271,13 @@ public class Constants {
 			return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
 		}
 	}
-	
+
 	/**
 	 * Returns the projects file.
+	 * 
 	 * @return the projects file
-	 * @throws Exception if the file could not be found or created
+	 * @throws Exception
+	 *             if the file could not be found or created
 	 */
 	public static File getProjectsFile() throws Exception {
 		File projectsFile;
@@ -284,17 +294,21 @@ public class Constants {
 		}
 		if (!projectsFile.exists()) {
 			// create new projects file
-			new XStream().toXML(new ArrayList<AbstractProject>(), new BufferedOutputStream(new FileOutputStream(projectsFile)));
+			new XStream().toXML(new ArrayList<AbstractProject>(),
+					new BufferedOutputStream(new FileOutputStream(projectsFile)));
 		}
 		return projectsFile;
 	}
-	
+
 	/**
 	 * Concatenates two one-dimensional object arrays.
 	 * 
-	 * @param <T> The object type.
-	 * @param A The array that is to be appended to.
-	 * @param B The array that is to be appended.
+	 * @param <T>
+	 *            The object type.
+	 * @param A
+	 *            The array that is to be appended to.
+	 * @param B
+	 *            The array that is to be appended.
 	 * @return An array containing the elements of <i>A</i> and <i>B</i>.
 	 */
 	@SuppressWarnings("unchecked")
@@ -304,9 +318,10 @@ public class Constants {
 		System.arraycopy(B, 0, C, A.length, B.length);
 		return C;
 	}
-	
+
 	/**
 	 * Enumeration holding UI-related colors.
+	 * 
 	 * @author A. Behne
 	 */
 	public enum UIColor {
@@ -314,70 +329,69 @@ public class Constants {
 		BUTTON_FOCUS_COLOR("button.focusColor", "Button Focus"),
 		/* Text Selection colors */
 		TEXT_SELECTION_FONT_COLOR("textSelection.fontColor",
-				"Text Selection Font Color"),
-		TEXT_SELECTION_BACKGROUND_COLOR("textSelection.backgroundColor", 
-				"Text Selection Background Color"),
+				"Text Selection Font Color"), TEXT_SELECTION_BACKGROUND_COLOR("textSelection.backgroundColor",
+						"Text Selection Background Color"),
 		/* Titled Panel colors */
-		TITLED_PANEL_START_COLOR("titledPanel.startColor", "Titled Panel Gradient Start"),
-		TITLED_PANEL_END_COLOR("titledPanel.endColor", "Titled Panel Gradient End"),
-		TITLED_PANEL_FONT_COLOR("titledPanel.fontColor", "Titled Panel Label Text"),
+		TITLED_PANEL_START_COLOR("titledPanel.startColor", "Titled Panel Gradient Start"), TITLED_PANEL_END_COLOR(
+				"titledPanel.endColor", "Titled Panel Gradient End"), TITLED_PANEL_FONT_COLOR("titledPanel.fontColor",
+						"Titled Panel Label Text"),
 		/* Task Pane colors */
 		TASK_PANE_BACKGROUND_COLOR("taskPane.backgroundColor", "Task Pane Background Color"),
 		/* Bar Chart Panel colors */
 		BAR_CHART_PANEL_FOREGROUND_START_COLOR("barChartPanel.foregroundStartColor",
-				"Bar Chart Panel Foreground Gradient Start"),
-		BAR_CHART_PANEL_FOREGROUND_END_COLOR("barChartPanel.foregroundEndColor",
-				"Bar Chart Panel Foreground Gradient End"),
-		BAR_CHART_PANEL_BACKGROUND_START_COLOR("barChartPanel.backgroundStartColor",
-				"Bar Chart Panel Background Gradient Start"),
-		BAR_CHART_PANEL_BACKGROUND_END_COLOR("barChartPanel.backgroundEndColor",
-				"Bar Chart Panel Background Gradient End"),
+				"Bar Chart Panel Foreground Gradient Start"), BAR_CHART_PANEL_FOREGROUND_END_COLOR(
+						"barChartPanel.foregroundEndColor",
+						"Bar Chart Panel Foreground Gradient End"), BAR_CHART_PANEL_BACKGROUND_START_COLOR(
+								"barChartPanel.backgroundStartColor",
+								"Bar Chart Panel Background Gradient Start"), BAR_CHART_PANEL_BACKGROUND_END_COLOR(
+										"barChartPanel.backgroundEndColor", "Bar Chart Panel Background Gradient End"),
 		/* Scrollbar colors */
 		SCROLLBAR_THUMB_COLOR("scrollBar.thumbColor", "Scroll Bar Thumb Color"),
 		/* Table colors */
-		TABLE_SELECTION_COLOR("table.selColor", "Table Selection Background Color"),
-		TABLE_FOCUS_HIGHLIGHT_COLOR("table.hlColor", "Table Focus Highlight Color"),
+		TABLE_SELECTION_COLOR("table.selColor", "Table Selection Background Color"), TABLE_FOCUS_HIGHLIGHT_COLOR(
+				"table.hlColor", "Table Focus Highlight Color"),
 		/* Horizontal Bar Chart Highlighter colors */
 		HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR("horzBarChartHighlighterA.startColor",
-				"Table Horizontal Bar Chart A Gradient Start"),
-		HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR("horzBarChartHighlighterA.endColor",
-				"Table Horizontal Bar Chart A Gradient End"),
-		HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR("horzBarChartHighlighterB.startColor",
-				"Table Horizontal Bar Chart B Gradient Start"),
-		HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR("horzBarChartHighlighterB.endColor",
-				"Table Horizontal Bar Chart B Gradient End"),
-		HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR("horzBarChartHighlighterC.startColor",
-				"Table Horizontal Bar Chart C Gradient Start"),
-		HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR("horzBarChartHighlighterC.endColor",
-				"Table Horizontal Bar Chart C Gradient End"),
+				"Table Horizontal Bar Chart A Gradient Start"), HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR(
+						"horzBarChartHighlighterA.endColor",
+						"Table Horizontal Bar Chart A Gradient End"), HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR(
+								"horzBarChartHighlighterB.startColor",
+								"Table Horizontal Bar Chart B Gradient Start"), HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR(
+										"horzBarChartHighlighterB.endColor",
+										"Table Horizontal Bar Chart B Gradient End"), HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR(
+												"horzBarChartHighlighterC.startColor",
+												"Table Horizontal Bar Chart C Gradient Start"), HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR(
+														"horzBarChartHighlighterC.endColor",
+														"Table Horizontal Bar Chart C Gradient End"),
 		/* Vertical Bar Chart Highlighter colors */
 		VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR("horzBarChartHighlighterA.startColor",
-				"Table Vertical Bar Chart A Gradient Start"),
-		VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR("vertBarChartHighlighterA.endColor",
-				"Table Vertical Bar Chart A Gradient End"),
-		VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR("vertBarChartHighlighterB.startColor",
-				"Table Vertical Bar Chart B Gradient Start"),
-		VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR("vertBarChartHighlighterB.endColor",
-				"Table Vertical Bar Chart B Gradient End"),
-		VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR("vertBarChartHighlighterC.startColor",
-				"Table Vertical Bar Chart C Gradient Start"),
-		VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR("vertBarChartHighlighterC.endColor",
-				"Table Vertical Bar Chart C Gradient End"),
-		VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR("vertBarChartHighlighterD.startColor",
-				"Table Vertical Bar Chart D Gradient Start"),
-		VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR("vertBarChartHighlighterD.endColor",
-				"Table Vertical Bar Chart D Gradient End"),
-		VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR("vertBarChartHighlighterE.startColor",
-				"Table Vertical Bar Chart E Gradient Start"),
-		VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR("vertBarChartHighlighterE.endColor",
-				"Table Vertical Bar Chart E Gradient End"),
-		PROGRESS_BAR_FOREGROUND_COLOR("progressBar.foregroundColor", "Progress Bar Foreground Color");
-		
+				"Table Vertical Bar Chart A Gradient Start"), VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR(
+						"vertBarChartHighlighterA.endColor",
+						"Table Vertical Bar Chart A Gradient End"), VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR(
+								"vertBarChartHighlighterB.startColor",
+								"Table Vertical Bar Chart B Gradient Start"), VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR(
+										"vertBarChartHighlighterB.endColor",
+										"Table Vertical Bar Chart B Gradient End"), VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR(
+												"vertBarChartHighlighterC.startColor",
+												"Table Vertical Bar Chart C Gradient Start"), VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR(
+														"vertBarChartHighlighterC.endColor",
+														"Table Vertical Bar Chart C Gradient End"), VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR(
+																"vertBarChartHighlighterD.startColor",
+																"Table Vertical Bar Chart D Gradient Start"), VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR(
+																		"vertBarChartHighlighterD.endColor",
+																		"Table Vertical Bar Chart D Gradient End"), VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR(
+																				"vertBarChartHighlighterE.startColor",
+																				"Table Vertical Bar Chart E Gradient Start"), VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR(
+																						"vertBarChartHighlighterE.endColor",
+																						"Table Vertical Bar Chart E Gradient End"), PROGRESS_BAR_FOREGROUND_COLOR(
+																								"progressBar.foregroundColor",
+																								"Progress Bar Foreground Color");
+
 		/**
 		 * The <code>UIManager</code> key.
 		 */
 		private String key;
-		
+
 		/**
 		 * The descriptive string.
 		 */
@@ -387,17 +401,20 @@ public class Constants {
 		 * The associated default color.
 		 */
 		private Color defaultColor;
-		
+
 		/**
 		 * A delegate color usable to re-direct to this UI color.
 		 */
 		private DelegateColor delegate;
-		
+
 		/**
-		 * Constructs an UI color enum member using the specified 
+		 * Constructs an UI color enum member using the specified
 		 * <code>UIManager</code> key and a descriptive string.
-		 * @param key the <code>UIManager</code> key
-		 * @param description the descriptive string
+		 * 
+		 * @param key
+		 *            the <code>UIManager</code> key
+		 * @param description
+		 *            the descriptive string
 		 */
 		private UIColor(String key, String description) {
 			this.key = key;
@@ -414,22 +431,25 @@ public class Constants {
 
 		/**
 		 * Returns the <code>UIManager</code> key.
+		 * 
 		 * @return the key
 		 */
 		public String getKey() {
 			return key;
 		}
-		
+
 		/**
 		 * Returns the associated color.
+		 * 
 		 * @return the color
 		 */
 		public Color getColor() {
 			return UIManager.getColor(this.getKey());
 		}
-		
+
 		/**
 		 * Returns the color delegating to this UI color.
+		 * 
 		 * @return the delegate color
 		 */
 		public DelegateColor getDelegateColor() {
@@ -441,15 +461,19 @@ public class Constants {
 
 		/**
 		 * Sets the associated color.
-		 * @param color the color to set
+		 * 
+		 * @param color
+		 *            the color to set
 		 */
 		public void setColor(Color color) {
 			UIManager.put(this.getKey(), color);
 		}
-		
+
 		/**
 		 * Sets the default color.
-		 * @param defaultColor the color to set as default.
+		 * 
+		 * @param defaultColor
+		 *            the color to set as default.
 		 */
 		public void setDefaultColor(Color defaultColor) {
 			this.defaultColor = defaultColor;
@@ -460,73 +484,76 @@ public class Constants {
 			return description;
 		}
 	}
-	
+
 	/**
 	 * The folder containing theme files.
 	 */
 	public static final String THEME_FOLDER = Constants.CONFIGURATION_DIR_PATH + "themes";
-	
+
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER_JAR = Constants.CONFIGURATION_PATH_JAR + SEP +"themes" +SEP  ;
-	
+	public static final String THEME_FOLDER_JAR = Constants.CONFIGURATION_PATH_JAR + SEP + "themes" + SEP;
+
 	/**
 	 * The name of the default theme.
 	 */
-	public static final String DEFAULT_THEME_NAME = "Sky Blue" ;
-	
+	public static final String DEFAULT_THEME_NAME = "Sky Blue";
+
 	/**
-	 * Hard-coded backup of the default theme, use when file-based default theme is missing.
+	 * Hard-coded backup of the default theme, use when file-based default theme
+	 * is missing.
 	 */
 	@SuppressWarnings("serial")
-	public static final UITheme DEFAULT_THEME = new UITheme(
-			DEFAULT_THEME_NAME,
-			new Color(195, 212, 232),
+	public static final UITheme DEFAULT_THEME = new UITheme(DEFAULT_THEME_NAME, new Color(195, 212, 232),
 			new HashMap<UIColor, Color>() {
-		{
-			put(UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
-			put(UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
-			put(UIColor.TEXT_SELECTION_BACKGROUND_COLOR, new Color(195, 212, 232));
-			put(UIColor.TITLED_PANEL_START_COLOR, new Color(166, 202, 240));
-			put(UIColor.TITLED_PANEL_END_COLOR, new Color(107, 147, 193));
-			put(UIColor.TITLED_PANEL_FONT_COLOR, new Color(255, 255, 255));
-			put(UIColor.TASK_PANE_BACKGROUND_COLOR, new Color(195, 212, 232));
-			put(UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR, new Color(0, 127, 0));
-			put(UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR, new Color(127, 255, 127));
-			put(UIColor.BAR_CHART_PANEL_BACKGROUND_START_COLOR, new Color(64, 64, 64));
-			put(UIColor.BAR_CHART_PANEL_BACKGROUND_END_COLOR, new Color(192, 192, 192));
-			put(UIColor.SCROLLBAR_THUMB_COLOR, new Color(195, 212, 232));
-			put(UIColor.TABLE_SELECTION_COLOR, new Color(195, 212, 232));
-			put(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR, new Color(166, 202, 240));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(127, 0, 0));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(255, 127, 127));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(127, 63, 0));
-			put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(255, 191, 127));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(0, 127, 127));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(127, 255, 255));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(0, 0, 127));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(127, 127, 255));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR, new Color(127, 0, 127));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
-			put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
-			put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
-		}
-	});
+				{
+					put(UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
+					put(UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
+					put(UIColor.TEXT_SELECTION_BACKGROUND_COLOR, new Color(195, 212, 232));
+					put(UIColor.TITLED_PANEL_START_COLOR, new Color(166, 202, 240));
+					put(UIColor.TITLED_PANEL_END_COLOR, new Color(107, 147, 193));
+					put(UIColor.TITLED_PANEL_FONT_COLOR, new Color(255, 255, 255));
+					put(UIColor.TASK_PANE_BACKGROUND_COLOR, new Color(195, 212, 232));
+					put(UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR, new Color(0, 127, 0));
+					put(UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR, new Color(127, 255, 127));
+					put(UIColor.BAR_CHART_PANEL_BACKGROUND_START_COLOR, new Color(64, 64, 64));
+					put(UIColor.BAR_CHART_PANEL_BACKGROUND_END_COLOR, new Color(192, 192, 192));
+					put(UIColor.SCROLLBAR_THUMB_COLOR, new Color(195, 212, 232));
+					put(UIColor.TABLE_SELECTION_COLOR, new Color(195, 212, 232));
+					put(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR, new Color(166, 202, 240));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(127, 0, 0));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(255, 127, 127));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(127, 63, 0));
+					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(255, 191, 127));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(0, 127, 127));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(127, 255, 255));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(0, 0, 127));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(127, 127, 255));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR, new Color(127, 0, 127));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
+					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
+					put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
+				}
+			});
 
-	
 	/**
 	 * The list of UI themes.
 	 */
-	public static List<UITheme> THEMES = new ArrayList<UITheme>();	// is finalized in starter class
-	
+	public static List<UITheme> THEMES = new ArrayList<UITheme>(); // is
+																	// finalized
+																	// in
+																	// starter
+																	// class
+
 	/**
 	 * Class for parsing and storing UI themes.
+	 * 
 	 * @author A. Behne
 	 */
 	public static class UITheme {
@@ -535,42 +562,47 @@ public class Constants {
 		 * The title of the theme.
 		 */
 		private String title;
-		
+
 		/**
 		 * The prototype color used in previewing the theme.
 		 */
 		private Color prototypeColor;
-		
+
 		/**
 		 * Map for storing colors and their respective UI enum.
 		 */
 		private Map<UIColor, Color> colorMap;
-		
+
 		/**
 		 * Constructs a theme using the specified color map.
-		 * @param colorMap the color map
+		 * 
+		 * @param colorMap
+		 *            the color map
 		 */
-		public UITheme(String title, Color prototypeColor,
-				Map<UIColor, Color> colorMap) {
+		public UITheme(String title, Color prototypeColor, Map<UIColor, Color> colorMap) {
 			this.title = title;
 			this.prototypeColor = prototypeColor;
 			this.colorMap = colorMap;
 		}
-		
+
 		/**
 		 * Constructs a theme by parsing the specified theme file.
-		 * @param path the theme file
+		 * 
+		 * @param path
+		 *            the theme file
 		 */
 		public UITheme(File file) {
 			colorMap = new LinkedHashMap<UIColor, Color>();
 			this.parse(file);
 		}
-		
+
 		/**
 		 * Convenience method to get a theme by its name;
-		 * @param title the theme title
-		 * @return the desired theme or <code>null</code>
-		 *  if no theme with the specified name exists
+		 * 
+		 * @param title
+		 *            the theme title
+		 * @return the desired theme or <code>null</code> if no theme with the
+		 *         specified name exists
 		 */
 		public static UITheme valueOf(String title) {
 			if (title != null) {
@@ -582,11 +614,13 @@ public class Constants {
 			}
 			return null;
 		}
-		
+
 		/**
 		 * Parses the theme file located at the specified path and stores its
 		 * values.
-		 * @param path the path to the theme file
+		 * 
+		 * @param path
+		 *            the path to the theme file
 		 */
 		private void parse(File file) {
 			// TODO: simplify using XStream
@@ -594,7 +628,7 @@ public class Constants {
 				System.err.println("File \'" + file + "\' not found!");
 				return;
 			}
-			
+
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				// Parse first line
@@ -602,18 +636,14 @@ public class Constants {
 				String[] split = line.split(",");
 				// Extract title and prototype color from first line
 				this.title = split[0];
-				this.prototypeColor = new Color(
-						Integer.valueOf(split[1]),
-						Integer.valueOf(split[2]),
+				this.prototypeColor = new Color(Integer.valueOf(split[1]), Integer.valueOf(split[2]),
 						Integer.valueOf(split[3]));
 				// Parse remaining files
 				while ((line = br.readLine()) != null) {
 					split = line.split(",");
 					// Extract UI color reference and default color
 					UIColor uiColor = UIColor.valueOf(split[0]);
-					Color color = new Color(
-							Integer.valueOf(split[1]),
-							Integer.valueOf(split[2]),
+					Color color = new Color(Integer.valueOf(split[1]), Integer.valueOf(split[2]),
 							Integer.valueOf(split[3]));
 					// Map UI color reference to default color
 					colorMap.put(uiColor, color);
@@ -622,9 +652,9 @@ public class Constants {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 		/**
 		 * Applies the colors stored in this theme.
 		 */
@@ -636,28 +666,25 @@ public class Constants {
 				uiColor.reset();
 			}
 		}
-		
+
 		/**
 		 * Writes a theme configuration to the specified file.
-		 * @param file the theme file
+		 * 
+		 * @param file
+		 *            the theme file
 		 */
 		public void writeToFile(File file) {
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 				Color protoCol = this.getPrototypeColor();
 				// write header info
-				bw.write(this.getTitle() + ","
-						+ protoCol.getRed() + ","
-						+ protoCol.getGreen() + ","
+				bw.write(this.getTitle() + "," + protoCol.getRed() + "," + protoCol.getGreen() + ","
 						+ protoCol.getBlue());
 				bw.newLine();
 				// write color constants
 				for (Entry<UIColor, Color> entry : colorMap.entrySet()) {
 					Color col = entry.getValue();
-					bw.write(entry.getKey().name() + ","
-							+ col.getRed() + ","
-							+ col.getGreen() + ","
-							+ col.getBlue());
+					bw.write(entry.getKey().name() + "," + col.getRed() + "," + col.getGreen() + "," + col.getBlue());
 					bw.newLine();
 				}
 				bw.flush();
@@ -666,17 +693,19 @@ public class Constants {
 				e.printStackTrace();
 			}
 		}
-		
+
 		/**
 		 * Returns the title of the theme.
+		 * 
 		 * @return the theme title.
 		 */
 		public String getTitle() {
 			return this.title;
 		}
-		
+
 		/**
 		 * Returns the prototype color of this theme.
+		 * 
 		 * @return the prototype color
 		 */
 		public Color getPrototypeColor() {
@@ -685,19 +714,20 @@ public class Constants {
 			}
 			return this.prototypeColor;
 		}
-		
+
 		/**
 		 * Returns the color mappings.
+		 * 
 		 * @return the color map
 		 */
 		public Map<UIColor, Color> getColorMap() {
 			return this.colorMap;
 		}
-		
+
 		@Override
 		public String toString() {
 			return this.getTitle();
 		}
-		
+
 	}
 }

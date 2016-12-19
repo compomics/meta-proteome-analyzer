@@ -4,6 +4,7 @@ import java.io.File;
 
 import de.mpa.db.job.Job;
 import de.mpa.db.job.SearchType;
+import de.mpa.util.PropertyLoader;
 
 public class OmssaJob extends Job {
     
@@ -49,16 +50,27 @@ public class OmssaJob extends Job {
     
 	/**
 	 * Constructor for starting the OMSSA search engine.
-	 * @param mgfFile Spectrum file
-	 * @param searchDB Search database
-	 * @param params Search parameters
-	 * @param fragmentTol Fragment ion tolerance
-	 * @param precursorTol Precursor ion tolerance
-	 * @param nMissedCleavages Number of maximum missed cleavages
-	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
-	 * @param searchType Target or decoy search type
+	 * 
+	 * @param mgfFile
+	 *            Spectrum file
+	 * @param searchDB
+	 *            Search database
+	 * @param params
+	 *            Search parameters
+	 * @param fragmentTol
+	 *            Fragment ion tolerance
+	 * @param precursorTol
+	 *            Precursor ion tolerance
+	 * @param nMissedCleavages
+	 *            Number of maximum missed cleavages
+	 * @param isPrecursorTolerancePpm
+	 *            Condition whether the precursor tolerance unit is PPM (true)
+	 *            or Dalton (false)
+	 * @param searchType
+	 *            Target or decoy search type
 	 */
-	public OmssaJob(File mgfFile, String searchDB, String params, double fragmentTol, double precursorTol, int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
+	public OmssaJob(File mgfFile, String searchDB, String params, double fragmentTol, double precursorTol,
+			int nMissedCleavages, boolean isPrecursorTolerancePpm, SearchType searchType) {
 		this.mgfFile = mgfFile;
 		this.searchDB = searchDB;
 		this.params = params;
@@ -67,85 +79,95 @@ public class OmssaJob extends Job {
 		this.nMissedCleavages = nMissedCleavages;
 		this.isPrecursorTolerancePpm = isPrecursorTolerancePpm;
 		this.searchType = searchType;
-		
-		if(searchType == SearchType.DECOY){
-			this.filename = jobProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_decoy.omx";
+
+		String pathOmssa = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_OMSSA);
+		String pathOmssaOutput = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_OMSSA_OUTPUT);
+
+		if (searchType == SearchType.DECOY) {
+			this.filename = pathOmssaOutput + mgfFile.getName() + "_decoy.omx";
 		} else {
-			this.filename = jobProperties.getProperty("path.omssa.output") + mgfFile.getName() + "_target.omx";
+			this.filename = pathOmssaOutput + mgfFile.getName() + "_target.omx";
 		}
-		this.omssaFile = new File(jobProperties.getProperty("path.omssa"));
+		this.omssaFile = new File(pathOmssa);
 		initJob();
 	}
-	
+
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
-	private void initJob(){
+	private void initJob() {
 
-        // Full path to executable
-        procCommands.add(omssaFile.getAbsolutePath() + "/" + jobProperties.getProperty("app.omssa"));
-        
-        // Always ask for spectra included in results file
-        procCommands.add("-w");
+		String appOmssa = omssaFile.getAbsolutePath() + "\\" + PropertyLoader.getProperty(PropertyLoader.APP_OMSSA);
 
-        // Fragment Ion Tolerance
-        procCommands.add("-to");
-        procCommands.add(Double.toString(fragmentTol));
-        
-        // Precursor Ion Tolerance 
-        procCommands.add("-te");
-        procCommands.add(Double.toString(precursorTol));
-       
-       // Add flag if unit of precursors is in PPM:
-       if(isPrecursorTolerancePpm){
-    	   procCommands.add("-teppm");        
-       }
+		// Full path to executable
+		procCommands.add(appOmssa);
 
-        // Missed cleavages
-        procCommands.add("-v");
-       	procCommands.add(Integer.toString(nMissedCleavages));
-       	
-       	// Adding all external parameters.
-       	String[] split = params.split("\\s");
-       	for (String string : split) {
-       		procCommands.add(string);
+		// Always ask for spectra included in results file
+		procCommands.add("-w");
+
+		// Fragment Ion Tolerance
+		procCommands.add("-to");
+		procCommands.add(Double.toString(fragmentTol));
+
+		// Precursor Ion Tolerance
+		procCommands.add("-te");
+		procCommands.add(Double.toString(precursorTol));
+
+		// Add flag if unit of precursors is in PPM:
+		if (isPrecursorTolerancePpm) {
+			procCommands.add("-teppm");
 		}
 
-        // Fixed modifications
-        procCommands.add("-mf");
-        procCommands.add(FIXED_MODS);
-       
-        // Variable modifications
-        procCommands.add("-mv");
-        procCommands.add(VAR_MODS);
-        
-        // Database
-        procCommands.add("-d");
-        procCommands.add(jobProperties.getProperty("path.fasta") + searchDB + ".fasta");
-        
-        // Input MGF file
-        procCommands.add("-fm");
-        procCommands.add(mgfFile.getAbsolutePath());
-        
-        // Output file
-        procCommands.add("-ox");
-        procCommands.add(filename);
-        procCommands.trimToSize();
+		// Missed cleavages
+		procCommands.add("-v");
+		procCommands.add(Integer.toString(nMissedCleavages));
 
-        setDescription("OMSSA " + searchType.name() + " SEARCH");
-        procBuilder = new ProcessBuilder(procCommands);
-        procBuilder.directory(omssaFile);
-        
-        
-        // Set error out and std out to same stream
-        procBuilder.redirectErrorStream(true);
+		// Adding all external parameters.
+		String[] split = params.split("\\s");
+		for (String string : split) {
+			procCommands.add(string);
+		}
+
+		// Fixed modifications
+		procCommands.add("-mf");
+		procCommands.add(FIXED_MODS);
+
+		// Variable modifications
+		procCommands.add("-mv");
+		procCommands.add(VAR_MODS);
+
+		// Database
+		procCommands.add("-d");
+		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+				+ PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
+		procCommands.add(pathFasta + searchDB + ".fasta");
+
+		// Input MGF file
+		procCommands.add("-fm");
+		procCommands.add(mgfFile.getAbsolutePath());
+
+		// Output file
+		procCommands.add("-ox");
+		procCommands.add(filename);
+		procCommands.trimToSize();
+
+		setDescription("OMSSA " + searchType.name() + " SEARCH");
+		procBuilder = new ProcessBuilder(procCommands);
+		procBuilder.directory(omssaFile);
+
+		// Set error out and std out to same stream
+		procBuilder.redirectErrorStream(true);
+
 	}
-	
+
 	/**
 	 * Returns the absolute path to the Omssa output file.
+	 * 
 	 * @return
 	 */
-	public String getFilename(){
-		return filename;		
+	public String getFilename() {
+		return filename;
 	}
 }

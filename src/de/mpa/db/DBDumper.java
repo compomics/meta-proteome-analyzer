@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.util.PropertyLoader;
 
 
 /**
@@ -93,19 +94,14 @@ public class DBDumper {
 
 		// check operating system
 		boolean winOS = System.getProperty("os.name").startsWith("Windows");
-		String command = null;
-
 		if (winOS) {
-			String expectedPath = "C:\\xampp\\mysql\\bin\\mysql.exe";
+			String expectedPath = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + "\\mysql\\bin\\mysql.exe";
 			File exe = new File(expectedPath);
 			if (!exe.isFile()) {
 				System.out.println("MYSQL.EXE COULD NOT BE FOUND");
-				command = "mysql";
 			} else {
-				command = expectedPath;
 			}
 		} else {
-			command = "mysql";
 		}
 
 		// Show progress

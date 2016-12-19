@@ -39,6 +39,7 @@ import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.main.Starter;
+import de.mpa.util.PropertyLoader;
 
 /**
  * Panel containing control components for database search-related settings.
@@ -183,7 +184,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			e1.printStackTrace();
 		}
 
-		String[] items = prop.getProperty("files.fasta").split(",");
+		String[] items = PropertyLoader.getProperty(PropertyLoader.FILES_FASTA).split(",");
 		
 		// FASTA file ComboBox
 		fastaFileCbx = new JComboBox<String>(items);

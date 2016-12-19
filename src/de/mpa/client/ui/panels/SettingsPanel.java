@@ -55,6 +55,7 @@ import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.fasta.FastaLoader;
+import de.mpa.util.PropertyLoader;
 
 /**
  * Panel containing search engine settings and processing controls.
@@ -535,7 +536,7 @@ public class SettingsPanel extends JPanel {
 							client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
 							batchFile.delete();
 						}
-						batchFile = new File(mgffilename + "_quick_batch_" + (numSpectra/packageSize) + ".mgf");
+						batchFile = new File(PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + "/data/output/xtandem/" + mgffilename + "_quick_batch_" + (numSpectra/packageSize) + ".mgf");
 						filenames.add(batchFile.getName());
 						fos = new FileOutputStream(batchFile);
 						long remaining = maxSpectra - numSpectra;
