@@ -1114,7 +1114,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					HierarchyLevel hl = (HierarchyLevel) value;
 					ontologyData.setHierarchyLevel(hl);
 					taxonomyData.setHierarchyLevel(hl);
-					refreshChart(false);
+					refreshChart(true);
 				} else if ("hideUnknown".equals(property)) {
 					boolean doHide = (Boolean) value;
 					ontologyData.setHideUnknown(doHide);
@@ -1300,15 +1300,15 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				for (ProteinTreeTables curPtt : ProteinTreeTables.values()) {
 					if (curPtt.getTreeTable().getParent().getParent().isVisible()) {
 						// check whether checkbox selection has changed
-						if (curPtt.hasCheckSelectionChanged()) {
+//						if (curPtt.hasCheckSelectionChanged()) {
 							curPtt.cacheCheckSelection();
 							// mark other tree tables for updating the next time they're displayed
-							for (ProteinTreeTables ptt2 : ProteinTreeTables.values()) {
-								if (ptt2 != curPtt) {
-									ptt2.setCheckSelectionNeedsUpdating(true);
-								}
-							}
-						}
+//							for (ProteinTreeTables ptt2 : ProteinTreeTables.values()) {
+//								if (ptt2 != curPtt) {
+//									ptt2.setCheckSelectionNeedsUpdating(true);
+//								}
+//							}
+//						}
 						// Update checkbox selection of targeted tree table, also re-sorts/filters
 						ptt.updateCheckSelection();
 						break;
@@ -1677,7 +1677,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 				if (newChartType != chartType) {
 					chartType = newChartType;
-					refreshChart(false);
+					refreshChart(true);
 				}
 			}
 		};
@@ -1744,7 +1744,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					// abort (shouldn't happen, actually)
 					return;
 				}
-				refreshChart(false);
+				refreshChart(true);
 			}
 		};
 	
@@ -1951,6 +1951,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @param matches the spectrum matches to display
 	 */
 	protected void refreshPSMView(Collection<SpectrumMatch> matches) {
+		System.out.println("Refresh PSMs");
 		// Clear table
 		TableConfig.clearTable(psmTbl);
 		spectrumPnl.clearSpectrum();
@@ -2023,42 +2024,19 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 *  <code>false</code> otherwise
 	 */
 	protected void refreshChart(boolean refreshData) {
-		
-		// this method doesnt refresh anything -.-
-		
-		DbSearchResult fetchResults = Client.getInstance().fetchResults();
-		if (refreshData) {
-			ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
-			for (ProteinHit proteinHit : metaProteins) {
-				MetaProteinHit mp = (MetaProteinHit) proteinHit;
-				if (mp.getUniProtEntry() != null) {
-					// Get all proteins with apoptosis
-					List<String> keywords = mp.getUniProtEntry().getKeywords();
-					for (String string : keywords) {
-						if (string.equals("Apoptosis")) {
-						}
-					}
-				} else {
-//					System.out.println("Wrong uniprot " + mp.getAccession());
-				}
-			}
-//			ProteinHitList metaProteins = new ProteinHitList(fetchResults.getMetaProteins());
-			// update chart data containers
-			ontologyData.setData(metaProteins);
-			taxonomyData.setData(metaProteins);
-		}
-		
-
-		
+		// refreshData-Flag is obsolete !!
+		// get new proteinlist
+		ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
+		// update chart data containers
+		ontologyData.setData(metaProteins);
+		taxonomyData.setData(metaProteins);
 		Chart chart = null;
-
 		// create chart instance
 		if (chartType instanceof OntologyChartType) {
 			chart = ChartFactory.createOntologyChart(ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
 			chart = ChartFactory.createTaxonomyChart(taxonomyData, chartType);
 		}
-		
 		// the highlighting kind of works 
 		if (chart != null) {
 			// insert chart into panel
@@ -2106,11 +2084,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				HierarchyLevel hl = resultPnl.chartPane.getHierarchyLevel();
 				resultPnl.ontologyData = new OntologyData(Client.getInstance().getDatabaseSearchResult(), hl);
 				resultPnl.taxonomyData = new TaxonomyData(Client.getInstance().getDatabaseSearchResult(), hl);
-
 				// Insert new result data into tables
 				this.refreshProteinTables();
 				// Refresh chart
-				resultPnl.refreshChart(false);
+				resultPnl.refreshChart(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

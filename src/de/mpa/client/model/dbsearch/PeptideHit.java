@@ -68,7 +68,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	/**
 	 * Visible spectrum matches for this peptide hit.
 	 */
-	private Map<String, SpectrumMatch> visSpectrumMatches;
+	private Map<String, SpectrumMatch> visSpectrumMatches = new HashMap<String, SpectrumMatch>();;
 
 	/**
 	 * The NCBI taxonomy node of the peptide.
@@ -137,7 +137,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @return the list of spectrum matches.
 	 */
 	public List<SpectrumMatch> getSpectrumMatches() {
-		if (visSpectrumMatches == null) {
+		if (visSpectrumMatches.isEmpty()) {
 			return new ArrayList<>(spectrumMatches.values());
 		}
 		return new ArrayList<>(visSpectrumMatches.values());
@@ -190,7 +190,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @return The mapped spectrum match.
 	 */
 	public SpectrumMatch getSpectrumMatch(String key) {
-		if (visSpectrumMatches != null) {
+		if (!visSpectrumMatches.isEmpty()) {
 			return visSpectrumMatches.get(key);
 		} else {
 			return spectrumMatches.get(key);
@@ -283,7 +283,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	
 	/**
 	 * Sets the false discovery rate. 
-	 * @param fdr talse discovery rate
+	 * @param fdr false discovery rate
 	 */
 	@Override
 	public void setFDR(double fdr) {

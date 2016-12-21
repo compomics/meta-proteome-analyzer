@@ -32,7 +32,7 @@ public class MetaProteinHit extends ProteinHit {
 	/**
 	 * The visible protein hit list of this meta-protein.
 	 */
-	private Map<String, ProteinHit> visProteinHits;
+	private Map<String, ProteinHit> visProteinHits = new LinkedHashMap<String, ProteinHit>();
 
 	/**
 	 * Constructs a meta-protein from the specified identifier string and
@@ -47,6 +47,9 @@ public class MetaProteinHit extends ProteinHit {
 		this.setTaxonomyNode(upa.getTaxonomyNode());
 		this.proteinHits = new LinkedHashMap<String, ProteinHit>();
 		this.proteinHits.put(ph.getAccession(), ph);
+		for (PeptideHit pep : ph.getPeptideHitList()) {
+			this.addPeptideHit(pep);
+		}
 	}
 
 	/**
@@ -54,14 +57,16 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein list
 	 */
 	public ProteinHitList getProteinHitList() {
-		if (visProteinHits == null) {
+		if (visProteinHits.isEmpty()) {
 			return new ProteinHitList(proteinHits.values());
 		}
 		return new ProteinHitList(visProteinHits.values());
 	}
 	
+	
+	// TODO: why do we have to methods here?
 	public Map<String, ProteinHit> getProteinHits() {
-		if (visProteinHits == null) {
+		if (visProteinHits.isEmpty()) {
 			return this.proteinHits;
 		}
 		return visProteinHits;
@@ -73,7 +78,7 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein hit
 	 */
 	public ProteinHit getProteinHit(String accession) {
-		if (visProteinHits == null) {
+		if (visProteinHits.isEmpty()) {
 			return proteinHits.get(accession);
 		}
 		return visProteinHits.get(accession);
@@ -84,7 +89,7 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein set
 	 */
 	public Set<ProteinHit> getProteinSet() {
-		if (visProteinHits == null) {
+		if (visProteinHits.isEmpty()) {
 			return new HashSet<ProteinHit>(proteinHits.values());
 		}
 		return new HashSet<ProteinHit>(visProteinHits.values());

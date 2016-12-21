@@ -1344,8 +1344,6 @@ public enum ProteinTreeTables {
 	@SuppressWarnings("unchecked")
 	public void updateCheckSelection() {
 
-		// XXX: this one is broken, needs different implementation
-
 		CheckBoxTreeTable treeTbl = this.getTreeTable();
 		RowFilter<TreeModel, Integer> filter = (RowFilter<TreeModel, Integer>) treeTbl.getRowFilter();
 

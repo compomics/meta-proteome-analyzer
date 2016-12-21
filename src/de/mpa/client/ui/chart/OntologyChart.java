@@ -72,14 +72,14 @@ public class OntologyChart extends Chart {
         super(data, chartType);
     }
 
-	@Override
-	protected void process(ChartData data) {
-		if (data instanceof OntologyData) {
-			OntologyData ontologyData = (OntologyData) data;
-			ontologyData.setChartType(chartType);
-			pieDataset = ontologyData.getDataset();
-		}
-	}
+    @Override
+    protected void process(ChartData data) {
+    	if (data instanceof OntologyData) {
+    		OntologyData ontologyData = (OntologyData) data;
+    		ontologyData.setChartType(chartType);
+    		pieDataset = ontologyData.getDataset();
+    	}
+    }
 
 	@Override
 	protected void setChart(ChartData data) {

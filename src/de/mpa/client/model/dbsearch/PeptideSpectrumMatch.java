@@ -68,7 +68,6 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return the search hit or <code>null</code> if no such hit exists
 	 */
 	public SearchHit getSearchHit(SearchEngineType type) {
-		
 		return searchHits.get(type);
 	}
 	
@@ -92,7 +91,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public void addSearchHit(SearchHit hit) {
 		if (!searchHits.containsValue(hit)) {
 			this.searchHits.put(hit.getType(), hit);
-			this.charge = (int) hit.getCharge();
+//			this.charge = (int) hit.getCharge();
 		} else {
 		}
 	}
@@ -104,6 +103,15 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public int getCharge() {
 		return charge;
 	}
+	
+	/**
+	 * Sets a new charge for this PSM
+	 * @param c  The charge provided 
+	 */
+	public void setCharge(int c) {
+		this.charge = c;
+	}
+	
 	
 	/**
 	 * Returns the votes.

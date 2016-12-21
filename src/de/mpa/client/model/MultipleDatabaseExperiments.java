@@ -37,6 +37,7 @@ import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.accessor.XTandemhit;
+import de.mpa.db.accessor.Spectrum.ChargeAndTitle;
 
 
 /**
@@ -216,8 +217,6 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 					// go through table and construct object
 					while (rs.next()) {
 						String complete_accession = rs.getString("protein.accession");
-						String protein_accession = null;
-
 						PreparedStatement ps2 = conn.prepareStatement("SELECT omssahit.*, " +
 								"protein.description, protein.sequence, protein.proteinid, protein.accession, protein.fk_uniprotentryid, " + 
 								"peptide.sequence " +
@@ -236,19 +235,21 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							psm = psmmap.get(psmkey);
 							psm.addSearchHit(hit);
 							psm.addExperimentIDs(experimentIDs);
-						}else {
+						} else {
 							psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
 							// getting the spectrum-title
 							//Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							if (spectrum_title == null) {System.out.println("null ?: " + rs.getLong("searchspectrum.fk_spectrumid"));}
-							//psm.setTitle(spectrum.getTitle());
+							// workaround to deal with the second charge value provided by omssa (which is usally wrong) 
+							ChargeAndTitle current_spectrum = Spectrum.getTitleAndCharge(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+							String spectrum_title = current_spectrum.getTitle();
+							int spectrum_charge = current_spectrum.getCharge();
+							if (spectrum_charge != 0) {
+								psm.setCharge(spectrum_charge);
+							}
 							psm.setTitle(spectrum_title);							
 							// mapping the psms to spectrum titles to link mascot results to correct spectra 
-							//String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
 							String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
 							String spectitlekey;
-							//if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
 							if (spectrum_title.contains("File") && spectrum_title.contains("Spectrum") && spectrum_title.contains("scans")) {
 								if (spectrum_title.contains("( \\(id)")) {
 									spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
@@ -273,11 +274,12 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							pepmap.put(rs2.getString("peptide.sequence"), peptideHit);
 						}
 						// either add protein data to existing protein or create new one
-						if (protmap.containsKey(protein_accession)) {
-							ProteinHit prothit = protmap.get(protein_accession);				        
+						if (protmap.containsKey(complete_accession)) {
+							ProteinHit prothit = protmap.get(complete_accession);				        
 							prothit.addPeptideHit(peptideHit);
+							prothit.getMetaProteinHit().addPeptideHit(peptideHit);
 							prothit.addExperimentIDs(experimentIDs);				        
-						}else {
+						} else {
 							// Define uniprot entry
 							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Define taxon node
@@ -288,7 +290,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								uniprot = new UniProtEntryMPA(uniprotAccessor);
 								// retrieve taxonomy branch
 								taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniprotAccessor.getTaxid(), taxonomyMap, conn);		
-							}else{
+							} else {
 								// There is no uniprot entry
 								// mark taxonomy as 'unclassified'
 								if (unclassifiedNode == null) {
@@ -304,10 +306,11 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 									rs2.getString("protein.sequence"),
 									peptideHit,uniprot, taxonomyNode, rs.getLong("searchspectrum.fk_experimentid"));
 							protmap.put(rs.getString("protein.accession"), prothit);
-							// add peptidehit - maybe unneccassary 
+							// add peptidehit - maybe unnecessary --> why? 
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
 							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
+							mph.addPeptideHit(peptideHit);
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);
@@ -345,7 +348,6 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 					// go through table and construct object
 					while (rs.next()) {
 						String complete_accession = rs.getString("protein.accession");
-
 						PreparedStatement ps2 = conn.prepareStatement("SELECT xtandemhit.*, " +
 								"protein.description, protein.sequence, protein.proteinid, protein.accession, protein.fk_uniprotentryid," + 
 								"peptide.sequence " +
@@ -357,7 +359,6 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						ResultSet rs2 = ps2.executeQuery();
 						rs2.next();
 						// create searchit
-						//SearchHit hit = new XTandemhit(rs);			    	
 						SearchHit hit = new XTandemhit(rs2, true);
 						// either add peptidespectrummatch to existing data or create new one 
 						String psmkey = rs.getString("searchspectrum.searchspectrumid") + rs2.getString("peptide.sequence");
@@ -368,15 +369,11 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						} else {
 							psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
 							// getting the spectrum-title
-							//Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
 							String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							//psm.setTitle(spectrum.getTitle());
 							psm.setTitle(spectrum_title);							
 							// mapping the psms to spectrum titles to link mascot results to correct spectra 
-							//String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
 							String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
 							String spectitlekey;
-							//if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
 							if (spectrum_title.contains("File") && spectrum_title.contains("Spectrum") && spectrum_title.contains("scans")) {
 								if (spectrum_title.contains("( \\(id)")) {
 									spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
@@ -402,7 +399,9 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						// either add protein data to existing protein or create new one
 						if (protmap.containsKey(rs.getObject("protein.accession"))) {
 							ProteinHit prothit = protmap.get(rs.getObject("protein.accession"));
-							prothit.addPeptideHit(peptideHit);				        
+							prothit.addPeptideHit(peptideHit);
+							prothit.getMetaProteinHit().addPeptideHit(peptideHit);
+							prothit.addExperimentIDs(experimentIDs);
 						} else {
 							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Fetch Uniprot entry
@@ -432,6 +431,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
 							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
+							mph.addPeptideHit(peptideHit);
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);
@@ -475,56 +475,43 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								"INNER JOIN protein on protein.proteinid=mascothit.fk_proteinid " +
 								"INNER JOIN peptide on peptide.peptideid=mascothit.fk_peptideid " +
 								"WHERE mascothit.mascothitid = ?");
-						
-						
-						
 						ps2.setLong(1, rs.getLong("mascothit.mascothitid"));
 						ResultSet rs2 = ps2.executeQuery();
 						rs2.next();
 						SearchHit hit = new Mascothit(rs2, true);
 						// either add peptidespectrummatch to existing data or create new one
 						String psmkey = rs.getString("searchspectrum.searchspectrumid") + rs2.getString("peptide.sequence");
-						if (psmmap.containsKey(psmkey)) {
-							psm = psmmap.get(psmkey);
+						// getting the spectrum-title
+						//Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+						String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+						// mapping the psms to spectrum titles to link mascot results to correct spectra 
+						String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
+						String spectitlekey;
+						if (spectrum_title.contains("File") && spectrum_title.contains("Spectrum") && spectrum_title.contains("scans")) {
+							if (spectrum_title.contains("( \\(id)")) {
+								spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
+							} else {
+								spectitlekey = spectitle1[1] + spectitle1[2];
+							}
+						} else {
+							spectitlekey = spectrum_title;
+						}
+						if (mascotspectrummap.containsKey(spectitlekey)) {			    			
+							psm = mascotspectrummap.get(spectitlekey);
 							psm.addSearchHit(hit);
-							psm.addExperimentIDs(experimentIDs);
+							psm.addExperimentIDs(experimentIDs);			    			
 						}
 						else {
-							// getting the spectrum-title
-							//Spectrum spectrum = Spectrum.findFromSpectrumID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							// mapping the psms to spectrum titles to link mascot results to correct spectra 
-							//String[] spectitle1 = spectrum.getTitle().split("(File)|(Spectrum)|(scans)");
-							String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
-							String spectitlekey;
-							//if (spectrum.getTitle().contains("File") && spectrum.getTitle().contains("Spectrum") && spectrum.getTitle().contains("scans")) {
-							if (spectrum_title.contains("File") && spectrum_title.contains("Spectrum") && spectrum_title.contains("scans")) {
-								if (spectrum_title.contains("( \\(id)")) {
-									spectitlekey = spectitle1[1] + spectitle1[2].split("( \\(id)")[0];
-								} else {
-									spectitlekey = spectitle1[1] + spectitle1[2];
-								}
-							} else {
-								spectitlekey = spectrum_title;
-							}
-							if (mascotspectrummap.containsKey(spectitlekey)) {			    			
-								psm = mascotspectrummap.get(spectitlekey);
-								psm.addSearchHit(hit);
-								psm.addExperimentIDs(experimentIDs);			    			
-							}
-							else {
-								psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
-								psm.setTitle(spectrum_title);
-								psmmap.put(psmkey, psm);
-							}
-						}				
+							psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
+							psm.setTitle(spectrum_title);
+							psmmap.put(psmkey, psm);
+						}
 						// either add peptide data to existing peptide or create new one
 						if (pepmap.containsKey(rs2.getString("peptide.sequence"))) {
 							peptideHit = pepmap.get(rs2.getString("peptide.sequence"));
 							peptideHit.addSpectrumMatch(rs2.getString("peptide.sequence"), psm);
 							peptideHit.addExperimentIDs(experimentIDs);
-						}
-						else {
+						} else {
 							peptideHit = new PeptideHit(rs2.getString("peptide.sequence"), psm);
 							peptideHit.addSpectrumMatch(rs2.getString("peptide.sequence"), psm);
 							pepmap.put(rs2.getString("peptide.sequence"), peptideHit);
@@ -533,9 +520,9 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						if (protmap.containsKey(rs.getObject("protein.accession"))) {
 							ProteinHit prothit = protmap.get(rs.getObject("protein.accession"));
 							prothit.addPeptideHit(peptideHit);
-						}
-						else {
-
+							prothit.getMetaProteinHit().addPeptideHit(peptideHit);
+							peptideHit.addExperimentIDs(experimentIDs);
+						} else {
 							UniProtEntryMPA uniprot = new UniProtEntryMPA();
 							// Fetch Uniprot entry
 							TaxonomyNode taxonomyNode;
@@ -544,7 +531,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								uniprot = new UniProtEntryMPA(uniprotAccessor);
 								// retrieve taxonomy branch
 								taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniprotAccessor.getTaxid(), taxonomyMap, conn);		
-							}else{
+							} else {
 								// There is no uniprot entry
 								// mark taxonomy as 'unclassified'
 								if (unclassifiedNode == null) {
@@ -564,6 +551,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							prothit.addPeptideHit(peptideHit);
 							// wrap new protein in meta-protein
 							MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
+							mph.addPeptideHit(peptideHit);
 							prothit.setMetaProteinHit(mph);
 							// and add to database
 							searchResult.addMetaProtein(mph);

@@ -132,7 +132,16 @@ public class Spectrum extends SpectrumTableAccessor {
     	}
         return MapContainer.SpectrumTitle2IdMap.get(formatted);
     }
-
+    
+    /**
+     * Method which will only return the Title, instead of all spectral data.
+     * This saves memory and thus GC-time, when tens of thousands of calls are made.
+     *      * 
+     * @param spectrumid SQL-ID of this spectrum
+     * @param conn SQL-Connection
+     * @return spectitle  A string holding the title
+     * @throws SQLException
+     */
 	public static String getSpectrumTitleFromID(Long spectrumid, Connection conn) throws SQLException {
 		String spectitle = "";
         PreparedStatement ps = conn.prepareStatement("SELECT title FROM spectrum WHERE spectrumid = ?");
@@ -143,5 +152,51 @@ public class Spectrum extends SpectrumTableAccessor {
         }
 		return spectitle;
 	}
-
+	
+	/**
+	 * Workaround method for Omssa, in addition to "getSpectrumTitleFromID", this method
+	 * also returns the Spectrum charge, which will be used to overwrite the (wrong) charge which is 
+	 * stored in Ommsa hits 
+	 * 
+	 * @param spectrumid  SQL-ID of your spectrum
+	 * @param conn SQL-Connection
+	 * @return ChargeAndTitle instance (wrapper class to return both values)  
+	 * @throws SQLException
+	 */
+	public static ChargeAndTitle getTitleAndCharge(Long spectrumid, Connection conn) throws SQLException {
+		String title = "";
+		int charge = 0;
+        PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_charge FROM spectrum WHERE spectrumid = ?");
+        ps.setLong(1, spectrumid);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+    		title = rs.getString("title");
+    		charge = rs.getInt("precursor_charge");        	
+        }
+		return new Spectrum.ChargeAndTitle(title, charge);
+	}
+	
+	/**
+	 * Wrapper class to return charge and title together. 
+	 * This is part of a workaround to deal with false Omssa charges, which would otherwise 
+	 * override the correct charge from the spectrum itself. 
+	 * 
+	 * @author Kay Schallert
+	 *
+	 */
+	public static class ChargeAndTitle {
+		private String title;
+		private int charge;
+		public ChargeAndTitle(String t, int c) {
+			this.title = t;
+			this.charge = c;
+		}
+		public String getTitle() {
+			return this.title;
+		}
+		public int getCharge() {
+			return this.charge;
+		}
+		
+	}
 }

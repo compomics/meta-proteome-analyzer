@@ -17,6 +17,16 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
+import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
+import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
+import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
+import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
+import uk.ac.ebi.uniprot.dataservice.query.Query;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
@@ -31,16 +41,6 @@ import de.mpa.db.accessor.Taxonomy;
 import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.io.fasta.DigFASTAEntry;
 import de.mpa.main.Starter;
-import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
-import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
-import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
-import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
-import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
-import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
-import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
-import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
-import uk.ac.ebi.uniprot.dataservice.query.Query;
 
 
 /**
@@ -556,6 +556,9 @@ public class UniProtUtilities {
 			Client.getInstance().firePropertyChange("indeterminate", false,	true);
 		}
 
+		// make connection
+		Connection conn = DBManager.getInstance().getConnection();
+
 		// Sets are required for uniprot queries, this set contains the current batch of accessions
 		Set<String> shortList = new TreeSet<String>(accessionList); 
 
@@ -1059,7 +1062,7 @@ public class UniProtUtilities {
 	/**
 	 * Enumeration holding ontology keywords.
 	 */
-	public enum KeywordCategory {
+	public enum KeywordCategory {//implements Comparable<KeywordCategory> {
 		BIOLOGICAL_PROCESS(new Keyword("Biological Process", null, null)),
 		CELLULAR_COMPONENT(new Keyword("Cellular Component", null, null)),
 		CODING_SEQUNCE_DIVERSITY(new Keyword("Coding sequence diversity", null, null)),
@@ -1110,6 +1113,15 @@ public class UniProtUtilities {
 			}
 			return null;
 		}
+		
+//		@Override
+//		public final boolean compareTo(KeywordCategory kw) {
+//			if (this.keyword.equals(kw.keyword)) {
+//				return true;
+//			} else {
+//				return false;
+//			}
+//		}
 	}
 
 	/**
