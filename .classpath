@@ -52,7 +52,6 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
 	<classpathentry kind="lib" path="lib/jaligner.jar"/>
-	<classpathentry kind="lib" path="lib/japi-1.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.18.1-GA.jar"/>
 	<classpathentry kind="lib" path="lib/javax.annotation-api-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax.inject-1.jar"/>
@@ -137,5 +136,6 @@
 	<classpathentry kind="lib" path="lib/zookeeper-3.4.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
