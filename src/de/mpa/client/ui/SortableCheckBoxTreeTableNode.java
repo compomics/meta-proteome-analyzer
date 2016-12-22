@@ -302,7 +302,11 @@ public class SortableCheckBoxTreeTableNode extends CheckBoxTreeTableNode
 								// special case for strings to get a more natural sorting
 								result = AlphanumComparator.getInstance().compare(this_value, that_value);
 							} else {
-								result = ((Comparable<Object>) this_value).compareTo(that_value);
+								try {
+									result = ((Comparable<Object>) this_value).compareTo(that_value);
+								} catch (ClassCastException e) {
+									// user miss-clicked, do nothing
+								}
 							}
 						}
 						// correct result w.r.t. sort order

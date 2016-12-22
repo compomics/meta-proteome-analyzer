@@ -147,7 +147,7 @@ public class OntologyData implements ChartData {
 		}
 
 		// Go through DB search result object and add taxonomy information to
-		// taxanomy maps
+		// taxanomy maps --> this is the ontology map ????????
 		for (ProteinHit mp : this.data) {
 			MetaProteinHit metaProtein = (MetaProteinHit) mp;
 			for (ProteinHit proteinHit : metaProtein.getProteinHitList()) {
@@ -166,8 +166,7 @@ public class OntologyData implements ChartData {
 										.valueOf(ontologyMap.get(keyword)
 												.getCategory());
 								found[ontologyTypes.indexOf(ontology)] = true;
-								this.appendHit(keyword,
-										this.occMaps.get(ontology), metaProtein);
+								this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
 							}
 						}
 					}
@@ -215,99 +214,79 @@ public class OntologyData implements ChartData {
 	 */
 	@Override
 	public PieDataset getDataset() {
-		try {
-			// TODO: pre-process dataset generation and return only cached
-			// variables
-			DefaultPieDataset pieDataset = new DefaultPieDataset();
+		// TODO: pre-process dataset generation and return only cached
+		// variables
+		DefaultPieDataset pieDataset = new DefaultPieDataset();
+		pieDataset.setGroup(new DatasetGroup(hierarchyLevel.getTitle()));
 
-			// Workaround: time-based synchronization xD
-			int countTries = 0;
-			while (hierarchyLevel == null) {
-				Thread.sleep(1);
-				if (countTries > 1000) {
-					break;
-				}
-				countTries++;
-			}
-			if(hierarchyLevel == null){
-				System.out.println();
-			}
-			pieDataset.setGroup(new DatasetGroup(hierarchyLevel.getTitle()));
+		String unknownKey = "Unknown";
+		int unknownVal = 0;
+		String othersKey = "Others";
+		int othersVal = 0;
 
-			String unknownKey = "Unknown";
-			int unknownVal = 0;
-			String othersKey = "Others";
-			int othersVal = 0;
+		// add empty "Unknown" category so it always shows up first (to keep
+		// colors consistent)
+		pieDataset.setValue(unknownKey, unknownVal);
 
-			// add empty "Unknown" category so it always shows up first (to keep
-			// colors consistent)
-			pieDataset.setValue(unknownKey, unknownVal);
+		// retrieve occurrence map
+		Map<String, ProteinHitList> occMap = this.occMaps
+				.get(((OntologyChartType) this.chartType).getOntology());
 
-			// retrieve occurrence map
-			Map<String, ProteinHitList> occMap = this.occMaps
-					.get(((OntologyChartType) this.chartType).getOntology());
+		// remove cached 'Others' category
+		occMap.remove(othersKey);
+		Set<Entry<String, ProteinHitList>> entrySet = occMap.entrySet();
 
-			// remove cached 'Others' category
-			occMap.remove(othersKey);
-			Set<Entry<String, ProteinHitList>> entrySet = occMap.entrySet();
-
-			// Calculate for each subgroup of the pie its size
-			for (Entry<String, ProteinHitList> entry : entrySet) {
-				ProteinHitList metaProteins = entry.getValue();
-				Integer absVal = this.getSizeByHierarchy(metaProteins,
-						hierarchyLevel);
-				@SuppressWarnings("rawtypes")
-				Comparable key = entry.getKey();
-				pieDataset.setValue(key, absVal);
-			}
-
-			ProteinHitList others = new ProteinHitList();
-			// add empty 'Others' category so it always shows up last (to keep
-			// colors consistent)
-			pieDataset.setValue(othersKey, othersVal);
-
-			double total = DatasetUtilities
-					.calculatePieDatasetTotal(pieDataset);
-			for (Object obj : pieDataset.getKeys()) {
-				@SuppressWarnings("rawtypes")
-				Comparable key = (Comparable) obj;
-				if (othersKey.equals(key) || unknownKey.equals(key)) {
-					continue;
-				}
-				int absVal = pieDataset.getValue(key).intValue();
-				double relVal = absVal / total;
-				if (relVal < this.limit) {
-					pieDataset.remove(key);
-					othersVal += absVal;
-					ProteinHitList metaProteins = occMap.get(key);
-					others.addAll(metaProteins);
-				}
-			}
-
-			// sort dataset w.r.t. remaining values
-			pieDataset.sortByValues(SortOrder.DESCENDING);
-
-			unknownVal = pieDataset.getValue(unknownKey).intValue();
-			if ((unknownVal > 0) && !this.hideUnknown) {
-				// move 'Unknown' category to front
-				pieDataset.insertValue(0, unknownKey, unknownVal);
-			} else {
-				pieDataset.remove(unknownKey);
-			}
-			if (othersVal > 0) {
-				// move 'Others' category to end
-				pieDataset.insertValue(pieDataset.getItemCount() - 1,
-						othersKey, othersVal);
-				occMap.put(othersKey, others);
-			} else {
-				pieDataset.remove(othersKey);
-			}
-
-			return pieDataset;
-		} catch (Exception e) {
-			e.printStackTrace();
+		// Calculate for each subgroup of the pie its size
+		for (Entry<String, ProteinHitList> entry : entrySet) {
+			ProteinHitList metaProteins = entry.getValue();
+			Integer absVal = this.getSizeByHierarchy(metaProteins,
+					hierarchyLevel);
+			@SuppressWarnings("rawtypes")
+			Comparable key = entry.getKey();
+			pieDataset.setValue(key, absVal);
 		}
-		return null;
+
+		ProteinHitList others = new ProteinHitList();
+		// add empty 'Others' category so it always shows up last (to keep
+		// colors consistent)
+		pieDataset.setValue(othersKey, othersVal);
+
+		double total = DatasetUtilities.calculatePieDatasetTotal(pieDataset);
+		for (Object obj : pieDataset.getKeys()) {
+			@SuppressWarnings("rawtypes")
+			Comparable key = (Comparable) obj;
+			if (othersKey.equals(key) || unknownKey.equals(key)) {
+				continue;
+			}
+			int absVal = pieDataset.getValue(key).intValue();
+			double relVal = absVal / total;
+			if (relVal < this.limit) {
+				pieDataset.remove(key);
+				othersVal += absVal;
+				ProteinHitList metaProteins = occMap.get(key);
+				others.addAll(metaProteins);
+			}
+		}
+
+		// sort dataset w.r.t. remaining values
+		pieDataset.sortByValues(SortOrder.DESCENDING);
+
+		unknownVal = pieDataset.getValue(unknownKey).intValue();
+		if ((unknownVal > 0) && !this.hideUnknown) {
+			// move 'Unknown' category to front
+			pieDataset.insertValue(0, unknownKey, unknownVal);
+		} else {
+			pieDataset.remove(unknownKey);
+		}
+		if (othersVal > 0) {
+			// move 'Others' category to end
+			pieDataset.insertValue(pieDataset.getItemCount() - 1, othersKey,
+					othersVal);
+			occMap.put(othersKey, others);
+		} else {
+			pieDataset.remove(othersKey);
+		}
+		return pieDataset;
 	}
 
 	/**

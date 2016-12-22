@@ -34,10 +34,9 @@ public class ServerClientStart {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+		
 		WSPublisher.main(args);
 
 		Starter.main(args);
-
 	}
-
 }

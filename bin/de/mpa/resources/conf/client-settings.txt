@@ -1,2 +1,0 @@
-# FASTA Databases
-files.fasta=

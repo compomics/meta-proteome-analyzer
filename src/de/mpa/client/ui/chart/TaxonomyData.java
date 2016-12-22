@@ -123,12 +123,14 @@ public class TaxonomyData implements ChartData {
 	 * Sets up the taxonomies.
 	 */
 	public void init() {
-		this.hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
 		
+		this.hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
 		this.hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, this.data);
 		this.hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, this.data.getProteinSet());
 		this.hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, this.data.getPeptideSet());
 		this.hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, this.data.getMatchSet());
+		
+		
 		
 //		List<Collection<? extends Hit>> hitLists = new ArrayList<>();
 //		hitLists.add(this.data);
@@ -173,8 +175,34 @@ public class TaxonomyData implements ChartData {
 		Collection<? extends Hit> hits = this.hierarchyMap.get(this.hierarchyLevel);
 		List<Taxonomic> knownList = new ArrayList<Taxonomic>();
 		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
+		
+		// this properly checks the selection status of peptides and spectra based on protein-selection
 		for (Hit hit : hits) {
-			if (hit.isSelected()) {
+			boolean selected = false; 
+			if (hit instanceof PeptideHit) {
+				PeptideHit pephit = (PeptideHit) hit;
+				for (ProteinHit protein : pephit.getProteinHits()) {
+					if (protein.isSelected()) {
+						selected = true;
+						break;
+					}
+				}
+			} else if (hit instanceof SpectrumMatch) {
+				SpectrumMatch spec = (SpectrumMatch) hit;
+				for (PeptideHit pephit : spec.getPeptideHits()) {
+					for (ProteinHit protein : pephit.getProteinHits()) {
+						if (protein.isSelected()) {
+							selected = true;
+							break;
+						}
+					}
+				}
+			} else {
+				if (hit.isSelected()) {
+					selected = true;
+				}
+			}
+			if (selected) {
 				Taxonomic taxonomic = (Taxonomic) hit;
 				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
 				TaxonomyRank rank = taxonNode.getRank();
@@ -191,7 +219,6 @@ public class TaxonomyData implements ChartData {
 		for (Taxonomic taxonomic : knownList) {
 			// extract section key
 			String key = taxonomic.getTaxonomyNode().getParentNode(topRank).getName();
-			
 			ProteinHitList hitList = this.occMap.get(key);
 			if (hitList == null) {
 				hitList = new ProteinHitList();
@@ -260,6 +287,7 @@ public class TaxonomyData implements ChartData {
 //			pieDataset.setValue(unknownKey, 0);
 			pieDataset.remove(unknownKey);
 		}
+		
 		
 		return pieDataset;
 	}

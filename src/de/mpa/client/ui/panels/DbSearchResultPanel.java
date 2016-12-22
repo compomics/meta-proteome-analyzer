@@ -1563,13 +1563,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final JToggleButton chartTgl = new JToggleButton(IconConstants.PIE_CHART_ICON);
 		chartTgl.setRolloverIcon(IconConstants.PIE_CHART_ROLLOVER_ICON);
 		chartTgl.setPressedIcon(IconConstants.PIE_CHART_PRESSED_ICON);
-		chartTgl.setToolTipText("Show Detail Charts");
+		chartTgl.setToolTipText("Refresh Charts");
 		chartTgl.setUI((RolloverButtonUI) RolloverButtonUI.createUI(chartTgl));
 		chartTgl.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				chartCl.show(chartCardPnl, "Charts");
 				chartTtlPnl.setTitle("Detail Charts");
+				refreshChart(true);
 			}
 		});
 
@@ -1951,7 +1952,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @param matches the spectrum matches to display
 	 */
 	protected void refreshPSMView(Collection<SpectrumMatch> matches) {
-		System.out.println("Refresh PSMs");
 		// Clear table
 		TableConfig.clearTable(psmTbl);
 		spectrumPnl.clearSpectrum();

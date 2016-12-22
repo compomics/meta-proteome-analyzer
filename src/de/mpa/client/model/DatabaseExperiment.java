@@ -235,7 +235,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 						if (spectrum_charge != 0) {
 							psm.setCharge(spectrum_charge);
 						}
-						psm.setTitle(spectrum_title);							
+						psm.setTitle(spectrum_title);
 						// mapping the psms to spectrum titles to link mascot results to correct spectra 
 						String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
 						String spectitlekey;
@@ -357,8 +357,14 @@ public class DatabaseExperiment extends AbstractExperiment {
 					} else {
 						psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
 						// getting the spectrum-title
-						String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-						psm.setTitle(spectrum_title);							
+//						String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+						ChargeAndTitle current_spectrum = Spectrum.getTitleAndCharge(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+						String spectrum_title = current_spectrum.getTitle();
+						int spectrum_charge = current_spectrum.getCharge();
+						if (spectrum_charge != 0) {
+							psm.setCharge(spectrum_charge);
+						}
+						psm.setTitle(spectrum_title);						
 						// mapping the psms to spectrum titles to link mascot results to correct spectra 
 						String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
 						String spectitlekey;
@@ -417,7 +423,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 								peptideHit, uniprot, taxonomyNode, rs.getLong("searchspectrum.fk_experimentid"));
 						protmap.put(rs.getString("protein.accession"), prothit);
 						// add peptidehit - maybe unneccassary 
-						//					prothit.addPeptideHit(peptideHit);
+						prothit.addPeptideHit(peptideHit);
 						// wrap new protein in meta-protein
 						MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
 						mph.addPeptideHit(peptideHit);
@@ -555,10 +561,9 @@ public class DatabaseExperiment extends AbstractExperiment {
 				rs = null;
 				ps = null;
 				System.gc();
-
 				// end of mascot block
+				
 				// close Resultset and finish data acquisition
-
 				// determine total spectral count
 				int spectralCount = 0;
 				spectralCount+=Searchspectrum.getSpectralCountFromExperimentID(this.getID(), conn);
@@ -571,53 +576,8 @@ public class DatabaseExperiment extends AbstractExperiment {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-			
 			// setting the FDR to 0.2 to set all proteins/peptides/spectra to "Visible" 
 			searchResult.setFDR(0.2);
-		
-			/* 
-			 *  		test searchresults		
-			 */
-//			searchResult.setFDR(0.01);
-			// test searchresults
-//			Connection conn = null;
-//			try {
-//				conn = Client.getInstance().getConnection();
-//			} catch (SQLException e1) {
-//				e1.printStackTrace();
-//			}
-//			for (ProteinHit mp : searchResult.getMetaProteins()) {
-//				if (mp.getUniProtEntry().getKeywords().contains("Apoptosis")) {
-//					System.out.println("Metaprotein: " + mp.getAccession() + " specids: " + mp.getSpectrumIDs());
-//					for (PeptideHit peptide : mp.getPeptideHitList()) {
-//						if (peptide.isVisible()) {
-//							System.out.println("Peptide: " + peptide.getSequence());
-//							for (SpectrumMatch specmatch : peptide.getSpectrumMatches()) {
-//								PeptideSpectrumMatch psm = (PeptideSpectrumMatch) specmatch;
-//								if ((psm.isVisible())) {
-//									for (SearchHit sh : psm.getSearchHits()) {
-//										
-//										System.out.println("PSM, pepid: " + sh.getFk_peptideid() + " accession: " + sh.getAccession() + " ssID:" + sh.getFk_searchspectrumid() + " qval: " + sh.getQvalue());
-//										System.out.println("Charge: " + sh.getCharge() + " Charge: " + psm.getCharge());
-//										try {
-//											PreparedStatement ps = conn.prepareStatement("SELECT fk_spectrumid FROM searchspectrum WHERE searchspectrumid = ?");
-//											ps.setLong(1, psm.getSearchSpectrumID());
-//											ResultSet rs = ps.executeQuery();
-//											rs.next();
-//											Long specid = rs.getLong("fk_spectrumid");
-//										} catch (SQLException e) {
-//											e.printStackTrace();
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-			/* 
-			 *  		test searchresults END		
-			 */
 		}
 		return searchResult;
 	}

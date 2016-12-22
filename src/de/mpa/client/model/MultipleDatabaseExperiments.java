@@ -369,8 +369,14 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 						} else {
 							psm = new PeptideSpectrumMatch(rs.getLong("searchspectrum.searchspectrumid"), hit);
 							// getting the spectrum-title
-							String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
-							psm.setTitle(spectrum_title);							
+//							String spectrum_title = Spectrum.getSpectrumTitleFromID(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+							ChargeAndTitle current_spectrum = Spectrum.getTitleAndCharge(rs.getLong("searchspectrum.fk_spectrumid"), conn);
+							String spectrum_title = current_spectrum.getTitle();
+							int spectrum_charge = current_spectrum.getCharge();
+							if (spectrum_charge != 0) {
+								psm.setCharge(spectrum_charge);
+							}
+							psm.setTitle(spectrum_title);
 							// mapping the psms to spectrum titles to link mascot results to correct spectra 
 							String[] spectitle1 = spectrum_title.split("(File)|(Spectrum)|(scans)");							
 							String spectitlekey;

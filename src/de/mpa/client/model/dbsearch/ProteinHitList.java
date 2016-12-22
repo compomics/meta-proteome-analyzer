@@ -158,18 +158,14 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 		peptideSet = new TreeSet<PeptideHit>();
 		matchSet = new TreeSet<SpectrumMatch>();
 		if (!this.isEmpty()) {
-			// check whether this list contains meta-proteins or proteins
-			if (this.get(0) instanceof MetaProteinHit) {
-				// this list contains meta-protein hits
-				for (ProteinHit proteinHit : this) {
+			// this list contains meta-protein hits
+			for (ProteinHit proteinHit : this) {
+				if (proteinHit instanceof MetaProteinHit) {
 					MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
 					proteinSet.addAll(metaProteinHit.getProteinSet());
 					peptideSet.addAll(metaProteinHit.getPeptideSet());
 					matchSet.addAll(metaProteinHit.getMatchSet());
-				}
-			} else {
-				// this list contains protein hits
-				for (ProteinHit proteinHit : this) {
+				} else {
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (PeptideHit peptideHit : peptideHitList) {
 						matchSet.addAll(peptideHit.getSpectrumMatches());
