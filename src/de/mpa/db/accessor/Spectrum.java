@@ -51,6 +51,49 @@ public class Spectrum extends SpectrumTableAccessor {
     }
     
     /**
+     * This method will find a spectrum file from the current connection, based on the spectrum title.
+     * It works more efficient than the other method (findFromTitle()), but it's still pretty bad ...  
+     *
+     * @param title String with the spectrum name of the spectrum file to find.
+     * @param aConn     Connection to read the spectrum File from.
+     * @return Spectrum Spectrum DAO with the data.
+     * @throws SQLException when the retrieval did not succeed.
+     */
+    public static Spectrum findFromTitleQuicker(String title, Connection aConn) throws SQLException {
+    	Spectrum temp = null;
+        PreparedStatement ps = aConn.prepareStatement("SELECT spectrum.spectrumid FROM spectrum WHERE spectrum.title LIKE ?");
+        ps.setString(1, title);
+        ResultSet rs = ps.executeQuery();
+        int counter = 0;
+        Long id = null;
+        while (rs.next()) {
+            counter++;
+            id = rs.getLong("spectrum.spectrumid"); 
+        }
+        rs.close();
+        ps.close();
+        if (counter > 1) {
+        	throw new SQLException("Duplicate spectrum found in the database.");
+        }
+        if (id != null) {
+        	// get actual spectrum
+        	ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
+        			" WHERE spectrumid = ?");
+        	ps.setLong(1, id);
+        	rs = ps.executeQuery();
+        	while (rs.next()) {
+        		temp = new Spectrum(rs);
+        		if (temp.getTitle() != title) {
+        			temp = null;
+        		}
+        	}
+        	rs.close();
+        	ps.close();
+        }
+        return temp;
+    }
+    
+    /**
      * This method will find a spectrum file from the current connection, based on the spectrum name.
      *
      * @param title String with the spectrum name of the spectrum file to find.

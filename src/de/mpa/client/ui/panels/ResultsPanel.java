@@ -1023,7 +1023,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					newResult = client.getMultipleSearchResults(experimentList);
 				}
 
-				// Make a dump if the result object is new
+				// Make a dump ( :) ) if the result object is new 
 				if (newResult != null) {
 					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
 						// Update result object reference

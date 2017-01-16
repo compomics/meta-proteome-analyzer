@@ -20,6 +20,8 @@ import com.compomics.util.db.interfaces.Persistable;
 import com.compomics.util.db.interfaces.Retrievable;
 import com.compomics.util.db.interfaces.Updateable;
 
+import de.mpa.io.fasta.DigFASTAEntry;
+
 /*
  * CVS information:
  *
@@ -197,6 +199,21 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		this.iUpdated = true;
 	}
 
+	/**
+	 * This constructor allows the creation of the 'ProteinTableAccessor' object based on a resultset
+	 * obtained by a 'select * from Protein' query.
+	 *
+	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
+	 * @exception	SQLException	when the ResultSet could not be read.
+	 */
+	public ProteinTableAccessor(DigFASTAEntry entry) throws SQLException {
+		this.iAccession = entry.getIdentifier();
+		this.iDescription = entry.getDescription();
+		this.iSequence = entry.getSequence();
+		this.ifk_UniProtID = entry.getUniProtID();
+		this.iSource = entry.getType().toString();
+	}
+	
 
 	/**
 	 * This method returns the value for the 'Proteinid' column

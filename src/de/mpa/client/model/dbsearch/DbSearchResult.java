@@ -350,7 +350,8 @@ public class DbSearchResult implements Serializable {
 	public int getUniquePeptideCount() {
 		int uniquePeptides = 0;
 		for (PeptideHit peptideHit : this.getMetaProteins().getPeptideSet()) {
-			if (peptideHit.getProteinCount() == 1) {
+			// == 2 --> one protein and one metaprotein
+			if (peptideHit.getProteinCount() == 2) {
 				uniquePeptides++;
 			}
 		}

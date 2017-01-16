@@ -99,7 +99,7 @@ public class OmssaJob extends Job {
 	 */
 	private void initJob() {
 
-		String appOmssa = omssaFile.getAbsolutePath() + "\\" + PropertyLoader.getProperty(PropertyLoader.APP_OMSSA);
+		String appOmssa = omssaFile.getAbsolutePath() + File.separator + PropertyLoader.getProperty(PropertyLoader.APP_OMSSA);
 
 		// Full path to executable
 		procCommands.add(appOmssa);

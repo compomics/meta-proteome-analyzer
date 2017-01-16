@@ -139,7 +139,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 	public DbSearchResult getSearchResult() {
 		if (searchResult == null) {
 			Client client = Client.getInstance();
-			try {				
+			try {
 				// initialize the result object
 				DbSearchResult searchResult = new DbSearchResult(this.getProject().getTitle(), this.getTitle(), null);
 				// initialize connection
@@ -264,10 +264,10 @@ public class DatabaseExperiment extends AbstractExperiment {
 					}
 					// either add protein data to existing protein or create new one
 					if (protmap.containsKey(complete_accession)) {
-						ProteinHit prothit = protmap.get(complete_accession);				        
+						ProteinHit prothit = protmap.get(complete_accession);
 						prothit.addPeptideHit(peptideHit);
 						prothit.getMetaProteinHit().addPeptideHit(peptideHit);
-						prothit.addExperimentIDs(experimentIDs);				        
+						prothit.addExperimentIDs(experimentIDs);
 					} else {
 						// Define uniProt entry
 						UniProtEntryMPA uniprot = new UniProtEntryMPA();
@@ -298,7 +298,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 						prothit.addPeptideHit(peptideHit);
 						// wrap new protein in meta-protein
 						MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
-						mph.addPeptideHit(peptideHit);
+//						mph.addPeptideHit(peptideHit);
 						prothit.setMetaProteinHit(mph);
 						// and add to database
 						searchResult.addMetaProtein(mph);
@@ -426,7 +426,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 						prothit.addPeptideHit(peptideHit);
 						// wrap new protein in meta-protein
 						MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
-						mph.addPeptideHit(peptideHit);
+//						mph.addPeptideHit(peptideHit);
 						prothit.setMetaProteinHit(mph);
 						// and add to database
 						searchResult.addMetaProtein(mph);
@@ -545,7 +545,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 						prothit.addPeptideHit(peptideHit);
 						// wrap new protein in meta-protein
 						MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + prothit.getAccession(), prothit, prothit.getUniProtEntry());
-						mph.addPeptideHit(peptideHit);
+//						mph.addPeptideHit(peptideHit);
 						prothit.setMetaProteinHit(mph);
 						// and add to database
 						searchResult.addMetaProtein(mph);

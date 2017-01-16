@@ -56,7 +56,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		ps.close();
 		return temp;
 	}
-	
+
 	/**
 	 * This method allows the caller to obtain all rows for this
 	 * table from a persistent store.
@@ -75,10 +75,10 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		stat.close();
 		return entities;
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * This method will find a uniprot entry from the current connection, based on the specified uniprot ID.
 	 *
@@ -88,19 +88,19 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 	 * @throws SQLException when the retrieval did not succeed.
 	 */
 	public static UniProtEntryMPA getMPAUniProtEntry(long uniprotID, Connection conn) throws SQLException {
-		
+
 		// The result object
 		UniProtEntryMPA temp = null;
-		
+
 		// Query the UniProt-table
 		UniprotentryAccessor uniProtAccessor = findFromID(uniprotID, conn);
-		
+
 		if (uniProtAccessor != null) {
 			temp = new UniProtEntryMPA(uniProtAccessor);
 		}
 		return temp;
 	}
-	
+
 
 	//	/**
 	//	 * Retrieves a mapping of proteinIDs to UniProt entry accessor objects. 
@@ -248,9 +248,9 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 
 
 
-	
+
 	/**
-	* Adds a new protein with accession and description to the database..
+	 * Adds a new protein with accession and description to the database..
 	 * @param fastaEntryList The list of all FASTA entries.
 	 * @param conn The database connection object.
 	 * @return Map of proteinID (key) to uniProtID
@@ -260,21 +260,21 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 
 		// Map with the the accession and the uniprotID
 		TreeMap<Long, Long> uniProtIDMap = new TreeMap<Long, Long>();
-		
-		
+
+
 		// Create a sql statement
 		PreparedStatement lStat = conn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, taxid, ecnumber, konumber, keywords, uniref100, uniref90, uniref50) values(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
-
-		// Add all FASTA entries to the sql statement
+		// TODO: DOES BATCH COMMIT CAUSE PROBLEMS? --> CATCH ERRORS AND RETRY ??
+		// Add all FASTA entries to the sql statement 
 		for (Long protID : uniprotid2uniprotentrymap.keySet()) {
 			if (uniprotid2uniprotentrymap.get(protID) != null) {
 				// Get the UniProt Entry
 				UniProtEntryMPA uniProtEntry = uniprotid2uniprotentrymap.get(protID);
-				
+
 				// UniProtEntry is unknown at the beginning
 				lStat.setNull(1, 4);
-				
+
 				// Add UniProtTaxonomy
 				Long taxID = uniProtEntry.getTaxid();
 				if(taxID == null) {
@@ -287,8 +287,8 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				List<String> ecNumberList = uniProtEntry.getEcnumbers();
 				if (ecNumberList.size() > 0) {
 					for (String ecNumber : ecNumberList) {
-							ecNumbers += ecNumber + ";";
-				
+						ecNumbers += ecNumber + ";";
+
 					}
 					ecNumbers = Formatter.removeLastChar(ecNumbers);
 				}
@@ -303,9 +303,9 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				List<String> kos = uniProtEntry.getKonumbers();
 				if (kos.size() > 0) {
 					for (String ko : kos) {
-							koNumbers += ko  + ";";
+						koNumbers += ko  + ";";
 					}
-						koNumbers = Formatter.removeLastChar(koNumbers);
+					koNumbers = Formatter.removeLastChar(koNumbers);
 				}
 				if(koNumbers == null) {
 					lStat.setNull(4, -1);
@@ -329,29 +329,29 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				}
 
 				// Add UniRef100
-				 if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef100() == null) {
+				if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef100() == null) {
 					lStat.setNull(6, 12);
-				 	} else {
+				} else {
 					lStat.setObject(6, uniProtEntry.getUniRefMPA().getUniRef100());
-					}
-				 
-				 // Add UniReg90
-				 if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef90() == null) {
+				}
+
+				// Add UniReg90
+				if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef90() == null) {
 					lStat.setNull(7, 12);
-				 	} else {
+				} else {
 					lStat.setObject(7, uniProtEntry.getUniRefMPA().getUniRef90());
-					}
-				 
-				 // Add UniRef50
-				 if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef50() == null) {
+				}
+
+				// Add UniRef50
+				if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef50() == null) {
 					lStat.setNull(8, 12);
-				 	} else {
+				} else {
 					lStat.setObject(8, uniProtEntry.getUniRefMPA().getUniRef50());
-					}
-					lStat.addBatch();;
+				}
+				lStat.addBatch();;
 			}
 			lStat.executeBatch();
-			
+
 			// Get the keys (uniprotEntry ID)
 			ResultSet generatedKeys = lStat.getGeneratedKeys();
 			while (generatedKeys.next()) {
@@ -360,8 +360,115 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 			}
 		}
 		lStat.close();
-	
-	return uniProtIDMap;
+
+		return uniProtIDMap;
+	}
+
+	/**
+	 * Adds a new protein with accession and description to the database..
+	 * @param Single 
+	 * @param conn The database connection object.
+	 * @return Map of proteinID (key) to uniProtID
+	 * @throws SQLException when the persistence did not succeed.
+	 */
+	public static Long addProtein(UniProtEntryMPA uniprotentry, Connection conn) throws SQLException{
+
+		Long uniProtId = -1L;
+		// Create a sql statement
+		PreparedStatement lStat = conn.prepareStatement("INSERT INTO uniprotentry (uniprotentryid, taxid, ecnumber, konumber, keywords, uniref100, uniref90, uniref50) values(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+
+		// Get the UniProt Entry
+		UniProtEntryMPA uniProtEntry = uniprotentry;
+
+		// UniProtEntry is unknown at the beginning
+		lStat.setNull(1, 4);
+
+		// Add UniProtTaxonomy
+		Long taxID = uniProtEntry.getTaxid();
+		if(taxID == null) {
+			lStat.setNull(2, 12);
+		} else {
+			lStat.setLong(2, taxID);
+		}
+		// Add EC-numbers
+		String ecNumbers = "";
+		List<String> ecNumberList = uniProtEntry.getEcnumbers();
+		if (ecNumberList.size() > 0) {
+			for (String ecNumber : ecNumberList) {
+				ecNumbers += ecNumber + ";";
+
+			}
+			ecNumbers = Formatter.removeLastChar(ecNumbers);
+		}
+		if(ecNumbers == null) {
+			lStat.setNull(3, -1);
+		} else {
+			lStat.setObject(3, ecNumbers);
+		}
+
+		// Add KO-numbers
+		String koNumbers = "";
+		List<String> kos = uniProtEntry.getKonumbers();
+		if (kos.size() > 0) {
+			for (String ko : kos) {
+				koNumbers += ko  + ";";
+			}
+			koNumbers = Formatter.removeLastChar(koNumbers);
+		}
+		if(koNumbers == null) {
+			lStat.setNull(4, -1);
+		} else {
+			lStat.setObject(4, koNumbers);
+		}
+
+		// Add Keywords
+		String keywords = "";
+		List<String> keywordsList = uniProtEntry.getKeywords();
+		if (keywordsList.size() > 0) {
+			for (String kw : keywordsList) {
+				keywords += kw + ";";
+			}
+			keywords = Formatter.removeLastChar(keywords);
+		}
+		if(keywords== null) {
+			lStat.setNull(5, -1);
+		} else {
+			lStat.setObject(5, keywords);
+		}
+
+		// Add UniRef100
+		if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef100() == null) {
+			lStat.setNull(6, 12);
+		} else {
+			lStat.setObject(6, uniProtEntry.getUniRefMPA().getUniRef100());
+		}
+
+		// Add UniReg90
+		if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef90() == null) {
+			lStat.setNull(7, 12);
+		} else {
+			lStat.setObject(7, uniProtEntry.getUniRefMPA().getUniRef90());
+		}
+
+		// Add UniRef50
+		if(uniProtEntry.getUniRefMPA() == null || uniProtEntry.getUniRefMPA().getUniRef50() == null) {
+			lStat.setNull(8, 12);
+		} else {
+			lStat.setObject(8, uniProtEntry.getUniRefMPA().getUniRef50());
+		}
+		lStat.addBatch();;
+		lStat.execute();
+		conn.commit();
+		
+		// Get the keys (uniprotEntry ID)
+		ResultSet generatedKeys = lStat.getGeneratedKeys();
+		while (generatedKeys.next()) {
+			uniProtId = generatedKeys.getLong(1);
+		}
+		
+		
+		lStat.close();
+		return uniProtId;
 	}
 }
 

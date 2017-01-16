@@ -84,17 +84,15 @@ public class SpectrumStorager extends BasicStorager {
     public void store() throws IOException, SQLException {
         // Get all spectra from the reader.
         spectra = reader.getSpectrumFiles();
-        
         // Init cache maps.
         title2SearchIdMap = new HashMap<String, Long>();
         fileName2IdMap = new HashMap<String, Long>();
         
         // Iterate over all spectra.
         for (MascotGenericFile mgf : spectra) {
-            
             // The filename, remove leading and trailing whitespace.
             String title = mgf.getTitle();
-            Spectrum query =  Spectrum.findFromTitle(title, conn);
+            Spectrum query =  Spectrum.findFromTitleQuicker(title, conn);
             Long searchspectrumid;
 			if (query == null) {
 				/* New spectrum section */
@@ -188,14 +186,11 @@ public class SpectrumStorager extends BasicStorager {
             // Fill the cache maps
             title2SearchIdMap.put(query.getTitle(), searchspectrumid);
             fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
-            
             conn.commit();			
         }
-        
         MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
         log.debug("No. of spectra: " + title2SearchIdMap.size());
         MapContainer.FileName2IdMap = fileName2IdMap;
-        
         reader.close();
     }
 

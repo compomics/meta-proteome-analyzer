@@ -77,7 +77,7 @@ public class AddFastaDialog extends JDialog {
 
 		// Checkbox for new Mascot-database
 		final JCheckBox mascotFastaCbx = new JCheckBox("<html><p align='justify'>" +"Create a new *.fasta-database in the same directory as the input databases for the Mascot searches."+ 
-		" For later uploaded of Mascot dat-files please use following parsing rules: \n <b> >..|[^|]*|\\([^ ]*\\)     SwissProt</b></p>  </html>");
+				" For later uploaded of Mascot dat-files please use following parsing rules: \n <b> >..|[^|]*|\\([^ ]*\\)     SwissProt</b></p>  </html>");
 		mascotFastaCbx.setFont(new Font("Serif", Font.PLAIN, 14));
 		mascotFastaCbx.setPreferredSize(new Dimension(360, 100));
 		JPanel checkboxPnl = new JPanel(new BorderLayout());
@@ -94,8 +94,10 @@ public class AddFastaDialog extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				addFastaDatabases(mascotFastaCbx.isSelected());
 				close();
+				Client.getInstance().firePropertyChange("indeterminate", false, true);
+				addFastaDatabases(mascotFastaCbx.isSelected());
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
 			}
 		});
 
@@ -146,10 +148,10 @@ public class AddFastaDialog extends JDialog {
 	 * @param mascotFastaCbx. Selection for a new Mascot-database
 	 */
 	private void addFastaDatabases(boolean mascotFlag) {
-		
+
 		// The fasta files
 		File [] fastaFiles = null;
-		
+
 		// The output path
 		String outpath = null;
 
@@ -164,41 +166,41 @@ public class AddFastaDialog extends JDialog {
 		}
 
 		// Define name for the fasta database.
-			JFileChooser outputChooser = new ConfirmFileChooser();
-			ClientFrame clientFrame = ClientFrame.getInstance();
-			outputChooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
-			outputChooser.setFileFilter(Constants.FASTA_FILE_FILTER);
-			outputChooser.setAcceptAllFileFilterUsed(false);
-			int retVal = outputChooser.showSaveDialog(clientFrame);
-			if (retVal == JFileChooser.APPROVE_OPTION) {
-				File selFile = outputChooser.getSelectedFile();
-				if (selFile != null) {
-					outpath = selFile.getPath();
-					clientFrame.setLastSelectedFolder(selFile.getParent());
-					if (!outpath.toLowerCase().endsWith(".fasta")) {
-						outpath += ".fasta";
-					}
+		JFileChooser outputChooser = new ConfirmFileChooser();
+		ClientFrame clientFrame = ClientFrame.getInstance();
+		outputChooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+		outputChooser.setFileFilter(Constants.FASTA_FILE_FILTER);
+		outputChooser.setAcceptAllFileFilterUsed(false);
+		int retVal = outputChooser.showSaveDialog(clientFrame);
+		if (retVal == JFileChooser.APPROVE_OPTION) {
+			File selFile = outputChooser.getSelectedFile();
+			if (selFile != null) {
+				outpath = selFile.getPath();
+				clientFrame.setLastSelectedFolder(selFile.getParent());
+				if (!outpath.toLowerCase().endsWith(".fasta")) {
+					outpath += ".fasta";
 				}
 			}
+		}
 
-			// Start generation of a new fasta database
-			try {
-				Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
-				Client.getInstance().firePropertyChange("indeterminate", false, true);
-				FastaLoader.addFastaDatabases(fastaFiles, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
-				
-				// Show finished message
-				StringBuilder message = new StringBuilder();	
-				message.append("Database successfully upload");
-				message.append("\n\n");
-				message.append("Please restart the MPA before you can use the new database.");
-				message.append("\n\n");
-				JOptionPane.showMessageDialog(ClientFrame.getInstance(), message,
-						"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
-				Client.getInstance().firePropertyChange("new message", null, "Adding new *.fasta finished");
-			} catch (IOException | SQLException e) {
-				e.printStackTrace();
-			}
+		// Start generation of a new fasta database
+		try {
+			Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
+			Client.getInstance().firePropertyChange("indeterminate", false, true);
+			FastaLoader.addFastaDatabases(fastaFiles, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
+
+			// Show finished message
+			StringBuilder message = new StringBuilder();	
+			message.append("Database successfully uploaded");
+			message.append("\n\n");
+			message.append("Please restart the MPA before you can use the new database.");
+			message.append("\n\n");
+			JOptionPane.showMessageDialog(ClientFrame.getInstance(), message,
+					"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
+			Client.getInstance().firePropertyChange("indeterminate", true, false);
+			Client.getInstance().firePropertyChange("new message", null, "Adding new *.fasta finished");
+		} catch (IOException | SQLException e) {
+			e.printStackTrace();
+		}
 	}		
 }

@@ -426,7 +426,7 @@ public class UniProtUtilities {
 		// check for null
 		if (batchAccessions !=null && batchAccessions.size()>0) {
 			// some feedback for user
-			if (Client.getInstance() != null) {	
+			if (Client.getInstance() != null) {
 				Client.getInstance().firePropertyChange("resetall", -1L, (long) batchAccessions.size());
 				Client.getInstance().firePropertyChange("resetcur", -1L, (long) batchAccessions.size());
 			}
@@ -443,7 +443,6 @@ public class UniProtUtilities {
 				e.printStackTrace();
 			}
 			// Iterate the entries and add them to the list. 
-			System.out.println("Size of results" + entryIterator.getNumberOfHits());
 			while (entryIterator.hasNext()) {
 				// take the next uniprot entry
 
@@ -505,7 +504,7 @@ public class UniProtUtilities {
 		if (fastaAccessionList.size() > 0) {
 			uniRef2AccMap = this.fetchUniProtEntriesByAccessions(fastaAccessionList, addUniRefs);
 		}
-		
+
 
 		return uniRef2AccMap;
 	}
@@ -569,7 +568,7 @@ public class UniProtUtilities {
 			// Process a batch of entries
 			TreeMap<String, UniProtEntryMPA> batchResultMap = this.processBatch(shortList, addUniRefs);
 
-			// Proove the correctness of the entries
+			// Prove the correctness of the entries
 			for (String key : shortList) {
 				if (batchResultMap.get(key) == null) {
 					fail_count++;
@@ -637,7 +636,7 @@ public class UniProtUtilities {
 	/**
 	 * Fetches for an accession  the UniProtRef entries via the uniprot webservice
 	 * @param accession
-	 * @throws SQLException
+	 * @throws SQLException --> Why does this throw an SQL exception??
 	 * @return The uniref entry
 	 */
 	private UniRefEntryMPA fetchUniRefEntriesByAccession(String accession) throws SQLException {
@@ -667,8 +666,11 @@ public class UniProtUtilities {
 					if (thisentry.getUniRefEntryId().getValue().contains("UniRef50")) {
 						uniRefs.setUniRef50(thisentry.getUniRefEntryId().getValue());
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (NumberFormatException e1) {
+					System.out.println("NumberFormatException: " + e1.getMessage() + " " + uniRefs.getUniRef100() + " " + uniRefs.getUniRef90() + " " + uniRefs.getUniRef50());
+					break;
+				} catch (Exception e2) {
+					e2.printStackTrace();
 					break;
 				}
 			}
@@ -681,49 +683,49 @@ public class UniProtUtilities {
 
 
 
-		/**
-		 * deletes blast hits
-		 * 
-		 * @author K.Schallert
-		 * @throws SQLException 
-		 */	
-		public static void deleteblasthits() throws SQLException {
-			// connect to db
-			Connection conn = DBManager.getInstance().getConnection();
-			// find all blast proteins -> contain "_BLAST_"
-			List<ProteinTableAccessor> proteinlist = ProteinAccessor.findBlastHits(conn);
-			// Feedback
-			if (Client.getInstance() != null) {
-				long maxProgress = Long.valueOf(proteinlist.size());
-				Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS");
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
-				Client.getInstance().firePropertyChange("resetall", 0L, maxProgress);
-				Client.getInstance().firePropertyChange("resetcur", 0L, maxProgress);
-			}
-			// Iterate over proteinAccesors and delete their uniprot entries and change their description
-			for (ProteinTableAccessor prot : proteinlist) {
-				// delete uniprotentry
-				UniprotentryAccessor uniprotentry = UniprotentryAccessor.findFromID(prot.getFK_UniProtID(), conn);
-				uniprotentry.delete(conn);
-				
-				// change back protein entry
-				prot.setFK_uniProtID(-1L);
-				prot.setDescription(prot.getDescription().replace("BLAST_", ""));
-				String source_db_revert = prot.getSource().split("_")[1];
-				prot.setSource(source_db_revert);
-				prot.update(conn);
-				
-				// progress bar
-				Client.getInstance().firePropertyChange("progressmade", true, false);
-				// commit changes
-				conn.commit();
-			}
+	/**
+	 * deletes blast hits
+	 * 
+	 * @author K.Schallert
+	 * @throws SQLException 
+	 */	
+	public static void deleteblasthits() throws SQLException {
+		// connect to db
+		Connection conn = DBManager.getInstance().getConnection();
+		// find all blast proteins -> contain "_BLAST_"
+		List<ProteinTableAccessor> proteinlist = ProteinAccessor.findBlastHits(conn);
+		// Feedback
+		if (Client.getInstance() != null) {
+			long maxProgress = Long.valueOf(proteinlist.size());
+			Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS");
+			Client.getInstance().firePropertyChange("indeterminate", true, false);
+			Client.getInstance().firePropertyChange("resetall", 0L, maxProgress);
+			Client.getInstance().firePropertyChange("resetcur", 0L, maxProgress);
+		}
+		// Iterate over proteinAccesors and delete their uniprot entries and change their description
+		for (ProteinTableAccessor prot : proteinlist) {
+			// delete uniprotentry
+			UniprotentryAccessor uniprotentry = UniprotentryAccessor.findFromID(prot.getFK_UniProtID(), conn);
+			uniprotentry.delete(conn);
+
+			// change back protein entry
+			prot.setFK_uniProtID(-1L);
+			prot.setDescription(prot.getDescription().replace("BLAST_", ""));
+			String source_db_revert = prot.getSource().split("_")[1];
+			prot.setSource(source_db_revert);
+			prot.update(conn);
+
+			// progress bar
+			Client.getInstance().firePropertyChange("progressmade", true, false);
+			// commit changes
 			conn.commit();
-			// reset progress bar
-			if (Client.getInstance() != null) {
-				Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS FINISHED");
-			}
-		}	
+		}
+		conn.commit();
+		// reset progress bar
+		if (Client.getInstance() != null) {
+			Client.getInstance().firePropertyChange("new message", null, "DELETING BLAST RESULTS FINISHED");
+		}
+	}	
 
 	//	/**
 	//	 * Class to create an UniProt entries in the SQL table
@@ -1113,15 +1115,15 @@ public class UniProtUtilities {
 			}
 			return null;
 		}
-		
-//		@Override
-//		public final boolean compareTo(KeywordCategory kw) {
-//			if (this.keyword.equals(kw.keyword)) {
-//				return true;
-//			} else {
-//				return false;
-//			}
-//		}
+
+		//		@Override
+		//		public final boolean compareTo(KeywordCategory kw) {
+		//			if (this.keyword.equals(kw.keyword)) {
+		//				return true;
+		//			} else {
+		//				return false;
+		//			}
+		//		}
 	}
 
 	/**
