@@ -49,7 +49,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
-	private static boolean jarExport = false;
+	private static boolean jarExport = true;
 
 	/**
 	 * Flag denoting whether results should be loaded including nsaf and empai calculation.

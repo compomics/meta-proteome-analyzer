@@ -164,15 +164,13 @@ public class Constants {
 	 * This constant is used for database backups, the executable file is used
 	 * to run mysql-scripts for restoring databases
 	 */
-	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "sql" + SEP
-			+ "dump_database.sh";
+	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "dump_database.sh";
 
 	/**
 	 * This constant is used for database backups, the Sql-Query file is run by
 	 * the sh script DB_DUMPER_SH_PATH
 	 */
-	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "sql" + SEP
-			+ "dump_database.sql";
+	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "dump_database.sql";
 
 	/**
 	 * Map of KEGG Orthology tree leaves.

@@ -1,2 +1,2 @@
 # FASTA Databases
-files.fasta=
+files.fasta=,uniprot_backup,uniprot_backup,delete_me,delete_me2,delete_me3

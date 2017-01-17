@@ -60,6 +60,9 @@ public class PropertyLoader {
 	// # QVality
 	public static final String PATH_QVALITY = "path.qvality";
 	public static final String APP_QVALITY = "app.qvality";
+	// mysql
+	public static final String PATH_MYSQL = "win_mysql";
+	public static final String PATH_MYSQLDUMP = "win_mysqldump";
 
 	static {
 		//omssa/

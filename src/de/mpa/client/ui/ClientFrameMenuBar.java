@@ -157,6 +157,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 									        JOptionPane.WARNING_MESSAGE
 									    );
 									if (confirmCode.equals("DELETE THE DATABASE")) {
+										System.out.println("Restore the database: ");
 										DBDumper.restoreDatabase(selFile.getPath());
 									}
 								} catch (SQLException | IOException e) {

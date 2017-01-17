@@ -39,14 +39,8 @@ public class DBDumper {
 		String command = null;
 
 		if (winOS) {
-			String expectedPath = "C:\\xampp\\mysql\\bin\\mysqldump.exe";
-			File exe = new File(expectedPath);
-			if (!exe.isFile()) {
-				System.out.println("MYSQLDUMP.EXE COULD NOT BE FOUND");
-				command = "mysqldump";
-			} else {
-				command = expectedPath;
-			}
+			String expectedPath = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_MYSQLDUMP);
+			command = expectedPath;
 		} else {
 			command = "mysqldump";
 		}
@@ -92,57 +86,67 @@ public class DBDumper {
 		// The file of the restored database
 		File targetFile = new File(filePath);
 
-		// check operating system
-		boolean winOS = System.getProperty("os.name").startsWith("Windows");
-		if (winOS) {
-			String expectedPath = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + "\\mysql\\bin\\mysql.exe";
-			File exe = new File(expectedPath);
-			if (!exe.isFile()) {
-				System.out.println("MYSQL.EXE COULD NOT BE FOUND");
-			} else {
-			}
-		} else {
-		}
-
 		// Show progress
 		if (Client.getInstance() != null) {
 			Client.getInstance().firePropertyChange("new message", null, "RESTORING DATABASE FROM " + targetFile.getName());
 			Client.getInstance().firePropertyChange("indeterminate", false,	true);	
 		}
-
-		//***********************************************************/
-		// Execute Shell Command
-		//***********************************************************/
-
-		// initialize 2 files, 1. sh-script which runs 2. mysql-script 
-		BufferedWriter writer_sh = new BufferedWriter(new FileWriter(new File(Constants.DB_DUMPER_SH_PATH)));
+		// write sql-file
 		BufferedWriter writer_sql = new BufferedWriter(new FileWriter(new File(Constants.DB_DUMPER_SQL_PATH)));
-		// write the files to do the correct things 
-		writer_sh.write("mysql --user=" + dbUser + " --password=" + dbPass +" mysql< " + Constants.DB_DUMPER_SQL_PATH);
 		writer_sql.write("DROP DATABASE IF EXISTS " + dbName + ";\n");
 		writer_sql.write("CREATE DATABASE " + dbName + ";\n");
 		writer_sql.write("USE " + dbName + ";\n");
 		writer_sql.write("source " + filePath + "\n");
-		// close file instances
-		writer_sh.close();
 		writer_sql.close();
-		// prepare process  
-		ArrayList<String> sql_process = new ArrayList<String>();
-		sql_process.add(Constants.DB_DUMPER_SH_PATH);
-		Process process = null;
+		// check operating system
+		boolean winOS = System.getProperty("os.name").startsWith("Windows");
+		System.out.println("is windows?: " + winOS);
+		if (winOS) {
+			String expectedPath = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_MYSQL);
+			File exe = new File(expectedPath);
+			System.out.println(expectedPath);
+			String run_command = exe + " --user=" + dbUser + " --password=" + dbPass + " mysql < " + Constants.DB_DUMPER_SQL_PATH;
+			System.out.println("Exe: " + run_command);
+			Process process = null;
+			try {
+				ProcessBuilder processBuilder = new ProcessBuilder(run_command);
+				processBuilder.redirectErrorStream(true);
+				process = processBuilder.start();
+				process.waitFor();
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				process.destroy();
+			}
+		} else {
+			System.out.println("Linux part");
+			// for linux initialize sh-script which runs mysql-script 
+			BufferedWriter writer_sh = new BufferedWriter(new FileWriter(new File(Constants.DB_DUMPER_SH_PATH)));
+			
+			// for linux: write sh-file  
+			writer_sh.write("mysql --user=" + dbUser + " --password=" + dbPass +" mysql < " + Constants.DB_DUMPER_SQL_PATH);
 
-		// Important to close old connection, if not script get stuck
-		Client.getInstance().closeDBConnection();
-		// run process and catch errors
-		try {
-			ProcessBuilder processBuilder = new ProcessBuilder(sql_process);
-			processBuilder.redirectErrorStream(true);
-			process = processBuilder.start();
-			process.waitFor();
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			process.destroy();
+			// close file instance
+			writer_sh.close();
+			// prepare process  
+			ArrayList<String> sql_process = new ArrayList<String>();
+			sql_process.add(Constants.DB_DUMPER_SH_PATH);
+			Process process = null;
+	
+			// Important to close old connection, if not script get stuck
+			Client.getInstance().closeDBConnection();
+			System.out.println("Linux Sql-Process " + sql_process);
+			// run process and catch errors
+			try {
+				ProcessBuilder processBuilder = new ProcessBuilder(sql_process);
+				processBuilder.redirectErrorStream(true);
+				process = processBuilder.start();
+				process.waitFor();
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				process.destroy();
+			}
 		}
 		// Show progress
 		if (Client.getInstance() != null) {
