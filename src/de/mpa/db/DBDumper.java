@@ -100,13 +100,10 @@ public class DBDumper {
 		writer_sql.close();
 		// check operating system
 		boolean winOS = System.getProperty("os.name").startsWith("Windows");
-		System.out.println("is windows?: " + winOS);
 		if (winOS) {
 			String expectedPath = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_MYSQL);
 			File exe = new File(expectedPath);
-			System.out.println(expectedPath);
 			String run_command = exe + " --user=" + dbUser + " --password=" + dbPass + " mysql < " + Constants.DB_DUMPER_SQL_PATH;
-			System.out.println("Exe: " + run_command);
 			Process process = null;
 			try {
 				ProcessBuilder processBuilder = new ProcessBuilder(run_command);
@@ -119,7 +116,6 @@ public class DBDumper {
 				process.destroy();
 			}
 		} else {
-			System.out.println("Linux part");
 			// for linux initialize sh-script which runs mysql-script 
 			BufferedWriter writer_sh = new BufferedWriter(new FileWriter(new File(Constants.DB_DUMPER_SH_PATH)));
 			
@@ -135,7 +131,6 @@ public class DBDumper {
 	
 			// Important to close old connection, if not script get stuck
 			Client.getInstance().closeDBConnection();
-			System.out.println("Linux Sql-Process " + sql_process);
 			// run process and catch errors
 			try {
 				ProcessBuilder processBuilder = new ProcessBuilder(sql_process);
