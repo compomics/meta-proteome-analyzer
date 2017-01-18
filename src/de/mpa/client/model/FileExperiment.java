@@ -324,9 +324,12 @@ public class FileExperiment implements ProjectExperiment {
 				
 				// Determine total spectral count.
 				searchResult.setTotalSpectrumCount(GenericContainer.numberTotalSpectra);
-
-				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 				this.searchResult = searchResult;
+				
+				// Empty the search hits from the GenericContainer
+				GenericContainer.SearchHits.clear();
+				
+				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -416,8 +419,12 @@ public class FileExperiment implements ProjectExperiment {
 			FileProject project = this.getProject();
 			List<FileExperiment> experiments = project.getExperiments();
 			experiments.remove(this);
-			
 			this.serialize();
+			
+			// Delete the actual (*.mpa) result file.
+			if (resultFile.exists() && resultFile.isFile()) {
+				resultFile.delete();
+			}
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));

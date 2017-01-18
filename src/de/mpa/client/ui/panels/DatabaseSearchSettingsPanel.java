@@ -361,24 +361,23 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             }
             
             try {	
-            	// Check whether decoy FASTA file already exists - if not: create one!
-            	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
-            	if (!decoyFastaFile.exists()) {
-            		new DecoyFastaFileWorker().execute();
+            	if (fastaFile.isFile()) {
+            		// Check whether decoy FASTA file already exists - if not: create one!
+                	decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
+                	if (!decoyFastaFile.exists()) {
+                		new DecoyFastaFileWorker().execute();
+                	}
+                	
+            		fastaIndexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
+                	if (!fastaIndexFile.exists()) {
+                		new IndexFastaFileWorker().execute();
+                	}    
             	}
-            	
-            	fastaIndexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
-            	if (!fastaIndexFile.exists()) {
-            		new IndexFastaFileWorker().execute();
-            	}    
-         
-                
-                   
             } catch (Exception e) {
             	dbFormattingError = true;
             	JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
             }
-            if (fastaIndexFile.exists() && fastaFile.exists() & !dbFormattingError) {
+            if (fastaIndexFile.exists() && fastaFile.exists() && fastaFile.isFile() && !dbFormattingError) {
             	processBtn.setEnabled(true);
             }
         }

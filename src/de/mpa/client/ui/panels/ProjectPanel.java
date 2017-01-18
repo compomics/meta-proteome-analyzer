@@ -585,7 +585,6 @@ public class ProjectPanel extends JPanel {
 				// show experiment creation dialog
 				GeneralDialog dialog = new GeneralDialog(DialogType.NEW_EXPERIMENT, experiment);
 				int res = dialog.showDialog();
-				
 				// check if new experiment has been created (setting a title is mandatory)
 				if (res == GeneralDialog.RESULT_SAVED) {
 					// update experiment selection

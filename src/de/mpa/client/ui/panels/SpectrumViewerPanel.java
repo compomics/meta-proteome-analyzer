@@ -122,14 +122,6 @@ public class SpectrumViewerPanel extends JPanel {
 			titleTtf.setOpaque(false);
 			titleTtf.setHorizontalAlignment(SwingConstants.RIGHT);
 			titleTtf.setCaretPosition(0);
-			
-//			titleTtf.addComponentListener(new ComponentAdapter() {
-//				@Override
-//				public void componentResized(ComponentEvent evt) {
-//					System.out.println(((Component) evt.getSource()).getSize());
-//				}
-//			});
-			
 			specPnl.add(titleTtf, CC.xy(2, 1));
 
 			maxX = Math.max(maxX, specPnl.getMaxXAxisValue());

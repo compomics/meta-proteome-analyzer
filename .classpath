@@ -34,7 +34,6 @@
 	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.6.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar" sourcepath="/scratch/javadoc/jgoodies-looks-2.5.3-sources"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.4.jar"/>
 	<classpathentry kind="lib" path="lib/ColorPicker.jar"/>
 	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
@@ -144,5 +143,6 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

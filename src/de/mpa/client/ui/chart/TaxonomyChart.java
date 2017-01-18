@@ -101,7 +101,6 @@ public class TaxonomyChart extends Chart {
 		piePlot.setLabelGenerator(new StandardPieSectionLabelGenerator(
 				"{0}\n{1} ({2})", new DecimalFormat("0"), new DecimalFormat("0.00%")));
 		
-//		System.out.println(piePlot.getLabelPadding());
 //		piePlot.setLabelPadding(new RectangleInsets(2.0, 0.0, 2.0, 0.0));
         
 		Plot plot = piePlot;

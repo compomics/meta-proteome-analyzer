@@ -907,7 +907,6 @@ public class ExportDialog extends JDialog {
 				if (tabPane.getSelectedIndex() == 0) {
 					resultType = "Meta-Proteins";
 					ResultExporter.exportMetaProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);
-					System.out.println("");
 					} else if (tabPane.getSelectedIndex() == 1) {
 					resultType = "Proteins";
 					ResultExporter.exportProteins(selectedFile.getPath(), client.getDatabaseSearchResult(), exportHeaders);

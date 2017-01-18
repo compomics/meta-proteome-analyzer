@@ -8,7 +8,7 @@
 	<note type="input" label="list path, taxonomy information">taxonomy.xml</note>
 
 <note>spectrum parameters</note>
-	<note type="input" label="spectrum, fragment monoisotopic mass error">0.7999999999999999</note>
+	<note type="input" label="spectrum, fragment monoisotopic mass error">0.5</note>
 	<note type="input" label="spectrum, parent monoisotopic mass error plus">10.0</note>
 	<note type="input" label="spectrum, parent monoisotopic mass error minus">10.0</note>
 	<note type="input" label="spectrum, parent monoisotopic mass isotope error">yes</note>

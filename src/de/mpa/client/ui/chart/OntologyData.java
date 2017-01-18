@@ -276,7 +276,6 @@ public class OntologyData implements ChartData {
 	 */
 	private int getSizeByHierarchy(ProteinHitList mphl, HierarchyLevel hl) {
 		if (mphl == null) {
-			System.out.println("uh oh");
 		}
 		switch (hl) {
 		case META_PROTEIN_LEVEL:
