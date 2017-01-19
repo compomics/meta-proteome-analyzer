@@ -2256,7 +2256,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			ResultsPanel resPnl = (ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
 			resPnl.setProcessingEnabled(true);
 			
-			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
+			// TODO: Disabled graph database
+//			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
 		}
 		
 	}

@@ -89,6 +89,7 @@ import de.mpa.io.parser.kegg.KEGGNode;
  * assorted charts and tables.
  * 
  * @author A. Behne
+ * @author T. Muth
  */
 public class ResultsPanel extends JPanel implements Busyable {
 
@@ -110,7 +111,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The graph database sub-panel.
 	 */
-	private GraphDatabaseResultPanel gdbPnl;
+//	private GraphDatabaseResultPanel gdbPnl;
 
 	/**
 	 * The result comparison sub-panel.
@@ -224,7 +225,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	public ResultsPanel() {
 		this.dbPnl = new DbSearchResultPanel();
 //		this.ssPnl = new SpecSimResultPanel();
-		this.gdbPnl = new GraphDatabaseResultPanel();
+//		this.gdbPnl = new GraphDatabaseResultPanel();
 //		this.compPnl = new ComparePanel();
 		initComponents();
 	}
@@ -271,9 +272,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 //		resultsTpn.addTab("Spectral Similarity Results",
 //				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/spectral_search32.png")),
 //				ssPnl);
-		resultsTpn.addTab("Graph Database Results",
-				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/graph32.png")),
-				gdbPnl);
+//		resultsTpn.addTab("Graph Database Results",
+//				new ImageIcon(getClass().getResource("/de/mpa/resources/icons/graph32.png")),
+//				gdbPnl);
 //		resultsTpn.addTab("Compare Results", IconConstants.COMPARE_ICON, compPnl);
 		
 		// force tab heights by setting size of first tab component
@@ -282,7 +283,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				tabComp.getPreferredSize().width, 40));
 
 		// initially disable all but the overview tab
-		for (int i = 1; i < 3; i++) {
+		for (int i = 1; i < 2; i++) {
 			resultsTpn.setEnabledAt(i, false);
 		}
 
@@ -435,7 +436,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
 
 		// create and configure button for chart type selection
-		// TODO: link enable state to busy/enable state of chart panel
 		final JToggleButton chartTypeBtn = new JToggleButton(
 				IconConstants.createArrowedIcon(IconConstants.PIE_CHART_ICON));
 		chartTypeBtn.setRolloverIcon(IconConstants
@@ -468,7 +468,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				}
 				if (newChartType != chartType) {
 					// clear details table
-					// TODO: maybe this ought to be elsewhere, e.g. inside updateOverview()?
 					TableConfig.clearTable(detailsTbl);
 					updateChart(newChartType);
 				}
@@ -871,7 +870,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		this.busy = busy;
 		
 		// Set enable state of fetch buttons
-		// TODO: probably unsafe as GraphDB is still in the progress of being created
 		this.fetchResultsBtn.setEnabled(!busy);
 		this.processResultsBtn.setEnabled(!busy);
 
@@ -917,9 +915,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * Returns the graph database result panel.
 	 * @return the graph database result panel
 	 */
-	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-		return gdbPnl;
-	}
+//	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
+//		return gdbPnl;
+//	}
 
 	/**
 	 * Class to fetch protein database search results in a background thread.
@@ -938,7 +936,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Begin appearing busy
 				ResultsPanel.this.setBusy(true);
 				ResultsPanel.this.dbPnl.setBusy(true);
-				ResultsPanel.this.gdbPnl.setBusy(true);
+//				ResultsPanel.this.gdbPnl.setBusy(true);
 
 				// Fetch the search result object
 				DbSearchResult newResult = client.getDatabaseSearchResult();
@@ -982,7 +980,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Stop appearing busy
 				ResultsPanel.this.setBusy(false);
 				ResultsPanel.this.dbPnl.setBusy(false);
-				ResultsPanel.this.gdbPnl.setBusy(false);
+//				ResultsPanel.this.gdbPnl.setBusy(false);
 			}
 			
 			// Enable 'Export' menu
@@ -1007,7 +1005,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// begin appearing busy
 				ResultsPanel.this.setBusy(true);
 				dbPnl.setBusy(true);
-				gdbPnl.setBusy(true);
+//				gdbPnl.setBusy(true);
 
 				// restore result object from backup file if it was processed before
 				Client client = Client.getInstance();

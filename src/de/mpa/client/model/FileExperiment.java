@@ -273,7 +273,7 @@ public class FileExperiment implements ProjectExperiment {
 			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(resultFile))))) {
 				searchResult = (DbSearchResult) ois.readObject();
 				
-				ClientFrame.getInstance().getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
+//				ClientFrame.getInstance().getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
 				
 			} catch (Exception e) {

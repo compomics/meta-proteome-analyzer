@@ -122,7 +122,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		exportMenu.add(mpaItem);
 		exportMenu.add(csvItem);	
-		exportMenu.add(graphmlItem);
+//		exportMenu.add(graphmlItem);
 		
 		this.setExportMenuEnabled(false);
 		

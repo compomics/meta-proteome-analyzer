@@ -291,9 +291,9 @@ public class Client {
 	 */
 	public static void exit() {
 		// Shutdown the graph database
-		if (instance.graphDatabaseHandler != null) {
-			instance.graphDatabaseHandler.shutDown();
-		}
+//		if (instance.graphDatabaseHandler != null) {
+//			instance.graphDatabaseHandler.shutDown();
+//		}
 		System.exit(0);
 	}
 	

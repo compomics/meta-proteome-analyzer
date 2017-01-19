@@ -30,7 +30,6 @@ import de.mpa.client.Constants;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.DbSearchResultPanel;
 import de.mpa.client.ui.panels.FilePanel;
-import de.mpa.client.ui.panels.GraphDatabaseResultPanel;
 import de.mpa.client.ui.panels.LoggingPanel;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.client.ui.panels.ResultsPanel;
@@ -40,10 +39,11 @@ import de.mpa.main.Parameters;
 /**
  * <b> ClientFrame</b>
  * <p>
- * 	Represents the main graphical user interface for the MetaProteomeAnalyzer-Client.
+ * 	Represents the main graphical user interface for the MPA client.
  * </p>
  * 
- * @author A. Behne, T. Muth
+ * @author A. Behne
+ * @author T. Muth
  */
 
 public class ClientFrame extends JFrame {
@@ -395,9 +395,9 @@ public class ClientFrame extends JFrame {
 	 * Returns the de novo search result panel.
 	 * @return The de novo similarity search result panel.
 	 */
-	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-		return getResultsPanel().getGraphDatabaseResultPanel();
-	}
+//	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
+//		return getResultsPanel().getGraphDatabaseResultPanel();
+//	}
 	
 	/**
 	 * Convenience method to create a navigation button for cycling tab selection.
