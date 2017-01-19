@@ -10,6 +10,7 @@ import com.compomics.util.protein.Protein;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.io.GenericContainer;
+import de.mpa.io.fasta.FastaUtilities;
 import de.mpa.task.Task;
 
 public class CreateDatabaseTask extends Task {
@@ -38,7 +39,8 @@ public class CreateDatabaseTask extends Task {
 	@Override
 	public void run() {
 		try {
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(new File(filename)));
+			File fastaFile = new File(filename);
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(fastaFile));
 			Iterator<String> iter = GenericContainer.ProteinAccs.iterator();
 			
 			// Iterate over the provided protein accessions.
@@ -57,6 +59,10 @@ public class CreateDatabaseTask extends Task {
 			}
 			bWriter.flush();
 			bWriter.close();
+			
+			// Create decoy database from the reduced database (for X!Tandem only).
+    		FastaUtilities.createDecoyDatabase(fastaFile);
+    		
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

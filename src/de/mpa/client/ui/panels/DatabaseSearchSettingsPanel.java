@@ -202,7 +202,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protDatabasePnl.add(fastaFileBtn, CC.xy(6, 2));
 
 		// Normal vs. iterative search.
-		String[] searchOptions = { "Normal Search", "Iterative Search"};
+		String[] searchOptions = { "Normal Search", "Iterative (Two-Step) Search"};
 
 		searchModeCbx = new JComboBox<String>(searchOptions);
 		
@@ -215,6 +215,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			}
 		});
 		
+		// TODO: Use taxonomy-based search.
 		searchModeCbx.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
@@ -222,9 +223,12 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 				// Check for selection state of combobox item.
 				if (evt.getStateChange() == ItemEvent.SELECTED) {
 					if (searchModeCbx.getSelectedIndex() == 1) {
-						iterativeSearchSetBtn.setEnabled(true);
+						msgfChk.setEnabled(false);
+						msgfChk.setSelected(false);
+//						iterativeSearchSetBtn.setEnabled(true);
 					} else {
-						iterativeSearchSetBtn.setEnabled(false);
+						msgfChk.setEnabled(true);
+//						iterativeSearchSetBtn.setEnabled(false);
 					}
 				}
 			}
@@ -666,10 +670,10 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	}
 
 	/**
-	 * Sets the enable state of the Mascot search engine selector.
+	 * Sets the enable state of the MS-GF+ search engine selector.
 	 * @param enabled
 	 */
-	public void setMascotEnabled(boolean enabled) {
+	public void setMSGFEnabled(boolean enabled) {
 		msgfChk.setEnabled(enabled);
 		msgfChk.setSelected(enabled);
 	}

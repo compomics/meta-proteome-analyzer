@@ -76,7 +76,6 @@ public abstract class Task implements Executable {
 	 */
 	public void run() {
 		log = Logger.getLogger(getClass());
-		System.out.println(getClass());
 		proc = null;
 		try {
 			proc = procBuilder.start();

@@ -613,7 +613,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			case SPECTRUM_LEVEL:
 				for (PeptideHit ph : this.getPeptideHitList()) {
 					for (SpectrumMatch sm : ph.getSpectrumMatches()) {
-						System.out.println(sm.getSpectrumID());
 						// TODO: implement title caching for spectrum matches
 						res.add(sm.getSpectrumID());
 					}
@@ -630,6 +629,4 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		}
 		return res;
 	}
-	
-	
 }

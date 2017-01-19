@@ -180,7 +180,6 @@ public class MetaProteinFactory {
 				case UNIREF90:
 					refA = upeA.getUniRef90id();
 					refB = upeB.getUniRef90id();
-//					System.out.println("" + refA + " " + refB + " " + ((refA != null) && refA.equals(refB)));
 					break;
 				case UNIREF50:
 					refA = upeA.getUniRef50id();

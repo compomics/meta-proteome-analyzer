@@ -226,7 +226,7 @@ public class FastaLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public void readIndexFile() throws IOException, ClassNotFoundException {
-		if(hasChanged) {
+		if (hasChanged) {
 			FileInputStream fis = new FileInputStream(indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			
@@ -289,6 +289,7 @@ public class FastaLoader {
 			}
 			raf.close();	
 			raf = null;
+			hasChanged = true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -333,6 +334,7 @@ public class FastaLoader {
 		if (!indexFile.equals(this.indexFile)) {
 			this.indexFile = indexFile;
 			hasChanged = true;
+			
 			// reset map on change of index file
 			this.acc2pos = null;
 		}
