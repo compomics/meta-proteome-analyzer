@@ -17,7 +17,7 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.client.settings.ResultParameters;
+import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.ui.icons.IconConstants;
 
 /**
@@ -84,8 +84,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 					if (ph.getUniProtEntry() == null) {
 						return null;
 					}
-					ResultParameters parameters =
-							(ResultParameters) Client.getInstance().getResultParameters();
+					PostProcessingParameters parameters =
+							(PostProcessingParameters) Client.getInstance().getResultParameters();
 					ClusterRule clusterRule =
 							(ClusterRule) parameters.get("clusterRule").getValue();
 					switch (clusterRule) {

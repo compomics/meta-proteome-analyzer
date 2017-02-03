@@ -72,7 +72,7 @@ public class XTandemParser extends GenericContainer {
         // Iterate over all the spectra
         @SuppressWarnings("unchecked")
 		Iterator<de.proteinms.xtandemparser.xtandem.Spectrum> iter = xTandemFile.getSpectraIterator();
-
+        
         // Prepare everything for the peptides.
         PeptideMap pepMap = xTandemFile.getPeptideMap();
         
@@ -95,6 +95,7 @@ public class XTandemParser extends GenericContainer {
             	List<Domain> domains = peptide.getDomains();
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
+                   	
 					if (!peptides.contains(sequence)) {
                 	    // Only store if the search spectrum id is referenced.
 						if (SpectrumId2TitleMap.containsKey(spectrumId)) {
@@ -106,7 +107,7 @@ public class XTandemParser extends GenericContainer {
                 	    	double qValue = targetDecoyAnalysis.getQValue((float) domain.getDomainHyperScore());
             	            Double pep = 1.0;
             	    	    	
-            				if (qValue < 0.05) {
+            				if (qValue < 0.1) {
             					XTandemHit hit = new XTandemHit();
         						hit.setSpectrumId(spectrumId);
                      	    	hit.setSpectrumFilename(spectrumFilename);  

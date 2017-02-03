@@ -61,7 +61,7 @@ public class CometParser extends GenericContainer {
 						String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
 				        
 						double qValue = targetDecoyAnalysis.getQValue((float)(-Math.log(Double.valueOf(split[5]))));
-						if (qValue < 0.05) {
+						if (qValue < 0.1) {
 							CometHit hit = new CometHit();
 							hit.setSpectrumId(spectrumId);
 							hit.setSpectrumFilename(spectrumFilename);

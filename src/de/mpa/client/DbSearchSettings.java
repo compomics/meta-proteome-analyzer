@@ -141,7 +141,7 @@ public class DbSearchSettings {
 		return isPrecIonTolPpm;
 	}
 
-	public void setPrecIonTolPpm(boolean isPrecIonTolPpm) {
+	public void setPrecIonTolPPM(boolean isPrecIonTolPpm) {
 		this.isPrecIonTolPpm = isPrecIonTolPpm;
 	}
 
@@ -181,7 +181,7 @@ public class DbSearchSettings {
 		return msgfParams;
 	}
 
-	public void setMsgfParams(String msgfParams) {
+	public void setMSGFParams(String msgfParams) {
 		this.msgfParams = msgfParams;
 	}
 }

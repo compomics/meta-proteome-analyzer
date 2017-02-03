@@ -522,7 +522,7 @@ public class FilePanel extends JPanel implements Busyable {
 			}
 			
 			// Set MGF files to the client.
-			Client.getInstance().setMgfFiles(filesList);;
+			Client.getInstance().setMgfFiles(filesList);
 			
 			// Get instance of job manager.
 			TaskManager jobManager = TaskManager.getInstance();

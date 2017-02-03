@@ -98,7 +98,7 @@ public class XTandemParameters extends ParameterMap {
 		this.put("spectrum, minimum peaks", new NumberParameter(15, 1, null, "Minimum peaks", "The minimum number of peaks required for a spectrum to be considered.", "Spectrum"));
 		this.put("spectrum, minimum parent m+h", new NumberParameter(500.0, 0.0, null, "Minimum precursor mass", "The minimum parent mass required for a spectrum to be considered.", "Spectrum"));
 		this.put("spectrum, minimum fragment mz", new NumberParameter(150.0, 0.0, null, "Minimum fragment m/z", "The minimum fragment m/z to be considered.", "Spectrum"));
-		this.put("spectrum, threads", new NumberParameter(8, 1, null, "Worker threads", "The number of worker threads to be used for calculation.", "Spectrum"));
+		this.put("spectrum, threads", new NumberParameter(Runtime.getRuntime().availableProcessors(), 1, null, "Worker threads", "The number of worker threads to be used for calculation.", "Spectrum"));
 		this.put("spectrum, sequence batch size", new NumberParameter(1000, 1, null, "<html>Fasta sequence<br>batch size</html>", "The number of FASTA sequences that are processed per batch.", "Spectrum"));
 		// Refinement section
 		this.put("refine", new BooleanParameter(true, "Use first-pass search (refinement)", "Enable first-pass search (refinement)", "Refinement"));

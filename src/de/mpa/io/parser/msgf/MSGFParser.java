@@ -64,7 +64,7 @@ public class MSGFParser extends GenericContainer {
 
 						double qValue = Double.valueOf(split[15]);
 
-						if (qValue < 0.05) {
+						if (qValue < 0.1) {
 							for (String accession : proteinAccessions) {
 								MSGFHit hit = new MSGFHit();
 								hit.setSpectrumId(spectrumId);

@@ -331,8 +331,8 @@ public class FileExperiment implements ProjectExperiment {
 				
 				client.firePropertyChange("new message", null, "BUILDING RESULTS OBJECT FINISHED");
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				System.out.println(e.getMessage());
+				e.printStackTrace();
 			}
 		}
 		return searchResult;
@@ -360,6 +360,13 @@ public class FileExperiment implements ProjectExperiment {
 			
 			// retrieve taxonomy branch
 			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), Parameters.getInstance().getTaxonomyMap());
+			if (taxonomyNode == null) {
+				if (unclassifiedNode == null) {
+					TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
+					unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
+				}
+				taxonomyNode = unclassifiedNode;
+			}
 		} else {
 			// create dummy UniProt entry
 			uniProtEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);

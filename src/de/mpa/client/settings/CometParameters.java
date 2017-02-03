@@ -27,7 +27,7 @@ public class CometParameters extends ParameterMap {
 		this.put("minimum_peaks", new NumberParameter(10, 0, null, "MinimumPeaks", "Required minimum number of peaks in spectrum to search (default 10)", "Spectrum")); 
 		this.put("minimum_intensity", new NumberParameter(0, 0, null, "MinimumIntensity", "Minimum intensity value to read in", "Spectrum"));
 		this.put("remove_precursor_peak", new OptionParameter(new Object[] { "0 (No)", "1 (Yes)", "2 (All charge reduced precursor peaks)"}, 0, "RemovePrecursorPeak", "Removes the precursor peak from the spectrum.", "Spectrum"));
-		this.put("thread", new NumberParameter(0, 0, 64, "Search threads", "The number of search threads to use: 0 = auto-poll", "Spectrum"));
+		this.put("thread", new NumberParameter(0, 0, null, "Search threads", "The number of search threads to use: 0 = auto-poll", "Spectrum"));
 	}
 
 	@Override

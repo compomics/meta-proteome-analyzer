@@ -45,7 +45,8 @@ import de.mpa.client.ui.icons.IconConstants;
  * Panel for displaying, manipulating and selecting available projects and the
  * experiments nested within them.
  * 
- * @author A. Behne, R. Heyer, T. Muth
+ * @author Thilo Muth
+ * @author Alexander Behne
  */
 public class ProjectPanel extends JPanel {
 
@@ -360,8 +361,7 @@ public class ProjectPanel extends JPanel {
 		addProjectBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				FileProject project = null;
-				project = new FileProject();
+				FileProject project = new FileProject();
 				GeneralDialog dialog = new GeneralDialog(DialogType.NEW_PROJECT, project);
 				int result = dialog.showDialog();
 				if (result == GeneralDialog.RESULT_SAVED) {

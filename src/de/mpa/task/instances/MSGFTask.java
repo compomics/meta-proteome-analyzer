@@ -1,9 +1,6 @@
 package de.mpa.task.instances;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.List;
 
 import de.mpa.client.DbSearchSettings;
 import de.mpa.task.Task;
@@ -105,7 +102,7 @@ public class MSGFTask extends Task {
         procCommands.add("-o");
         procCommands.add(filename);
         procCommands.trimToSize();
-
+        
         setDescription("MS-GF+ TARGET-DECOY SEARCH");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(msgfExecutable);

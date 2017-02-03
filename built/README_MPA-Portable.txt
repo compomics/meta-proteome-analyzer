@@ -34,7 +34,7 @@
     License
    =========
    
-   Copyright Thilo Muth, Alexander Behne, Robert Heyer, Fabian Kohrs and Lennart Martens.
+   Copyright Thilo Muth, Alexander Behne, Robert Heyer, Fabian Kohrs, Dirk Benndorf and Lennart Martens.
 
 
    Licensed under the Apache License, Version 2.0 (the "License");

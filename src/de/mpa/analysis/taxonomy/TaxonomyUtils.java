@@ -154,6 +154,7 @@ public class TaxonomyUtils {
 	public static TaxonomyNode createTaxonomyNode(long currentID, Map<Long, Tax> taxonomyMap) {
 
 		Tax current = taxonomyMap.get(currentID);
+		if (current == null) return null;
 		Map<String, TaxonomyRank> targetRanks = UniProtUtilities.TAXONOMY_RANKS_MAP;
 
 		// Check for rank being contained in the main categories (from

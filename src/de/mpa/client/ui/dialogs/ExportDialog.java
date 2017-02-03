@@ -35,7 +35,7 @@ import de.mpa.io.ResultExporter.ExportHeaderType;
 /**
  * This dialog enables the result export of proteins, peptides. PSMs, meta-protein, taxonomies etc.
  * 
- * @author T. Muth
+ * @author Thilo Muth
  *
  */
 public class ExportDialog extends JDialog {
@@ -158,12 +158,12 @@ public class ExportDialog extends JDialog {
 	 */
 	private List<ExportHeader> exportHeaders;
 
-	public ExportDialog(ClientFrame owner, String title, boolean modal, ExportFields exportFields) {
+	public ExportDialog(ClientFrame owner, String title, boolean modal, boolean visible, ExportFields exportFields) {
 		super(owner, title, modal);
 		this.owner = owner;
 		this.exportFields = exportFields;
 		initComponents();
-		showDialog();
+		if (visible) showDialog();
 	}
 
 	/**
@@ -945,7 +945,7 @@ public class ExportDialog extends JDialog {
 	/**
 	 * Collect the headers for the export.
 	 */
-	private void collectHeaderSet() {
+	public void collectHeaderSet() {
 		// Initialize set on demand.
 		if(exportHeaders == null) {
 			exportHeaders = new ArrayList<ExportHeader>();
@@ -961,7 +961,6 @@ public class ExportDialog extends JDialog {
 		if(metaproteinUniRef50Cbx.isSelected()) exportHeaders.add(new ExportHeader(7, metaproteinUniRef50Cbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinKOCbx.isSelected()) exportHeaders.add(new ExportHeader(8, metaproteinKOCbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinECCbx.isSelected()) exportHeaders.add(new ExportHeader(9, metaproteinECCbx.getText() , ExportHeaderType.METAPROTEINS));
-		
 		if(metaproteinPepCountCbx.isSelected()) exportHeaders.add(new ExportHeader(10, metaproteinPepCountCbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(11, metaproteinSpecCountCbx.getText() , ExportHeaderType.METAPROTEINS));
 		if(metaproteinsProteinsCbx.isSelected()) exportHeaders.add(new ExportHeader(12, metaproteinsProteinsCbx.getText() , ExportHeaderType.METAPROTEINS));
@@ -1030,6 +1029,8 @@ public class ExportDialog extends JDialog {
 		if(spectrumPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(4, spectrumPeptidesCbx.getText(), ExportHeaderType.SPECTRA));
 		if(spectrumAccessionsCbx.isSelected()) exportHeaders.add(new ExportHeader(5, spectrumAccessionsCbx.getText(), ExportHeaderType.SPECTRA));
 	}
+	
+	
 
 	/**
 	 * This method stores the protein entries into the export fields.
@@ -1104,5 +1105,13 @@ public class ExportDialog extends JDialog {
 		// Meta-protein taxonomy entries
 		exportFields.metaproteinTaxonomySpecificPeptides = metaProteinTaxonomySpecificPeptidesCbx.isSelected();
 		exportFields.metaproteinTaxonomyKronaSpecCount = metaProteinTaxonomyKronaSpecCountCbx.isSelected();
+	}
+	
+	/**
+	 * Retrieves a list of default export headers.
+	 * @return list of default export headers
+	 */
+	public List<ExportHeader> getExportHeaders() {
+		return exportHeaders;
 	}
 }

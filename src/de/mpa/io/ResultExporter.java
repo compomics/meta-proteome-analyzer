@@ -38,7 +38,8 @@ import de.mpa.client.ui.ProteinTreeTables;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and taxonomy results.
- * @author T.Muth, R.Heyer
+ * @author Thilo Muth
+ * @author Robert Heyer
  *
  */
 public class ResultExporter {
@@ -364,9 +365,17 @@ public class ResultExporter {
 					if (hasFeature[5]) writer.append(peptideHit.getProteinCount() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[6]) writer.append(peptideHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[7]) {
-						String name = peptideHit.getTaxonomyNode().getName();
-						if (name.equals("root")) {
-							name = "Unclassified";
+						String name = "Unclassified";
+						if (peptideHit.getTaxonomyNode() != null) {
+							name = peptideHit.getTaxonomyNode().getName();
+							if (name.equals("root")) {
+								name = "Unclassified";
+							}
+						} else {
+							// Case whether no classification was possible
+							TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
+							TaxonomyNode unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
+							peptideHit.setTaxonomyNode(unclassifiedNode);
 						}
 						writer.append(name + Constants.TSV_FILE_SEPARATOR);
 					}

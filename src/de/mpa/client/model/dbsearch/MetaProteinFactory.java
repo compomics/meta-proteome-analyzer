@@ -13,7 +13,7 @@ import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
 import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
-import de.mpa.client.settings.ResultParameters;
+import de.mpa.client.settings.PostProcessingParameters;
 
 /**
  * Factory class providing methods to merge meta-proteins and to determine common properties (i.e. taxonomy).
@@ -506,7 +506,7 @@ public class MetaProteinFactory {
 	 * @param result the database search result
 	 * @param params the result parameter settings
 	 */
-	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ResultParameters params) {
+	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, PostProcessingParameters params) {
 		// Create metaproteins for the new result object.
 		Client client = Client.getInstance();
 		
@@ -561,7 +561,7 @@ public class MetaProteinFactory {
 		 * @param params the result processing parameters
 		 */
 		private static void condenseMetaProteins(
-				ProteinHitList metaProteins, ResultParameters params) {
+				ProteinHitList metaProteins, PostProcessingParameters params) {
 			// Extract parameters
 			ClusterRule clusterRule = (ClusterRule) params.get("clusterRule").getValue();
 			PeptideRule peptideRule = (PeptideRule) params.get("peptideRule").getValue();

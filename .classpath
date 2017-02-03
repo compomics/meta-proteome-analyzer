@@ -38,7 +38,6 @@
 	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
-	<classpathentry kind="lib" path="lib/utilities-3.45.25.jar"/>
 	<classpathentry kind="lib" path="lib/xxindex-0.11.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core-3.6.2.jar"/>
@@ -144,5 +143,6 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.7.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.9.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-3.45.25.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

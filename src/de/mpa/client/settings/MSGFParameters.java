@@ -32,7 +32,7 @@ public class MSGFParameters extends ParameterMap {
 		this.put("maxCharge", new NumberParameter(3, 1, 6, "MaxCharge", "Maximum precursor charge to consider if charges are not specified in the spectrum file, default: 3.", "Spectrum"));
 		this.put("minLength", new NumberParameter(6, 6, null, "MinPepLength", "Minimum peptide length to consider, default: 6.", "Spectrum"));
 		this.put("maxLength", new NumberParameter(40, 6, null, "MaxPepLength", "Maximum peptide length to consider, default: 40.", "Spectrum"));
-		this.put("thread", new NumberParameter(4, 1, null, "Search threads", "The number of search threads to use", "Spectrum"));
+		this.put("thread", new NumberParameter(Runtime.getRuntime().availableProcessors(), 1, null, "Search threads", "The number of search threads to use", "Spectrum"));
 	}
 	
 	@Override

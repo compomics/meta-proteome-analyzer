@@ -31,12 +31,12 @@ import de.mpa.client.settings.Parameter.OptionParameter;
  * 
  * @author A. Behne
  */
-public class ResultParameters extends ParameterMap {
+public class PostProcessingParameters extends ParameterMap {
 	
 	/**
 	 * Constructs a parameter map initialized with default values.
 	 */
-	public ResultParameters() {
+	public PostProcessingParameters() {
 		this.initDefaults();
 	}
 
@@ -287,7 +287,7 @@ public class ResultParameters extends ParameterMap {
 		public boolean applyChanges() {
 			boolean changed = false;
 
-			Object oldRule = ResultParameters.this.get("peptideRule").getValue();
+			Object oldRule = PostProcessingParameters.this.get("peptideRule").getValue();
 			PeptideRule peptideRule = PeptideRule.NEVER;
 			if (peptideChk.isEnabled()) {
 				if (peptideChk.isSelected()) {
@@ -298,10 +298,10 @@ public class ResultParameters extends ParameterMap {
 					peptideRule = PeptideRule.ALWAYS;
 				}
 			}
-			ResultParameters.this.setValue("peptideRule", peptideRule);
+			PostProcessingParameters.this.setValue("peptideRule", peptideRule);
 			changed |= !peptideRule.equals(oldRule);
 
-			oldRule = ResultParameters.this.get("clusterRule").getValue();
+			oldRule = PostProcessingParameters.this.get("clusterRule").getValue();
 			ClusterRule clusterRule = ClusterRule.NEVER;
 			if (clusterChk.isEnabled()) {
 				if (clusterChk.isSelected()) {
@@ -310,10 +310,10 @@ public class ResultParameters extends ParameterMap {
 					clusterRule = ClusterRule.ALWAYS;
 				}
 			}
-			ResultParameters.this.setValue("clusterRule", clusterRule);
+			PostProcessingParameters.this.setValue("clusterRule", clusterRule);
 			changed |= !clusterRule.equals(oldRule);
 
-			oldRule = ResultParameters.this.get("taxonomyRule").getValue();
+			oldRule = PostProcessingParameters.this.get("taxonomyRule").getValue();
 			TaxonomyRule taxonomyRule = TaxonomyRule.NEVER;
 			if (taxonomyChk.isEnabled()) {
 				if (taxonomyChk.isSelected()) {
@@ -322,7 +322,7 @@ public class ResultParameters extends ParameterMap {
 					taxonomyRule = TaxonomyRule.ALWAYS;
 				}
 			}
-			ResultParameters.this.setValue("taxonomyRule", taxonomyRule);
+			PostProcessingParameters.this.setValue("taxonomyRule", taxonomyRule);
 			changed |= !taxonomyRule.equals(oldRule);
 			
 			return changed;

@@ -551,7 +551,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		DbSearchSettings searchSettings = new DbSearchSettings();
 		searchSettings.setFragIonTol((Double) fragTolSpn.getValue());
 		searchSettings.setPrecIonTol((Double) precTolSpn.getValue());
-		searchSettings.setPrecIonTolPpm(precTolCbx.getSelectedIndex()==1);
+		searchSettings.setPrecIonTolPPM(precTolCbx.getSelectedIndex()==1);
 		searchSettings.setMissedCleavages((Integer) missClvSpn.getValue());
 		
 		if (xTandemChk.isSelected()) {
@@ -566,7 +566,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		
 		if (msgfChk.isSelected()) {
 			searchSettings.setMSGF(true);
-			searchSettings.setMsgfParams(msgfParams.toString());
+			searchSettings.setMSGFParams(msgfParams.toString());
 		}
 		
 		if (searchModeCbx.getSelectedIndex() == 1) {

@@ -26,7 +26,7 @@ import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.settings.ResultParameters;
+import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
@@ -46,7 +46,7 @@ public class Client {
 	/**
 	 * Parameter map containing result processing-related settings.
 	 */
-	private ResultParameters resultParams = new ResultParameters();
+	private PostProcessingParameters resultParams = new PostProcessingParameters();
 
 	/**
 	 * Property change support for notifying the GUI about new messages.
@@ -258,7 +258,7 @@ public class Client {
 	 * Returns the parameter map containing result fetching-related settings.
 	 * @return the result parameters
 	 */
-	public ResultParameters getResultParameters() {
+	public PostProcessingParameters getResultParameters() {
 		return this.resultParams;
 	}
 	/**
