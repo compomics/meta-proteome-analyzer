@@ -520,9 +520,7 @@ public class MetaProteinFactory {
 		client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 
 		// Define common peptide taxonomy for each peptide
-		TaxonomyUtils.determinePeptideTaxonomy(
-				result.getMetaProteins().getPeptideSet(), TaxonomyDefinition.COMMON_ANCESTOR);
-		
+		TaxonomyUtils.determinePeptideTaxonomy(result.getMetaProteins().getPeptideSet(), TaxonomyDefinition.COMMON_ANCESTOR);
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 		
 		// Apply FDR cut-off
@@ -532,7 +530,7 @@ public class MetaProteinFactory {
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
 		client.firePropertyChange("resetcur", -1L, (long) result.getProteinHitList().size());
 
-		// Define protein taxonomy by common tax ID of peptides
+		// Define protein taxonomy by common tax ID of peptides.
 		TaxonomyUtils.determineProteinTaxonomy(result.getProteinHitList(), params);
 		
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
@@ -540,7 +538,7 @@ public class MetaProteinFactory {
 		client.firePropertyChange("new message", null, "GENERATING META-PROTEINS");
 		client.firePropertyChange("resetcur", -1L, (long) result.getMetaProteins().size());
 
-		// Combine proteins to metaproteins
+		// Combine proteins to meta-proteins.
 		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
 
 		client.firePropertyChange("new message", null, "GENERATING META-PROTEINS FINISHED");

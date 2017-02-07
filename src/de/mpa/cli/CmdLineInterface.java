@@ -20,6 +20,9 @@ import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinFactory;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.ClusterRule;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.PeptideRule;
+import de.mpa.client.model.dbsearch.MetaProteinFactory.TaxonomyRule;
 import de.mpa.client.settings.CometParameters;
 import de.mpa.client.settings.MSGFParameters;
 import de.mpa.client.settings.Parameter;
@@ -107,10 +110,6 @@ public class CmdLineInterface {
         	// Initialize client.
         	Client.init(false);
         	Client client = Client.getInstance();
-        	// TODO: Assign the executables right away!
-        	File xtandemExecutable = cliInput.getXTandemExecutable();
-            File cometExecutable = cliInput.getCometExecutable();
-            File msgfExecutable = cliInput.getMSGFExecutable();
             
 			// Collect search settings.
 			DbSearchSettings searchSettings = new DbSearchSettings();
@@ -232,9 +231,39 @@ public class CmdLineInterface {
 			postProcessingParams.setValue("FDR", fdrParameter);
 			int fdrThreshold = (int) ((Double) fdrParameter.getValue() * 100);
 			// Generate meta-proteins
-			System.out.println(new Date() + " Generating meta-proteins and applying FDR threshold of " + fdrThreshold + "%...");
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, postProcessingParams);
-			System.out.println(new Date() + " Meta-protein generation and FDR filtering finished.");
+			if (cliInput.isMetaProteinGenerationEnabled()) {				
+				System.out.println(new Date() + " Generating meta-proteins and applying FDR threshold of " + fdrThreshold + "%...");
+				
+				// Apply peptide rule
+				PeptideRule peptideRule = (PeptideRule) postProcessingParams.get("peptideRule").getValue();
+				if (cliInput.getPeptideRule() == -1) {
+					peptideRule = PeptideRule.NEVER;
+				} else {
+					peptideRule = PeptideRule.getValues()[cliInput.getPeptideRule()];
+				}
+				postProcessingParams.setValue("peptideRule", peptideRule);
+				
+				// Apply cluster rule
+				ClusterRule clusterRule = (ClusterRule) postProcessingParams.get("clusterRule").getValue();
+				if (cliInput.getClusterRule() == -1) {
+					clusterRule = ClusterRule.NEVER;
+				} else {
+					clusterRule = ClusterRule.getValues()[cliInput.getClusterRule()];
+				}
+				postProcessingParams.setValue("clusterRule", clusterRule);
+				
+				// Apply taxonomy rule (default == none)
+				TaxonomyRule taxonomyRule = (TaxonomyRule) postProcessingParams.get("taxonomyRule").getValue();
+				if (cliInput.getTaxonomyRule() == -1) {
+					taxonomyRule = TaxonomyRule.NEVER;
+				} else {
+					taxonomyRule = TaxonomyRule.getValues()[cliInput.getTaxonomyRule()];
+				}
+				postProcessingParams.setValue("taxonomyRule", taxonomyRule);
+				
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, postProcessingParams);
+				System.out.println(new Date() + " Meta-protein generation and FDR filtering finished.");
+			}
 			
 			// Generate a list of default export headers.
 			System.out.println(new Date() + " Exporting processed results to the output folder...");

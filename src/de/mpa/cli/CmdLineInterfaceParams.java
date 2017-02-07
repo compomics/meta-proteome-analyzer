@@ -15,15 +15,15 @@ public enum CmdLineInterfaceParams {
     FRAGMENTION_TOL("frag_tol", "The fragment ion tolerance (in Dalton, e.g. 0.5Da or PPM, e.g. 10ppm).", true),
     OUTPUT_FOLDER("output_folder", "The output folder for exporting the results.", true),
     GENERATE_METAPROTEINS("generate_metaproteins", "Turn meta-protein generation (aka. protein grouping) on or off (1: on, 0: off, default is '1').", false),
+    PEPTIDE_RULE("peptide_rule", "The peptide rule chosen for meta-protein generation (-1: off, 0: share-one-peptide, 1: shared-peptide-subset, default is '0').", false),
+    CLUSTER_RULE("cluster_rule", "The sequence cluster rule chosen for meta-protein generation (-1: off, 0: UniRef100, 1: UniRef90, 2: UniRef50, default is '-1').", false),
+    TAXONOMY_RULE("taxonomy_rule", "The taxonomy rule chosen for meta-protein generation (-1: off, 0: on superkingdom or lower, 1: on kingdom or lower, 2: on phylum or lower, 3: on class or lower, 4: on order or lower, 5: on family or lower, 6: on genus or lower, 7: on species or lower, 8: on subspecies, default is '-1').", false),
     ITERATIVE_SEARCH("iterative_search", "Turn iterative (aka. two-step) searching on or off (1: on, 0: off, default is '0').", false),
     FDR_THRESHOLD("fdr_threshold", "The applied FDR threshold for filtering the results (default is 0.05 == 5% FDR).", false),
     THREADS("threads", "The number of threads to use for the processing. Default is the number of cores available.", false),
     XTANDEM("xtandem", "Turn X!Tandem+ database search algorithm on or off (1: on, 0: off, default is '1'). (At least one search engine needs to be enabled.)", false),
     COMET("comet", "Turn Comet database search algorithm on or off (1: on, 0: off, default is '0'). (At least one search engine needs to be enabled.)", false),
-    MSGF("msgf", "Turn MS-GF+ database search algorithm on or off (1: on, 0: off, default is '0'). (At least one search engine needs to be enabled.)", false),
-    XTANDEM_LOCATION("pepnovo_folder", "The X!Tandem executable, defaults to the OS dependent versions included with MPA.", false),
-    COMET_LOCATION("directag_folder", "The Comet executable, defaults to the OS dependent versions included with MPA.", false),
-    MSGF_LOCATION("pnovo_folder", "The MS-GF+ executable, defaults to the OS dependent versions included with MPA.", false);
+    MSGF("msgf", "Turn MS-GF+ database search algorithm on or off (1: on, 0: off, default is '0'). (At least one search engine needs to be enabled.)", false);
 
     /**
      * Short Id for the CLI parameter.
@@ -93,9 +93,6 @@ public enum CmdLineInterfaceParams {
         output += "-" + String.format(formatter, XTANDEM.id) + " " + XTANDEM.description + "\n";
         output += "-" + String.format(formatter, COMET.id) + " " + COMET.description + "\n";
         output += "-" + String.format(formatter, MSGF.id) + " " + MSGF.description + "\n";
-        output += "-" + String.format(formatter, XTANDEM_LOCATION.id) + " " + XTANDEM_LOCATION.description + "\n";
-        output += "-" + String.format(formatter, COMET_LOCATION.id) + " " + COMET_LOCATION.description + "\n";
-        output += "-" + String.format(formatter, MSGF_LOCATION.id) + " " + MSGF_LOCATION.description + "\n";
 
         return output;
     }

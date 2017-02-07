@@ -62,21 +62,6 @@ public class CmdLineInterfaceInput {
 	    private boolean msgfEnabled = false;
 
 	    /**
-	     * Full path to the X!Tandem executable (optional parameter).
-	     */
-	    private File xtandemExecutable = null;
-	    
-	    /**
-	     * Full path to the Comet executable (optional parameter)
-	     */
-	    private File cometExecutable = null;
-	    
-	    /**
-	     * Full path to the MS-GF+ executable (optional parameter).
-	     */
-	    private File msgfExecutable = null;
-	    
-	    /**
 	     * Number of threads to use (optional parameter). Defaults to the number of cores available.
 	     */
 	    private int nThreads = Runtime.getRuntime().availableProcessors();
@@ -90,6 +75,21 @@ public class CmdLineInterfaceInput {
 	     * Enables meta-protein generation, default == true (optional parameter).
 	     */
 	    private boolean metaProteinGenerationEnabled = true;
+	    
+	    /**
+	     * The peptide rule chosen for meta-protein generation.
+	     */
+	    private int peptideRule = 0;
+	    
+	    /**
+	     * The sequence cluster rule chosen for meta-protein generation (default is -1 == off).
+	     */
+	    private int clusterRule = -1;
+	    
+	    /**
+	     * The (maximum) taxonomy rule for meta-protein generation (default is -1 == off).
+	     */
+	    private int taxonomyRule = -1;
 	    
 	    /**
 	     * Applied FDR threshold, default = 0.05 (5% FDR) (optional parameter).
@@ -135,23 +135,23 @@ public class CmdLineInterfaceInput {
 	            String generateMetaproteinsOption = line.getOptionValue(CmdLineInterfaceParams.GENERATE_METAPROTEINS.id);
 	            metaProteinGenerationEnabled = generateMetaproteinsOption.trim().equals("1");
 	        }
+	        
+	        if (line.hasOption(CmdLineInterfaceParams.PEPTIDE_RULE.id)) {
+	        	peptideRule = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.PEPTIDE_RULE.id).trim());
+	        }
+	        
+	        if (line.hasOption(CmdLineInterfaceParams.CLUSTER_RULE.id)) {
+	        	clusterRule = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.CLUSTER_RULE.id).trim());
+	        }
+	        
+	        if (line.hasOption(CmdLineInterfaceParams.TAXONOMY_RULE.id)) {
+	        	taxonomyRule = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.TAXONOMY_RULE.id).trim());
+	        }
+	        
 	        if (line.hasOption(CmdLineInterfaceParams.FDR_THRESHOLD.id)) {
 	            fdrThreshold = Double.parseDouble(line.getOptionValue(CmdLineInterfaceParams.FDR_THRESHOLD.id).trim());
 	        }
-	        
-	        // search engine folders
-	        if (line.hasOption(CmdLineInterfaceParams.XTANDEM_LOCATION.id)) {
-	            String tempXTandemExecutable = line.getOptionValue(CmdLineInterfaceParams.XTANDEM_LOCATION.id);
-	            this.xtandemExecutable = new File(tempXTandemExecutable);
-	        }
-	        if (line.hasOption(CmdLineInterfaceParams.COMET_LOCATION.id)) {
-	            String tempCometExecutable = line.getOptionValue(CmdLineInterfaceParams.COMET_LOCATION.id);
-	            this.cometExecutable = new File(tempCometExecutable);
-	        }
-	        if (line.hasOption(CmdLineInterfaceParams.MSGF_LOCATION.id)) {
-	            String tempMsgfExecutable = line.getOptionValue(CmdLineInterfaceParams.MSGF_LOCATION.id);
-	            this.msgfExecutable = new File(tempMsgfExecutable);
-	        }
+
 	        if (line.hasOption(CmdLineInterfaceParams.THREADS.id)) {
 	            nThreads = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.THREADS.id));
 	        }
@@ -218,30 +218,6 @@ public class CmdLineInterfaceInput {
 	    }
 
 	    /**
-	     * Returns the X!Tandem executable. Null if not set.
-	     * @return the X!Tandem executable
-	     */
-	    public File getXTandemExecutable() {
-	        return xtandemExecutable;
-	    }
-
-	    /**
-	     * Returns the Comet executable. Null if not set.
-	     * @return the Comet executable
-	     */
-	    public File getCometExecutable() {
-	        return cometExecutable;
-	    }
-
-	    /**
-	     * Returns the MS-GF+ executable. Null if not set.
-	     * @return the  MS-GF+ executable
-	     */
-	    public File getMSGFExecutable() {
-	        return msgfExecutable;
-	    }
-	    
-	    /**
 	     * Returns whether X!Tandem is enabled.
 	     * @return true if X!Tandem is enabled
 	     */
@@ -281,6 +257,30 @@ public class CmdLineInterfaceInput {
 			return metaProteinGenerationEnabled;
 		}
 		
+		/**
+		 * Returns the peptide rule identifier.
+		 * @return the peptide rule identifier
+		 */
+		public int getPeptideRule() {
+			return peptideRule;
+		}
+		
+		/**
+		 * Returns the sequence cluster rule identifier.
+		 * @return the sequence cluster rule identifier
+		 */
+		public int getClusterRule() {
+			return clusterRule;
+		}
+		
+		/**
+		 * Returns the taxonomy rule identifier.
+		 * @return the taxonomy rule identifier
+		 */
+		public int getTaxonomyRule() {
+			return taxonomyRule;
+		}
+
 		/**
 		 * Returns the FDR threshold to be applied for filtering the results.
 		 * @return the FDR threshold to be applied
