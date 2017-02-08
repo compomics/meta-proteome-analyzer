@@ -86,7 +86,7 @@ If you haven't installed Java 1.8, please go directly to
 ---
 
 ## MPA Startup ##
-After downloading the zip file, simply unzip the file and use the provided script from the built folder, i.e. mpa-portable.bat for Windows OS or mpa-portable.sh for Linux (granting the access rights accordingly!).
+After downloading the zip file, simply unzip the file and use the provided script from the built folder, i.e. mpa-portable.bat for Windows  or mpa-portable.sh for Linux (granting the access rights accordingly!).
 
 You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
 
