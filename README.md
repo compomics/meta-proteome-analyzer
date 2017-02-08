@@ -4,6 +4,7 @@
   * [Download](#download)
   * [Introduction](#introduction)
   * [MPA Portable](#mpa-portable)
+  * [Command Line Usage](#command-line-usage)
   * [Features](#features)
   * [System Requirements](#system-requirements)
   * [MPA Startup](#mpa-startup)
@@ -46,7 +47,7 @@
 
 ---
 
-## Command Line ##
+## Command Line Usage ##
 
 MPA can also be used via the command line, see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details.
 
