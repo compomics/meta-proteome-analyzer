@@ -61,19 +61,42 @@ When using comma separated lists as input for the mgf files please pay attention
 
 ## Examples ##
 
-Here is an example for the Windows operating system. _X_, _Y_ and _Z_ have to be replaced by the actual version of MetaProteomeAnalyzer (portable) software and _my folder_ by the folder containing the desired files:
+Here is a minimum working example for the Windows operating system. _X_, _Y_ and _Z_ have to be replaced by the actual version of MetaProteomeAnalyzer (portable) software and _my folder_ by the folder containing the desired files:
 
 ```java
 java -cp mpa-portable-X.Y.Z.jar de.mpa.cli.CmdLineInterface 
--spectrum_files C:\my_folder 
+-spectrum_files C:\my_folder\spectrum_file.mgf 
 -database C:\my_folder\uniprot_sprot.fasta
 -missed_cleav 1 
 -prec_tol 10ppm 
 -frag_tol 0.5Da
--output_folder C:\my_folder\output"
+-output_folder C:\my_folder\output
 
 ```
 
 _For sake of readability, the input paramters are split over multiple lines. When using the command line, however, all parameters should be included as single line._
+
+Here is an extended example for the Linux operating system featuring all optional parameters explicitely.
+In this setup, X!Tandem, Comet and MS-GF+ are employed (using 8 threads) for protein identification, iterative searching is turned off, an FDR threshold of 1% is applied and proteins are grouped based on the meta-protein rule of requiring a single shared peptide. Both taxonomy and cluster rule are turned off.
+```java
+java -cp mpa-portable-X.Y.Z.jar de.mpa.cli.CmdLineInterface 
+-spectrum_files /home/my_folder/spectrum_file.mgf 
+-database /home/my_folder/uniprot_sprot.fasta
+-missed_cleav 1 
+-prec_tol 10ppm 
+-frag_tol 0.5Da
+-xtandem 1 
+-comet 1 
+-msgf 1 
+-iterative_search 0 
+-fdr_threshold 0.01 
+-generate_metaproteins 1 
+-peptide_rule 0 
+-cluster_rule -1 
+-taxonomy_rule -1 
+-threads 8
+-output_folder /home/my_folder/output/
+
+```
 
 [Go to top of page](#metaproteomeanalyzercli)
