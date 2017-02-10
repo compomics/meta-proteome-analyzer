@@ -25,7 +25,7 @@
 
 ## News ##
 
-*MPA Portable version 1.4.0* has been released with the following new features:
+*MPA Portable version 1.4.0* has been released with the following updates:
 * Added command line interface to MPA (see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details)
 * Various bugfixes regarding the FASTA indexing and two-step searching workflow
 * X!Tandem was updated to the latest version ALANINE (2017.02.01)
