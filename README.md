@@ -41,7 +41,7 @@
 ## MPA Portable ##
 
 **MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines [Comet](http://comet-ms.sourceforge.net/), [MS-GF+](https://bix-lab.ucsd.edu/pages/viewpage.action?pageId=13533355) and [X!Tandem](http://www.thegpm.org/tandem/) taking MGF spectrum files as input data. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
-*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page).
+*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page). Otherwise, you can use the command line interface (
 
 ---
 
@@ -57,11 +57,11 @@ The MPA metaproteomics software comes with the following key features:
   * Intuitive graphical user interface
   * Project management for MS/MS experiments
   * Shotgun protomics data analysis tool
-  * Integrating MS-GF+, X!Tandem and OMSSA search algorithms
+  * Integrates the search algorithms Comet, MS-GF+ and X!Tandem
   * Detailed analysis of taxa, ontologies, pathways and enzymes
   * Grouping of redundant protein hits to so-called "meta-proteins" (protein groups)
   * Label-free quantification methods
-  * Graph database-driven customized querying of results
+  * Command line interface (for high-throughput processing tasks)
   * Interactive overview for each result set
   * Portable application 
 
@@ -71,7 +71,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.3.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
