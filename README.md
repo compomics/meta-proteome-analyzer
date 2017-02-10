@@ -7,7 +7,7 @@
   * [Command Line Usage](#command-line-usage)
   * [Features](#features)
   * [System Requirements](#system-requirements)
-  * [MPA Startup](#mpa-startup)
+  * [MPA GUI Startup](#mpa-gui-startup)
 
 ---
 
@@ -17,18 +17,18 @@
 
 ---
 
-## Download ##
-
-[[download]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
-
----
-
 ## News ##
 
 *MPA Portable version 1.4.0* has been released with the following updates:
 * Added command line interface to MPA (see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details)
 * Various bugfixes regarding the FASTA indexing and two-step searching workflow
 * X!Tandem was updated to the latest version ALANINE (2017.02.01)
+
+---
+
+## Download ##
+
+[[download]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
 
 ---
 
@@ -83,7 +83,7 @@ If you haven't installed Java 1.8, please go directly to
 
 ---
 
-## MPA Startup ##
+## MPA GUI Startup ##
 After downloading the zip file, simply unzip the file and use the provided script from the built folder, i.e. mpa-portable.bat for Windows  or mpa-portable.sh for Linux (granting the access rights accordingly!).
 
 You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
