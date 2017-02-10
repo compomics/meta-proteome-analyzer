@@ -19,18 +19,16 @@
 
 ## Download ##
 
-[[download]](http://svn.mpi-magdeburg.mpg.de/MetaProteomeAnalyzer/Download/mpa-portable-1.3.0.zip)  *MPA Portable version 1.3.0 - Windows and Linux 32-bit/64-bit - released on December 17, 2016*
+[[download]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
 
 ---
 
 ## News ##
 
-*MPA Portable version 1.3.0* has been released with the following new features:
- * Automated integration of the database search algorithms Comet and MS-GF+ (OMSSA was removed)
- * Support of two-step database searching (beta version - to be tested)
- * Cross-platform compatiblity with full linux support
- * The overall speed of the application was improved due to various code modifications
- * Support of the latest UniProtJAPI version 1.0.9.
+*MPA Portable version 1.4.0* has been released with the following new features:
+* Added command line interface to MPA (see MetaProteomeAnalyzerCLI for details).
+* Various bugfixes regarding the FASTA indexing and two-step searching workflow
+* Proper handling of null pointer when NCBI TaxID was not found in the taxonomy map.
 
 ---
 
