@@ -28,7 +28,8 @@
 
 ## Download ##
 
-[[download]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
+[[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
 ---
 
@@ -41,7 +42,7 @@
 ## MPA Portable ##
 
 **MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines [Comet](http://comet-ms.sourceforge.net/), [MS-GF+](https://bix-lab.ucsd.edu/pages/viewpage.action?pageId=13533355) and [X!Tandem](http://www.thegpm.org/tandem/) taking MGF spectrum files as input data. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
-*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page). Otherwise, you can use the command line interface (
+*Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page). Otherwise, you can use the command line interface ([MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI)).
 
 ---
 
