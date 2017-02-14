@@ -1,7 +1,7 @@
 # MetaProteomeAnalyzer (MPA) #
 
   * [News](#news)
-  * [Download](#download)
+  * [Downloads](#downloads)
   * [Introduction](#introduction)
   * [MPA Portable](#mpa-portable)
   * [Command Line Usage](#command-line-usage)
@@ -26,12 +26,13 @@
 
 ---
 
-## Download ##
+## Downloads ##
 
 [[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
 
-[[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
+[[Download data set example]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
+[[Download FASTA database example]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/fasta/uniprot_methanomicrobiales.fasta)  *Methanomicrobiales protein sequence database (FASTA format)*
 ---
 
 ## Introduction ##
@@ -90,7 +91,7 @@ After downloading the zip file, simply unzip the file and use the provided scrip
 
 You can also double-click on the JAR file, however this will give you no options to change the memory settings (see below).
 
-Another possiblity is to use the commandline directly:
+Another possiblity is to use the command line directly:
 ```
 java -jar mpa-portable-X.Y.Z.jar -XmxXXXXm 
 ```
