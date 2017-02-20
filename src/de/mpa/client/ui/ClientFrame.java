@@ -146,7 +146,9 @@ public class ClientFrame extends JFrame {
 	private ClientFrame(boolean debug) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		
 		Client.init(debug);
+
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Client.exit();

@@ -96,6 +96,7 @@ public class Parameters {
 	 * @throws URISyntaxException 
 	 */
 	private void initializeParameters() throws URISyntaxException {
+		
 		// Initialize the EC-number map
 		ecMap = ECReader.readXML(getClass().getResourceAsStream("/de/mpa/resources/conf/ecReduced.xml"));
 		

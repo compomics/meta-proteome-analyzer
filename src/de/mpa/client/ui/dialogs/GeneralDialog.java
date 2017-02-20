@@ -79,8 +79,7 @@ public class GeneralDialog extends JDialog {
 			@Override
 			public void processContent(GeneralDialog dialog) {
 				// store experiment
-				dialog.getContent().persist(
-						dialog.getContentName(), dialog.getProperties());
+				dialog.getContent().persist(dialog.getContentName(), dialog.getProperties());
 			}
 		},
 		MODIFY_EXPERIMENT(IconConstants.VIEW_PAGE_ICON.getImage(), "Experiment", "Modify") {

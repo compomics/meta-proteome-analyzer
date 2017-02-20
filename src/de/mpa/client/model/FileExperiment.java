@@ -1,5 +1,6 @@
 package de.mpa.client.model;
 
+import java.awt.Cursor;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,6 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -30,6 +34,9 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.graphdb.cypher.CypherQuery;
+import de.mpa.graphdb.io.QueryHandler;
+import de.mpa.graphdb.io.UserQueries;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.main.Parameters;
@@ -446,14 +453,39 @@ public class FileExperiment implements ProjectExperiment {
 	 * @throws Exception if the projects file could not be retrieved or could not be written to
 	 */
 	public void serialize() throws Exception {
-		// temporarily remove result object reference to avoid it being serialized with the project structure
-		DbSearchResult searchResult = this.searchResult;
-		this.searchResult = null;
-		
-		List<FileProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
-		new XStream().toXML(projects, new BufferedOutputStream(new FileOutputStream(Constants.getProjectsFile())));
-		
-		// restore search result reference
-		this.searchResult = searchResult;
+		SerializeTask serializeTask = new SerializeTask();
+		serializeTask.run();
 	}
+	
+	/**
+	 * Class to serialize DbSearchResult object in a background thread.
+	 * 
+	 * @author Thilo Muth
+	 */
+	private class SerializeTask extends SwingWorker<Object, Void> {
+		private DbSearchResult tempResult;
+		@Override
+		protected Object doInBackground() {
+			try {
+				// temporarily remove result object reference to avoid it being serialized with the project structure
+				tempResult = searchResult;
+				searchResult = null;
+				
+				List<FileProject> projects = ClientFrame.getInstance().getProjectPanel().getProjects();
+				new XStream().toXML(projects, new BufferedOutputStream(new FileOutputStream(Constants.getProjectsFile())));
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+			return 0;
+		}		
+		
+		/**
+		 * Continues when the results retrieval has finished.
+		 */
+		public void done() {			
+			// restore search result reference
+			FileExperiment.this.searchResult = tempResult;
+		}
+	}
+
 }
