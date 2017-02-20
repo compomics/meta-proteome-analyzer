@@ -12,7 +12,7 @@ public enum CmdLineInterfaceParams {
     DATABASE_FILE("database", "The filename of the protein database (FASTA format).", true),
     MISSED_CLEAV("missed_cleav", "The number of maximum allowed missed cleavages.", true),
     PRECURSOR_TOL("prec_tol", "The precursor tolerance (in Dalton, e.g. 0.5Da or PPM, e.g. 10ppm).", true),
-    FRAGMENTION_TOL("frag_tol", "The fragment ion tolerance (in Dalton, e.g. 0.5Da or PPM, e.g. 10ppm).", true),
+    FRAGMENTION_TOL("frag_tol", "The fragment ion tolerance (in Dalton, e.g. 0.5Da).", true),
     OUTPUT_FOLDER("output_folder", "The output folder for exporting the results.", true),
     GENERATE_METAPROTEINS("generate_metaproteins", "Turn meta-protein generation (aka. protein grouping) on or off (1: on, 0: off, default is '1').", false),
     PEPTIDE_RULE("peptide_rule", "The peptide rule chosen for meta-protein generation (-1: off, 0: share-one-peptide, 1: shared-peptide-subset, default is '0').", false),
