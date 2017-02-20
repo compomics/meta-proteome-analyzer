@@ -429,9 +429,12 @@ public class FileExperiment implements ProjectExperiment {
 			this.serialize();
 			
 			// Delete the actual (*.mpa) result file.
-			if (resultFile.exists() && resultFile.isFile()) {
-				resultFile.delete();
+			if (resultFile != null) {
+				if (resultFile.exists() && resultFile.isFile()) {
+					resultFile.delete();
+				}
 			}
+			
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
