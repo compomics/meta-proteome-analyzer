@@ -411,7 +411,7 @@ public class ExportDialog extends JDialog {
 		psmSearchEngineCbx.setText("Search Engine");
 		psmSearchEngineCbx.setSelected(exportFields.psmSearchEngine);
 		psmQValueCbx = new JCheckBox();
-		psmQValueCbx.setText("q-Value");
+		psmQValueCbx.setText("q-value");
 		psmQValueCbx.setSelected(exportFields.psmQValue);
 		psmScoreCbx = new JCheckBox();
 		psmScoreCbx.setText("Score");
@@ -1029,8 +1029,6 @@ public class ExportDialog extends JDialog {
 		if(spectrumPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(4, spectrumPeptidesCbx.getText(), ExportHeaderType.SPECTRA));
 		if(spectrumAccessionsCbx.isSelected()) exportHeaders.add(new ExportHeader(5, spectrumAccessionsCbx.getText(), ExportHeaderType.SPECTRA));
 	}
-	
-	
 
 	/**
 	 * This method stores the protein entries into the export fields.

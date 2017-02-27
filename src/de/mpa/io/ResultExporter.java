@@ -708,4 +708,92 @@ public class ResultExporter {
 		}
 		return spectrumIDs;
 	}
+	
+	/**
+	 * Collect the headers for the export.
+	 */
+	public static List<ExportHeader> retrieveDefaultExportHeaderSet() {
+		// Initialize set on demand.
+		List<ExportHeader> exportHeaders = new ArrayList<ExportHeader>();
+
+		// Meta-Proteins
+		exportHeaders.add(new ExportHeader(1, "Meta-Protein No.", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(2, "Meta-Protein Accession", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(3, "Meta-Protein Description", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(4, "Meta-Protein Taxonomy", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(5, "Meta-Protein UniRef100", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(6, "Meta-Protein UniRef90", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(7, "Meta-Protein UniRef50", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(8, "Meta-Protein KO", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(9, "Meta-Protein EC", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(10, "Peptide Count", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(11, "Spectral Count", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(12, "Proteins", ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(13, "Peptides", ExportHeaderType.METAPROTEINS));
+		
+		// Meta-protein taxonomy
+		exportHeaders.add(new ExportHeader(1, "No. Peptides", ExportHeaderType.METAPROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(2, "Spectral Count (Krona)", ExportHeaderType.METAPROTEINTAXONOMY));
+		
+		// Protein Taxonomy
+		exportHeaders.add(new ExportHeader(1, "Unclassified", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(2, "Superkingdom", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(3, "Kingdom", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(4, "Phylum", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(5, "Class", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(6, "Order", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(7, "Family", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(8, "Genus", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(9, "Species", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(10, "Subspecies", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(11, "No. Peptides", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(12, "Spectral Count", ExportHeaderType.PROTEINTAXONOMY));
+		exportHeaders.add(new ExportHeader(13, "Spectral Count (Krona)", ExportHeaderType.PROTEINTAXONOMY));
+
+		// Proteins
+		exportHeaders.add(new ExportHeader(1, "Protein No.", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(2, "Protein Accession", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(3, "Protein Description", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(4, "Protein Taxonomy", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(5, "Sequence Coverage", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(6, "Peptide Count", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(7, "NSAF", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(8, "emPAI", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(9, "Spectral Count", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(10, "Isoelectric Point", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(11, "Molecular Weight", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(12, "Protein Sequence", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(13, "Peptides", ExportHeaderType.PROTEINS));
+
+		// Peptides
+		exportHeaders.add(new ExportHeader(1, "Peptide No.", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(2, "Protein Accession(s)", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(3, "Peptide Sequence", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(4, "Unique Peptides Only", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(5, "Shared Peptides Only", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(6, "Protein Count", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(7, "Spectral Count", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(8, "Taxonomic Group", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(9, "Taxonomic Rank", ExportHeaderType.PEPTIDES));
+		exportHeaders.add(new ExportHeader(10, "NCBI Taxonomy ID", ExportHeaderType.PEPTIDES));
+
+		// PSMs
+		exportHeaders.add(new ExportHeader(1, "PSM No.", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(2, "Protein Accession(s)", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(3, "Peptide Sequence", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(4, "Spectrum Title", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(5, "Charge", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(6, "Search Engine", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(7, "q-value", ExportHeaderType.PSMS));
+		exportHeaders.add(new ExportHeader(8, "Score", ExportHeaderType.PSMS));
+		
+		// Identified Spectra
+		exportHeaders.add(new ExportHeader(1, "Spectrum Number", ExportHeaderType.SPECTRA));
+		exportHeaders.add(new ExportHeader(2, "Spectrum ID", ExportHeaderType.SPECTRA));
+		exportHeaders.add(new ExportHeader(3, "Spectrum Title", ExportHeaderType.SPECTRA));
+		exportHeaders.add(new ExportHeader(4, "Peptide(s)", ExportHeaderType.SPECTRA));
+		exportHeaders.add(new ExportHeader(5, "Protein Accession(s)", ExportHeaderType.SPECTRA));
+		
+		return exportHeaders;
+	}
 }

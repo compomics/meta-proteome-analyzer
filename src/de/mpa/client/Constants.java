@@ -51,12 +51,12 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.4.0";
+	public final static String VER_NUMBER = "1.4.1";
 	
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "10/02/2017";
+	public final static String VER_DATE = "27/02/2017";
 	
 	/**
 	 * The client frame minimum width in pixels.

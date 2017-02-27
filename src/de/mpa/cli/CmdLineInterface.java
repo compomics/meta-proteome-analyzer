@@ -15,7 +15,6 @@ import com.compomics.util.Util;
 
 import de.mpa.client.Client;
 import de.mpa.client.DbSearchSettings;
-import de.mpa.client.ExportFields;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -28,7 +27,7 @@ import de.mpa.client.settings.MSGFParameters;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.settings.XTandemParameters;
-import de.mpa.client.ui.dialogs.ExportDialog;
+import de.mpa.io.ExportHeader;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.ResultExporter;
 import de.mpa.io.fasta.FastaLoader;
@@ -267,14 +266,13 @@ public class CmdLineInterface {
 			
 			// Generate a list of default export headers.
 			System.out.println(new Date() + " Exporting processed results to the output folder...");
-			ExportDialog exportDialog = new ExportDialog(null, "", false, false, ExportFields.getInstance());
-			exportDialog.collectHeaderSet();
-			ResultExporter.exportProteins(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_proteins.csv", dbSearchResult, exportDialog.getExportHeaders());
-			ResultExporter.exportPeptides(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_peptides.csv", dbSearchResult, exportDialog.getExportHeaders());
-			ResultExporter.exportPSMs(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_psms.csv", dbSearchResult, exportDialog.getExportHeaders());
-			ResultExporter.exportIdentifiedSpectra(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_spectrum_ids.csv", dbSearchResult, exportDialog.getExportHeaders());
-			ResultExporter.exportMetaProteins(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaproteins.csv", dbSearchResult, exportDialog.getExportHeaders());
-			ResultExporter.exportMetaProteinTaxonomy(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaprotein_taxa.csv", dbSearchResult, exportDialog.getExportHeaders());
+			List<ExportHeader> exportHeaders = ResultExporter.retrieveDefaultExportHeaderSet();
+			ResultExporter.exportProteins(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_proteins.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportPeptides(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_peptides.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportPSMs(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_psms.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportIdentifiedSpectra(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_spectrum_ids.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportMetaProteins(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaproteins.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportMetaProteinTaxonomy(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaprotein_taxa.csv", dbSearchResult, exportHeaders);
 			System.out.println(new Date() + " Processed results export finished.");
 			
 			// Empty the search hits from the GenericContainer
