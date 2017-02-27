@@ -28,7 +28,7 @@
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip)  *MPA Portable version 1.4.0 - Windows and Linux 32-bit/64-bit - released on February 10, 2017*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.1/mpa-portable-1.4.1.zip)  *MPA Portable version 1.4.1 - Windows and Linux 32-bit/64-bit - released on February 27, 2017*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
@@ -77,7 +77,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.0/mpa-portable-1.4.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.4.1/mpa-portable-1.4.1.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
