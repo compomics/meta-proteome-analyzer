@@ -710,7 +710,8 @@ public class ResultExporter {
 	}
 	
 	/**
-	 * Collect the headers for the export.
+	 * This method retrieves the default export header set.
+	 * It is used here for the automated results export using the command line interface. 
 	 */
 	public static List<ExportHeader> retrieveDefaultExportHeaderSet() {
 		// Initialize set on demand.

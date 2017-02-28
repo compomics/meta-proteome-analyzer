@@ -155,6 +155,7 @@ public class CmdLineInterface {
 				searchSettings.setPrecIonTolPPM(true);
 			}
 			searchSettings.setIterativeSearch(cliInput.isIterativeSearchEnabled());
+			// TODO: Check second iterative search option, once provided.
 			searchSettings.setIterativeSearchSettings("0");
 			
 			// Create default CLI project + experiment.
