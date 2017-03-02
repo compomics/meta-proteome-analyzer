@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import de.mpa.client.Client;
 import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.settings.ConnectionParameters;
@@ -103,11 +104,16 @@ public class DBManager {
 	 * @param resultFilename Search engine result filename
 	 * @param qValueFile q-value result file
 	 * @throws InterruptedException
+	 * @throws SQLException 
 	 */
-	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException {
+	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException, SQLException {
 		// Wait for spectra to be stored to the database.
 		spectraThread.join();
 		Storager storager = null;
+		if (conn.isClosed()) {
+			conn = Client.getInstance().getConnection();
+		}
+		System.out.println("new connection: " + conn.isClosed());
 		
 		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
 			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
@@ -119,7 +125,9 @@ public class DBManager {
 			storager = new OmssaStorager(conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
 		}
 		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
+		System.out.println("new connection: " + conn.isClosed());
 		storager.run();
+		System.out.println("new connection: " + conn.isClosed());
 	}
 
 	/**

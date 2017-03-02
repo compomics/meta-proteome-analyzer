@@ -27,14 +27,14 @@ public class CreateProteinAndUniProtEntryTable extends TestCase {
 		ArrayList<File> fileList = new ArrayList<>();
 		// Add FASTA-Files
 //		fileList.add(new File("/home/robbie/Desktop/TestDB.fasta"));
-		fileList.add(new File("/home/robbie/Desktop/uniprot_sprot.fasta"));
+//		fileList.add(new File("/home/robbie/Desktop/uniprot_sprot.fasta"));
 		// Change file list to array
-		File[] files =  fileList.toArray(new File[]{});
+		File file =  new File("/home/robbie/Desktop/uniprot_sprot.fasta");
 		
 		
 		// Add the FASTA information to the SQL DB
 		try {
-			FastaLoader.addFastaDatabases(files, new File("/home/robbie/Desktop/uniprot_sprot.fasta"), true, UniProtUtilities.BATCH_SIZE);
+			FastaLoader.addFastaDatabases(file, new File("/home/robbie/Desktop/uniprot_sprot.fasta"), true, UniProtUtilities.BATCH_SIZE);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

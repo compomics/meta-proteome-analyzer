@@ -83,7 +83,7 @@ public class SettingsPanel extends JPanel {
 	/**
 	 * The quick search button.
 	 */
-	private JButton quickBtn;
+//	private JButton quickBtn;
 
 	
 	/**
@@ -121,55 +121,54 @@ public class SettingsPanel extends JPanel {
 		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
 
 		// create connect button
-		final JButton connectBtn = new JButton(IconConstants.DISCONNECT_ICON);
-		connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
-		connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
-		connectBtn.setToolTipText("Connect to Server");
-		final Client client = Client.getInstance();
+//		final JButton connectBtn = new JButton(IconConstants.DISCONNECT_ICON);
+//		connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
+//		connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+//		connectBtn.setToolTipText("Connect to Server");
+//		final Client client = Client.getInstance();
 
-		connectBtn.addActionListener(new ActionListener() {
-			/** The flag denoting whether a connection has been established. */
-			private boolean connected;
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				if (connected) {
-					connectBtn.setIcon(IconConstants.DISCONNECT_ICON);
-					connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
-					connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
-					connectBtn.setToolTipText("Connect to Server");
-					client.disconnectFromServer();
-					connected = false;
-				} else {
-					try {
-						connected = client.connectToServer();
-					} catch (Exception e) {
-						JXErrorPane.showDialog(e);
-					}
-					if (connected) {
-						connectBtn.setIcon(IconConstants.CONNECT_ICON);
-						connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
-						connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
-						connectBtn.setToolTipText("Disconnect from Server");
-					} else {
-						JOptionPane.showMessageDialog(ClientFrame.getInstance(),
-								"Could not connect to server, please check connection settings and try again.",
-								"Connection Error", JOptionPane.ERROR_MESSAGE);
-					}
-				}
-				batchBtn.setEnabled(connected);
-				quickBtn.setEnabled(connected);
-				searchBtn.setEnabled(connected);
-
-			}
-		});
+//		connectBtn.addActionListener(new ActionListener() {
+//			/** The flag denoting whether a connection has been established. */
+//			private boolean connected;
+//
+//			@Override
+//			public void actionPerformed(ActionEvent evt) {
+//				if (connected) {
+//					connectBtn.setIcon(IconConstants.DISCONNECT_ICON);
+//					connectBtn.setRolloverIcon(IconConstants.DISCONNECT_ROLLOVER_ICON);
+//					connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+//					connectBtn.setToolTipText("Connect to Server");
+//					client.disconnectFromServer();
+//					connected = false;
+//				} else {
+//					try {
+//						connected = client.connectToServer();
+//					} catch (Exception e) {
+//						JXErrorPane.showDialog(e);
+//					}
+//					if (connected) {
+//						connectBtn.setIcon(IconConstants.CONNECT_ICON);
+//						connectBtn.setRolloverIcon(IconConstants.CONNECT_ROLLOVER_ICON);
+//						connectBtn.setPressedIcon(IconConstants.CONNECT_PRESSED_ICON);
+//						connectBtn.setToolTipText("Disconnect from Server");
+//					} else {
+////						JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+//								"Could not connect to server, please check connection settings and try again.",
+//								"Connection Error", JOptionPane.ERROR_MESSAGE);
+//					}
+//				}
+//
+//			}
+//		});
+		
+		
 		
 		// Button for batch search
-		batchBtn = new JButton("Batch Search", IconConstants.SAVE_FILE_ICON);
+		batchBtn = new JButton("Search Files", IconConstants.SAVE_FILE_ICON);
 		batchBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
 		batchBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
-		batchBtn.setEnabled(false);
-		batchBtn.setToolTipText("Press button to selected and process several .mgf or .dat files" +
+		batchBtn.setEnabled(true);
+		batchBtn.setToolTipText("Press button to select and process several .mgf or .dat files" +
 				" and store each file in a separate experiment.");
 		batchBtn.addActionListener(new ActionListener() {
 
@@ -184,13 +183,14 @@ public class SettingsPanel extends JPanel {
 				fc.setMultiSelectionEnabled(true);
 				int result = fc.showOpenDialog(ClientFrame.getInstance());
 				if (result == JFileChooser.APPROVE_OPTION) {
+					System.out.println("Test");
 					File[] selectedFiles = fc.getSelectedFiles();
 					// reset progress
 					Client client = Client.getInstance();
 					// appear busy
 					firePropertyChange("progress", null, 0);
 					batchBtn.setEnabled(false);
-					quickBtn.setEnabled(false);
+//					quickBtn.setEnabled(false);
 					searchBtn.setEnabled(false);
 					// Disable further actions until loading is finished
 					ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -222,36 +222,39 @@ public class SettingsPanel extends JPanel {
 					}
 					// Start searches in a worker
 					new BatchProcessWorker(expFileMap).execute();
+					
+					
 					// Delete old experiment name
-					selExp.delete();
+//					selExp.delete();
+					
 					//	new QuickSearchWorker(fc.getSelectedFile()).execute();
 				}
 			}
 		});
 
-		// button for quick searches
-		quickBtn = new JButton("Quick Search", IconConstants.LIGHTNING_ICON);
-		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
-		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
-		quickBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				final JFileChooser fc = new JFileChooser();
-				fc.setFileFilter(Constants.MGF_FILE_FILTER);
-				fc.setAcceptAllFileFilterUsed(false);
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				// changed to multiple selection
-				fc.setMultiSelectionEnabled(true);
-				int result = fc.showOpenDialog(ClientFrame.getInstance());
-				if (result == JFileChooser.APPROVE_OPTION) {
-					// QuickSearchWorker now accepts multiple files 
-					new QuickSearchWorker(fc.getSelectedFiles()).execute();
-				}
-			}
-		});
-		quickBtn.setEnabled(false);
+//		// button for quick searches
+//		quickBtn = new JButton("Quick Search", IconConstants.LIGHTNING_ICON);
+//		quickBtn.setRolloverIcon(IconConstants.LIGHTNING_ROLLOVER_ICON);
+//		quickBtn.setPressedIcon(IconConstants.LIGHTNING_PRESSED_ICON);
+//		quickBtn.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent evt) {
+//				final JFileChooser fc = new JFileChooser();
+//				fc.setFileFilter(Constants.MGF_FILE_FILTER);
+//				fc.setAcceptAllFileFilterUsed(false);
+//				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//				// changed to multiple selection
+//				fc.setMultiSelectionEnabled(true);
+//				int result = fc.showOpenDialog(ClientFrame.getInstance());
+//				if (result == JFileChooser.APPROVE_OPTION) {
+//					// QuickSearchWorker now accepts multiple files 
+//					new QuickSearchWorker(fc.getSelectedFiles()).execute();
+//				}
+//			}
+//		});
+//		quickBtn.setEnabled(true);
 
 		// create process button
-		searchBtn = new JButton("Start searching", IconConstants.SEARCH_ICON);
+		searchBtn = new JButton("Search selected spectra", IconConstants.SEARCH_ICON);
 		searchBtn.setRolloverIcon(IconConstants.SEARCH_ROLLOVER_ICON);
 		searchBtn.setPressedIcon(IconConstants.SEARCH_PRESSED_ICON);
 		searchBtn.setFont(searchBtn.getFont().deriveFont(Font.BOLD, searchBtn.getFont().getSize2D()*1.25f));
@@ -260,11 +263,11 @@ public class SettingsPanel extends JPanel {
 				new ProcessWorker().execute();
 			}
 		});
-		searchBtn.setEnabled(false);
+		searchBtn.setEnabled(true);
 
-		buttonPnl.add(connectBtn, CC.xy(2, 2));
+//		buttonPnl.add(connectBtn, CC.xy(2, 2));
 		buttonPnl.add(batchBtn, CC.xy(4, 2));
-		buttonPnl.add(quickBtn, CC.xy(6, 2));
+//		buttonPnl.add(quickBtn, CC.xy(6, 2));
 		buttonPnl.add(searchBtn, CC.xy(8, 2));
 
 		settingsPnl.add(databasePnl, CC.xy(1, 1));
@@ -335,8 +338,12 @@ public class SettingsPanel extends JPanel {
 					}
 
 					client.firePropertyChange("new message", null, "SEARCHES RUNNING");
+					
 					// dispatch search request
+					client.firePropertyChange("indeterminate", false, true);
 					client.runSearches(filenames, settings);
+					client.firePropertyChange("indeterminate", true, false);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -404,16 +411,78 @@ public class SettingsPanel extends JPanel {
 					client.firePropertyChange("resetall", 0, expFileMap.size());
 					int i = 0; // Flag for number of dat-files
 					for (Entry<Long, File> datFileEntry : expFileMap.entrySet()) {
-						client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
-						// Store Mascot results
-						settings.setExpID(datFileEntry.getKey());
-						
-						MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), 
+						if (datFileEntry.getValue().getName().contains(".dat")) {
+							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
+							// Store Mascot results
+							settings.setExpID(datFileEntry.getKey());
+
+							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), 
 									datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
-						storager.run();
-						client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + expFileMap.size());
+							storager.run();
+							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + expFileMap.size());
+						}
 					}
 				}
+				
+				// quicksearch code start
+				
+				List<String> filenames = new ArrayList<String>();
+				for (Entry<Long, File> fileEntry : expFileMap.entrySet()) {
+					if (fileEntry.getValue().getName().contains(".mgf")) {
+						settings.setExpID(fileEntry.getKey());
+						String mgffilename = fileEntry.getValue().getName();
+						FileOutputStream fos = null;
+						client.firePropertyChange("indeterminate", false, true);
+						client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
+						MascotGenericFileReader reader = new MascotGenericFileReader(fileEntry.getValue(), LoadMode.SURVEY);
+						System.out.println("File read " + fileEntry.getValue());
+						client.firePropertyChange("indeterminate", true, false);
+						client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
+						List<Long> positions = reader.getSpectrumPositions(false);
+						long numSpectra = 0L;
+						long maxSpectra = (long) positions.size();
+						long packageSize = databasePnl.getPackageSize();
+						client.firePropertyChange("resetall", 0L, maxSpectra);
+						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
+						// iterate over all spectra
+						File batchFile = null;
+						for (int j = 0; j < positions.size(); j++) {
+							if ((numSpectra % packageSize) == 0) {
+								if (fos != null) {
+									fos.close();
+									client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+									batchFile.delete();
+								}
+								batchFile = new File(PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + "/data/output/xtandem/" + mgffilename + "_quick_batch_" + (numSpectra/packageSize) + ".mgf");
+								filenames.add(batchFile.getName());
+								fos = new FileOutputStream(batchFile);
+								long remaining = maxSpectra - numSpectra;
+								firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+							}
+
+							MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
+							mgf.writeToStream(fos);
+							fos.flush();
+							firePropertyChange("progressmade", 0L, ++numSpectra);
+						}
+						fos.close();
+						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
+						batchFile.delete();
+						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
+						client.firePropertyChange("new message", null, "SEARCH FOR " + mgffilename +  " RUNNING");
+						// dispatch search request		
+						client.firePropertyChange("indeterminate", false, true);
+						client.runSearches(filenames, settings);
+						client.firePropertyChange("indeterminate", true, false);
+					}
+				}
+				return null;
+				
+				
+				// quicksearch code end
+				
+				
+				
 				// TODO: CODE for runnning mulitiple database search jobs .... not working yet
 				// Start database searches
 //				if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
@@ -493,6 +562,7 @@ public class SettingsPanel extends JPanel {
 	 * Convenience worker to process a file without loading its contents into the tree table first.
 	 * @author A. Behne
 	 */
+	@Deprecated
 	private class QuickSearchWorker extends SwingWorker<Object, Object> {
 
 		/**
@@ -559,8 +629,10 @@ public class SettingsPanel extends JPanel {
 			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
 			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-			// dispatch search request			
-			client.runSearches(filenames, settings);										
+			// dispatch search request		
+			client.firePropertyChange("indeterminate", false, true);
+			client.runSearches(filenames, settings);				
+			client.firePropertyChange("indeterminate", true, false);
 			return null;
 		}
 	}

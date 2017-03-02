@@ -9,6 +9,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -157,7 +158,6 @@ public class ProjectPanel extends JPanel {
 	 */
 	public ProjectPanel() {
 		this.initComponents();
-		
 		// Updates the project table.
 		this.refreshProjectTable();
 	}
@@ -292,7 +292,7 @@ public class ProjectPanel extends JPanel {
 		this.add(actPnl, CC.xy(2, 4));
 		this.add(navPnl, CC.xy(4, 4));
 	}
-
+	
 	/**
 	 * Creates and returns the table view of projects.
 	 * @return the project table wrapped in a scroll pane
@@ -516,6 +516,7 @@ public class ProjectPanel extends JPanel {
 	 * @return the experiments table wrapped in a scroll pane
 	 */
 	private JScrollPane setupExperimentTable() {
+		
 		// Table for projects
 		experimentTbl = new JXTable(new DefaultTableModel() { 
 			{
@@ -557,6 +558,7 @@ public class ProjectPanel extends JPanel {
 				}
 				return null;
 			}
+
 		});
 		
 		// Selection model for the list: Select one entry of the table only
@@ -566,6 +568,7 @@ public class ProjectPanel extends JPanel {
 		experimentTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
+				
 				// clear cached results
 				if (selectedExperiment != null) {
 					selectedExperiment.clearSearchResult();
@@ -575,6 +578,10 @@ public class ProjectPanel extends JPanel {
 				if (selRow != -1) {
 					selRow = experimentTbl.convertRowIndexToModel(selRow);
 					selectedExperiment = (AbstractExperiment) experimentTbl.getModel().getValueAt(selRow, -1);
+				}
+				
+				if (selectedProject == null) {
+					selectedProject = selectedExperiment.getProject();
 				}
 				
 				this.updateComponents();
@@ -612,7 +619,6 @@ public class ProjectPanel extends JPanel {
 				skipBtn.setEnabled(hasResult);
 				skipBtn.setToolTipText((hasResult) ? null : "No searches have been performed under this experiment yet.");
 				nextBtn.setEnabled(true);
-				
 			}
 		});
 	
@@ -711,6 +717,12 @@ public class ProjectPanel extends JPanel {
 					((DefaultTableModel) experimentTbl.getModel()).addRow(new Object[] { experiment });
 					setSelectedExperiment(experiment);
 				}
+				
+				// prevent weird bugs by updating everything again
+				refreshProjectTable();
+				setSelectedProject(experiment.getProject());
+				refreshExperimentTable(selectedProject);
+				setSelectedExperiment(experiment);
 			}
 		});
 		
@@ -779,6 +791,7 @@ public class ProjectPanel extends JPanel {
 			
 			for (AbstractProject project : projects) {
 				((DefaultTableModel) projectTbl.getModel()).addRow(new Object[] { project });
+				refreshExperimentTable(project);
 			}
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -814,6 +827,7 @@ public class ProjectPanel extends JPanel {
 		} else {
 			projectTbl.clearSelection();
 		}
+		refreshExperimentTable(project);
 	}
 	
 	/**
@@ -867,8 +881,11 @@ public class ProjectPanel extends JPanel {
 	/**
 	 * Returns the current search result object.
 	 * @return the current search result
+	 * @deprecated too many searchresult-objects
 	 */
+	@Deprecated
 	public DbSearchResult getSearchResult() {
+		System.out.println("Shoul never be called");
 		if (currentExperiment != null) {
 			if (!currentExperiment.equals(selectedExperiment)) {
 				// clear cached results
@@ -881,7 +898,6 @@ public class ProjectPanel extends JPanel {
 			return currentExperiment.getSearchResult();
 		}
 		return null;
-		
 	}
 	
 	public boolean isBusy() {
@@ -902,6 +918,7 @@ public class ProjectPanel extends JPanel {
 		this.deleteExperimentBtn.setEnabled(!busy);
 		this.nextBtn.setEnabled(!busy);
 		this.skipBtn.setEnabled(!busy);
+		
 //		this.specBtn.setEnabled(!busy);
 //		this.blastBtn.setEnabled(!busy);
 //		this.uniBtn.setEnabled(!busy);

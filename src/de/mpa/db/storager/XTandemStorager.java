@@ -146,7 +146,7 @@ public class XTandemStorager extends BasicStorager {
                 	    HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
                 	      
                 	    // Only store if the search spectrum id is referenced.
-                	    if(MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
+						if (MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
                 	    	
                 	        Double qValue = 1.0;
@@ -201,16 +201,20 @@ public class XTandemStorager extends BasicStorager {
                      	    	
         						for (String acc : accessionSet) {
         							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
-                                    hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protSql.getProteinid());
-                                    
-                                    // Finalize xtandemhit
-                               	    XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
-                                    xtandemhit.persist(conn);
-                                    counter++;
-                                    
-                                    // Get the xtandemhitid
-                                    Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
-                                    domainMap.put(domainID, xtandemhitid);  
+        							if (protSql != null) {
+        								hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protSql.getProteinid());
+
+        								// Finalize xtandemhit
+        								XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
+        								xtandemhit.persist(conn);
+        								counter++;
+
+        								// Get the xtandemhitid
+        								Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
+        								domainMap.put(domainID, xtandemhitid);
+        							} else {
+        								System.err.println("Protein: " + acc + " not found in the database.");
+        							}
 								}
                                  
             				}

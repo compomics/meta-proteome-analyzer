@@ -183,14 +183,10 @@ public class ColorsDialog extends JDialog {
 					}
 					// init save file dialog
 					ConfirmFileChooser chooser = null;
-					if (Starter.isJarExport()) {
-						chooser = new ConfirmFileChooser(Constants.THEME_FOLDER_JAR);
-					}else {
-						chooser = new ConfirmFileChooser(Constants.THEME_FOLDER);
-					}
+					chooser = new ConfirmFileChooser(Constants.THEME_FOLDER_JAR);
 
 					// provide suggestion for filename (lower case theme title without whitespace)
-					chooser.setSelectedFile(new File(Constants.THEME_FOLDER 
+					chooser.setSelectedFile(new File(Constants.THEME_FOLDER_JAR 
 							+ theme.getTitle().toLowerCase().replaceAll("\\s+","") 
 							+ ".theme"));
 					int res = chooser.showSaveDialog(ColorsDialog.this);

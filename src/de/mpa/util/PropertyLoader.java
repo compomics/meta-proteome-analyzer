@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * contains all properties
+ * contains all properties and constants
  * 
- * @author rzoun
+ * @author rzoun, K. Schallert
  *
  */
 public class PropertyLoader {
@@ -18,12 +18,13 @@ public class PropertyLoader {
 
 	//
 	public static final String OS = System.getProperty("os.name").toLowerCase();
-	
+
 	// central place to change property names
 	public static final String BASE_PATH = "base_path";
 
-	// client-settings
-	public static final String FILES_FASTA = "files.fasta";
+	// fasta settings
+	public static final String FILES_FASTA = "file.fastalist";
+	public static final String PATH_FASTA = "path.fasta";
 
 	// connection-settings
 	public static final String DB_ADRESS = "dbAddress";
@@ -38,7 +39,7 @@ public class PropertyLoader {
 	// Transfer path for the spectra
 	public static final String PATH_TRANSFER = "path.transfer";
 	// Path to the FASTA database folder
-	public static final String PATH_FASTA = "path.fasta";
+
 	// X!Tandem
 	public static final String PATH_XTANDEM = "path.xtandem";
 	public static final String PATH_XTANDEM_OUTPUT = "path.xtandem.output";
@@ -65,12 +66,14 @@ public class PropertyLoader {
 	public static final String PATH_MYSQLDUMP = "win_mysqldump";
 
 	static {
-		//omssa/
 		// load the property file
 		File propFile = new File("./config.properties");
+		System.out.println(propFile.getAbsolutePath());
 		// error and exit if not found
 		if (!propFile.exists()) {
-			System.err.println("config.properties nicht gefunden\nbase_path ist " + new File("./").getAbsolutePath());
+			System.err
+					.println("config.properties nicht gefunden\nbase_path ist "
+							+ new File("./").getAbsolutePath());
 			System.exit(1);
 		}
 
@@ -100,7 +103,6 @@ public class PropertyLoader {
 	}
 
 	public static void main(String[] args) {
-		
 		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
 		System.out.println(pathFasta);

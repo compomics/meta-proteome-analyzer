@@ -149,7 +149,10 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	
 	/**
 	 * The species taxonomy node.
+	 * @deprecated --> this is never really used, or is it?
+	 *				--> should check this out   
 	 */
+	@Deprecated
 	private TaxonomyNode speciesNode;
 	
 	/**
@@ -170,6 +173,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
+		// --> this seems weird!!!
 		this.peptideHits = new LinkedHashMap<String, PeptideHit>();
 		if (peptideHit != null) {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
@@ -551,6 +555,13 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		this.experimentIDs.addAll(experimentIDs);
 	}
 	
+	/**
+	 * Adds a single ID of an experiment which contain this protein.
+	 */
+	public void addExperimentID(Long experimentID) {
+		this.experimentIDs.add(experimentID);
+	}
+	
 	@Override
 	public boolean isSelected() {
 		return selected;
@@ -590,6 +601,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	@Override
 	public void setTaxonomyNode(TaxonomyNode taxonNode) {
 		this.taxonomyNode = taxonNode;
+		this.speciesNode = taxonNode;
 	}
 
 	@Override

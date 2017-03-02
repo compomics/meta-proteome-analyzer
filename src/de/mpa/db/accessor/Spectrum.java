@@ -68,7 +68,7 @@ public class Spectrum extends SpectrumTableAccessor {
         Long id = null;
         while (rs.next()) {
             counter++;
-            id = rs.getLong("spectrum.spectrumid"); 
+            id = rs.getLong("spectrum.spectrumid");
         }
         rs.close();
         ps.close();
@@ -77,13 +77,12 @@ public class Spectrum extends SpectrumTableAccessor {
         }
         if (id != null) {
         	// get actual spectrum
-        	ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
-        			" WHERE spectrumid = ?");
+        	ps = aConn.prepareStatement(Spectrum.getBasicSelect() + " WHERE spectrumid = ?");
         	ps.setLong(1, id);
         	rs = ps.executeQuery();
         	while (rs.next()) {
         		temp = new Spectrum(rs);
-        		if (temp.getTitle() != title) {
+        		if (!(temp.getTitle().trim().contentEquals(title.trim()))) {
         			temp = null;
         		}
         	}

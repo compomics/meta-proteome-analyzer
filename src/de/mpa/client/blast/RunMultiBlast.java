@@ -214,6 +214,7 @@ public class RunMultiBlast {
 				}
 			}
 		}
+		
 		// Go through all protein hits and BLAST the unannotated ones
 		// MAP for each BLAST batch
 		ArrayList<DigFASTAEntry> blastBatchList = new ArrayList<DigFASTAEntry>();
@@ -456,7 +457,9 @@ public class RunMultiBlast {
 			}
 
 		}
-		
+
+		// close and reopen conneciton
 		conn.close();
+		conn = Client.getInstance().getConnection();
 	}
 }

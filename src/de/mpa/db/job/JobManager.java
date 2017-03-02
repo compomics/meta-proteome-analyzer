@@ -45,7 +45,7 @@ public class JobManager implements Runnable {
 	 * Adds a job to the job queue.
 	 * @param job
 	 */
-	public void addJob(Job job){
+	public void addJob(Job job) {
 		jobQueue.add(job);
 	}
 	
@@ -72,7 +72,7 @@ public class JobManager implements Runnable {
 	/**
 	 * This method deletes all the jobs from the queue.	
 	 */	
-	public void clear(){		
+	public void clear() {		
 		jobQueue.clear();
 	}
 	

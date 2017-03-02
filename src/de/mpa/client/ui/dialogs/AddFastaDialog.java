@@ -32,8 +32,12 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.fasta.FastaLoader;
 
 
+
+// TODO: all of this needs to be more performant
+
 /**
- * Class for the BLAST Dialog
+ *  
+ * Class for the FASTA Dialog
  * @author Robert Heyer
  */
 @SuppressWarnings("serial")
@@ -96,6 +100,7 @@ public class AddFastaDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				close();
 				Client.getInstance().firePropertyChange("indeterminate", false, true);
+				// TODO: make sure clientFrame gives correct feedback 
 				addFastaDatabases(mascotFastaCbx.isSelected());
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
 			}
@@ -144,13 +149,25 @@ public class AddFastaDialog extends JDialog {
 	}
 
 	/**
+	 * 
+	 * 
 	 * Methode for the selection of new *.fasta databases.
 	 * @param mascotFastaCbx. Selection for a new Mascot-database
 	 */
 	private void addFastaDatabases(boolean mascotFlag) {
-
+		
+		// TODO: what it needs to do
+		// 0. calls the Fastaloader which does everything
+		// 1. load fasta put proteins into SQL
+		// 2. check for redundancy
+		// 3. query uniprot in case of uniprot proteins (Swissprot or Trembl)
+		// 4. be quick and dont crash ......
+		
+		// TODO: new quick implementation:
+		// ???
+		
 		// The fasta files
-		File [] fastaFiles = null;
+		File fastaFile = null;
 
 		// The output path
 		String outpath = null;
@@ -158,11 +175,11 @@ public class AddFastaDialog extends JDialog {
 		// Get *.fasta files
 		JFileChooser fastaChooser = new JFileChooser();
 		fastaChooser.setFileFilter(Constants.FASTA_FILE_FILTER);
-		fastaChooser.setMultiSelectionEnabled(true);
+		fastaChooser.setMultiSelectionEnabled(false);
 		int returnVal = fastaChooser.showOpenDialog(owner);
 		fastaChooser.setAcceptAllFileFilterUsed(false);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			fastaFiles = fastaChooser.getSelectedFiles();
+			fastaFile = fastaChooser.getSelectedFile();
 		}
 
 		// Define name for the fasta database.
@@ -187,7 +204,8 @@ public class AddFastaDialog extends JDialog {
 		try {
 			Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
 			Client.getInstance().firePropertyChange("indeterminate", false, true);
-			FastaLoader.addFastaDatabases(fastaFiles, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
+			System.out.println(fastaFile.toString());
+			FastaLoader.addFastaDatabases(fastaFile, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
 
 			// Show finished message
 			StringBuilder message = new StringBuilder();	

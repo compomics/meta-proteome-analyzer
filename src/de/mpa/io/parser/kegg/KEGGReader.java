@@ -36,11 +36,7 @@ public class KEGGReader {
 		String path = null;
 		Reader in = null;
 		
-		if (Starter.isJarExport()) {
-			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "ko00001.keg";
-		} else {
-			path = Constants.CONFIGURATION_DIR_PATH + "ko00001.keg";
-		}
+		path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "ko00001.keg";
 		
 		try {
 			in = new FileReader(new File(path));

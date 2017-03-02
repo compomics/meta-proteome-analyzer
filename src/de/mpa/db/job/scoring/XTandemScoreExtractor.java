@@ -49,7 +49,11 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 			saxException.getMessage();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
-		}		
+		} catch (IllegalArgumentException illAerr) {
+			// this error occurs if the targetfile doesn't exist
+			// the reason for this is unclear, but most likely no hits where found
+			illAerr.printStackTrace();
+		}
 	}
 	
 	/**

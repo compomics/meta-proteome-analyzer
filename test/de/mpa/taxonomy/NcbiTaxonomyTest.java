@@ -19,8 +19,8 @@ public class NcbiTaxonomyTest extends TestCase {
 	@Before
 	public void setUp(){
 		// Path of the taxonomy dump folder
-		String namesFileString = Constants.CONFIGURATION_DIR_PATH + "names.dmp";
-		String nodesFileString = Constants.CONFIGURATION_DIR_PATH + "nodes.dmp";
+		String namesFileString = Constants.CONFIGURATION_PATH_JAR + "names.dmp";
+		String nodesFileString = Constants.CONFIGURATION_PATH_JAR + "nodes.dmp";
 		
 		try {
 			@SuppressWarnings("unused")

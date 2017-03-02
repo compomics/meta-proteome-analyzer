@@ -116,6 +116,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 									filePath += ".sql";
 								}
 								try {
+//									DBDumper.upgradeDatabase(); 
 									DBDumper.dumpDatabase(filePath);
 								} catch (SQLException | IOException e) {
 									e.printStackTrace();
@@ -287,6 +288,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 					protected Object doInBackground() throws SQLException  {
 						UniProtUtilities uniprotweb = new UniProtUtilities();
 						// find all proteins in the database and pass them to BLAST
+						// TODO: fix this method -> tries to find all proteins with upid = -1 (should only check swissprot and trembl)
 						List<ProteinAccessor> proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(Client.getInstance().getConnection());
 						// update uniprot for each proteinaccessor
 						for (ProteinAccessor prot : proteins) {

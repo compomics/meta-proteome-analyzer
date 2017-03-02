@@ -483,10 +483,10 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * This method allows the caller to insert the data represented by this
 	 * object in a persistent store.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param   aConn Connection to the persitent store. A9CBA2
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ", Statement.RETURN_GENERATED_KEYS);
 		if(iProteinid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {

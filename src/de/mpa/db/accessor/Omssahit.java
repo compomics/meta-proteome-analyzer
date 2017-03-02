@@ -10,7 +10,7 @@ import java.util.List;
 
 import de.mpa.client.model.dbsearch.SearchEngineType;
 
-public class Omssahit extends OmssahitTableAccessor implements SearchHit{
+public class Omssahit extends OmssahitTableAccessor implements SearchHit {
 	
 	private static final long serialVersionUID = 1L;
 	private String sequence;
@@ -33,10 +33,11 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
      * This constructor works faster by reducing the included data
      *
      * @param aRS ResultSet to read the data from.
+     * @param not_view 	Get values from omssa table directly = true,  Get values from view = false 
      * @throws SQLException when reading the ResultSet failed.
      */
-    public Omssahit(ResultSet aRS, boolean flag) throws SQLException {
-    	if (flag) {
+    public Omssahit(ResultSet aRS, boolean not_view) throws SQLException {
+    	if (not_view) {
     		this.iOmssahitid = (Long) aRS.getLong("omssahit.omssahitid");
     		this.iFk_searchspectrumid = (Long) aRS.getLong("omssahit.fk_searchspectrumid");
     		this.iFk_peptideid = (Long) aRS.getLong("omssahit.fk_peptideid");
@@ -45,6 +46,15 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit{
     		this.sequence = (String) aRS.getObject("peptide.sequence");
         	this.accession = (String) aRS.getObject("protein.accession");
         	this.iQvalue = (Number ) aRS.getObject("omssahit.qvalue");
+    	} else {
+    		this.iOmssahitid = (Long) aRS.getLong("omssahitid");
+    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
+    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
+    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
+    		this.iCharge = (Long) aRS.getLong("charge");
+    		this.sequence = (String) aRS.getObject("pepseq");
+        	this.accession = (String) aRS.getObject("accession");
+        	this.iQvalue = (Number ) aRS.getObject("qvalue");
     	}
     }
     

@@ -21,8 +21,8 @@ public class TaxonomyAccessorTest extends TestCase {
 	public void setUp() throws SQLException {
 		// Path of the taxonomy dump folder
 		// Path of the taxonomy dump folder
-		String namesFileString = Constants.CONFIGURATION_PATH + "names.dmp";
-		String nodesFileString = Constants.CONFIGURATION_PATH + "nodes.dmp";
+		String namesFileString = Constants.CONFIGURATION_PATH_JAR + "names.dmp";
+		String nodesFileString = Constants.CONFIGURATION_PATH_JAR + "nodes.dmp";
 		try {
 			NcbiTaxonomy ncbiTax = NcbiTaxonomy.getInstance(namesFileString, nodesFileString);
 			ncbiTax.storeTaxonomy();

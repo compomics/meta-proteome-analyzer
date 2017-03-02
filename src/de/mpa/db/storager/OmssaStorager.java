@@ -118,7 +118,7 @@ public class OmssaStorager extends BasicStorager {
 				String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
 
 				spectrumTitle = formatSpectrumTitle(spectrumTitle); 
-				if(MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
+				if (MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
 					long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
 
 					Double qValue = 1.0;
@@ -136,56 +136,61 @@ public class OmssaStorager extends BasicStorager {
 
 						// Get the MSPepHit (for the accession)
 						List<MSPepHit> pepHits = msHit.MSHits_pephits.MSPepHit;
-								Iterator<MSPepHit> pepHitIterator = pepHits.iterator();
-								MSPepHit pepHit = pepHitIterator.next();
-								hitdata.put(OmssahitTableAccessor.HITSETNUMBER,	Long.valueOf(msHitSet.MSHitSet_number));
-								hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
-								hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
-								hitdata.put(OmssahitTableAccessor.CHARGE, Long.valueOf(msHit.MSHits_charge));
-								hitdata.put(OmssahitTableAccessor.MASS,	msHit.MSHits_mass);
-								hitdata.put(OmssahitTableAccessor.THEOMASS,	msHit.MSHits_theomass);
-								hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
-								hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
-								hitdata.put(OmssahitTableAccessor.PEP, pep);
-								hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
+						Iterator<MSPepHit> pepHitIterator = pepHits.iterator();
+						MSPepHit pepHit = pepHitIterator.next();
+						hitdata.put(OmssahitTableAccessor.HITSETNUMBER,	Long.valueOf(msHitSet.MSHitSet_number));
+						hitdata.put(OmssahitTableAccessor.EVALUE, msHit.MSHits_evalue);
+						hitdata.put(OmssahitTableAccessor.PVALUE, msHit.MSHits_pvalue);
+						hitdata.put(OmssahitTableAccessor.CHARGE, Long.valueOf(msHit.MSHits_charge));
+						hitdata.put(OmssahitTableAccessor.MASS,	msHit.MSHits_mass);
+						hitdata.put(OmssahitTableAccessor.THEOMASS,	msHit.MSHits_theomass);
+						hitdata.put(OmssahitTableAccessor.START, msHit.MSHits_pepstart);
+						hitdata.put(OmssahitTableAccessor.END, msHit.MSHits_pepstop);
+						hitdata.put(OmssahitTableAccessor.PEP, pep);
+						hitdata.put(OmssahitTableAccessor.QVALUE, qValue);
 
-								// Get the peptide id
-								String sequence = msHit.MSHits_pepstring;
-								long peptideID = this.storePeptide(sequence);
-								hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	peptideID);
+						// Get the peptide id
+						String sequence = msHit.MSHits_pepstring;
+						long peptideID = this.storePeptide(sequence);
+						hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	peptideID);
 
-								// Store peptide-spectrum association
-								this.storeSpec2Pep(searchspectrumID, peptideID);
+						// Store peptide-spectrum association
+						this.storeSpec2Pep(searchspectrumID, peptideID);
 
-								// Parse the FASTA header
-								DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "", 0L);
-								String accession = entry.getIdentifier();
+						// Parse the FASTA header
+						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "", 0L);
+						String accession = entry.getIdentifier();
 
-								// Scan for additional protein hits
-								HashSet<String> accessionSet = new HashSet<String>();
-								FastaLoader loader = FastaLoader.getInstance();
-								if (loader.getPepFile()!=null) {
-									// There is a separate digested peptide file available
-									accessionSet = loader.getProtHits(sequence);
-									accessionSet.add(accession);
-								} else {
-									accessionSet.add(accession);
-								}
+						// Scan for additional protein hits
+						HashSet<String> accessionSet = new HashSet<String>();
+						FastaLoader loader = FastaLoader.getInstance();
+						if (loader.getPepFile()!=null) {
+							// There is a separate digested peptide file available
+							accessionSet = loader.getProtHits(sequence);
+							accessionSet.add(accession);
+						} else {
+							accessionSet.add(accession);
+						}
 
-								for (String acc : accessionSet) {
-									ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
-									hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	protSql.getProteinid());
+						for (String acc : accessionSet) {
+							
+							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
+							if (protSql != null) {
+								hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	protSql.getProteinid());
 
-									// Create the database object.
-									OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-									omssahit.persist(conn);
-									counter++;
+								// Create the database object.
+								OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
+								omssahit.persist(conn);
+								counter++;
 
-									// Get the omssahitid
-									Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
-									hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
-									hitnumber++;
-								}
+								// Get the omssahitid
+								Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
+								hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
+								hitnumber++;
+							} else {
+								System.err.println("Protein: " + acc + " not found in the database.");
+							}
+						}
 
 					}
 				}

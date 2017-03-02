@@ -458,7 +458,6 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		}
 		lStat.addBatch();;
 		lStat.execute();
-		conn.commit();
 		
 		// Get the keys (uniprotEntry ID)
 		ResultSet generatedKeys = lStat.getGeneratedKeys();

@@ -48,12 +48,13 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
     
     /**
      * This constructor works faster by reducing the included data
-     *
+     * 
+     * @param not_view 	Get values from mascot table directly = true,  Get values from view = false
      * @param aRS ResultSet to read the data from.
      * @throws SQLException when reading the ResultSet failed.
      */
-    public Mascothit(ResultSet aRS, boolean flag) throws SQLException {
-    	if (flag) {
+    public Mascothit(ResultSet aRS, boolean not_view) throws SQLException {
+    	if (not_view) {
     		this.iMascothitid = (Long) aRS.getLong("mascothit.mascothitid");
     		this.iFk_searchspectrumid = (Long) aRS.getLong("mascothit.fk_searchspectrumid");
     		this.iFk_peptideid = (Long) aRS.getLong("mascothit.fk_peptideid");
@@ -62,6 +63,15 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
     		this.iIonscore = (Number) aRS.getObject("mascothit.ionscore");
     		this.sequence = (String) aRS.getObject("peptide.sequence");
         	this.accession = (String) aRS.getObject("protein.accession");
+    	} else {
+    		this.iMascothitid = (Long) aRS.getLong("mascothitid");
+    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
+    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
+    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
+    		this.iCharge = (Long) aRS.getLong("charge");
+    		this.iIonscore = (Number) aRS.getObject("ionscore");
+    		this.sequence = (String) aRS.getObject("pepseq");
+    		this.accession = (String) aRS.getObject("accession");
     	}
     }
 

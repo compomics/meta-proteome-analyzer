@@ -4,8 +4,10 @@ import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -176,7 +178,7 @@ public class NcbiTaxonomy implements Serializable {
 	private static void writeIndexFile() throws Exception {
 		// The file of the createt index file.
 		File indexFile;
-		String name = Constants.CONFIGURATION_DIR_PATH + INDEX_FILENAME;
+		String name = Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME;
 		File file = new File(name);
 		URL url = file.getClass().getResource(name);
 		//		URL url = Client.getInstance().getClass().getResource(name);
@@ -222,14 +224,14 @@ public class NcbiTaxonomy implements Serializable {
 	 * @throws Exception if an I/O error occurs
 	 */
 	public void readIndexFile() throws Exception {
-		InputStream inStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + INDEX_FILENAME);
-		if (inStream != null) {
-			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(inStream));
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME)));
 			namesMap = (TIntIntHashMap) ois.readObject();
 			nodesMap = (TIntIntHashMap) ois.readObject();
 			ois.close();
-		} else {
-			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH + INDEX_FILENAME + "\" not found!");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME + "\" not found!");
 		}
 	}
 	

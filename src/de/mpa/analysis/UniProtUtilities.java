@@ -1015,13 +1015,7 @@ public class UniProtUtilities {
 		try {
 			// Initialize reader
 			BufferedReader br = null;
-			if (Starter.isJarExport()) {
-				br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo")));
-			} else {
-				//				InputStream is = ClassLoader.getSystemResourceAsStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo");
-				br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_DIR_PATH+  "keywords-all.obo")));
-				//				br = new BufferedReader(new InputStreamReader(is));
-			}
+			br = new BufferedReader(new FileReader(new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo")));
 
 			String line;
 			String id = null;

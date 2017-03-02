@@ -81,8 +81,11 @@ public class DbSearchResult implements Serializable {
 
 	/**
 	 * Adds a protein hit to the result object.
+	 * 
+	 * @deprecated not used
 	 * @param proteinHit the {@link ProteinHit} to add
 	 */
+	@Deprecated
 	public void addProtein(ProteinHit proteinHit) {
 		
 		// extract elements
@@ -126,6 +129,7 @@ public class DbSearchResult implements Serializable {
 	public void addProteinHitList(ProteinHitList protlist) {
 		visMetaProteins = protlist;
 	}
+	
 	// add metaprotein
 	public void addMetaProtein(MetaProteinHit mph) {
 		this.metaProteins.add(mph);

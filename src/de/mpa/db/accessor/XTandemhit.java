@@ -42,11 +42,12 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
     /**
      * This constructor works faster by reducing the included data
      *
+     * @param not_view 	Get values from xtandem table directly = true,  Get values from view = false
      * @param aRS ResultSet to read the data from.
      * @throws SQLException when reading the ResultSet failed.
      */
-    public XTandemhit(ResultSet aRS, boolean flag) throws SQLException {    	
-    	if (flag) {
+    public XTandemhit(ResultSet aRS, boolean now_view) throws SQLException {    	
+    	if (now_view) {
 			this.iXtandemhitid = (Long) aRS.getLong("xtandemhit.xtandemhitid");
 			this.iFk_searchspectrumid = (Long) aRS.getLong("xtandemhit.fk_searchspectrumid");
 			this.iFk_peptideid = (Long) aRS.getLong("xtandemhit.fk_peptideid");
@@ -54,6 +55,14 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 			this.sequence = (String) aRS.getObject("peptide.sequence");
 	    	this.accession = (String) aRS.getObject("protein.accession");
 	    	this.iQvalue = (Number) aRS.getObject("xtandemhit.qvalue");
+    	} else {
+    		this.iXtandemhitid = (Long) aRS.getLong("xtandemhitid");
+    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
+    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
+    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
+    		this.sequence = (String) aRS.getObject("pepseq");
+        	this.accession = (String) aRS.getObject("accession");
+        	this.iQvalue = (Number ) aRS.getObject("qvalue");
     	}
 	}
 

@@ -37,6 +37,8 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
 import de.mpa.client.model.AbstractExperiment;
+import de.mpa.client.model.AbstractProject;
+import de.mpa.client.model.DatabaseExperiment;
 import de.mpa.client.model.MultipleDatabaseExperiments;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -50,7 +52,10 @@ import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.db.DBConfiguration;
+import de.mpa.db.accessor.ExpProperty;
+import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
@@ -217,6 +222,7 @@ public class Client {
 	public boolean connectToServer() throws WebServiceException {
 		if (!this.hasConnectionToServer()) {
 			service = new ServerImplService();
+			
 			// Enable MTOM
 			server = service.getServerImplPort(new MTOMFeature());
 			
@@ -367,18 +373,28 @@ public class Client {
 	 * Runs the searches by retrieving a bunch of spectrum file names and the global search settings.
 	 * @param filenames The spectrum file names
 	 * @param settings Global search settings
+	 * @throws SQLException 
 	 */
-	public void runSearches(List<String> filenames, SearchSettings settings) {
+	public void runSearches(List<String> filenames, SearchSettings settings) throws SQLException {
 		if (filenames != null) {
 			for (int i = 0; i < filenames.size(); i++) {
 				settings.getFilenames().add(filenames.get(i));
 			}
 			try {
 				server.runSearches(settings);
+				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
+		
+		// reestablish all connections
+		this.closeDBConnection();
+		this.connectToServer();
+		this.getConnection();
+		
+		// restart the client frame
+		ClientFrame.getInstance().restart();
 	}
 	
 	/**
@@ -737,7 +753,7 @@ public class Client {
 		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
 				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
 			DbSearchResult restoredDbSearchResult = (DbSearchResult) ois.readObject();
-			currentExperiment.setSearchResult(restoredDbSearchResult);
+//			currentExperiment.setSearchResult(restoredDbSearchResult);
 			// Has to update the dbSearchResult object in the client, too
 			dbSearchResult = restoredDbSearchResult;
 			ClientFrame.getInstance().getResultsPanel().setDBSearchResultObj(dbSearchResult);
@@ -746,7 +762,7 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();
 		} 
-		return currentExperiment.getSearchResult();
+		return dbSearchResult;
 	}
 
 	/**
@@ -825,8 +841,21 @@ public class Client {
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
-		// TODO: (re-)create project manager class to avoid mixing UI and non-UI code
-		dbSearchResult = ClientFrame.getInstance().getProjectPanel().getSearchResult();
+		return dbSearchResult;
+	}
+	
+	/**
+	 * Returns searchresult constructed from the experiment currently selected in the 
+	 * 
+	 * @return
+	 */
+	public DbSearchResult getSingleSearchResult() {
+		LinkedList<Long> experimentList = new LinkedList<Long>();
+		AbstractExperiment selexp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+		experimentList.add(selexp.getID());
+		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, selexp.getTitle(), new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
+		this.dbSearchResult = searchResult;
 		return dbSearchResult;
 	}
 	
@@ -837,8 +866,8 @@ public class Client {
 	public DbSearchResult getMultipleSearchResults(LinkedList<Long> experimentList) {
 		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
-		dbSearchResult = searchResult;
-		return searchResult;
+		this.dbSearchResult = searchResult;
+		return dbSearchResult;
 	}
 	
 	/**
@@ -886,5 +915,4 @@ public class Client {
 			System.exit(0);
 		}
 	}
-
 }

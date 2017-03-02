@@ -152,6 +152,7 @@ public class MascotStorager extends BasicStorager {
 		}		
 		// disable mysql autocommit to speed up batch INSERTs
 		conn.setAutoCommit(false);
+		
 		// initialize stuff
 		int query_number = 0;
 		Double precursor_mass;
@@ -369,28 +370,45 @@ public class MascotStorager extends BasicStorager {
 								// first get accessions and proteinids from the protein table
 								client.firePropertyChange("new message", null, "QUERYING DATABASE FOR PROTEIN ENTRIES");
 								client.firePropertyChange("indeterminate", true, true);
-								// TODO: check if this leads to crashes for very large protein tables
-								PreparedStatement prs = conn.prepareStatement("SELECT protein.proteinid, protein.accession, protein.fk_uniprotentryid FROM protein");
-								ResultSet aRS = prs.executeQuery();
-								// look through them
-								while (aRS.next()) {
-									//if ((test_count_1 % 1000) == 0) {System.out.println("DB-lookup: "+test_count_1);}
-									// and determine if an accession is already in there
-									String accession = (String) aRS.getObject("accession");
-									if (protein_map.containsKey(accession)) {
-										// Check whether this protein is redundant in the DAT file
-										if (protein_map.get(accession).was_this_protein_submitted()) {
-											System.out.println("Duplicate protein entry: "+accession);		            							
-										} else {
-											// and store the proteinid
-											long proteinID = aRS.getLong("proteinid");
-											protein_map.get(accession).setProteinID(proteinID);
-											protein_map.get(accession).set_this_protein_is_in_DB();
+								boolean rows_left = true;
+								long limit = 1000000L; // 1 Million
+								long offset = 0L;
+								// only retrieve 1 Mio proteins at a time
+								while (rows_left) {
+									// get a limited amount of proteins from the protein table to make sure memory is not a problem
+									PreparedStatement prs = conn.prepareStatement("SELECT protein.proteinid, protein.accession, protein.fk_uniprotentryid "
+											+ "FROM protein LIMIT ? OFFSET ?");
+									prs.setFetchSize(512);
+									prs.setLong(1, limit);
+									prs.setLong(2, offset);
+									ResultSet aRS = prs.executeQuery();
+									// look through them
+									int test_count_1 = 0;
+									while (aRS.next()) {
+										test_count_1++;
+//										if ((test_count_1 % 100000) == 0) {System.out.println("DB-lookup: "+test_count_1);}
+										// and determine if an accession is already in there
+										String accession = (String) aRS.getObject("accession");
+										if (protein_map.containsKey(accession)) {
+											// Check whether this protein is redundant in the DAT file
+											if (protein_map.get(accession).was_this_protein_submitted()) {
+												System.out.println("Duplicate protein entry: "+accession);		            							
+											} else {
+												// and store the proteinid
+												long proteinID = aRS.getLong("proteinid");
+												protein_map.get(accession).setProteinID(proteinID);
+												protein_map.get(accession).set_this_protein_is_in_DB();
+											}
 										}
 									}
+									if (test_count_1 == 0) {
+										rows_left = false;
+									} else {
+										offset += 1000000L;
+									}
+									prs.close();
+									aRS.close();
 								}
-								prs.close();
-								aRS.close();
 								client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
 								client.firePropertyChange("indeterminate", true, false);
 							}
@@ -445,7 +463,7 @@ public class MascotStorager extends BasicStorager {
 									}
 									// submit peptide and spec2pep reference
 									HashMap<Integer, MascotPeptideHit> peptidemap = query_peptide_map.get(query_number); 
-									for (int peptide_number : peptidemap.keySet()) {					
+									for (int peptide_number : peptidemap.keySet()) {
 										// Fill the peptide table and get peptideID
 										MascotPeptideHit current_pephit = peptidemap.get(peptide_number);
 										String pep_sequence = current_pephit.getSequence();	        						
@@ -469,7 +487,6 @@ public class MascotStorager extends BasicStorager {
 												// Get the protein description from fasta or from the dat file
 												String description = protein_map.get(prot_acc).getDescription();
 												if (!(description == null || description.length()<1)) {
-
 													String sequence = protein_map.get(prot_acc).getSequence();
 													// save the protein
 													ProteinAccessor prot_accessor = ProteinAccessor.addProteinToDatabase(accession, description, pep_sequence, protein_map.get(prot_acc).getDatabaseType(), -1L, conn);
@@ -489,7 +506,6 @@ public class MascotStorager extends BasicStorager {
 															prot_accessor.setFK_uniProtID(proteinid2uniprotid.get(proteinID));
 														}
 													}
-													
 													// this adds a new protein
 //													ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, description, sequence, conn);
 //													proteinID = (Long) protAccessor.getGeneratedKeys()[0];
@@ -504,9 +520,9 @@ public class MascotStorager extends BasicStorager {
 														prot_id_list.add(proteinID);
 														uniProtCandidates.put(accession, prot_id_list);
 													}
-												}else{
-													System.out.println("Protein-entries not found in section 'proteins', but found in the queryPeptideMap");
-													System.out.println("Problem descriptions " + accession );
+												} else {
+													System.out.println("Protein-entries not found in 'proteins' section, but found in the 'queryPeptideMap'");
+													System.out.println("Protein Accession: " + accession );
 												}
 
 											}
@@ -515,8 +531,9 @@ public class MascotStorager extends BasicStorager {
 											// finally we submit the mascothit
 											this.storeMascotHit(searchspectrumID, peptideID, proteinID, current_query, current_pephit);
 
-										} else {System.out.println("A not stored hit");}
-
+										} else {
+											System.out.println("Protein hit for " + pep_sequence + " not stored");
+										}
 									}
 									// finally commit data, is done once for every query
 									conn.commit();
@@ -526,14 +543,14 @@ public class MascotStorager extends BasicStorager {
 					}
 				}
 			}
-			datreader.close();		    
+			datreader.close();	    
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-
 		// final commit can probably go
 		conn.commit();
+//		conn.setAutoCommit(true);
 		
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		// this part of the code remained unchanged

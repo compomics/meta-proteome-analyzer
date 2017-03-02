@@ -49,6 +49,7 @@ public class Starter {
 	/**
 	 * Flag denoting whether the application is in jar export mode.
 	 */
+	@Deprecated
 	private static boolean jarExport = true;
 
 	/**
@@ -74,11 +75,7 @@ public class Starter {
 		try {
 			// Read theme configuration files
 			File themesFolder;
-			if (isJarExport()) {
-				themesFolder = new File(Constants.THEME_FOLDER_JAR);
-			} else {
-				themesFolder = new File(Constants.THEME_FOLDER);
-			}
+			themesFolder = new File(Constants.THEME_FOLDER_JAR);
 			
 			List<UITheme> themes = new ArrayList<UITheme>();
 			UITheme defaultTheme = null;
@@ -229,10 +226,12 @@ public class Starter {
 		path = path.replace("%5d", "]");
 		return path;
 	}
+	
 	/**
 	 * Checks whether the application is a jar export or not.
 	 * @return <code>true</code> if the application is being exported as jar, otherwise <code>false</code>.
 	 */
+	@Deprecated
 	public static boolean isJarExport() {
 		return jarExport;
 	}

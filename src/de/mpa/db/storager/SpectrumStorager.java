@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import de.mpa.client.Client;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
@@ -84,6 +85,10 @@ public class SpectrumStorager extends BasicStorager {
     public void store() throws IOException, SQLException {
         // Get all spectra from the reader.
         spectra = reader.getSpectrumFiles();
+        // reopen connection
+        if (conn.isClosed()) {
+        	conn = Client.getInstance().getConnection();
+        }
         // Init cache maps.
         title2SearchIdMap = new HashMap<String, Long>();
         fileName2IdMap = new HashMap<String, Long>();

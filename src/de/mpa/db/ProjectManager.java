@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.thoughtworks.xstream.XStream;
 
 import de.mpa.client.Client;
@@ -375,6 +376,7 @@ public class ProjectManager {
 				  "FROM mascothit m, searchspectrum s " +
 				  "WHERE m.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = "+ experimentId);
+		conn.commit();
 		
 		client.firePropertyChange("new message", null, "DELETE OMSSAHITS");
 		client.firePropertyChange("progressmade", true, false);
@@ -384,6 +386,7 @@ public class ProjectManager {
 				  "FROM omssahit o, searchspectrum s " +
 				  "WHERE o.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = " + experimentId);
+		conn.commit();
 
 		client.firePropertyChange("new message", null, "DELETE XTANDEMHITS");
 		client.firePropertyChange("progressmade", true, false);
@@ -393,27 +396,31 @@ public class ProjectManager {
 				  "FROM xtandemhit x, searchspectrum s " +
 				  "WHERE x.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = " + experimentId);
-    	
+		conn.commit();
+
+		// delete spec2pep, if spectrum is not found in searchspectrumtable
+		stmt.executeUpdate("DELETE spec2pep.* FROM spec2pep " +
+							"WHERE spec2pep.fk_spectrumid NOT IN " +
+							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum)");
+		conn.commit();
+		client.firePropertyChange("progressmade", true, false);
+
+		
 		client.firePropertyChange("new message", null, "DELETE MASSSPECTRA");
 		client.firePropertyChange("progressmade", true, false);
 				
-    	// delete searchspectra, spec2pep and spectra    	
-		stmt.executeUpdate("DELETE sp.* FROM searchspectrum s " +
-				  "LEFT JOIN spectrum spec ON spec.spectrumid=s.fk_spectrumid " +
-				  "LEFT JOIN spec2pep sp ON sp.fk_spectrumid=spec.spectrumid " +
-				  "WHERE s.fk_experimentid = " + experimentId);
+    	// delete searchspectra     	
+		stmt.executeUpdate("DELETE FROM searchspectrum " +
+				  			"WHERE searchspectrum.fk_experimentid = " + experimentId);
+		conn.commit();
 		
+		// Delete all rows from spectrum which do not occur in searchspectrum.fk_spectrumid 
+		stmt.executeUpdate("DELETE FROM spectrum " +
+							"WHERE spectrum.spectrumid NOT IN " +
+							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum)");
+		conn.commit();
 		client.firePropertyChange("progressmade", true, false);
-		
-		stmt.executeUpdate("DELETE s.*, spec.*  FROM searchspectrum s " +
-				  "LEFT JOIN spectrum spec ON spec.spectrumid=s.fk_spectrumid " +
-				  "LEFT JOIN spec2pep sp ON sp.fk_spectrumid=spec.spectrumid " +
-				  "WHERE s.fk_experimentid = " + experimentId);
-		
 				
-		// delete spectra/spec2pep and database cleanup
-		//this.RemoveOrphanedSpectra(client);
-		
 		// delete the experiment itself
 		experiment.delete(conn);
 		conn.commit();
@@ -511,9 +518,9 @@ public class ProjectManager {
 				List<AbstractExperiment> experiments = new ArrayList<>();
 
 				AbstractProject project = new DatabaseProject(projectAcc, projProps, experiments);
-				
 				List<ExperimentAccessor> experimentAccs =
 						ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), conn);
+				
 				for (ExperimentAccessor experimentAcc : experimentAccs) {
 					List<ExpProperty> expProps =
 							ExpProperty.findAllPropertiesOfExperiment(experimentAcc.getExperimentid(), conn);

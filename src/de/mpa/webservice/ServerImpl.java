@@ -125,12 +125,12 @@ public class ServerImpl implements Server {
 			if (dbSearchSettings.getPepDBFlag() && fastaLoader.getPepFile() == null) {
 				PeptideDigester digester = new PeptideDigester();
 				String fasta = fastaLoader.getFile().getAbsolutePath();
-				String [] dbFiles = {fasta};
-				String outFile = fasta.substring(0, fasta.lastIndexOf('.')) + ".pep";
+				String outFile = searchDB + ".pep";
 				// If peptide FASTA is missing create it by Tryptic digestion of protein FASTA
-				digester.createPeptidDB(dbFiles, outFile, 1, 1, 50);
+				digester.createPeptidDB(fasta, outFile, 1, 5, 50);
 				fastaLoader.setPepFile(new File(outFile));
 			}
+			// we need this file ...
 			if (!dbSearchSettings.getPepDBFlag()) {
 				fastaLoader.setPepFile(null);
 			}
@@ -239,8 +239,8 @@ public class ServerImpl implements Server {
 
 	@Override
 	public synchronized void runSearches(SearchSettings settings) {
+		
 		try {
-			
 			runOptions = RunOptions.getInstance();
 			
 			if (!runOptions.hasRunAlready()) {
@@ -279,11 +279,14 @@ public class ServerImpl implements Server {
 					runOptions.setRunCount(1);
 				}
 				jobManager.run();
+				System.out.println();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage(), e.getCause());
 		}
+		
+		
 	}
 
 	/**

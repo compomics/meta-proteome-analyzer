@@ -2240,7 +2240,6 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		protected void done() {
 			// Refresh chart controls
 			HeatMapPane.this.updateChartLayout();
-			
 			HeatMapPane.this.setBusy(false);
 		}
 		

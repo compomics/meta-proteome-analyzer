@@ -51,7 +51,8 @@ public class Constants {
 	/**
 	 * User directory of the MPA
 	 */
-	public static final String DIR = System.getProperty("user.dir");
+//	public static final String DIR = System.getProperty("user.dir");
+	public static final String DIR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH);
 
 	/**
 	 * File separator of the MPA
@@ -87,8 +88,9 @@ public class Constants {
 	 * The application splash screen image
 	 * <img src="../resources/images/mpa.png">
 	 */
-	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP
-			+ "images" + SEP + "mpa.png";
+	public static final String SPLASHSCREEN_IMAGE_LOCATION = DIR + SEP + "metaprot/software/";
+//	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP
+//			+ "images" + SEP + "mpa.png";
 
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter
@@ -125,20 +127,21 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-	public static final String CONFIGURATION_PATH = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
-
-	public static final String CONFIGURATION_DIR_PATH = DIR + SEP + "bin" + SEP + "de" + SEP + "mpa" + SEP + "resources"
-			+ SEP + "conf" + SEP;
+//	public static final String CONFIGURATION_PATH = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
+//	public static final String CONFIGURATION_PATH = DIR + SEP + "software/MPApackage/conf" + SEP;
+//
+//	
+//	public static final String CONFIGURATION_DIR_PATH = System.getProperty("user.dir") + SEP + "bin" + SEP + "de" + SEP + "mpa" + SEP + "resources"
+//			+ SEP + "conf" + SEP;
+	
 
 	/**
 	 * Path string of folder containing configuration resources for the jar
 	 * build.<br>
 	 * <i>conf</i>
 	 */
-	// public static final String CONFIGURATION_PATH_JAR = "conf";
 	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP
-			+ "MPApackage" + SEP + "conf"; // Path for university install
-											// package
+			+ "MPApackage" + SEP + "conf"; 
 
 	/**
 	 * Path string of folder containing spectrum resources.
@@ -164,13 +167,13 @@ public class Constants {
 	 * This constant is used for database backups, the executable file is used
 	 * to run mysql-scripts for restoring databases
 	 */
-	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "dump_database.sh";
+	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "dump_database.sh";
 
 	/**
 	 * This constant is used for database backups, the Sql-Query file is run by
 	 * the sh script DB_DUMPER_SH_PATH
 	 */
-	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "dump_database.sql";
+	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "dump_database.sql";
 
 	/**
 	 * Map of KEGG Orthology tree leaves.
@@ -217,16 +220,12 @@ public class Constants {
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB = winOS
-			? (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta")
-			: (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta");
+	public static final String BLAST_UNIPROT_DB = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta";
 
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = winOS
-			? (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp")
-			: (PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp");
+	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp";
 
 	/**
 	 * File for a dummy fasta for each BLAST query
@@ -263,11 +262,7 @@ public class Constants {
 	 *             if the file could not be found
 	 */
 	public static File getUserQueriesFile() throws URISyntaxException {
-		if (Starter.isJarExport()) {
-			return new File(Constants.CONFIGURATION_PATH_JAR + File.separator + "userqueries.xml");
-		} else {
-			return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH + "userqueries.xml").toURI());
-		}
+		return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
 	}
 
 	/**
@@ -279,16 +274,12 @@ public class Constants {
 	 */
 	public static File getProjectsFile() throws Exception {
 		File projectsFile;
-		if (Starter.isJarExport()) {
-			projectsFile = new File(Constants.CONFIGURATION_PATH_JAR + SEP + "projects.xml");
+		URL resource = Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR + "projects.xml");
+		if (resource != null) {
+			projectsFile = new File(resource.toURI());
 		} else {
-			URL resource = Constants.class.getResource(Constants.CONFIGURATION_PATH + "projects.xml");
-			if (resource != null) {
-				projectsFile = new File(resource.toURI());
-			} else {
-				File confFolder = new File(Constants.class.getResource(Constants.CONFIGURATION_PATH).toURI());
-				projectsFile = new File(confFolder, "projects.xml");
-			}
+			File confFolder = new File(Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR).toURI());
+			projectsFile = new File(confFolder, "projects.xml");
 		}
 		if (!projectsFile.exists()) {
 			// create new projects file
@@ -486,7 +477,7 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER = Constants.CONFIGURATION_DIR_PATH + "themes";
+//	public static final String THEME_FOLDER = Constants.CONFIGURATION_DIR_PATH + "themes";
 
 	/**
 	 * The folder containing theme files.

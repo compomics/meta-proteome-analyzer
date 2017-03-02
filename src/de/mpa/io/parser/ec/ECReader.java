@@ -259,11 +259,7 @@ public class ECReader {
 		String path = null;
 		Reader in;
 		
-		if (Starter.isJarExport()) {
-			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzclass.txt";
-		} else {
-			path = Constants.CONFIGURATION_DIR_PATH + "enzclass.txt";
-		}
+		path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzclass.txt";
 		
 		
 		try {
@@ -321,19 +317,15 @@ public class ECReader {
 		Reader in;
 		String path = null;
 		
-		if (Starter.isJarExport()) {
-			path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzyme.dat";
-		} else {
-			path = Constants.CONFIGURATION_DIR_PATH + "enzyme.dat";
+		path = "" + Constants.CONFIGURATION_PATH_JAR + Constants.SEP + "enzyme.dat";
+		
+		try {
+			in = new FileReader(new File(path));
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+			return;
 		}
-		
-			try {
-				in = new FileReader(new File(path));
-			} catch (FileNotFoundException e) {
-				System.err.println(e.getMessage());
-				return;
-			}
-		
+
 		try (BufferedReader br = new BufferedReader(in)) {
 			String id = null;
 			String desc = null;

@@ -21,18 +21,22 @@ public abstract class ScoreExtractor {
 	 * @param decoyFile
 	 */
 	public ScoreExtractor(File targetFile, File decoyFile) {
-		this.targetFile = targetFile;
-		this.decoyFile = decoyFile;
-		load();
-		if (decoyFile != null) {
-			extract();
-			this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
-			this.decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
-			write(targetOutput, decoyOutput);
+		if (targetFile.exists()) {
+			this.targetFile = targetFile;
+			this.decoyFile = decoyFile;
+			load();
+			if (decoyFile != null) {
+				extract();
+				this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+				this.decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
+				write(targetOutput, decoyOutput);
+			} else {
+				extractTargetOnly();
+				this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+				writeTargetOnly(targetOutput);
+			}
 		} else {
-			extractTargetOnly();
-			this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
-			writeTargetOnly(targetOutput);
+			System.out.println("No X!Tandem results");
 		}
 	}	
 		

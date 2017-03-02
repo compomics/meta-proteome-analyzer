@@ -36,12 +36,15 @@ public class XTandemScoreJob extends Job {
 	 * Initalize the job.
 	 */
 	public void run() {
-		// Extract the scores for X!Tandem target and decoy search
-		XTandemScoreExtractor xTandemExtractor = new XTandemScoreExtractor(new File(targetFile), new File(decoyFile));
-		
-		// Executes QVality
-		QvalityJob xTandemQVality = new QvalityJob(xTandemExtractor.getTargetOutput(), xTandemExtractor.getDecoyOutput(), false);
-		xTandemQVality.run();
+		// check if xtandem wrote a file or not 
+		if (new File(targetFile).exists()) {
+			// Extract the scores for X!Tandem target and decoy search
+			XTandemScoreExtractor xTandemExtractor = new XTandemScoreExtractor(new File(targetFile), new File(decoyFile));
+
+			// Executes QVality
+			QvalityJob xTandemQVality = new QvalityJob(xTandemExtractor.getTargetOutput(), xTandemExtractor.getDecoyOutput(), false);
+			xTandemQVality.run();
+		}
 	}
 	
 

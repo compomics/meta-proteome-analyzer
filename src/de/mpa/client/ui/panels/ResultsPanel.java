@@ -395,7 +395,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new FetchResultsTask(null).execute();
+				LinkedList<Long> expList = new LinkedList<Long>();
+				expList.add(ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+				new FetchResultsTask(expList, false).execute();
 			}
 		});
 
@@ -412,7 +414,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				expList = SelectExperimentDialog.showDialog(ClientFrame.getInstance(), "Select experiments");
 				// Fetches experiments
 				if (!(expList.isEmpty())) {
-					new FetchResultsTask(expList).execute();
+					new FetchResultsTask(expList, true).execute();
 				}
 			}
 		});
@@ -976,17 +978,24 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @author A. Behne, R. Heyer
 	 */
 	private class FetchResultsTask extends SwingWorker<Integer, Object> {
+		
 		/**
 		 * The list of experiments
 		 */
-		private  LinkedList<Long> experimentList;
+		private LinkedList<Long> experimentList;
+		
+		/**
+		 * Denotes if single or multiple experiments  
+		 */
+		private boolean multi_exp;
 
 		/**
 		 * Constructor for the FetchResultTask. The experiment list ask which experiments 
 		 * should be fetched. If not given it uses the selected experiment into the project panel/ 
 		 * @param experimentList. the list of experiment titles
 		 */
-		public FetchResultsTask(LinkedList<Long> experimentList) {
+		public FetchResultsTask(LinkedList<Long> experimentList, boolean multi) {
+			multi_exp = multi;
 			this.experimentList = experimentList;
 		}
 
@@ -1013,24 +1022,26 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.gdbPnl.setBusy(true);
 
 				// Fetch the search result object
-				if (experimentList == null || experimentList.size() < 1) {
-					// No experiment list selected
-					newResult = client.getDatabaseSearchResult();
+				if (!multi_exp) {
+					// No experiment list selected, get single experiment from client
+					newResult = client.getSingleSearchResult();
 				} else {
 					// Fetch all experiments from the list
 					// FIXME processing multiple experiments may result in metaproteins not being formed
 					//		 in that case rerun the processing and it should work
 					newResult = client.getMultipleSearchResults(experimentList);
 				}
-
-				// Make a dump ( :) ) if the result object is new 
+				// --> this is obsolete? 
 				if (newResult != null) {
-					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
-						// Update result object reference
-						ResultsPanel.this.dbSearchResult = newResult;
-						client.dumpBackupDatabaseSearchResult();
-					}
+					// remove this check --> leads to problems based on searchresult-Name
+//					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
+					// Update result object reference
+					ResultsPanel.this.dbSearchResult = newResult;
+					client.dumpBackupDatabaseSearchResult();
+//					}
 				}
+				client.firePropertyChange("indeterminate", true, false);
+				
 				return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -1052,7 +1063,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-
 			// If new results have been fetched...
 			if (res == 1) {
 				// Update overview panel
@@ -1067,7 +1077,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				ResultsPanel.this.gdbPnl.setBusy(false);
 				ResultsPanel.this.heatMapPn.setBusy(false);
 			}
-
 			// Enable 'Export' menu
 			ClientFrameMenuBar menuBar =
 					(ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
@@ -1132,7 +1141,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		@Override
 		protected Integer doInBackground() {
 			Thread.currentThread().setName("UpdateOverviewThread");
-
+			
 			if (dbSearchResult != null) {
 				try {
 					Set<String> speciesNames = new HashSet<>();
@@ -1187,13 +1196,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 					// Refresh heat map
 					heatMapPn.updateData(dbSearchResult);
-
+					
 					return 1;
+					
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
 							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 				}
-			}
+			} 
 			return 0;
 		}
 
@@ -1207,14 +1217,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-
 			// If new results have been fetched...
 			if (res == 1) {
 				// Enable chart panel and heat map
 				chartPane.setEnabled(true);
 				heatMapPn.setEnabled(true);
 			}
-
 			// Stop appearing busy
 			ResultsPanel.this.setBusy(false);
 		}

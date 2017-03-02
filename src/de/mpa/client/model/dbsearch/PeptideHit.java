@@ -270,6 +270,13 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.experimentIDs.addAll(experimentIDs);
 	}
 	
+	/**
+	 * Adds a single ID of an experiment which contain this peptide.
+	 */
+	public void addExperimentID(Long experimentID) {
+		this.experimentIDs.add(experimentID);
+	}
+	
 	@Override
 	public boolean isSelected() {
 		return selected;

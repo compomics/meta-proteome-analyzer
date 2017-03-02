@@ -48,10 +48,10 @@ public class TestTrypticDigest {
 	public void testDBcreation() {
 		
 		PeptideDigester digester = new PeptideDigester();
-		String [] dbFiles = {"/scratch/metaprot/data/fasta/DatabaseKay.fasta"};
+		String dbFile = "/scratch/metaprot/data/fasta/DatabaseKay.fasta";
 		String outFile = "/scratch/metaprot/data/fasta/DatabaseKay.pep";
 		
-		digester.createPeptidDB(dbFiles, outFile, 1, 1, 50);		
+		digester.createPeptidDB(dbFile, outFile, 1, 1, 50);		
 				
 	}
 	

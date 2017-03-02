@@ -175,16 +175,18 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		InputStream input = null;
 		try {
 			if (Starter.isJarExport()) {
-				input = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "client-settings.txt");
+				input = new FileInputStream(PropertyLoader.getProperty("base_path") + PropertyLoader.getProperty("path.fasta") + File.separator + PropertyLoader.getProperty("file.fastalist"));
+//				input = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "client-settings.txt");
 			} else {
-				input = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "client-settings.txt");
+				System.out.println("Turn on Jar-Export / Deprecated 'feature'");
+//				input = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "client-settings.txt");
 			}
 			prop.load(input);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
-		String[] items = PropertyLoader.getProperty(PropertyLoader.FILES_FASTA).split(",");
+		String[] items = prop.get("files.fasta").toString().split(",");
+//		String[] items = PropertyLoader.getProperty(PropertyLoader.FILES_FASTA).split(",");
 		
 		// FASTA file ComboBox
 		fastaFileCbx = new JComboBox<String>(items);
@@ -193,7 +195,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protDatabasePnl.add(new JLabel("FASTA File:"), CC.xy(2, 2));
 		protDatabasePnl.add(fastaFileCbx, CC.xy(4, 2));
 		
-		// General Settings Panel
+		// General Settings Panel 
 		final JPanel paramsPnl = new JPanel();
 		paramsPnl.setLayout(new FormLayout(
 				"5dlu, p, 5dlu, p:g, 5dlu, p, 2dlu, p, 5dlu",
@@ -201,10 +203,11 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		paramsPnl.setBorder(new ComponentTitledBorder(new JLabel("General Settings"), paramsPnl));
 
 		// Precursor ion tolerance Spinner
-		precTolSpn = new JSpinner(new SpinnerNumberModel(1.0, 0.0, null, 0.1));
+		precTolSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
 		precTolSpn.setEditor(new JSpinner.NumberEditor(precTolSpn, "0.00"));
 		precTolSpn.setToolTipText("The precursor mass tolerance.");
 		precTolCbx = new JComboBox<String>(Constants.TOLERANCE_UNITS);
+		precTolCbx.setSelectedItem(Constants.TOLERANCE_UNITS[1]); // select ppm
 
 		// Fragment ion tolerance Spinner
 		fragTolSpn = new JSpinner(new SpinnerNumberModel(0.5, 0.0, null, 0.1));

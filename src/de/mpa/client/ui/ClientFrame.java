@@ -137,6 +137,12 @@ public class ClientFrame extends JFrame {
 		return frame;
 	}
 	
+	public void restart() {
+		this.dispose();
+		frame = null;
+		ClientFrame.getInstance();
+	}
+
 	/**
 	 * Creates the main application frame using the specified viewer and debug flags.
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
@@ -210,7 +216,7 @@ public class ClientFrame extends JFrame {
 			tabPane.getTabComponentAt(i).setPreferredSize(new Dimension(maxWidth, maxHeight));
 		}
 		
-		// Add discreet little bevel border
+		// Add discrete little bevel border
 		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
 		for (int i = INDEX_INPUT_PANEL; i < INDEX_LOGGING_PANEL; i++) {
@@ -229,6 +235,19 @@ public class ClientFrame extends JFrame {
 		this.pack();
 		ScreenConfig.centerInScreen(this);
 		this.setVisible(true);
+		
+		// connect to server
+		try {
+			Client.getInstance().connectToServer();
+		} catch (Exception e1) {
+			try {
+				Thread.sleep(1000);
+				Client.getInstance().connectToServer();
+			} catch (Exception e2) {
+				e1.printStackTrace();
+				e2.printStackTrace();
+			}
+		}
 	}
 
 	/**

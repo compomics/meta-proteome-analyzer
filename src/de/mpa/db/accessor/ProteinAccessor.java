@@ -395,10 +395,12 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @throws SQLException when the persistence did not succeed.
 	 * 
 	 */
-	public static TreeMap<String, Long> addMutlipleProteinsToDatabase(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException{
-		TreeMap<String, Long > accession2idMap = new TreeMap<String, Long>();
+	public static void addMutlipleProteinsToDatabase(ArrayList<DigFASTAEntry> fastaEntryList, Connection conn) throws SQLException{
+		
+//		TreeMap<String, Long > accession2idMap = new TreeMap<String, Long>();
+		
 		// Create a sql statement
-		PreparedStatement lStat = conn.prepareStatement("INSERT INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement lStat = conn.prepareStatement("INSERT IGNORE INTO protein (proteinid, accession, description, sequence, fk_uniprotentryid, source, creationdate, modificationdate) values(?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 
 		// Get iterator for the FASTA entries
 		Iterator<DigFASTAEntry> protIter2 = fastaEntryList.iterator();		
@@ -437,13 +439,40 @@ public class ProteinAccessor extends ProteinTableAccessor {
 			}
 			lStat.addBatch();;
 			lStat.executeBatch();
-			ResultSet lrsKeys = lStat.getGeneratedKeys();
-			lrsKeys.next();
-			Long proteinid = lrsKeys.getLong(1);
-			if (lrsKeys.next()) {System.err.println("Too many keys for protein: " + proteinid);}
-			accession2idMap.put(fastaEntry.getIdentifier(), proteinid);
 		}
-		return accession2idMap;
+	} 
+	 
+	
+	// super slow method for checking if accession is available
+	public static boolean isInDB(String accession, Connection conn) throws SQLException {
+		PreparedStatement lStat = conn.prepareStatement("SELECT COUNT(*) FROM protein WHERE protein.accession LIKE ?");
+		lStat.setString(1, accession);
+		ResultSet result = lStat.executeQuery();
+		result.next();
+		int count = result.getInt(1);
+		if (count == 1) {
+			System.out.println("True");
+			return true;
+		} else if (count == 0) {
+			System.out.println("False");
+			return false;
+		} else {
+			System.out.println("terrible error of death");
+			return true;	
+		}
+	}
+	
+	public static ArrayList<Long> find_uniprot_proteins_without_upentry(Connection conn) throws SQLException {
+		ArrayList<Long> protein_ids = new ArrayList<Long>();
+		PreparedStatement ps = conn.prepareStatement("SELECT protein.proteinid FROM protein "
+				+ "WHERE protein.fk_uniprotentryid = ? AND protein.source = ?");
+		ps.setLong(1, -1L);
+		ps.setString(2, DigFASTAEntry.Type.UNIPROTSPROT.toString());
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			protein_ids.add(rs.getLong("protein.proteinid"));
+		}
+		return protein_ids;
 	}
 }
 

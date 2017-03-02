@@ -193,6 +193,13 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public void addExperimentIDs(Set<Long> experimentIDs) {
 		this.experimentIDs.addAll(experimentIDs);
 	}
+	
+	/**
+	 * Adds a single ID of the experiment which contains this spectrum.
+	 */
+	public void addExperimentID(Long experimentID) {
+		this.experimentIDs.add(experimentID);
+	}
 
 	@Override
 	public boolean isSelected() {
