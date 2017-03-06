@@ -7,6 +7,7 @@
   * [Command Line Usage](#command-line-usage)
   * [Features](#features)
   * [System Requirements](#system-requirements)
+  * [Conda Package](#conda-package)
   * [MPA GUI Startup](#mpa-gui-startup)
 
 ---
@@ -47,6 +48,7 @@
 ## MPA Portable ##
 
 **MPA Portable** is a light-weight and stand-alone software for the identification of proteins and in-depth analysis of metaproteomics (and also proteomics) data. The MPA software currently supports the database search engines [Comet](http://comet-ms.sourceforge.net/), [MS-GF+](https://bix-lab.ucsd.edu/pages/viewpage.action?pageId=13533355) and [X!Tandem](http://www.thegpm.org/tandem/) taking MGF spectrum files as input data. User-provided FASTA databases (preferably downloaded from UniProtKB) are formatted automatically.
+
 *Please note:* MPA Portable can be run directly on your desktop PC or laptop and no separate installation is needed: just double-click the provided JAR file or use the provided batch file (see below on this page). Otherwise, you can use the command line interface ([MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI)).
 
 ---
@@ -86,6 +88,14 @@ java –version
 
 If you haven't installed Java 1.8, please go directly to
 [Java.com](http://www.java.com/download/) to download the latest Java version.
+
+---
+
+## Conda Package ##
+MPA Portable can installed directly as Miniconda(https://conda.io/miniconda.html) package from the bioconda channel:
+```
+conda install mpa-portable -c bioconda 
+```
 
 ---
 
