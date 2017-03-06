@@ -92,7 +92,7 @@ If you haven't installed Java 1.8, please go directly to
 ---
 
 ## Conda Package ##
-MPA Portable can installed directly as Miniconda(https://conda.io/miniconda.html) package from the bioconda channel:
+MPA Portable can installed directly as [Miniconda](https://conda.io/miniconda.html) package from the bioconda channel:
 ```
 conda install mpa-portable -c bioconda 
 ```
