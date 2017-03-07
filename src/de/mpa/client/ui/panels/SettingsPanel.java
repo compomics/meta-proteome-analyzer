@@ -183,7 +183,6 @@ public class SettingsPanel extends JPanel {
 				fc.setMultiSelectionEnabled(true);
 				int result = fc.showOpenDialog(ClientFrame.getInstance());
 				if (result == JFileChooser.APPROVE_OPTION) {
-					System.out.println("Test");
 					File[] selectedFiles = fc.getSelectedFiles();
 					// reset progress
 					Client client = Client.getInstance();
@@ -435,7 +434,6 @@ public class SettingsPanel extends JPanel {
 						client.firePropertyChange("indeterminate", false, true);
 						client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
 						MascotGenericFileReader reader = new MascotGenericFileReader(fileEntry.getValue(), LoadMode.SURVEY);
-						System.out.println("File read " + fileEntry.getValue());
 						client.firePropertyChange("indeterminate", true, false);
 						client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
 						List<Long> positions = reader.getSpectrumPositions(false);

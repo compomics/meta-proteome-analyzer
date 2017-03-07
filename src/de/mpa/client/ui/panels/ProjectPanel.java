@@ -579,11 +579,23 @@ public class ProjectPanel extends JPanel {
 					selRow = experimentTbl.convertRowIndexToModel(selRow);
 					selectedExperiment = (AbstractExperiment) experimentTbl.getModel().getValueAt(selRow, -1);
 				}
-				
+				// no project selecter => not allowed
 				if (selectedProject == null) {
+					// select the correct project (in the model)
 					selectedProject = selectedExperiment.getProject();
 				}
-				
+				// if no project is selected (in the table itself)
+				if (projectTbl.getSelectedRow() == -1) {
+					// find the row of current project (by ID)
+					for (int i = 0; i < projectTbl.getRowCount(); i++) {
+						if (projectTbl.getModel().getValueAt(i, 0) == selectedProject.getID()) {
+							// change row
+							projectTbl.changeSelection(i, 0, false, false);							
+						}
+					}
+				}
+				// update UI
+				projectTbl.repaint();
 				this.updateComponents();
 			}
 

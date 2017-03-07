@@ -356,8 +356,8 @@ public class ProjectManager {
 		client.firePropertyChange("indeterminate", false, true);
 		client.firePropertyChange("new message", null, "DELETE EXPERIMENT");    	
 		client.firePropertyChange("indeterminate", true, false);
-		client.firePropertyChange("resetall", 0L, 6);
-		client.firePropertyChange("resetcur", 0L, 6);
+		client.firePropertyChange("resetall", 0L, 7);
+		client.firePropertyChange("resetcur", 0L, 7);
 		
 		// delete all properties of the experiment
 		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
@@ -397,25 +397,30 @@ public class ProjectManager {
 				  "WHERE x.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = " + experimentId);
 		conn.commit();
-
-		// delete spec2pep, if spectrum is not found in searchspectrumtable
-		stmt.executeUpdate("DELETE spec2pep.* FROM spec2pep " +
-							"WHERE spec2pep.fk_spectrumid NOT IN " +
-							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum)");
-		conn.commit();
-		client.firePropertyChange("progressmade", true, false);
-
 		
-		client.firePropertyChange("new message", null, "DELETE MASSSPECTRA");
+		client.firePropertyChange("new message", null, "DELETE REFERENCES");
 		client.firePropertyChange("progressmade", true, false);
-				
+
+//		// delete spec2pep
+//		stmt.executeUpdate("DELETE s2p.* FROM spec2pep s2p " +
+//							"WHERE s2p.fk_spectrumid IN " +
+//							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum " +
+//							"WHERE searchspectrum.fk_experimentid = " + experimentId + ")");
+//		conn.commit();
+		
     	// delete searchspectra     	
 		stmt.executeUpdate("DELETE FROM searchspectrum " +
 				  			"WHERE searchspectrum.fk_experimentid = " + experimentId);
 		conn.commit();
 		
+		client.firePropertyChange("progressmade", true, false);
+		
+		client.firePropertyChange("new message", null, "DELETE MASSSPECTRA");
+		client.firePropertyChange("progressmade", true, false);
+		
 		// Delete all rows from spectrum which do not occur in searchspectrum.fk_spectrumid 
-		stmt.executeUpdate("DELETE FROM spectrum " +
+		stmt.executeUpdate("DELETE spec2pep.*, spectrum.* FROM spectrum " +
+							"INNER JOIN spec2pep ON spec2pep.fk_spectrumid = spectrum.spectrumid " +
 							"WHERE spectrum.spectrumid NOT IN " +
 							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum)");
 		conn.commit();
