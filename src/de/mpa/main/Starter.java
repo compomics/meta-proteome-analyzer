@@ -161,7 +161,7 @@ public class Starter {
 	 * 
 	 * @param args
 	 */
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		
 		// Lock file instance.
 		boolean unlocked = false;

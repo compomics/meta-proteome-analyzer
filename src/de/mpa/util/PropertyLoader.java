@@ -68,7 +68,11 @@ public class PropertyLoader {
 	static {
 		// load the property file
 		File propFile = new File("./config.properties");
-		System.out.println(propFile.getAbsolutePath());
+
+
+		if(System.getProperty("os.name").toLowerCase().indexOf("win")!=-1)
+			propFile = new File("./config.properties");
+		//System.out.println(propFile.getAbsolutePath());
 		// error and exit if not found
 		if (!propFile.exists()) {
 			System.err

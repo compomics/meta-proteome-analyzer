@@ -378,6 +378,7 @@ public class ResultExporter {
 		for (ExportHeader exportHeader : exportHeaders) {
 			if(exportHeader.getType() == ExportHeaderType.PEPTIDES) {
 				hasFeature[exportHeader.getId() - 1] = true;
+				// Holy Shit
 				if (exportHeader.getId() < 4 || exportHeader.getId() > 5){
 					writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 				}

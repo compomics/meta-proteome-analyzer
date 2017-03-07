@@ -32,7 +32,7 @@ public class DBDumper {
 
 	/**
 	 * Method to dump the database
-	 * @param filePath. The file for the dump
+	 * @param filePath The file for the dump
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -87,7 +87,7 @@ public class DBDumper {
 
 	/**
 	 * DROPP the old database and restore the selected one from the back
-	 * @param filePath. The path of the sql backup
+	 * @param filePath The path of the sql backup
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -117,7 +117,8 @@ public class DBDumper {
 		// check operating system
 		boolean winOS = System.getProperty("os.name").startsWith("Windows");
 		if (winOS) {
-			String expectedPath = "\"" + PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_MYSQL) + "\"";
+//			String expectedPath = "\"" + PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_MYSQL) + "\"";
+			String expectedPath =PropertyLoader.getProperty(PropertyLoader.PATH_MYSQL) + "\"";
 			File exe = new File(expectedPath);
 			String run_command = exe + " --user=" + dbUser + " --password=" + dbPass + " mysql < " + Constants.DB_DUMPER_SQL_PATH;
 			Process process = null;
