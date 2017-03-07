@@ -264,6 +264,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							if (protein_mapping.containsKey(accession)) {
 								prot = protein_mapping.get(accession);
 								prot.addPeptideHit(pephit);
+								// counts peptide hits twice per peptide
 								prot.getMetaProteinHit().addPeptideHit(pephit);
 								// add required data to protein
 								// sequence, uniprotentry, taxonomy

@@ -488,7 +488,9 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 */
 	public void addPeptideHit(PeptideHit peptidehit) {
 		peptideHits.put(peptidehit.getSequence(), peptidehit);
-		peptidehit.addProteinHit(this);
+		if (!(this instanceof MetaProteinHit)) {
+			peptidehit.addProteinHit(this);
+		}
 	}
 	
 //	/**

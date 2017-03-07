@@ -328,6 +328,7 @@ public class DatabaseExperiment extends AbstractExperiment {
 	 *  
 	 */ 
 	@Override
+	@Deprecated
 	public DbSearchResult getSearchResult() {
 		// call for data retrieval by view
 		this.getSearchResultByView();

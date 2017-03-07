@@ -90,7 +90,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.spectrumMatches = new HashMap<String, SpectrumMatch>();
 		this.experimentIDs = new HashSet<Long>();
-		this.proteinHits = new ArrayList<ProteinHit>();
+//		this.proteinHits = new ArrayList<ProteinHit>();
 		addSpectrumMatch(sequence, spectrumMatch);
 	}
 
