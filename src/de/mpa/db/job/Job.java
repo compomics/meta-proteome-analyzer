@@ -101,17 +101,18 @@ public abstract class Job implements Executable {
 		}
 		scan.close();
 
-		try {
-			proc.waitFor();
-			done();
-		} catch (InterruptedException e) {
-			setError(e);
-			e.printStackTrace();
-			if (proc != null) {
-				log.error("SUBPROCESS KILLED!");
-				proc.destroy();
-			}
-		}		
+//		try {
+//			proc.waitFor();
+//			done();
+//		} catch (InterruptedException e) {
+//			setError(e);
+//			e.printStackTrace();
+//			if (proc != null) {
+//				log.error("SUBPROCESS KILLED!");
+//				proc.destroy();
+//			}
+//		}		
+		done();
 	}
 	
 	/**
