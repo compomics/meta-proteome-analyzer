@@ -7,7 +7,7 @@ public class ServerClientStart {
 	/**
 	 * Main method, starts the application
 	 * 
-	 * new OmssaStorager
+	 * 
 	 *  
 	 * @author K.Schallert, rzoun
 	 * @param args
