@@ -260,7 +260,7 @@ public class ServerImpl implements Server {
 					
 					// Repair spectra
 //					repairSpectra(file, dbManager.getConnection());
-
+					
                     this.dbManager.storeSpectra(file, settings.getExpID());
 
 					// Add search jobs to job manager queue
@@ -275,11 +275,9 @@ public class ServerImpl implements Server {
                     this.jobManager.run();
 
                     this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
-					i++;
-                    this.runOptions.setRunCount(1);
+                    this.runOptions.setRunCount(i);
 				}
                 this.jobManager.run();
-				System.out.println();
 //			}
 		} catch (Exception e) {
 			e.printStackTrace();
