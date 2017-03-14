@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +38,12 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'propertyid' column.
@@ -59,25 +60,25 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'name' column.
 	 */
-	protected String iName = null;
+	protected String iName;
 
 
 	/**
 	 * This variable represents the contents for the 'value' column.
 	 */
-	protected String iValue = null;
+	protected String iValue;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -126,25 +127,25 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public PropertyTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(PROPERTYID)) {
-			this.iPropertyid = ((Long)aParams.get(PROPERTYID)).longValue();
+		if(aParams.containsKey(PropertyTableAccessor.PROPERTYID)) {
+            iPropertyid = ((Long)aParams.get(PropertyTableAccessor.PROPERTYID)).longValue();
 		}
-		if(aParams.containsKey(FK_PROJECTID)) {
-			this.iFk_projectid = ((Long)aParams.get(FK_PROJECTID)).longValue();
+		if(aParams.containsKey(PropertyTableAccessor.FK_PROJECTID)) {
+            iFk_projectid = ((Long)aParams.get(PropertyTableAccessor.FK_PROJECTID)).longValue();
 		}
-		if(aParams.containsKey(NAME)) {
-			this.iName = (String)aParams.get(NAME);
+		if(aParams.containsKey(PropertyTableAccessor.NAME)) {
+            iName = (String)aParams.get(PropertyTableAccessor.NAME);
 		}
-		if(aParams.containsKey(VALUE)) {
-			this.iValue = (String)aParams.get(VALUE);
+		if(aParams.containsKey(PropertyTableAccessor.VALUE)) {
+            iValue = (String)aParams.get(PropertyTableAccessor.VALUE);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(PropertyTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(PropertyTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(PropertyTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(PropertyTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -156,14 +157,14 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public PropertyTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iPropertyid = aResultSet.getLong("propertyid");
-		this.iFk_projectid = aResultSet.getLong("fk_projectid");
-		this.iName = (String)aResultSet.getObject("name");
-		this.iValue = (String)aResultSet.getObject("value");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+        iPropertyid = aResultSet.getLong("propertyid");
+        iFk_projectid = aResultSet.getLong("fk_projectid");
+        iName = (String)aResultSet.getObject("name");
+        iValue = (String)aResultSet.getObject("value");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -173,7 +174,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Propertyid column.
 	 */
 	public long getPropertyid() {
-		return this.iPropertyid;
+		return iPropertyid;
 	}
 
 	/**
@@ -182,7 +183,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_projectid column.
 	 */
 	public long getFk_projectid() {
-		return this.iFk_projectid;
+		return iFk_projectid;
 	}
 
 	/**
@@ -191,7 +192,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Name column.
 	 */
 	public String getName() {
-		return this.iName;
+		return iName;
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Value column.
 	 */
 	public String getValue() {
-		return this.iValue;
+		return iValue;
 	}
 
 	/**
@@ -208,8 +209,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -217,8 +218,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -227,8 +228,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPropertyid	long with the value for the Propertyid column.
 	 */
 	public void setPropertyid(long aPropertyid) {
-		this.iPropertyid = aPropertyid;
-		this.iUpdated = true;
+        iPropertyid = aPropertyid;
+        iUpdated = true;
 	}
 
 	/**
@@ -237,8 +238,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_projectid	long with the value for the Fk_projectid column.
 	 */
 	public void setFk_projectid(long aFk_projectid) {
-		this.iFk_projectid = aFk_projectid;
-		this.iUpdated = true;
+        iFk_projectid = aFk_projectid;
+        iUpdated = true;
 	}
 
 	/**
@@ -247,8 +248,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aName	String with the value for the Name column.
 	 */
 	public void setName(String aName) {
-		this.iName = aName;
-		this.iUpdated = true;
+        iName = aName;
+        iUpdated = true;
 	}
 
 	/**
@@ -257,8 +258,8 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aValue	String with the value for the Value column.
 	 */
 	public void setValue(String aValue) {
-		this.iValue = aValue;
-		this.iUpdated = true;
+        iValue = aValue;
+        iUpdated = true;
 	}
 
 	/**
@@ -266,9 +267,9 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -276,9 +277,9 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -291,7 +292,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM property WHERE propertyid = ?");
-		lStat.setLong(1, iPropertyid);
+		lStat.setLong(1, this.iPropertyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -306,24 +307,24 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(PROPERTYID)) {
+		if(!aKeys.containsKey(PropertyTableAccessor.PROPERTYID)) {
 			throw new IllegalArgumentException("Primary key field 'PROPERTYID' is missing in HashMap!");
 		} else {
-			iPropertyid = ((Long)aKeys.get(PROPERTYID)).longValue();
+            this.iPropertyid = ((Long)aKeys.get(PropertyTableAccessor.PROPERTYID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM property WHERE propertyid = ?");
-		lStat.setLong(1, iPropertyid);
+		lStat.setLong(1, this.iPropertyid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iPropertyid = lRS.getLong("propertyid");
-			iFk_projectid = lRS.getLong("fk_projectid");
-			iName = (String)lRS.getObject("name");
-			iValue = (String)lRS.getObject("value");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iPropertyid = lRS.getLong("propertyid");
+            this.iFk_projectid = lRS.getLong("fk_projectid");
+            this.iName = (String)lRS.getObject("name");
+            this.iValue = (String)lRS.getObject("value");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -352,7 +353,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<PropertyTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<PropertyTableAccessor>  entities = new ArrayList<PropertyTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(PropertyTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new PropertyTableAccessor(rs));
 		}
@@ -370,19 +371,19 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE property SET propertyid = ?, fk_projectid = ?, name = ?, value = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE propertyid = ?");
-		lStat.setLong(1, iPropertyid);
-		lStat.setLong(2, iFk_projectid);
-		lStat.setObject(3, iName);
-		lStat.setObject(4, iValue);
-		lStat.setObject(5, iCreationdate);
-		lStat.setLong(6, iPropertyid);
+		lStat.setLong(1, this.iPropertyid);
+		lStat.setLong(2, this.iFk_projectid);
+		lStat.setObject(3, this.iName);
+		lStat.setObject(4, this.iValue);
+		lStat.setObject(5, this.iCreationdate);
+		lStat.setLong(6, this.iPropertyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -395,25 +396,25 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO property (propertyid, fk_projectid, name, value, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iPropertyid == Long.MIN_VALUE) {
+		if(this.iPropertyid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iPropertyid);
+			lStat.setLong(1, this.iPropertyid);
 		}
-		if(iFk_projectid == Long.MIN_VALUE) {
+		if(this.iFk_projectid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_projectid);
+			lStat.setLong(2, this.iFk_projectid);
 		}
-		if(iName == null) {
+		if(this.iName == null) {
 			lStat.setNull(3, 12);
 		} else {
-			lStat.setObject(3, iName);
+			lStat.setObject(3, this.iName);
 		}
-		if(iValue == null) {
+		if(this.iValue == null) {
 			lStat.setNull(4, 12);
 		} else {
-			lStat.setObject(4, iValue);
+			lStat.setObject(4, this.iValue);
 		}
 		int result = lStat.executeUpdate();
 
@@ -421,22 +422,22 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iPropertyid = ((Number) iKeys[0]).longValue();
+            this.iPropertyid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -447,7 +448,7 @@ public class PropertyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

@@ -8,18 +8,18 @@ import com.tinkerpop.frames.VertexFrame;
 public interface Pathway extends VertexFrame {
 	
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("DESCRIPTION")
-	public String getDescription();
+    String getDescription();
 	
 	@Property("PATHWAYID")
-	public String getPathwayID();
+    String getPathwayID();
 	
 	@Adjacency(label="BELONGS_TO_PATHWAY", direction=Direction.IN)
-	public Iterable<Protein> getProteins();
+    Iterable<Protein> getProteins();
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 
 }

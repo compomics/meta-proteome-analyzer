@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import de.mpa.analysis.taxonomy.Taxonomic;
@@ -27,7 +26,7 @@ public class MetaProteinHit extends ProteinHit {
 	/**
 	 * The protein hit list of this meta-protein.
 	 */
-	private Map<String, ProteinHit> proteinHits;
+	private final Map<String, ProteinHit> proteinHits;
 	
 	/**
 	 * The visible protein hit list of this meta-protein.
@@ -43,12 +42,12 @@ public class MetaProteinHit extends ProteinHit {
 	 */
 	public MetaProteinHit(String identifier, ProteinHit ph, UniProtEntryMPA upa) {
 		super(identifier);
-		this.setUniprotEntry(upa);
-		this.setTaxonomyNode(upa.getTaxonomyNode());
-		this.proteinHits = new LinkedHashMap<String, ProteinHit>();
-		this.proteinHits.put(ph.getAccession(), ph);
+        setUniprotEntry(upa);
+        setTaxonomyNode(upa.getTaxonomyNode());
+        proteinHits = new LinkedHashMap<String, ProteinHit>();
+        proteinHits.put(ph.getAccession(), ph);
 		for (PeptideHit pep : ph.getPeptideHitList()) {
-			this.addPeptideHit(pep);
+            addPeptideHit(pep);
 		}
 	}
 
@@ -57,19 +56,19 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein list
 	 */
 	public ProteinHitList getProteinHitList() {
-		if (visProteinHits.isEmpty()) {
-			return new ProteinHitList(proteinHits.values());
+		if (this.visProteinHits.isEmpty()) {
+			return new ProteinHitList(this.proteinHits.values());
 		}
-		return new ProteinHitList(visProteinHits.values());
+		return new ProteinHitList(this.visProteinHits.values());
 	}
 	
 	
 	// TODO: why do we have to methods here?
 	public Map<String, ProteinHit> getProteinHits() {
-		if (visProteinHits.isEmpty()) {
-			return this.proteinHits;
+		if (this.visProteinHits.isEmpty()) {
+			return proteinHits;
 		}
-		return visProteinHits;
+		return this.visProteinHits;
 	}
 	
 	/**
@@ -78,10 +77,10 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein hit
 	 */
 	public ProteinHit getProteinHit(String accession) {
-		if (visProteinHits.isEmpty()) {
-			return proteinHits.get(accession);
+		if (this.visProteinHits.isEmpty()) {
+			return this.proteinHits.get(accession);
 		}
-		return visProteinHits.get(accession);
+		return this.visProteinHits.get(accession);
 	}
 	
 	/**
@@ -89,10 +88,10 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the protein set
 	 */
 	public Set<ProteinHit> getProteinSet() {
-		if (visProteinHits.isEmpty()) {
-			return new HashSet<ProteinHit>(proteinHits.values());
+		if (this.visProteinHits.isEmpty()) {
+			return new HashSet<ProteinHit>(this.proteinHits.values());
 		}
-		return new HashSet<ProteinHit>(visProteinHits.values());
+		return new HashSet<ProteinHit>(this.visProteinHits.values());
 	}
 
 	/**
@@ -106,7 +105,7 @@ public class MetaProteinHit extends ProteinHit {
 		Set<PeptideHit> outSet = new HashSet<PeptideHit>();
 		
 		// Check all peptides whether they are visible (FDR alright or not) 
-		for (PeptideHit pep : getProteinHitList().getPeptideSet()) {
+		for (PeptideHit pep : this.getProteinHitList().getPeptideSet()) {
 			List<SpectrumMatch> matches = pep.getSpectrumMatches();
 			for (SpectrumMatch match : matches) {
 				if (match.isVisible()) {
@@ -124,7 +123,7 @@ public class MetaProteinHit extends ProteinHit {
 	 * @return the spectrum match set
 	 */
 	public Set<SpectrumMatch> getMatchSet() {
-		return getProteinHitList().getMatchSet();
+		return this.getProteinHitList().getMatchSet();
 	}
 
 	/**
@@ -133,7 +132,7 @@ public class MetaProteinHit extends ProteinHit {
 	 */
 	public void addAll(List<ProteinHit> proteinHits) {
 		for (ProteinHit ph : proteinHits) {
-			this.visProteinHits.put(ph.getAccession(), ph);
+            visProteinHits.put(ph.getAccession(), ph);
 			ph.setMetaProteinHit(this);
 		}
 	}
@@ -144,7 +143,7 @@ public class MetaProteinHit extends ProteinHit {
 	 */
 	// TODO: unused method, remove?
 	public boolean isEmpty() {
-		return proteinHits.isEmpty();
+		return this.proteinHits.isEmpty();
 	}
 	
 	/**
@@ -153,30 +152,30 @@ public class MetaProteinHit extends ProteinHit {
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visProteinHits = new LinkedHashMap<String, ProteinHit>();
-		for (Entry<String, ProteinHit> entry : this.proteinHits.entrySet()) {
+        visProteinHits = new LinkedHashMap<String, ProteinHit>();
+		for (Map.Entry<String, ProteinHit> entry : proteinHits.entrySet()) {
 			ProteinHit hit = entry.getValue();
 			hit.setFDR(fdr);
 			if (hit.isVisible()) {
-				this.visProteinHits.put(entry.getKey(), hit);
+                visProteinHits.put(entry.getKey(), hit);
 			}
 		}
 	}
 
 	@Override
 	public boolean isVisible() {
-		return !this.visProteinHits.isEmpty();
+		return !visProteinHits.isEmpty();
 	}
 	
 	@Override
 	public List<? extends Taxonomic> getTaxonomicChildren() {
-		return this.getProteinHitList();
+		return getProteinHitList();
 	}
 	
 	@Override
 	public boolean isSelected() {
 		boolean res = true;
-		for (ProteinHit ph : proteinHits.values()) {
+		for (ProteinHit ph : this.proteinHits.values()) {
 			res &= ph.isSelected();
 			if (!res) {
 				break;
@@ -188,7 +187,7 @@ public class MetaProteinHit extends ProteinHit {
 	@Override
 	public void setSelected(boolean selected) {
 		super.setSelected(selected);
-		for (ProteinHit ph : proteinHits.values()) {
+		for (ProteinHit ph : this.proteinHits.values()) {
 			ph.setSelected(selected);
 		}
 	}
@@ -197,7 +196,7 @@ public class MetaProteinHit extends ProteinHit {
 	public Set<Object> getProperties(ChartType type) {
 		// Aggregate properties of associated proteins
 		Set<Object> res = new HashSet<Object>();
-		for (ProteinHit protHit : this.getProteinHitList()) {
+		for (ProteinHit protHit : getProteinHitList()) {
 			res.addAll(protHit.getProperties(type));
 		}
 		return res;
@@ -206,7 +205,7 @@ public class MetaProteinHit extends ProteinHit {
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
 		if (super.getTaxonomyNode() == null) {
-			return getProteinHitList().get(0).getTaxonomyNode();
+			return this.getProteinHitList().get(0).getTaxonomyNode();
 		}
 		return super.getTaxonomyNode();
 	}

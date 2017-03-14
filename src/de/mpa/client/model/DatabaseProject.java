@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import de.mpa.client.ui.dialogs.GeneralDialog;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
 import de.mpa.db.ProjectManager;
 import de.mpa.db.accessor.ProjectAccessor;
 import de.mpa.db.accessor.Property;
@@ -40,7 +40,7 @@ public class DatabaseProject extends AbstractProject {
 		// add properties
 		if (properties != null) {
 			for (Property property : properties) {
-				this.getProperties().put(property.getName(), property.getValue());
+                getProperties().put(property.getName(), property.getValue());
 			}
 		}
 	}
@@ -48,18 +48,18 @@ public class DatabaseProject extends AbstractProject {
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.setTitle(title);
-			this.getProperties().putAll(properties);
+            setTitle(title);
+            getProperties().putAll(properties);
 
 			ProjectManager manager = ProjectManager.getInstance();
 			
 			// create new project in the remote database
-			ProjectAccessor projectAcc = manager.createNewProject(this.getTitle());
-			this.setID(projectAcc.getProjectid());
-			this.setCreationDate(projectAcc.getCreationdate());
+			ProjectAccessor projectAcc = manager.createNewProject(getTitle());
+            setID(projectAcc.getProjectid());
+            setCreationDate(projectAcc.getCreationdate());
 			
 			// store project properties in the remote database
-			manager.addProjectProperties(this.getID(), this.getProperties());
+			manager.addProjectProperties(getID(), getProperties());
 			
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -71,17 +71,17 @@ public class DatabaseProject extends AbstractProject {
 	@SuppressWarnings("unchecked")
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.setTitle(title);
-			this.getProperties().clear();
-			this.getProperties().putAll(properties);
+            setTitle(title);
+            getProperties().clear();
+            getProperties().putAll(properties);
 
 			ProjectManager manager = ProjectManager.getInstance();
 
 			// modify the project name
-			manager.modifyProjectName(this.getID(), this.getTitle());
+			manager.modifyProjectName(getID(), getTitle());
 
 			// modify the project properties
-			manager.modifyProjectProperties(this.getID(), this.getProperties(), (List<Operation>) params[0]);
+			manager.modifyProjectProperties(getID(), getProperties(), (List<GeneralDialog.Operation>) params[0]);
 
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -95,7 +95,7 @@ public class DatabaseProject extends AbstractProject {
 			ProjectManager manager = ProjectManager.getInstance();
 
 			// delete project and all of its properties and experiments
-			manager.deleteProject(this.getID());
+			manager.deleteProject(getID());
 
 		} catch (SQLException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),

@@ -13,9 +13,9 @@ import de.mpa.db.job.instances.QvalityJob;
  */
 public class XTandemScoreJob extends Job {
 	
-	private String targetFile;
-	private String decoyFile;
-	private String filename;
+	private final String targetFile;
+	private final String decoyFile;
+	private final String filename;
 	
 	/**
 	 * Constructs the X!Tandem score job.
@@ -27,9 +27,9 @@ public class XTandemScoreJob extends Job {
 		this.decoyFile = decoyFile;
 		
 		// Set the description
-		filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
-		setFilename(filename);
-		setDescription("X!TANDEM QVALUES");
+        this.filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
+        this.setFilename(this.filename);
+        this.setDescription("X!TANDEM QVALUES");
 	}
 	
 	/**
@@ -37,9 +37,9 @@ public class XTandemScoreJob extends Job {
 	 */
 	public void run() {
 		// check if xtandem wrote a file or not 
-		if (new File(targetFile).exists()) {
+		if (new File(this.targetFile).exists()) {
 			// Extract the scores for X!Tandem target and decoy search
-			XTandemScoreExtractor xTandemExtractor = new XTandemScoreExtractor(new File(targetFile), new File(decoyFile));
+			XTandemScoreExtractor xTandemExtractor = new XTandemScoreExtractor(new File(this.targetFile), new File(this.decoyFile));
 
 			// Executes QVality
 			QvalityJob xTandemQVality = new QvalityJob(xTandemExtractor.getTargetOutput(), xTandemExtractor.getDecoyOutput(), false);

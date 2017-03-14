@@ -45,17 +45,17 @@ import javax.swing.text.Utilities;
 public class TextLineNumber extends JPanel
 	implements CaretListener, DocumentListener, PropertyChangeListener
 {
-	public final static float LEFT = 0.0f;
-	public final static float CENTER = 0.5f;
-	public final static float RIGHT = 1.0f;
+	public static final float LEFT = 0.0f;
+	public static final float CENTER = 0.5f;
+	public static final float RIGHT = 1.0f;
 
-	private final static Border OUTER = new MatteBorder(0, 0, 0, 2, Color.GRAY);
+	private static final Border OUTER = new MatteBorder(0, 0, 0, 2, Color.GRAY);
 
-	private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
+	private static final int HEIGHT = Integer.MAX_VALUE - 1000000;
 
 	//  Text component this TextTextLineNumber component is in sync with
 
-	private JTextComponent component;
+	private final JTextComponent component;
 
 	//  Properties that can be changed
 
@@ -96,12 +96,12 @@ public class TextLineNumber extends JPanel
 	{
 		this.component = component;
 
-		setFont( component.getFont() );
+        this.setFont( component.getFont() );
 
-		setBorderGap( 5 );
-		setCurrentLineForeground( Color.RED );
-		setDigitAlignment( RIGHT );
-		setMinimumDisplayDigits( minimumDisplayDigits );
+        this.setBorderGap( 5 );
+        this.setCurrentLineForeground( Color.RED );
+        this.setDigitAlignment(TextLineNumber.RIGHT);
+        this.setMinimumDisplayDigits( minimumDisplayDigits );
 
 		component.getDocument().addDocumentListener(this);
 		component.addCaretListener( this );
@@ -115,7 +115,7 @@ public class TextLineNumber extends JPanel
 	 */
 	public boolean getUpdateFont()
 	{
-		return updateFont;
+		return this.updateFont;
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class TextLineNumber extends JPanel
 	 */
 	public int getBorderGap()
 	{
-		return borderGap;
+		return this.borderGap;
 	}
 
 	/**
@@ -151,9 +151,9 @@ public class TextLineNumber extends JPanel
 	{
 		this.borderGap = borderGap;
 		Border inner = new EmptyBorder(0, borderGap, 0, borderGap);
-		setBorder( new CompoundBorder(OUTER, inner) );
-		lastDigits = 0;
-		setPreferredWidth();
+        this.setBorder( new CompoundBorder(TextLineNumber.OUTER, inner) );
+        this.lastDigits = 0;
+        this.setPreferredWidth();
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class TextLineNumber extends JPanel
 	 */
 	public Color getCurrentLineForeground()
 	{
-		return currentLineForeground == null ? getForeground() : currentLineForeground;
+		return this.currentLineForeground == null ? this.getForeground() : this.currentLineForeground;
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class TextLineNumber extends JPanel
 	 */
 	public float getDigitAlignment()
 	{
-		return digitAlignment;
+		return this.digitAlignment;
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class TextLineNumber extends JPanel
 	 */
 	public int getMinimumDisplayDigits()
 	{
-		return minimumDisplayDigits;
+		return this.minimumDisplayDigits;
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class TextLineNumber extends JPanel
 	public void setMinimumDisplayDigits(int minimumDisplayDigits)
 	{
 		this.minimumDisplayDigits = minimumDisplayDigits;
-		setPreferredWidth();
+        this.setPreferredWidth();
 	}
 
 	/**
@@ -230,24 +230,24 @@ public class TextLineNumber extends JPanel
 	 */
 	private void setPreferredWidth()
 	{
-		Element root = component.getDocument().getDefaultRootElement();
+		Element root = this.component.getDocument().getDefaultRootElement();
 		int lines = root.getElementCount();
-		int digits = Math.max(String.valueOf(lines).length(), minimumDisplayDigits);
+		int digits = Math.max(String.valueOf(lines).length(), this.minimumDisplayDigits);
 
 		//  Update sizes when number of digits in the line number changes
 
-		if (lastDigits != digits)
+		if (this.lastDigits != digits)
 		{
-			lastDigits = digits;
-			FontMetrics fontMetrics = getFontMetrics( getFont() );
+            this.lastDigits = digits;
+			FontMetrics fontMetrics = this.getFontMetrics(this.getFont() );
 			int width = fontMetrics.charWidth( '0' ) * digits;
-			Insets insets = getInsets();
+			Insets insets = this.getInsets();
 			int preferredWidth = insets.left + insets.right + width;
 
-			Dimension d = getPreferredSize();
-			d.setSize(preferredWidth, HEIGHT);
-			setPreferredSize( d );
-			setSize( d );
+			Dimension d = this.getPreferredSize();
+			d.setSize(preferredWidth, TextLineNumber.HEIGHT);
+            this.setPreferredSize( d );
+            this.setSize( d );
 		}
 	}
 
@@ -261,37 +261,37 @@ public class TextLineNumber extends JPanel
 
 		//	Determine the width of the space available to draw the line number
 
-		FontMetrics fontMetrics = component.getFontMetrics( component.getFont() );
-		Insets insets = getInsets();
-		int availableWidth = getSize().width - insets.left - insets.right;
+		FontMetrics fontMetrics = this.component.getFontMetrics(this.component.getFont() );
+		Insets insets = this.getInsets();
+		int availableWidth = this.getSize().width - insets.left - insets.right;
 
 		//  Determine the rows to draw within the clipped bounds.
 
 		Rectangle clip = g.getClipBounds();
-		int rowStartOffset = component.viewToModel( new Point(0, clip.y) );
-		int endOffset = component.viewToModel( new Point(0, clip.y + clip.height) );
+		int rowStartOffset = this.component.viewToModel( new Point(0, clip.y) );
+		int endOffset = this.component.viewToModel( new Point(0, clip.y + clip.height) );
 
 		while (rowStartOffset <= endOffset)
 		{
 			try
             {
-    			if (isCurrentLine(rowStartOffset))
-    				g.setColor( getCurrentLineForeground() );
+    			if (this.isCurrentLine(rowStartOffset))
+    				g.setColor(this.getCurrentLineForeground() );
     			else
-    				g.setColor( getForeground() );
+    				g.setColor(this.getForeground() );
 
     			//  Get the line number as a string and then determine the
     			//  "X" and "Y" offsets for drawing the string.
 
-    			String lineNumber = getTextLineNumber(rowStartOffset);
+    			String lineNumber = this.getTextLineNumber(rowStartOffset);
     			int stringWidth = fontMetrics.stringWidth( lineNumber );
-    			int x = getOffsetX(availableWidth, stringWidth) + insets.left;
-				int y = getOffsetY(rowStartOffset, fontMetrics);
+    			int x = this.getOffsetX(availableWidth, stringWidth) + insets.left;
+				int y = this.getOffsetY(rowStartOffset, fontMetrics);
     			g.drawString(lineNumber, x, y);
 
     			//  Move to the next row
 
-    			rowStartOffset = Utilities.getRowEnd(component, rowStartOffset) + 1;
+    			rowStartOffset = Utilities.getRowEnd(this.component, rowStartOffset) + 1;
 			}
 			catch(Exception e) {}
 		}
@@ -303,13 +303,10 @@ public class TextLineNumber extends JPanel
 	 */
 	private boolean isCurrentLine(int rowStartOffset)
 	{
-		int caretPosition = component.getCaretPosition();
-		Element root = component.getDocument().getDefaultRootElement();
+		int caretPosition = this.component.getCaretPosition();
+		Element root = this.component.getDocument().getDefaultRootElement();
 
-		if (root.getElementIndex( rowStartOffset ) == root.getElementIndex(caretPosition))
-			return true;
-		else
-			return false;
+        return root.getElementIndex(rowStartOffset) == root.getElementIndex(caretPosition);
 	}
 
 	/*
@@ -318,7 +315,7 @@ public class TextLineNumber extends JPanel
 	 */
 	protected String getTextLineNumber(int rowStartOffset)
 	{
-		Element root = component.getDocument().getDefaultRootElement();
+		Element root = this.component.getDocument().getDefaultRootElement();
 		int index = root.getElementIndex( rowStartOffset );
 		Element line = root.getElement( index );
 
@@ -333,7 +330,7 @@ public class TextLineNumber extends JPanel
 	 */
 	private int getOffsetX(int availableWidth, int stringWidth)
 	{
-		return (int)((availableWidth - stringWidth) * digitAlignment);
+		return (int)((availableWidth - stringWidth) * this.digitAlignment);
 	}
 
 	/*
@@ -344,7 +341,7 @@ public class TextLineNumber extends JPanel
 	{
 		//  Get the bounding rectangle of the row
 
-		Rectangle r = component.modelToView( rowStartOffset );
+		Rectangle r = this.component.modelToView( rowStartOffset );
 		int lineHeight = fontMetrics.getHeight();
 		int y = r.y + r.height;
 		int descent = 0;
@@ -358,10 +355,10 @@ public class TextLineNumber extends JPanel
 		}
 		else  // We need to check all the attributes for font changes
 		{
-			if (fonts == null)
-				fonts = new HashMap<String, FontMetrics>();
+			if (this.fonts == null)
+                this.fonts = new HashMap<String, FontMetrics>();
 
-			Element root = component.getDocument().getDefaultRootElement();
+			Element root = this.component.getDocument().getDefaultRootElement();
 			int index = root.getElementIndex( rowStartOffset );
 			Element line = root.getElement( index );
 
@@ -373,13 +370,13 @@ public class TextLineNumber extends JPanel
 				Integer fontSize = (Integer)as.getAttribute(StyleConstants.FontSize);
 				String key = fontFamily + fontSize;
 
-				FontMetrics fm = fonts.get( key );
+				FontMetrics fm = this.fonts.get( key );
 
 				if (fm == null)
 				{
 					Font font = new Font(fontFamily, Font.PLAIN, fontSize);
-					fm = component.getFontMetrics( font );
-					fonts.put(key, fm);
+					fm = this.component.getFontMetrics( font );
+                    this.fonts.put(key, fm);
 				}
 
 				descent = Math.max(descent, fm.getDescent());
@@ -397,16 +394,16 @@ public class TextLineNumber extends JPanel
 	{
 		//  Get the line the caret is positioned on
 
-		int caretPosition = component.getCaretPosition();
-		Element root = component.getDocument().getDefaultRootElement();
+		int caretPosition = this.component.getCaretPosition();
+		Element root = this.component.getDocument().getDefaultRootElement();
 		int currentLine = root.getElementIndex( caretPosition );
 
 		//  Need to repaint so the correct line number can be highlighted
 
-		if (lastLine != currentLine)
+		if (this.lastLine != currentLine)
 		{
-			repaint();
-			lastLine = currentLine;
+            this.repaint();
+            this.lastLine = currentLine;
 		}
 	}
 
@@ -416,19 +413,19 @@ public class TextLineNumber extends JPanel
 	@Override
 	public void changedUpdate(DocumentEvent e)
 	{
-		documentChanged();
+        this.documentChanged();
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e)
 	{
-		documentChanged();
+        this.documentChanged();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e)
 	{
-		documentChanged();
+        this.documentChanged();
 	}
 
 	/*
@@ -444,16 +441,16 @@ public class TextLineNumber extends JPanel
 		{
 			public void run()
 			{
-        		int preferredHeight = component.getPreferredSize().height;
+        		int preferredHeight = TextLineNumber.this.component.getPreferredSize().height;
 
 				//  Document change has caused a change in the number of lines.
 				//  Repaint to reflect the new line numbers
 
-        		if (lastHeight != preferredHeight)
+        		if (TextLineNumber.this.lastHeight != preferredHeight)
         		{
-        			setPreferredWidth();
-        			repaint();
-        			lastHeight = preferredHeight;
+                    TextLineNumber.this.setPreferredWidth();
+                    TextLineNumber.this.repaint();
+                    TextLineNumber.this.lastHeight = preferredHeight;
         		}
 			}
 		});
@@ -467,16 +464,16 @@ public class TextLineNumber extends JPanel
 	{
 		if (evt.getNewValue() instanceof Font)
 		{
-			if (updateFont)
+			if (this.updateFont)
 			{
 				Font newFont = (Font) evt.getNewValue();
-				setFont(newFont);
-				lastDigits = 0;
-				setPreferredWidth();
+                this.setFont(newFont);
+                this.lastDigits = 0;
+                this.setPreferredWidth();
 			}
 			else
 			{
-				repaint();
+                this.repaint();
 			}
 		}
 	}

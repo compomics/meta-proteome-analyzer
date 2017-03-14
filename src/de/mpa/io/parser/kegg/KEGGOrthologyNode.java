@@ -14,12 +14,12 @@ public class KEGGOrthologyNode extends KEGGNode {
 	/**
 	 * The description.
 	 */
-	private String description;
+	private final String description;
 	
 	/**
 	 * The list of E.C. numbers.
 	 */
-	private List<String> ecNumbers;
+	private final List<String> ecNumbers;
 
 	/**
 	 * 
@@ -116,7 +116,7 @@ public class KEGGOrthologyNode extends KEGGNode {
 	 * @return the name
 	 */
 	public String getName() {
-		return (String) userObject;
+		return (String) this.userObject;
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class KEGGOrthologyNode extends KEGGNode {
 	 * @return the description
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class KEGGOrthologyNode extends KEGGNode {
 	 * @return the list of E.C. numbers
 	 */
 	public List<String> getECNumbers() {
-		return ecNumbers;
+		return this.ecNumbers;
 	}
 
 }

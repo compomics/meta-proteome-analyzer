@@ -17,18 +17,18 @@ public interface ChartData {
 	/**
 	 * Prepares the chart data.
 	 */
-	public void init();
+    void init();
 	
 	/**
 	 * Returns JFreeChart Dataset
 	 * @return JFreeChart Dataset object
 	 */
-	public Dataset getDataset();
+    Dataset getDataset();
 
 	/**
 	 * Returns a list of protein hits associated with the provided key.
 	 * @param key The key.
 	 * @return The list of protein hits.
 	 */
-	public List<ProteinHit> getProteinHits(String key);
+    List<ProteinHit> getProteinHits(String key);
 }

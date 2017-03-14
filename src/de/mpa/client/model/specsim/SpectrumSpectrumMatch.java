@@ -13,12 +13,12 @@ public class SpectrumSpectrumMatch extends SpectrumMatch {
 	/**
 	 * The libspectrum ID.
 	 */
-	private long libspectrumID;
+	private final long libspectrumID;
 	
 	/**
 	 * The similarity score.
 	 */
-	private double similarity;
+	private final double similarity;
 	
 	/**
 	 * Class constructor specifying seachspectrumID, libspectrumID and a score.
@@ -29,7 +29,7 @@ public class SpectrumSpectrumMatch extends SpectrumMatch {
 	 */
 	public SpectrumSpectrumMatch(long searchspectrumID, long libspectrumID,
 			double similarity) {
-		this.searchSpectrumID = searchspectrumID;
+        searchSpectrumID = searchspectrumID;
 		this.libspectrumID = libspectrumID;
 		this.similarity = similarity;
 	}
@@ -38,14 +38,14 @@ public class SpectrumSpectrumMatch extends SpectrumMatch {
 	 * @return the libspectrumID
 	 */
 	public long getLibSpectrumID() {
-		return libspectrumID;
+		return this.libspectrumID;
 	}
 
 	/**
 	 * @return the similarity
 	 */
 	public double getSimilarity() {
-		return similarity;
+		return this.similarity;
 	}
 
 }

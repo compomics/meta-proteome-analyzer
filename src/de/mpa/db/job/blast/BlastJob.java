@@ -20,8 +20,8 @@ public class BlastJob extends Job {
 //    	this.blastFile = new File(JobConstants.BLAST_PATH);
 //    	this.mgfFile = mgfFile;
 //        this.searchDB = searchDB;
-        buildQueryFile();
-        initJob();
+        this.buildQueryFile();
+        this.initJob();
     }
     
     /**
@@ -40,52 +40,52 @@ public class BlastJob extends Job {
 //		procCommands.add(blastFile.getAbsolutePath() + "/" + JobConstants.BLAST_EXE);
 		
 		 // Target database.
-		procCommands.add("-db");
+        this.procCommands.add("-db");
 //		procCommands.add(JobConstants.FASTA_PATH + searchDB);
 		
         // File with input Peptides.
-		procCommands.add("-query");
-		procCommands.add(queryInput.getAbsolutePath());
+        this.procCommands.add("-query");
+        this.procCommands.add(this.queryInput.getAbsolutePath());
 		
         // Results file.
-		procCommands.add("-out");
+        this.procCommands.add("-out");
 //		procCommands.add(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
 		
 		// Optimized for short searches with < 30 amino acids
-		procCommands.add("-task");
-		procCommands.add("blastp-short");
-		
-		procCommands.add("-matrix");
-		procCommands.add("PAM30");
+        this.procCommands.add("-task");
+        this.procCommands.add("blastp-short");
+
+        this.procCommands.add("-matrix");
+        this.procCommands.add("PAM30");
 		
         // Limit the number of output hits.
         // BlastP Documentation:
         // "If the query range of a hit is enveloped by that of at least this many higher-scoring hits, delete the hit."
-		procCommands.add("-culling_limit");
-		procCommands.add(Integer.toString(10));
+        this.procCommands.add("-culling_limit");
+        this.procCommands.add(Integer.toString(10));
         
         // Word size
-		procCommands.add("-word_size");
-		procCommands.add(Integer.toString(2));
+        this.procCommands.add("-word_size");
+        this.procCommands.add(Integer.toString(2));
         
         // E-value
-		procCommands.add("-evalue");
-		procCommands.add(Integer.toString(20000));
-		
-		procCommands.add("-seg");
-		procCommands.add("no");
+        this.procCommands.add("-evalue");
+        this.procCommands.add(Integer.toString(20000));
+
+        this.procCommands.add("-seg");
+        this.procCommands.add("no");
 		
 		// Output format
-		procCommands.add("-outfmt");
-		procCommands.add(Integer.toString(7));
-		
-		procCommands.trimToSize();
+        this.procCommands.add("-outfmt");
+        this.procCommands.add(Integer.toString(7));
 
-		setDescription("BLAST");
-		procBuilder = new ProcessBuilder(procCommands);
+        this.procCommands.trimToSize();
 
-		procBuilder.directory(blastFile);
+        this.setDescription("BLAST");
+        this.procBuilder = new ProcessBuilder(this.procCommands);
+
+        this.procBuilder.directory(this.blastFile);
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 }

@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import de.mpa.client.settings.Parameter.BooleanMatrixParameter;
 import de.mpa.client.settings.Parameter.NumberParameter;
-import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing OMSSA search engine-specific settings.
@@ -19,21 +18,21 @@ public class OmssaParameters extends ParameterMap {
 	 * Constructs a parameter map initialized with default values.
 	 */
 	public OmssaParameters() {
-		this.initDefaults();
+        initDefaults();
 	}
 	
 	@Override
 	public void initDefaults() {
 		/* Configurable settings */
 		// Protein section
-		this.put("e", new OptionParameter(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"},
+        put("e", new Parameter.OptionParameter(new Object[] { "Trypsin", "Arg-C", "CNBr", "Chymotrypsin", "Formic Acid", "Lys-C", "Lys-C, no P rule", "Pepsin A", "Trypsin + CNBr", "Trypsin + Chymotrypsin", "Trypsin, no P rule", "Whole Protein", "Asp-N", "Glu-C", "Asp-N + Glu-C", "Top-Down", "Semi-Tryptic", "No Enzyme", "Chymotrypsin, no P rule", "Asp-N", "Glu-C", "Lys-N", "Thermolysin, no P rule", "Semi-Chymotrypsin", "Semi-Glu-C"},
 				0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
 		// Spectrum section
-		this.put("tom", new OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
+		this.put("tom", new Parameter.OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
 				0, "Fragment mass type", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>", "Spectrum"));
-		this.put("tem", new OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
+		this.put("tem", new Parameter.OptionParameter(new Object[] { "monoisotopic", "average", "mono N15", "exact" },
 				0, "Precursor mass type", "<html>Monoisotopic: peptides consist entirely of carbon-12.<br>Average: use average natural isotopic mass of peptides.<br>Exact: use most abundant isotopic peak for a given mass range.</html>", "Spectrum"));
-		this.put("zt", new NumberParameter(3, 0, null, "Charge threshold", "Minimum precursor charge to start considering multiply charged products.", "Spectrum")); 
+		this.put("zt", new NumberParameter(3, 0, null, "Charge threshold", "Minimum precursor charge to start considering multiply charged products.", "Spectrum"));
 		this.put("ht", new NumberParameter(6, 1, null, "Most intense peaks", "The number of m/z values corresponding to the most intense peaks that must include one match to the theoretical peptide.", "Spectrum"));
 		this.put("nt", new NumberParameter(8, 0, null, "Search threads", "The number of search threads to use, 0=autodetect.", "Spectrum"));
 		// Scoring section
@@ -57,8 +56,8 @@ public class OmssaParameters extends ParameterMap {
 			String key = entry.getKey();
 			Parameter param = entry.getValue();
 			Object value = param.getValue();
-			if (param instanceof OptionParameter) {
-				value = ((OptionParameter) param).getIndex();
+			if (param instanceof Parameter.OptionParameter) {
+				value = ((Parameter.OptionParameter) param).getIndex();
 			}
 			if (value instanceof Boolean[]) {
 				Boolean[] selections = (Boolean[]) value;

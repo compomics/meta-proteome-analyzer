@@ -48,7 +48,7 @@ public class FilterSettings {
 	 * @return the minimum peak count
 	 */
 	public int getMinPeaks() {
-		return minPeaks;
+		return this.minPeaks;
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class FilterSettings {
 	 * @return the minimum total ion current
 	 */
 	public double getMinTIC() {
-		return minTIC;
+		return this.minTIC;
 	}
 	
 	/**
@@ -80,7 +80,7 @@ public class FilterSettings {
 	 * @return the minimum signal-to-noise ratio.
 	 */
 	public double getMinSNR() {
-		return minSNR;
+		return this.minSNR;
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class FilterSettings {
 	 * @return the noise threshold
 	 */
 	public double getNoiseLvl() {
-		return noiseLvl;
+		return this.noiseLvl;
 	}
 	
 	/**
@@ -115,7 +115,7 @@ public class FilterSettings {
 	 * @return <code>true</code> if the stored criteria are met, <code>false</code> otherwise.
 	 */
 	public boolean matches(int peaks, double tic, double snr) {
-		return (peaks >= minPeaks) && (tic >= minTIC) && (snr >= minSNR);
+		return (peaks >= this.minPeaks) && (tic >= this.minTIC) && (snr >= this.minSNR);
 	}
 	
 }

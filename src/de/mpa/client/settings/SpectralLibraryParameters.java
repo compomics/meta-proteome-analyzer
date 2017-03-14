@@ -16,10 +16,10 @@ public class SpectralLibraryParameters extends ParameterMap {
 
 	@Override
 	public void initDefaults() {
-		this.put("settings", new Parameter(new SpectralLibrarySettingsPanel(), null, null, "Settings") {
+        put("settings", new Parameter(new SpectralLibrarySettingsPanel(), null, null, "Settings") {
 			@Override
 			public JComponent createLeftComponent() {
-				return (JComponent) this.getValue();
+				return (JComponent) getValue();
 			}
 			
 			@Override

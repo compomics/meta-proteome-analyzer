@@ -2,7 +2,6 @@ package de.mpa.algorithms.similarity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 /**
@@ -26,21 +25,21 @@ public abstract class VectorizationFactory {
 	 * @param delta the mass delta window
 	 * @return the peak matching vectorization method
 	 */
-	public static Vectorization createPeakMatching(final double delta) {
+	public static Vectorization createPeakMatching(double delta) {
 		return new Vectorization() {
 			private Map<Double, Double> inputA;
 			@Override
 			public Map<Double, Double> vectorize(Map<Double, Double> input,
 					Transformation trafo) {
 				Map<Double, Double> output;
-				if (inputA == null) {
-					inputA = input;
+				if (this.inputA == null) {
+                    this.inputA = input;
 					output = input;
 				} else {
 					TreeMap<Double, Double> inputB = new TreeMap<Double, Double>(input);
 					double maxDelta = delta/2.0;
 					
-					for (Double newKey : this.inputA.keySet()) {
+					for (Double newKey : inputA.keySet()) {
 						// skip if key already exists
 						if (inputB.containsKey(newKey)) continue;
 						// find nearest keys and calculate their deltas
@@ -69,7 +68,7 @@ public abstract class VectorizationFactory {
 					output = inputB;
 				}
 				// transform output values
-				for (Entry<Double, Double> entry : output.entrySet()) {
+				for (Map.Entry<Double, Double> entry : output.entrySet()) {
 					output.put(entry.getKey(), trafo.transform(entry.getValue()));
 				}
 				return output;
@@ -97,18 +96,18 @@ public abstract class VectorizationFactory {
 			public Map<Double, Double> vectorize(Map<Double, Double> input,
 					Transformation trafo) {
 				Map<Double, Double> output = new HashMap<Double, Double>(input.size());
-				for (Entry<Double, Double> entry : input.entrySet()) {
+				for (Map.Entry<Double, Double> entry : input.entrySet()) {
 					// round key to nearest bin center
 					double roundedKey = Math.round((entry.getKey()-binShift)/binWidth)*binWidth + binShift;
 					// grab input value
 					double val = entry.getValue();
-					if (output.containsKey(roundedKey)) 
+					if (output.containsKey(roundedKey))
 						val += output.get(roundedKey);	// add to already existing bin
 					// store value in output
 					output.put(roundedKey, val);
 				}
 				// transform output values
-				for (Entry<Double, Double> entry : output.entrySet()) {
+				for (Map.Entry<Double, Double> entry : output.entrySet()) {
 					output.put(entry.getKey(), trafo.transform(entry.getValue()));
 				}
 				return output;
@@ -137,7 +136,7 @@ public abstract class VectorizationFactory {
 			public Map<Double, Double> vectorize(Map<Double, Double> input,
 					Transformation trafo) {
 				Map<Double, Double> output = new HashMap<Double, Double>(input.size());
-				for (Entry<Double, Double> entry : input.entrySet()) {
+				for (Map.Entry<Double, Double> entry : input.entrySet()) {
 					double ky = entry.getKey(), 				// original key
 						   lb = ky - baseWidth/2,				// left boundary
 						   rb,									// right boundary
@@ -156,7 +155,7 @@ public abstract class VectorizationFactory {
 						vl = l2*(lb + rb - 2*lr);
 						vl = (rb <= ky) ? vl*(rb-lb) : (h2-vl)*(rb-lb);
 						// store calculated value
-						if (output.containsKey(rk)) 
+						if (output.containsKey(rk))
 							vl += output.get(rk);
 						output.put(rk, vl);
 						// right boundary becomes left boundary in next iteration
@@ -169,7 +168,7 @@ public abstract class VectorizationFactory {
 					}
 				}
 				// transform output values
-				for (Entry<Double, Double> entry : output.entrySet()) {
+				for (Map.Entry<Double, Double> entry : output.entrySet()) {
 					output.put(entry.getKey(), trafo.transform(entry.getValue()));
 				}
 				return output;

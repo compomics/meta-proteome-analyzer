@@ -24,16 +24,16 @@ public abstract class ScoreExtractor {
 		if (targetFile.exists()) {
 			this.targetFile = targetFile;
 			this.decoyFile = decoyFile;
-			load();
+            this.load();
 			if (decoyFile != null) {
-				extract();
-				this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
-				this.decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
-				write(targetOutput, decoyOutput);
+                this.extract();
+                targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+                decoyOutput = decoyFile.getAbsolutePath().substring(0, decoyFile.getAbsolutePath().lastIndexOf("_decoy")) + "_decoy.out";
+                this.write(this.targetOutput, this.decoyOutput);
 			} else {
-				extractTargetOnly();
-				this.targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
-				writeTargetOnly(targetOutput);
+                this.extractTargetOnly();
+                targetOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target")) + "_target.out";
+                this.writeTargetOnly(this.targetOutput);
 			}
 		} else {
 			System.out.println("No X!Tandem results");
@@ -58,11 +58,11 @@ public abstract class ScoreExtractor {
 			targetWriter = new FileWriter(targetOutputPath);
 			decoyWriter = new FileWriter(decoyOutputPath);
 			
-			for (double target : targetScores) {
+			for (double target : this.targetScores) {
 				targetWriter.write(Double.toString(target));
 				targetWriter.write("\n");
 			}
-			for (double decoy : decoyScores) {
+			for (double decoy : this.decoyScores) {
 				decoyWriter.write(Double.toString(decoy));
 				decoyWriter.write("\n");
 			}			
@@ -82,7 +82,7 @@ public abstract class ScoreExtractor {
 		FileWriter targetWriter;
 		try {
 			targetWriter = new FileWriter(targetOutput);
-			for (double target : targetScores) {
+			for (double target : this.targetScores) {
 				targetWriter.write(Double.toString(target));
 				targetWriter.write("\n");
 			}
@@ -93,11 +93,11 @@ public abstract class ScoreExtractor {
 	}
 
 	public String getTargetOutput() {
-		return targetOutput;
+		return this.targetOutput;
 	}
 	
 	public String getDecoyOutput() {
-		return decoyOutput;
+		return this.decoyOutput;
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public abstract class ScoreExtractor {
 	 * @return List of target score values.
 	 */
 	public List<Double> getTargetScores() {
-		return targetScores;
+		return this.targetScores;
 	}
 	
 	/**
@@ -113,6 +113,6 @@ public abstract class ScoreExtractor {
 	 * @return List of decoy score values.
 	 */
 	public List<Double> getDecoyScores() {
-		return decoyScores;
+		return this.decoyScores;
 	}
 }

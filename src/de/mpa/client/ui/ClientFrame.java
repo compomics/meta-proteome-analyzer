@@ -61,7 +61,7 @@ public class ClientFrame extends JFrame {
 	 * The tab pane containing the various panel views of the client user
 	 * interface.
 	 */
-	private JTabbedPane tabPane;
+	private final JTabbedPane tabPane;
 	
 	/**
 	 * The panel containing project selection and management functionalities.
@@ -91,12 +91,12 @@ public class ClientFrame extends JFrame {
 	/**
 	 * The logger instance.
 	 */
-	public Logger log = Logger.getLogger(getClass());
+	public Logger log = Logger.getLogger(this.getClass());
 
 	/**
 	 * Flag indicating whether a connection to a server instance is established.
 	 */
-	private boolean connectedToServer = false;
+	private boolean connectedToServer;
 	
 	/**
 	 * The last selected folder.
@@ -122,7 +122,7 @@ public class ClientFrame extends JFrame {
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance() {
-		return getInstance(false, false, false);
+		return ClientFrame.getInstance(false, false, false);
 	}
 	
 	/**
@@ -131,16 +131,16 @@ public class ClientFrame extends JFrame {
 	 * @return the client frame's singleton instance.
 	 */
 	public static ClientFrame getInstance(boolean viewerMode, boolean debug, boolean fast_results) {
-		if (frame == null) {
-			frame = new ClientFrame(viewerMode, debug, fast_results);
+		if (ClientFrame.frame == null) {
+            ClientFrame.frame = new ClientFrame(viewerMode, debug, fast_results);
 		}
-		return frame;
+		return ClientFrame.frame;
 	}
 	
 	public void restart() {
-		this.dispose();
-		frame = null;
-		ClientFrame.getInstance();
+        dispose();
+        ClientFrame.frame = null;
+		getInstance();
 	}
 
 	/**
@@ -152,46 +152,46 @@ public class ClientFrame extends JFrame {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
 		Client.init(viewer, debug, fast_results);
-		this.addWindowListener(new WindowAdapter() {
+        addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				Client.exit();
 			}
 		});
-		frame = this;
+        ClientFrame.frame = this;
 		
 		// Frame size
-		this.setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
-		this.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));	
-		this.setResizable(true);
+        setMinimumSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
+        setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
+        setResizable(true);
 
 		// Build Components
-		this.initComponents();
+        initComponents();
 		
 		// Get the content pane
-		Container cp = this.getContentPane();
+		Container cp = getContentPane();
 		cp.setLayout(new BorderLayout());
 
 		// Store tab icons, titles and corresponding panels in arrays
-		ImageIcon[] icons = new ImageIcon[] {
+		ImageIcon[] icons = {
 				IconConstants.PROJECT_ICON,
 				IconConstants.INPUT_ICON,
 				IconConstants.RESULTS_ICON, 
 //				IconConstants.RESULTS_ICON,
 				IconConstants.LOGGING_ICON
 		};
-		String[] titles = new String[] {
+		String[] titles = {
 				"Project",
 				"Input Spectra",
 				"View Results",
 //				"Spectrum Results",
 				"Logging"
 		};
-		Component[] panels = new Component[] {
-				projectPnl,
-				filePnl,
-				resultPnl, 
+		Component[] panels = {
+                this.projectPnl,
+                this.filePnl,
+                this.resultPnl,
 //				spectrumResultPnl,
-				loggingPnl
+                this.loggingPnl
 		};
 
 		// Modify tab pane visuals for this single instance, restore defaults afterwards
@@ -199,42 +199,42 @@ public class ClientFrame extends JFrame {
 		Insets contentBorderInsets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		UIManager.put("TabbedPane.tabInsets", new Insets(2, 6, 1, 7));
 		UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, contentBorderInsets.left, 0, 0));
-		tabPane = new ButtonTabbedPane(JTabbedPane.LEFT);
+        this.tabPane = new ButtonTabbedPane(JTabbedPane.LEFT);
 		UIManager.put("TabbedPane.tabInsets", tabInsets);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets); 
 		
 		// Add tabs with rollover-capable tab components
 		int maxWidth = 0, maxHeight = 0;
 		for (int i = 0; i < panels.length; i++) {
-			tabPane.addTab(titles[i], icons[i], panels[i]);
-			Component tabButton = tabPane.getTabComponentAt(i);
+            this.tabPane.addTab(titles[i], icons[i], panels[i]);
+			Component tabButton = this.tabPane.getTabComponentAt(i);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
 			maxHeight = Math.max(maxHeight, tabButton.getPreferredSize().height);
 		}
 		// Ensure proper tab component alignment by resizing them w.r.t. the largest component
 		for (int i = 0; i < panels.length; i++) {
-			tabPane.getTabComponentAt(i).setPreferredSize(new Dimension(maxWidth, maxHeight));
+            this.tabPane.getTabComponentAt(i).setPreferredSize(new Dimension(maxWidth, maxHeight));
 		}
 		
 		// Add discrete little bevel border
-		tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
+        this.tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
-		for (int i = INDEX_INPUT_PANEL; i < INDEX_LOGGING_PANEL; i++) {
-			tabPane.setEnabledAt(i, false);
+		for (int i = ClientFrame.INDEX_INPUT_PANEL; i < ClientFrame.INDEX_LOGGING_PANEL; i++) {
+            this.tabPane.setEnabledAt(i, false);
 		}
 
 		// Add components to content pane
-		this.setJMenuBar(menuBar);
-		cp.add(tabPane);
-		cp.add(statusPnl, BorderLayout.SOUTH);
+        setJMenuBar(this.menuBar);
+		cp.add(this.tabPane);
+		cp.add(this.statusPnl, BorderLayout.SOUTH);
 		
 		// Set application icon
-		this.setIconImage(IconConstants.MPA_ICON.getImage());
+        setIconImage(IconConstants.MPA_ICON.getImage());
 
 		// Move frame to center of the screen
-		this.pack();
+        pack();
 		ScreenConfig.centerInScreen(this);
-		this.setVisible(true);
+        setVisible(true);
 		
 		// connect to server
 		try {
@@ -256,24 +256,24 @@ public class ClientFrame extends JFrame {
 	private void initComponents() {
 
 		// Menu
-		menuBar = new ClientFrameMenuBar();
+        this.menuBar = new ClientFrameMenuBar();
 		// Status Bar
-		statusPnl = new StatusPanel();
+        this.statusPnl = new StatusPanel();
 		
 		// Project panel
-		projectPnl = new ProjectPanel();
+        this.projectPnl = new ProjectPanel();
 		
 		if (!Client.isViewer()) {
 			// File panel
-			filePnl = new FilePanel();
+            this.filePnl = new FilePanel();
 			
 //			// Settings Panel
 //			settingsPnl = new SettingsPanel();
 		}
 		// Results Panel
-		resultPnl = new ResultsPanel();
+        this.resultPnl = new ResultsPanel();
 		// Logging panel		
-		loggingPnl = new LoggingPanel();
+        this.loggingPnl = new LoggingPanel();
 		
 		// Spectrum result panel();
 //		spectrumResultPnl = new SpectrumResultPanel();
@@ -285,7 +285,7 @@ public class ClientFrame extends JFrame {
 	 * @return the file panel
 	 */
 	public FilePanel getFilePanel() {
-		return (FilePanel) filePnl;
+		return (FilePanel) this.filePnl;
 	}
 	
 	/**
@@ -293,7 +293,7 @@ public class ClientFrame extends JFrame {
 	 * @return the status bar
 	 */
 	public StatusPanel getStatusBar() {
-		return statusPnl;
+		return this.statusPnl;
 	}
 	
 	/**
@@ -301,7 +301,7 @@ public class ClientFrame extends JFrame {
 	 * @return true if client is connected to the server else false.
 	 */
 	public boolean hasServerConnection() {
-		return connectedToServer;
+		return this.connectedToServer;
 	}
 	
 	/**
@@ -317,7 +317,7 @@ public class ClientFrame extends JFrame {
 	 * @return
 	 */
 	public ProjectPanel getProjectPanel() {
-		return (ProjectPanel) projectPnl;
+		return (ProjectPanel) this.projectPnl;
 	}
 
 	/**
@@ -326,7 +326,7 @@ public class ClientFrame extends JFrame {
 	 * @param enabled the enable state to set
 	 */
 	public void setTabEnabledAt(int index, boolean enabled) {
-		tabPane.setEnabledAt(index, enabled);
+        this.tabPane.setEnabledAt(index, enabled);
 	}
 	
 	/**
@@ -335,7 +335,7 @@ public class ClientFrame extends JFrame {
 	 * @return <code>true</code> if the tab is enabled, <code>false</code> otherwise
 	 */
 	public boolean isTabEnabledAt(int index) {
-		return tabPane.isEnabledAt(index);
+		return this.tabPane.isEnabledAt(index);
 	}
 	
 	/**
@@ -343,24 +343,24 @@ public class ClientFrame extends JFrame {
 	 * @param index the index of the tab to select
 	 */
 	public void setTabSelectedIndex(int index) {
-		tabPane.setSelectedIndex(index);
+        this.tabPane.setSelectedIndex(index);
 	}
 	
 	/**
 	 * General-purpose listener for 'Next' navigation buttons.
 	 */
-	private ActionListener nextTabListener = new ActionListener() {
+	private final ActionListener nextTabListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			nextTab();
+            ClientFrame.this.nextTab();
 		}
 	};
 	
 	/**
 	 * General-purpose listener for 'Prev' navigation buttons.
 	 */
-	private ActionListener prevTabListener = new ActionListener() {
+	private final ActionListener prevTabListener = new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			previousTab();
+            ClientFrame.this.previousTab();
 		}
 	};
 	
@@ -369,10 +369,10 @@ public class ClientFrame extends JFrame {
 	 * if one exists.
 	 */
 	public void previousTab() {
-		int index = tabPane.getSelectedIndex() - 1;
+		int index = this.tabPane.getSelectedIndex() - 1;
 		while (index >= 0) {
-			if (tabPane.isEnabledAt(index)) {
-				tabPane.setSelectedIndex(index);
+			if (this.tabPane.isEnabledAt(index)) {
+                this.tabPane.setSelectedIndex(index);
 				return;
 			}
 			index--;
@@ -384,10 +384,10 @@ public class ClientFrame extends JFrame {
 	 * exists.
 	 */
 	public void nextTab() {
-		int index = tabPane.getSelectedIndex() + 1;
-		while (index < tabPane.getTabCount()) {
-			if (tabPane.isEnabledAt(index)) {
-				tabPane.setSelectedIndex(index);
+		int index = this.tabPane.getSelectedIndex() + 1;
+		while (index < this.tabPane.getTabCount()) {
+			if (this.tabPane.isEnabledAt(index)) {
+                this.tabPane.setSelectedIndex(index);
 				return;
 			}
 			index++;
@@ -399,7 +399,7 @@ public class ClientFrame extends JFrame {
 	 * @return The results panel.
 	 */
 	public ResultsPanel getResultsPanel() {
-		return (ResultsPanel) resultPnl;
+		return (ResultsPanel) this.resultPnl;
 	}
 	
 	/**
@@ -407,7 +407,7 @@ public class ClientFrame extends JFrame {
 	 * @return The database search result panel.
 	 */
 	public DbSearchResultPanel getDbSearchResultPanel() {
-		return getResultsPanel().getDbSearchResultPanel();
+		return this.getResultsPanel().getDbSearchResultPanel();
 	}
 	
 	/**
@@ -423,7 +423,7 @@ public class ClientFrame extends JFrame {
 	 * @return The de novo similarity search result panel.
 	 */
 	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-		return getResultsPanel().getGraphDatabaseResultPanel();
+		return this.getResultsPanel().getGraphDatabaseResultPanel();
 	}
 	
 	/**
@@ -443,13 +443,13 @@ public class ClientFrame extends JFrame {
 			icon = IconConstants.NEXT_ICON;
 			ricon = IconConstants.NEXT_ROLLOVER_ICON;
 			picon = IconConstants.NEXT_PRESSED_ICON;
-			al = nextTabListener;
+			al = this.nextTabListener;
 		} else {
 			text = "Prev";
 			icon = IconConstants.PREV_ICON;
 			ricon = IconConstants.PREV_ROLLOVER_ICON;
 			picon = IconConstants.PREV_PRESSED_ICON;
-			al = prevTabListener;
+			al = this.prevTabListener;
 		}
 		JButton button = new JButton(text, icon);
 		button.setRolloverIcon(ricon);
@@ -468,7 +468,7 @@ public class ClientFrame extends JFrame {
 	 * @return The last selected folder
 	 */
 	public String getLastSelectedFolder() {
-		return lastSelectedFolder;
+		return this.lastSelectedFolder;
 	}
 	
 	/**
@@ -484,7 +484,7 @@ public class ClientFrame extends JFrame {
 	 * @return The last selected export headers.
 	 */
 	public List<ExportHeader> getLastSelectedExportHeaders() {
-		return lastSelectedExportHeaders;
+		return this.lastSelectedExportHeaders;
 	}
 	
 	/**

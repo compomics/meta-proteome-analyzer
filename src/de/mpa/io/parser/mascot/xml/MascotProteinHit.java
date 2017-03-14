@@ -20,42 +20,42 @@ public class MascotProteinHit {
 	
 	// methods
 	public int getHitNumber() {
-		return hitNumber;
+		return this.hitNumber;
 	}
 	public void setHitNumber(int hitNumber) {
 		this.hitNumber = hitNumber;
 	}
 	
 	public List<String> getAccessions() {
-		return accessions;
+		return this.accessions;
 	}
 	public void setAccessions(List<String> accessions) {
 		this.accessions = accessions;
 	}
 	
 	public List<String> getDescriptions() {
-		return descriptions;
+		return this.descriptions;
 	}
 	public void setDescriptions(List<String> descriptions) {
 		this.descriptions = descriptions;
 	}
 	
 	public List<Double> getScores() {
-		return scores;
+		return this.scores;
 	}
 	public void setScores(List<Double> score) {
-		this.scores = score;
+        scores = score;
 	}
 	
 	public List<Double> getMasses() {
-		return masses;
+		return this.masses;
 	}
 	public void setMasses(List<Double> masses) {
 		this.masses = masses;
 	}
 	
 	public List<MascotPeptideHit> getPeptides() {
-		return peptideHits;
+		return this.peptideHits;
 	}
 	public void setPeptides(List<MascotPeptideHit> peptideHits) {
 		this.peptideHits = peptideHits;

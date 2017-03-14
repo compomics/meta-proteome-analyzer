@@ -52,11 +52,11 @@ public class MascotPeptideHit {
 	 * Private default constructor initializing various fields.
 	 */
 	private MascotPeptideHit() {
-		this.mz = 0.0;
-		this.charge = 0;
-		this.sequence = "";
-		this.modifications = new HashMap<Integer, MascotModification>();
-		this.scanTitle = "";
+        mz = 0.0;
+        charge = 0;
+        sequence = "";
+        modifications = new HashMap<Integer, MascotModification>();
+        scanTitle = "";
 	}
 	
 	/**
@@ -73,7 +73,7 @@ public class MascotPeptideHit {
 	 * @return <code>true</code> if modifications are present, <code>false</code> otherwise
 	 */
 	public boolean hasModifications() {
-		return !modifications.isEmpty();
+		return !this.modifications.isEmpty();
 	}
 	
 	/**
@@ -82,17 +82,17 @@ public class MascotPeptideHit {
 	 * @return the amino acid sequence containing modifications
 	 */
 	public String getModifiedSequence() {
-		String sequence = getSequence();
+		String sequence = this.getSequence();
 		// get list of indexes
-		List<Integer> indexes = new ArrayList<Integer>(modifications.keySet());
+		List<Integer> indexes = new ArrayList<Integer>(this.modifications.keySet());
 		// sort indexes in descending order
 		Collections.sort(indexes);
 		Collections.reverse(indexes);
 		// iterate sequence back-to-front and insert +/- delta strings, e.g. M becomes M+16
 		for (Integer index : indexes) {
-			MascotModification mod = modifications.get(index);
-			sequence = sequence.substring(0, index+1) + ((mod.getDelta() > 0) ? "+" : "-") + 
-					((int) Math.round(mod.getDelta())) + sequence.substring(index+1);
+			MascotModification mod = this.modifications.get(index);
+			sequence = sequence.substring(0, index+1) + ((mod.getDelta() > 0) ? "+" : "-") +
+                    Math.round(mod.getDelta()) + sequence.substring(index+1);
 		}
 		return sequence;
 	}
@@ -102,7 +102,7 @@ public class MascotPeptideHit {
 	 * @return the parent protein hit
 	 */
 	public MascotProteinHit getParentProteinHit() {
-		return parentProteinHit;
+		return this.parentProteinHit;
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class MascotPeptideHit {
 	 * @return the list of attributes
 	 */
 	public Map<String, String> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 	
 	/**
@@ -134,7 +134,7 @@ public class MascotPeptideHit {
 	 * @return the precursor mass
 	 */
 	public double getMz() {
-		return mz;
+		return this.mz;
 	}
 	
 	/**
@@ -150,7 +150,7 @@ public class MascotPeptideHit {
 	 * @return the precursor charge
 	 */
 	public int getCharge() {
-		return charge;
+		return this.charge;
 	}
 	
 	/**
@@ -166,7 +166,7 @@ public class MascotPeptideHit {
 	 * @return the amino acid sequence
 	 */
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class MascotPeptideHit {
 	 * @return the modifications
 	 */
 	public Map<Integer, MascotModification> getModifications() {
-		return modifications;
+		return this.modifications;
 	}
 	
 	/**
@@ -198,7 +198,7 @@ public class MascotPeptideHit {
 	 * @return the scan title
 	 */
 	public String getScanTitle() {
-		return scanTitle;
+		return this.scanTitle;
 	}
 
 	/**
@@ -206,12 +206,12 @@ public class MascotPeptideHit {
 	 * @param title the scan title to set
 	 */
 	public void setScanTitle(String title) {
-		this.scanTitle = title;
+        scanTitle = title;
 	}
 
 	@Override
 	public String toString() {
-		return sequence;
+		return this.sequence;
 	}
 	
 }

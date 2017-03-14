@@ -11,6 +11,6 @@ public interface ChartType {
 	 * Returns a descriptive string.
 	 * @return the description
 	 */
-	public String getTitle();
+    String getTitle();
 	
 }

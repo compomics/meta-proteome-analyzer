@@ -39,6 +39,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
+import de.mpa.client.ui.chart.OntologyChart;
+import de.mpa.client.ui.chart.TaxonomyChart;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
@@ -82,10 +84,8 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.ScrollableChartPane;
-import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.SelectExperimentDialog;
@@ -109,7 +109,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The database search results sub-panel.
 	 */
-	private DbSearchResultPanel dbPnl;
+	private final DbSearchResultPanel dbPnl;
 
 	/**
 	 * The spectral similarity results sub-panel.
@@ -119,12 +119,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The graph database sub-panel.
 	 */
-	private GraphDatabaseResultPanel gdbPnl;
+	private final GraphDatabaseResultPanel gdbPnl;
 
 	/**
 	 * The result comparison sub-panel.
 	 */
-	private ComparePanel compPnl;
+	private final ComparePanel compPnl;
 
 	/**
 	 * The split pane layout of the overview panel.
@@ -139,7 +139,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * The type of chart to be displayed in the top right chart pane.
 	 */
-	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
+	private ChartType chartType = OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS;
 
 	/**
 	 * Data container for ontological meta-information of the fetched results.
@@ -389,7 +389,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		fetchResultsBtn = new JButton("Fetch Results", IconConstants.RESULTS_FETCH_ICON);
 		fetchResultsBtn.setRolloverIcon(IconConstants.RESULTS_FETCH_ROLLOVER_ICON);
-		fetchResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);	
+		fetchResultsBtn.setPressedIcon(IconConstants.RESULTS_FETCH_PRESSED_ICON);
 		fetchResultsBtn.setToolTipText("Press button to fetch results of the selected experiment.");
 		fetchResultsBtn.setIconTextGap(7);
 		fetchResultsBtn.addActionListener(new ActionListener() {
@@ -456,7 +456,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		summaryPnl.add(generalPnl, CC.xy(2, 2));
 		summaryPnl.add(heatMapPn, CC.xy(2, 4));
 
-		JXTitledPanel summaryTtlPnl = 
+		JXTitledPanel summaryTtlPnl =
 				PanelConfig.createTitledPanel("Summary", summaryPnl);
 		summaryTtlPnl.setRightDecoration(summaryBtnPnl);
 
@@ -471,10 +471,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		// init chart types
 		List<ChartType> tmp = new ArrayList<ChartType>();
-		for (ChartType oct : OntologyChartType.values()) {
+		for (ChartType oct : OntologyChart.OntologyChartType.values()) {
 			tmp.add(oct);
 		}
-		for (ChartType tct : TaxonomyChartType.values()) {
+		for (ChartType tct : TaxonomyChart.TaxonomyChartType.values()) {
 			tmp.add(tct);
 		}
 		final ChartType[] chartTypes = tmp.toArray(new ChartType[0]);
@@ -526,9 +526,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
-			if (chartType instanceof OntologyChartType) {
+			if (chartType instanceof OntologyChart.OntologyChartType) {
 				ontologyMenu.add(item);
-			} else if (chartType instanceof TaxonomyChartType) {
+			} else if (chartType instanceof TaxonomyChart.TaxonomyChartType) {
 				taxonomyMenu.add(item);
 			} else {
 				item.setIcon(IconConstants.BAR_CHART_ICON);
@@ -627,7 +627,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		};
 
 		chartPane = new ScrollableChartPane(ChartFactory.createOntologyChart(
-				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart()) {
+				dummyData, OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS).getChart()) {
 			@Override
 			public void setEnabled(boolean enabled) {
 				super.setEnabled(enabled);
@@ -785,16 +785,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 		if ("".equals(key)) {
 			TableConfig.clearTable(detailsTbl);
 		} else {
-			DefaultTableModel detailsTblMdl = 
+			DefaultTableModel detailsTblMdl =
 					(DefaultTableModel) detailsTbl.getModel();
 			// clear details table
 			detailsTblMdl.setRowCount(0);
 			List<ProteinHit> proteinHits = null;
-			if (this.chartType instanceof OntologyChartType) {
+			if (this.chartType instanceof OntologyChart.OntologyChartType) {
 				proteinHits = ontologyData.getProteinHits((String) key);
-			} else if (this.chartType instanceof TaxonomyChartType) {
+			} else if (this.chartType instanceof TaxonomyChart.TaxonomyChartType) {
 				proteinHits = taxonomyData.getProteinHits((String) key);
-			} 
+			}
 
 			if (proteinHits != null) {
 				int i = 1;
@@ -817,7 +817,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	/**
 	 * Utility method to create the resize/restore widget for use in titled
 	 * panels.
-	 * 
+	 *
 	 * @param nodes2hide
 	 *            The names of the MultiSplitPane nodes that are to be
 	 *            hidden/restored.
@@ -877,19 +877,19 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		// create chart instance
 		boolean showAdditionalControls = false;
-		if (chartType instanceof OntologyChartType) {
+		if (chartType instanceof OntologyChart.OntologyChartType) {
 			chart = ChartFactory.createOntologyChart(
 					ontologyData, chartType);
 			showAdditionalControls = true;
-		} else if (chartType instanceof TaxonomyChartType) {
+		} else if (chartType instanceof TaxonomyChart.TaxonomyChartType) {
 			chart = ChartFactory.createTaxonomyChart(
-					taxonomyData, chartType);
+                    this.taxonomyData, chartType);
 			showAdditionalControls = true;
 		} 
 
 		if (chart != null) {
 			// insert chart into panel
-			chartPane.setChart(chart.getChart(), showAdditionalControls);
+            this.chartPane.setChart(chart.getChart(), showAdditionalControls);
 		} else {
 			System.err.println("Chart type could not be determined!");
 		}
@@ -906,7 +906,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	}
 
 	public boolean isBusy() {
-		return this.busy;
+		return busy;
 	}
 
 	/**
@@ -918,22 +918,22 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 		// Set enable state of fetch buttons
 		// TODO: probably unsafe as GraphDB is still in the progress of being created
-		this.fetchResultsBtn.setEnabled(!busy);
-		this.processResultsBtn.setEnabled(!busy);
+        fetchResultsBtn.setEnabled(!busy);
+        processResultsBtn.setEnabled(!busy);
 
 		// Propagate busy state to chart panel
-		this.chartPane.setBusy(busy);
+        chartPane.setBusy(busy);
 
 		// Only ever make heat map pane busy, it takes care of turning not busy on its own
-		this.heatMapPn.setBusy(busy || heatMapPn.isBusy());
-		this.heatMapPn.setEnabled(!busy);
+        heatMapPn.setBusy(busy || this.heatMapPn.isBusy());
+        heatMapPn.setEnabled(!busy);
 
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
-		if (!dbPnl.isBusy()) {
+		if (!this.dbPnl.isBusy()) {
 			ClientFrame.getInstance().setCursor(cursor);
 		}
-		msp.setCursor(cursor);
-		for (Component comp : msp.getComponents()) {
+        this.msp.setCursor(cursor);
+		for (Component comp : this.msp.getComponents()) {
 			comp.setCursor(cursor);
 		}
 	}
@@ -944,7 +944,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @param b <code>true</code> if enabled, <code>false</code> otherwise
 	 */
 	public void setProcessingEnabled(boolean b) {
-		processResultsBtn.setEnabled(b && !this.busy);
+        this.processResultsBtn.setEnabled(b && !busy);
 	}
 
 	/**
@@ -952,7 +952,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @return the database search result panel
 	 */
 	public DbSearchResultPanel getDbSearchResultPanel() {
-		return dbPnl;
+		return this.dbPnl;
 	}
 
 	//	/**
@@ -968,7 +968,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @return the graph database result panel
 	 */
 	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-		return gdbPnl;
+		return this.gdbPnl;
 	}
 
 	/**
@@ -982,12 +982,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 		/**
 		 * The list of experiments
 		 */
-		private LinkedList<Long> experimentList;
+		private final LinkedList<Long> experimentList;
 		
 		/**
 		 * Denotes if single or multiple experiments  
 		 */
-		private boolean multi_exp;
+		private final boolean multi_exp;
 
 		/**
 		 * Constructor for the FetchResultTask. The experiment list ask which experiments 
@@ -995,7 +995,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		 * @param experimentList. the list of experiment titles
 		 */
 		public FetchResultsTask(LinkedList<Long> experimentList, boolean multi) {
-			multi_exp = multi;
+            this.multi_exp = multi;
 			this.experimentList = experimentList;
 		}
 
@@ -1017,26 +1017,26 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 			try {
 				// Begin appearing busy
-				ResultsPanel.this.setBusy(true);
-				ResultsPanel.this.dbPnl.setBusy(true);
-				ResultsPanel.this.gdbPnl.setBusy(true);
+                setBusy(true);
+                dbPnl.setBusy(true);
+                gdbPnl.setBusy(true);
 
 				// Fetch the search result object
-				if (!multi_exp) {
+				if (!this.multi_exp) {
 					// No experiment list selected, get single experiment from client
 					newResult = client.getSingleSearchResult();
 				} else {
 					// Fetch all experiments from the list
 					// FIXME processing multiple experiments may result in metaproteins not being formed
 					//		 in that case rerun the processing and it should work
-					newResult = client.getMultipleSearchResults(experimentList);
+					newResult = client.getMultipleSearchResults(this.experimentList);
 				}
 				// --> this is obsolete? 
 				if (newResult != null) {
 					// remove this check --> leads to problems based on searchresult-Name
 //					if (!newResult.equals(ResultsPanel.this.dbSearchResult)) {
 					// Update result object reference
-					ResultsPanel.this.dbSearchResult = newResult;
+                    dbSearchResult = newResult;
 					client.dumpBackupDatabaseSearchResult();
 //					}
 				}
@@ -1058,7 +1058,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// Get worker result
 			int res = 0;
 			try {
-				res = this.get().intValue();
+				res = get().intValue();
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1066,16 +1066,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// If new results have been fetched...
 			if (res == 1) {
 				// Update overview panel
-				ResultsPanel.this.updateOverview();
+                updateOverview();
 				// Populate tables in database search result panel
-				ResultsPanel.this.dbPnl.refreshProteinViews();
-				dbPnl.refreshChart(true);
+                dbPnl.refreshProteinViews();
+                ResultsPanel.this.dbPnl.refreshChart(true);
 			} else {
 				// Stop appearing busy
-				ResultsPanel.this.setBusy(false);
-				ResultsPanel.this.dbPnl.setBusy(false);
-				ResultsPanel.this.gdbPnl.setBusy(false);
-				ResultsPanel.this.heatMapPn.setBusy(false);
+                setBusy(false);
+                dbPnl.setBusy(false);
+                gdbPnl.setBusy(false);
+                heatMapPn.setBusy(false);
 			}
 			// Enable 'Export' menu
 			ClientFrameMenuBar menuBar =
@@ -1098,19 +1098,19 @@ public class ResultsPanel extends JPanel implements Busyable {
 				Thread.currentThread().setName("ProcessResultsThread");
 
 				// begin appearing busy
-				ResultsPanel.this.setBusy(true);
-				dbPnl.setBusy(true);
-				gdbPnl.setBusy(true);
+                setBusy(true);
+                ResultsPanel.this.dbPnl.setBusy(true);
+                ResultsPanel.this.gdbPnl.setBusy(true);
 
 				// restore result object from backup file if it was processed before
 				Client client = Client.getInstance();
-				if (!dbSearchResult.isRaw()) {
-					dbSearchResult = client.restoreBackupDatabaseSearchResult();
+				if (!ResultsPanel.this.dbSearchResult.isRaw()) {
+                    ResultsPanel.this.dbSearchResult = client.restoreBackupDatabaseSearchResult();
 				}
 
 				// process results
-				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, client.getResultParameters());
-				dbSearchResult.setRaw(false);
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(ResultsPanel.this.dbSearchResult, client.getResultParameters());
+                ResultsPanel.this.dbSearchResult.setRaw(false);
 
 				return 1;
 			} catch (Exception e) {
@@ -1123,10 +1123,10 @@ public class ResultsPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Update overview panel
-			ResultsPanel.this.updateOverview();
+            updateOverview();
 			// Populate tables in database search result panel
-			dbPnl.refreshProteinViews();
-			dbPnl.refreshChart(true);
+            ResultsPanel.this.dbPnl.refreshProteinViews();
+            ResultsPanel.this.dbPnl.refreshChart(true);
 		}
 	}
 
@@ -1142,14 +1142,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 		protected Integer doInBackground() {
 			Thread.currentThread().setName("UpdateOverviewThread");
 			
-			if (dbSearchResult != null) {
+			if (ResultsPanel.this.dbSearchResult != null) {
 				try {
 					Set<String> speciesNames = new HashSet<>();
 					Set<String> ecNumbers = new HashSet<>();
 					Set<KEGGNode> pwNodes = new HashSet<>();
 
 					// gather K and EC numbers for pathway lookup
-					for (ProteinHit ph : dbSearchResult.getProteinHitList()) {
+					for (ProteinHit ph : ResultsPanel.this.dbSearchResult.getProteinHitList()) {
 						speciesNames.add(ph.getSpecies());
 
 						// gather K and EC numbers for pathway lookup
@@ -1172,30 +1172,30 @@ public class ResultsPanel extends JPanel implements Busyable {
 					}
 
 					// Update statistics labels
-					totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-					identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-					distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
+                    ResultsPanel.this.totalSpecLbl.setText("" + ResultsPanel.this.dbSearchResult.getTotalSpectrumCount());
+                    ResultsPanel.this.identSpecLbl.setText("" + ResultsPanel.this.dbSearchResult.getIdentifiedSpectrumCount());
+                    ResultsPanel.this.distPepLbl.setText("" + ResultsPanel.this.dbSearchResult.getDistinctPeptideCount());
 					//TODO may throws errors due to concurrent methods interaction
-					uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-					metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
-					speciesLbl.setText("" + speciesNames.size());
-					enzymesLbl.setText("" + ecNumbers.size());
-					pathwaysLbl.setText("" + pwNodes.size());
+                    ResultsPanel.this.uniqPepLbl.setText("" + ResultsPanel.this.dbSearchResult.getUniquePeptideCount());
+                    ResultsPanel.this.totalProtLbl.setText("" + ResultsPanel.this.dbSearchResult.getProteinHitList().size());
+                    ResultsPanel.this.metaProtLbl.setText("" + ResultsPanel.this.dbSearchResult.getMetaProteins().size());
+                    ResultsPanel.this.speciesLbl.setText("" + speciesNames.size());
+                    ResultsPanel.this.enzymesLbl.setText("" + ecNumbers.size());
+                    ResultsPanel.this.pathwaysLbl.setText("" + pwNodes.size());
 
 					// Generate chart data objects
-					HierarchyLevel hl = chartPane.getHierarchyLevel();
+					HierarchyLevel hl = ResultsPanel.this.chartPane.getHierarchyLevel();
 
-					ontologyData.setHierarchyLevel(hl);
-					ontologyData.setResult(dbSearchResult);
+                    ResultsPanel.this.ontologyData.setHierarchyLevel(hl);
+                    ResultsPanel.this.ontologyData.setResult(ResultsPanel.this.dbSearchResult);
 
-					taxonomyData.setHierarchyLevel(hl);
-					taxonomyData.setResult(dbSearchResult);
+                    ResultsPanel.this.taxonomyData.setHierarchyLevel(hl);
+                    ResultsPanel.this.taxonomyData.setResult(ResultsPanel.this.dbSearchResult);
 					// Refresh chart panel
-					updateChart(chartType);
+                    ResultsPanel.this.updateChart(ResultsPanel.this.chartType);
 
 					// Refresh heat map
-					heatMapPn.updateData(dbSearchResult);
+                    ResultsPanel.this.heatMapPn.updateData(ResultsPanel.this.dbSearchResult);
 					
 					return 1;
 					
@@ -1212,7 +1212,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// Get worker result
 			int res = 0;
 			try {
-				res = this.get().intValue();
+				res = get().intValue();
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1220,11 +1220,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 			// If new results have been fetched...
 			if (res == 1) {
 				// Enable chart panel and heat map
-				chartPane.setEnabled(true);
-				heatMapPn.setEnabled(true);
+                ResultsPanel.this.chartPane.setEnabled(true);
+                ResultsPanel.this.heatMapPn.setEnabled(true);
 			}
 			// Stop appearing busy
-			ResultsPanel.this.setBusy(false);
+            setBusy(false);
 		}
 
 	}
@@ -1234,14 +1234,14 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 * @return dbSearchResultObject
 	 */
 	public DbSearchResult getDBSearchResultObj(){
-		return dbSearchResult;
+		return this.dbSearchResult;
 	}
 	/**
 	 * Sets the dbSearchResultObject of the Resultpanel.
 	 * @param 
 	 */
 	public void setDBSearchResultObj(DbSearchResult dbsearchresults){
-		this.dbSearchResult = dbsearchresults;
+        dbSearchResult = dbsearchresults;
 	}
 	
 }

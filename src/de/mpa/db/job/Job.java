@@ -26,7 +26,7 @@ public abstract class Job implements Executable {
 	/**
 	 * Job error string.
 	 */
-	protected String error = null;
+	protected String error;
 	
 	/**
 	 * JobStatus status.
@@ -72,17 +72,17 @@ public abstract class Job implements Executable {
 	 * Executes the job.
 	 */
 	public void run() {
-		proc = null;
+        this.proc = null;
 		try {
-			proc = procBuilder.start();
-			setStatus(JobStatus.RUNNING);
+            this.proc = this.procBuilder.start();
+            this.setStatus(JobStatus.RUNNING);
 		} catch (IOException ioe) {
-			setError(ioe);
+            this.setError(ioe);
 			ioe.printStackTrace();
 		}
 
 		// Retrieve inputstream from process
-		Scanner scan = new Scanner(proc.getInputStream());
+		Scanner scan = new Scanner(this.proc.getInputStream());
 		scan.useDelimiter(System.getProperty("line.separator"));
 		
 		// Temporary string variable
@@ -112,7 +112,7 @@ public abstract class Job implements Executable {
 //				proc.destroy();
 //			}
 //		}		
-		done();
+        this.done();
 	}
 	
 	/**
@@ -120,14 +120,14 @@ public abstract class Job implements Executable {
 	 */
 	protected void done() {
 		// Set the job status to FINISHED and put the message in the queue
-		setStatus(JobStatus.FINISHED);
+        this.setStatus(JobStatus.FINISHED);
 	}
 	
 	/**
 	 * Returns the error message of the job. 
 	 */
 	public String getError() {		
-		return error;
+		return this.error;
 	}
 	
 	/**
@@ -135,7 +135,7 @@ public abstract class Job implements Executable {
 	 * @param error The error message string to be set.
 	 */
 	public void setError(String error) {
-		setError(new Exception(error));
+        this.setError(new Exception(error));
 	}
 	
 	/**
@@ -143,10 +143,10 @@ public abstract class Job implements Executable {
 	 * @param e The exception to be logged.
 	 */
 	public void setError(Exception e) {
-		log.error(e.getMessage(), e.getCause());
+        Job.log.error(e.getMessage(), e.getCause());
 		e.printStackTrace();
-		this.error = e.getMessage();
-		setStatus(JobStatus.ERROR);
+        error = e.getMessage();
+        this.setStatus(JobStatus.ERROR);
 	}
 
 	/**
@@ -154,7 +154,7 @@ public abstract class Job implements Executable {
 	 * @return The status of this job
 	 */
 	public final JobStatus getStatus() {
-		return this.status;
+		return status;
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public abstract class Job implements Executable {
 	 */
 	public void setStatus(JobStatus status) {
 		this.status = status;
-		MessageQueue.getInstance().add(new Message(this, new Date()), log);
+		MessageQueue.getInstance().add(new Message(this, new Date()), Job.log);
 	}
 
 	/**
@@ -171,7 +171,7 @@ public abstract class Job implements Executable {
 	 * @return the description
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**
@@ -187,7 +187,7 @@ public abstract class Job implements Executable {
 	 * @return
 	 */
 	public String getFilename(){
-		return filename;
+		return this.filename;
 	}
 	
 	/**

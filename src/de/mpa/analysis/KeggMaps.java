@@ -107,7 +107,7 @@ public class KeggMaps {
 	 * @return The KEGG pathway map.
 	 */
 	public static Map<String, Character> readKeggPathways(InputStream is) {
-		return readKeggMap(is, "^[ABC].*");
+		return KeggMaps.readKeggMap(is, "^[ABC].*");
 	}
 	
 	/**
@@ -120,6 +120,6 @@ public class KeggMaps {
 	 * @return The KEGG taxonomy map.
 	 */
 	public static Map<String, Character> readKeggOrganisms(InputStream is) {
-		return readKeggMap(is, "^[ABCDE].*");
+		return KeggMaps.readKeggMap(is, "^[ABCDE].*");
 	}
 }

@@ -10,7 +10,7 @@ public class RunOptions {
 	/**
 	 * Number of runs.
 	 */
-	private int runCount = 0;
+	private int runCount;
 	
 	/**
 	 * Run limit set to 1
@@ -27,10 +27,10 @@ public class RunOptions {
 	 * @return RunOptions instance
 	 */
 	public static RunOptions getInstance(){
-		if(instance == null){
-			instance = new RunOptions();
+		if(RunOptions.instance == null){
+            RunOptions.instance = new RunOptions();
 		}
-		return instance;
+		return RunOptions.instance;
 	}
 	
 	/**
@@ -43,7 +43,7 @@ public class RunOptions {
 	 * @return Boolean flag if the server has already been running.
 	 */
 	public boolean hasRunAlready(){
-		return runCount == runLimit;
+		return this.runCount == RunOptions.runLimit;
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class RunOptions {
 	 * @return
 	 */
 	public int getRunCount() {
-		return runCount;
+		return this.runCount;
 	}
 	
 	/**
@@ -67,7 +67,7 @@ public class RunOptions {
 	 * @return Run limit.
 	 */
 	public int getRunLimit() {
-		return runLimit;
+		return RunOptions.runLimit;
 	}
 	
 	

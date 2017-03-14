@@ -21,103 +21,103 @@ public class CruxHit {
     private String proteinid;
     private String flankingAA;
 	public int getScanNumber() {
-		return scanNumber;
+		return this.scanNumber;
 	}
 	public void setScanNumber(int scanNumber) {
 		this.scanNumber = scanNumber;
 	}
 	public int getCharge() {
-		return charge;
+		return this.charge;
 	}
 	public void setCharge(int charge) {
 		this.charge = charge;
 	}
 	public double getPrecursorMZ() {
-		return precursorMZ;
+		return this.precursorMZ;
 	}
 	public void setPrecursorMZ(double precursorMZ) {
 		this.precursorMZ = precursorMZ;
 	}
 	public double getNeutralMass() {
-		return neutralMass;
+		return this.neutralMass;
 	}
 	public void setNeutralMass(double neutralMass) {
 		this.neutralMass = neutralMass;
 	}
 	public double getPeptideMass() {
-		return peptideMass;
+		return this.peptideMass;
 	}
 	public void setPeptideMass(double peptideMass) {
 		this.peptideMass = peptideMass;
 	}
 	public double getDeltaCN() {
-		return deltaCN;
+		return this.deltaCN;
 	}
 	public void setDeltaCN(double deltaCN) {
 		this.deltaCN = deltaCN;
 	}
 	public double getxCorrScore() {
-		return xCorrScore;
+		return this.xCorrScore;
 	}
 	public void setxCorrScore(double xCorrScore) {
 		this.xCorrScore = xCorrScore;
 	}
 	public int getxCorrRank() {
-		return xCorrRank;
+		return this.xCorrRank;
 	}
 	public void setxCorrRank(int xCorrRank) {
 		this.xCorrRank = xCorrRank;
 	}
 	public double getPercolatorScore() {
-		return percolatorScore;
+		return this.percolatorScore;
 	}
 	public void setPercolatorScore(double percolatorScore) {
 		this.percolatorScore = percolatorScore;
 	}
 	public int getPercolatorRank() {
-		return percolatorRank;
+		return this.percolatorRank;
 	}
 	public void setPercolatorRank(int percolatorRank) {
 		this.percolatorRank = percolatorRank;
 	}
 	public double getqValue() {
-		return qValue;
+		return this.qValue;
 	}
 	public void setqValue(double qValue) {
 		this.qValue = qValue;
 	}
 	public int getMatchesSpectrum() {
-		return matchesSpectrum;
+		return this.matchesSpectrum;
 	}
 	public void setMatchesSpectrum(int matchesSpectrum) {
 		this.matchesSpectrum = matchesSpectrum;
 	}
 	public String getPeptide() {
-		return peptide;
+		return this.peptide;
 	}
 	public void setPeptide(String peptide) {
 		this.peptide = peptide;
 	}
 	public String getCleavageType() {
-		return cleavageType;
+		return this.cleavageType;
 	}
 	public void setCleavageType(String cleavageType) {
 		this.cleavageType = cleavageType;
 	}
 	public String getProteinid() {
-		return proteinid;
+		return this.proteinid;
 	}
 	public void setProteinid(String proteinid) {
 		this.proteinid = proteinid;
 	}
 	public String getFlankingAA() {
-		return flankingAA;
+		return this.flankingAA;
 	}
 	public void setFlankingAA(String flankingAA) {
 		this.flankingAA = flankingAA;
 	}
 	public double getPepValue() {
-		return pepValue;
+		return this.pepValue;
 	}
 	public void setPepValue(double pepValue) {
 		this.pepValue = pepValue;

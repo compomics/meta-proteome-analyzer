@@ -10,7 +10,7 @@ public enum ProteinProperty implements ElementProperty {
 	SPECTRALCOUNT("Spectral Count");
 	
 	
-	ProteinProperty(final String propertyName){
+	ProteinProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -18,6 +18,6 @@ public enum ProteinProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

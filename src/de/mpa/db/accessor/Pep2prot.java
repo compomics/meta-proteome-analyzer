@@ -41,8 +41,8 @@ public class Pep2prot extends Pep2protTableAccessor {
     public static Pep2prot findLink(Long peptideID, Long proteinID, Connection conn) throws SQLException {
 
     	Pep2prot temp = null;
-        PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + FK_PEPTIDEID  + " = ?" +
-        																   " AND " + FK_PROTEINID + " = ?");
+        PreparedStatement ps = conn.prepareStatement(Pep2protTableAccessor.getBasicSelect() + " WHERE " + Pep2protTableAccessor.FK_PEPTIDEID + " = ?" +
+        																   " AND " + Pep2protTableAccessor.FK_PROTEINID + " = ?");
         ps.setLong(1, peptideID);
         ps.setLong(2, proteinID);
         ResultSet rs = ps.executeQuery();
@@ -65,7 +65,7 @@ public class Pep2prot extends Pep2protTableAccessor {
      */
     public static List<Pep2prot> findLinkByProteinID(Long proteinID, Connection conn) throws SQLException {
     	List<Pep2prot> temp = new ArrayList<Pep2prot>();
-        PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + FK_PROTEINID + " = ?");
+        PreparedStatement ps = conn.prepareStatement(Pep2protTableAccessor.getBasicSelect() + " WHERE " + Pep2protTableAccessor.FK_PROTEINID + " = ?");
         ps.setLong(1, proteinID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -105,12 +105,12 @@ public class Pep2prot extends Pep2protTableAccessor {
     public static List<Long> findProteinIDsFromPeptideID(Long peptideID, Connection aConn) throws SQLException {
     	
     	List<Long> temp = new ArrayList<Long>();
-        PreparedStatement ps = aConn.prepareStatement("SELECT " + FK_PROTEINID + " FROM pep2prot" +
-        											  " WHERE " + FK_PEPTIDEID  + " = ?");
+        PreparedStatement ps = aConn.prepareStatement("SELECT " + Pep2protTableAccessor.FK_PROTEINID + " FROM pep2prot" +
+        											  " WHERE " + Pep2protTableAccessor.FK_PEPTIDEID + " = ?");
         ps.setLong(1, peptideID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            temp.add(rs.getLong(FK_PROTEINID));
+            temp.add(rs.getLong(Pep2protTableAccessor.FK_PROTEINID));
         }
         rs.close();
         ps.close();
@@ -129,7 +129,7 @@ public class Pep2prot extends Pep2protTableAccessor {
     public static List<Pep2prot> get_pep2prots_for_proteinid(Long proteinid, Connection aConn)  throws SQLException {
     	// init list
     	List<Pep2prot> results = new ArrayList<Pep2prot>();
-        PreparedStatement ps = aConn.prepareStatement("SELECT * FROM pep2prot WHERE " + FK_PROTEINID  + " = ?");
+        PreparedStatement ps = aConn.prepareStatement("SELECT * FROM pep2prot WHERE " + Pep2protTableAccessor.FK_PROTEINID + " = ?");
         ps.setLong(1, proteinid);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {

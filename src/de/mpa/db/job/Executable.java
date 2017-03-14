@@ -11,23 +11,23 @@ public interface Executable extends Runnable {
 	 * Return a description for the job.
 	 * @return description The description represented as String
 	 */
-	public String getDescription();
+    String getDescription();
 	
 	/**
 	 * Returns the job status. 
 	 * @return status The JobStatus
 	 */
-	public JobStatus getStatus();
+    JobStatus getStatus();
 	
 	/**
 	 * Returns the error (if any error has occurred)
 	 * @return error The error represented as String.
 	 */
-	public String getError();
+    String getError();
 	
 	/**
 	 * Run-method.
 	 */
-	public void run();
+    void run();
 
 }

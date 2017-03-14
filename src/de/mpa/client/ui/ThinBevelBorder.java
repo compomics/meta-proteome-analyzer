@@ -15,7 +15,7 @@ import javax.swing.border.BevelBorder;
 @SuppressWarnings("serial")
 public class ThinBevelBorder extends BevelBorder {
 	
-	private Insets insets;
+	private final Insets insets;
 
 	/**
 	 * Creates a thin bevel border with the specified type and
@@ -34,7 +34,7 @@ public class ThinBevelBorder extends BevelBorder {
 	
 	@Override
 	public Insets getBorderInsets(Component c) {
-		return insets;
+		return this.insets;
 	}
     
 	@Override
@@ -53,13 +53,13 @@ public class ThinBevelBorder extends BevelBorder {
 
 		g.translate(x, y);
 
-		g.setColor(getHighlightOuterColor(c));
-		g.drawLine(insets.left-1, insets.top-1, insets.left-1, h-insets.bottom);	// left
-		g.drawLine(insets.left, insets.top-1, w-insets.right, insets.top-1);		// top
+		g.setColor(this.getHighlightOuterColor(c));
+		g.drawLine(this.insets.left-1, this.insets.top-1, this.insets.left-1, h- this.insets.bottom);	// left
+		g.drawLine(this.insets.left, this.insets.top-1, w- this.insets.right, this.insets.top-1);		// top
 
-		g.setColor(getShadowOuterColor(c));
-		g.drawLine(insets.left, h-insets.bottom, w-insets.right, h-insets.bottom);	// bottom
-		g.drawLine(w-insets.right, insets.top, w-insets.right, h-insets.bottom-1);	// right
+		g.setColor(this.getShadowOuterColor(c));
+		g.drawLine(this.insets.left, h- this.insets.bottom, w- this.insets.right, h- this.insets.bottom);	// bottom
+		g.drawLine(w- this.insets.right, this.insets.top, w- this.insets.right, h- this.insets.bottom-1);	// right
 
 		g.translate(-x, -y);
 		g.setColor(oldColor);
@@ -75,13 +75,13 @@ public class ThinBevelBorder extends BevelBorder {
 
 		g.translate(x, y);
 
-		g.setColor(getShadowInnerColor(c));
-		g.drawLine(insets.left-1, insets.top-1, insets.left-1, h-insets.bottom);	// left
-		g.drawLine(insets.left, insets.top-1, w-insets.right, insets.top-1);		// top
+		g.setColor(this.getShadowInnerColor(c));
+		g.drawLine(this.insets.left-1, this.insets.top-1, this.insets.left-1, h- this.insets.bottom);	// left
+		g.drawLine(this.insets.left, this.insets.top-1, w- this.insets.right, this.insets.top-1);		// top
 
-		g.setColor(getHighlightOuterColor(c));
-		g.drawLine(insets.left, h-insets.bottom, w-insets.right, h-insets.bottom);	// bottom
-		g.drawLine(w-insets.right, insets.top, w-insets.right, h-insets.bottom-1);	// right
+		g.setColor(this.getHighlightOuterColor(c));
+		g.drawLine(this.insets.left, h- this.insets.bottom, w- this.insets.right, h- this.insets.bottom);	// bottom
+		g.drawLine(w- this.insets.right, this.insets.top, w- this.insets.right, h- this.insets.bottom-1);	// right
 
 		g.translate(-x, -y);
 		g.setColor(oldColor);

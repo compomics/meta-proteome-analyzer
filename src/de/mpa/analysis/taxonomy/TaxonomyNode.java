@@ -1,11 +1,11 @@
 package de.mpa.analysis.taxonomy;
 
+import de.mpa.analysis.UniProtUtilities;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 
 
 /**
@@ -30,13 +30,13 @@ public class TaxonomyNode implements Comparable, Serializable {
 	/**
 	 * The taxonomic rank.
 	 */
-	private TaxonomyRank taxRank;
+	private UniProtUtilities.TaxonomyRank taxRank;
 
 	/**
 	 * The taxonomy name.
 	 */
 	private String taxName;
-	
+
 	/**
 	 * The parent taxonomy node.
 	 */
@@ -48,10 +48,10 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * @param rank The taxonomic rank
 	 * @param description The taxonomy description
 	 */
-	public TaxonomyNode(int taxId, TaxonomyRank rank, String description) {
+	public TaxonomyNode(int taxId, UniProtUtilities.TaxonomyRank rank, String description) {
 		this(taxId, rank, description, null);
 	}
-	
+
 	/**
 	 * Constructs a NCBI taxonomy node.
 	 * @param taxId The taxonomy ID
@@ -59,7 +59,7 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * @param taxName The taxonomy name
 	 * @param parentNode Parent node
 	 */
-	public TaxonomyNode(int taxId, TaxonomyRank rank, String taxName, TaxonomyNode parentNode) {
+	public TaxonomyNode(int taxId, UniProtUtilities.TaxonomyRank rank, String taxName, TaxonomyNode parentNode) {
 		this.taxId = taxId;
 		this.taxRank = rank;
 		this.taxName = taxName;
@@ -86,7 +86,7 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * Returns the taxonomic rank.
 	 * @return the taxonomic rank
 	 */
-	public TaxonomyRank getRank() {
+	public UniProtUtilities.TaxonomyRank getRank() {
 		return taxRank;
 	}
 
@@ -94,7 +94,7 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * Sets the taxonomic rank.
 	 * @param rank The taxonomic rank to set
 	 */
-	public void setRank(TaxonomyRank rank) {
+	public void setRank(UniProtUtilities.TaxonomyRank rank) {
 		this.taxRank = rank;
 	}
 
@@ -105,7 +105,7 @@ public class TaxonomyNode implements Comparable, Serializable {
 	public String getName() {
 		return taxName;
 	}
-	
+
 	/**
 	 * Sets the taxonomy name.
 	 * @param taxName the taxonomy name to set
@@ -121,21 +121,21 @@ public class TaxonomyNode implements Comparable, Serializable {
 	public TaxonomyNode getParentNode() {
 		return parentNode;
 	}
-	
+
 	/**
 	 * Returns the parent taxonomy node of the specified rank.
 	 * @param rank the desired parent rank
 	 * @return the parent taxonomy node of the desired rank.
 	 */
-	public TaxonomyNode getParentNode(TaxonomyRank rank) {
-		
+	public TaxonomyNode getParentNode(UniProtUtilities.TaxonomyRank rank) {
+
 		TaxonomyNode parentNode = this;
-		
+
 		if (parentNode.getID() == 1) {
 			return new TaxonomyNode(0, rank, "Unknown");
 		}
 
-		TaxonomyRank parentRank = parentNode.getRank();
+		UniProtUtilities.TaxonomyRank parentRank = parentNode.getRank();
 		while (!rank.equals(parentRank)) {
 			parentNode = parentNode.getParentNode();
 			if (parentNode.getID() == 1) {
@@ -162,7 +162,7 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * @return <code>true</code> if this node is the taxonomic root, <code>false</code> otherwise
 	 */
 	public boolean isRoot() {
-		return (this.taxId == 1);
+		return (taxId == 1);
 	}
 	
 	/**
@@ -187,30 +187,30 @@ public class TaxonomyNode implements Comparable, Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof TaxonomyNode) {
 			TaxonomyNode that = (TaxonomyNode) obj;			
-			return (this.getID() == that.getID());
+			return (getID() == that.getID());
 		}
 		return false;
 	}
 	
 	@Override
 	public int hashCode() {
-		return this.getID();
+		return getID();
 	}
 
 	@Override
 	public String toString() {
-		return this.getName() + " (" + this.getRank() + ") [" + this.getID() + "]";
+		return getName() + " (" + getRank() + ") [" + getID() + "]";
 	}
 
 	@Override
 	public int compareTo(Object obj) {
 		if (obj instanceof TaxonomyNode) {
 			TaxonomyNode that = (TaxonomyNode) obj;			
-			if (this.getID()> that.getID()) {
+			if (getID()> that.getID()) {
 				return 1;
-			}else if (this.getID()== that.getID()) {
+			}else if (getID()== that.getID()) {
 				return 0;
-			}else if (this.getID()< that.getID()) {
+			}else if (getID()< that.getID()) {
 				return -1;
 			}
 		}

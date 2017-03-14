@@ -44,7 +44,7 @@ public class ButtonTabbedPane extends JTabbedPane {
 	 * @param busy <code>true</code> if the tab is to be busy, <code>false</code> otherwise
 	 */
 	public void setBusyAt(int index, boolean busy) {
-		((Busyable) this.getTabComponentAt(index)).setBusy(busy);
+		((Busyable) getTabComponentAt(index)).setBusy(busy);
 	}
 	
 	/**
@@ -61,18 +61,18 @@ public class ButtonTabbedPane extends JTabbedPane {
      */
 	public void addTab(String title, Icon icon, Component component) {
 		// add dummy tab
-		super.addTab(" ", component);
+		addTab(" ", component);
 		
 		// create and insert tab button
 		JButton tabButton = new TabPaneButton(this, title, icon);
-		this.setTabComponentAt(this.getTabCount() - 1, tabButton);
+        setTabComponentAt(getTabCount() - 1, tabButton);
 	}
 
 	@Override
 	public void setEnabledAt(int index, boolean enabled) {
 		super.setEnabledAt(index, enabled);
 		// propagate enable state to tab component
-		this.getTabComponentAt(index).setEnabled(enabled);
+        getTabComponentAt(index).setEnabled(enabled);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class ButtonTabbedPane extends JTabbedPane {
 		/**
 		 * The busy label overlaid on top of this button.
 		 */
-		private JXBusyLabel busyLbl;
+		private final JXBusyLabel busyLbl;
 
 		/**
 		 * Constructs a button to be used inside JTabbedPane tabs for rollover effects.	
@@ -92,58 +92,58 @@ public class ButtonTabbedPane extends JTabbedPane {
 		 * @param text the text to be displayed as tab title
 		 * @param icon the icon to be displayed on the tab
 		 */
-		public TabPaneButton(final JTabbedPane tabPane, String text, Icon icon) {
+		public TabPaneButton(JTabbedPane tabPane, String text, Icon icon) {
 			super(text, icon);
 
-			this.setRolloverIcon(IconConstants.createColorRescaledIcon(icon, 1.1f));
-			this.setPressedIcon(IconConstants.createColorRescaledIcon(icon, 0.8f));
-			this.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 5));
-			this.setContentAreaFilled(false);
-			this.setFocusable(false);
-			this.setHorizontalAlignment(SwingConstants.LEFT);
+            setRolloverIcon(IconConstants.createColorRescaledIcon(icon, 1.1f));
+            setPressedIcon(IconConstants.createColorRescaledIcon(icon, 0.8f));
+            setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 5));
+            setContentAreaFilled(false);
+            setFocusable(false);
+            setHorizontalAlignment(SwingConstants.LEFT);
 
-			this.addMouseListener(new MouseAdapter() {
+            addMouseListener(new MouseAdapter() {
 				public void mousePressed(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				public void mouseReleased(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				public void mouseClicked(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				private void forwardEvent(MouseEvent me) {
 					tabPane.dispatchEvent(SwingUtilities.convertMouseEvent((Component) me.getSource(), me, tabPane));
 				}
 			});
 
-			this.setLayout(new BorderLayout());
+            setLayout(new BorderLayout());
 
-			this.busyLbl = new JXBusyLabel();
-			this.busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
-			this.busyLbl.setVisible(false);
+            busyLbl = new JXBusyLabel();
+            busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
+            busyLbl.setVisible(false);
 
-			this.add(this.busyLbl, BorderLayout.CENTER);
+            add(busyLbl, BorderLayout.CENTER);
 		}
 
 		@Override
 		public boolean isBusy() {
-			return this.busyLbl.isBusy();
+			return busyLbl.isBusy();
 		}
 
 		@Override
 		public void setBusy(boolean busy) {
-			this.busyLbl.setVisible(busy);
-			this.busyLbl.setBusy(busy);
+            busyLbl.setVisible(busy);
+            busyLbl.setBusy(busy);
 		}
 
 		@Override
 		public Dimension getPreferredSize() {
 			// as the preferred size is determined by the layout if any components are added we
 			// temporarily remove the busy label to get at the proper value - hacky, but it works
-			this.remove(this.busyLbl);
+            remove(busyLbl);
 			Dimension prefSize = super.getPreferredSize();
-			this.add(busyLbl, BorderLayout.CENTER);
+            add(this.busyLbl, BorderLayout.CENTER);
 			return prefSize;
 		}
 

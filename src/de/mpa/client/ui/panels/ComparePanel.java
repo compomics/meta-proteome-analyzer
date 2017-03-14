@@ -52,6 +52,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import de.mpa.client.ui.chart.OntologyChart;
+import de.mpa.client.ui.chart.TaxonomyChart;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.decorator.BorderHighlighter;
@@ -59,8 +61,6 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.HighlightPredicate.ColumnHighlightPredicate;
-import org.jdesktop.swingx.decorator.HighlightPredicate.NotHighlightPredicate;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -83,8 +83,6 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.ProjectManager;
@@ -110,7 +108,7 @@ public class ComparePanel extends JPanel {
 	/**
 	 * The local map of meta-protein generation-related parameters.
 	 */
-	private ResultParameters metaParams;
+	private final ResultParameters metaParams;
 
 	/**
 	 * The scroll pane containing the comparison table.
@@ -126,10 +124,9 @@ public class ComparePanel extends JPanel {
 	 * Constructs an experiment compare panel.
 	 */
 	public ComparePanel() {
-		super();
-		// Initialize local instance of result fetching parameters.
-		this.metaParams = new ResultParameters();
-		initComponents();
+        // Initialize local instance of result fetching parameters.
+        metaParams = new ResultParameters();
+        this.initComponents();
 	}
 
 	/**
@@ -137,7 +134,7 @@ public class ComparePanel extends JPanel {
 	 */
 	@SuppressWarnings("serial")
 	private void initComponents() {
-		this.setLayout(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:p:g(0.3), 5dlu, f:p:g(0.7), 5dlu"));
+        setLayout(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:p:g(0.3), 5dlu, f:p:g(0.7), 5dlu"));
 		
 		// create panel containing experiment/display settings/controls
 		JPanel settingsPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, m, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -147,7 +144,7 @@ public class ComparePanel extends JPanel {
 		experimentPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		experimentPnl.setBorder(BorderFactory.createTitledBorder("Experiments"));
 		
-		final JXTable experimentTbl = new ListTable("Click here to add an experiment...");
+		JXTable experimentTbl = new ListTable("Click here to add an experiment...");
 		experimentTbl.setHorizontalScrollEnabled(true);
 		
 		class MyTableCellRenderer extends JLabel implements TableCellRenderer {
@@ -157,15 +154,15 @@ public class ComparePanel extends JPanel {
 
 		    	if (value instanceof ProjectExperiment) {
 					ProjectExperiment exp = (ProjectExperiment) value;
-					setText(exp.getTitle());
-					setFont(new Font("Dialog", Font.PLAIN, 12));
+                    this.setText(exp.getTitle());
+                    this.setFont(new Font("Dialog", Font.PLAIN, 12));
 				}else {
-					setText((String) value);
+                    this.setText((String) value);
 				}
 				return this;
-		    };
-		    
-		}
+		    }
+
+        }
 		
 		experimentTbl.getColumnModel().getColumn(0).setCellRenderer(new MyTableCellRenderer());
 		
@@ -189,22 +186,22 @@ public class ComparePanel extends JPanel {
 		ButtonGroup bg = new ButtonGroup();
 		JRadioButton ontoRbtn = new JRadioButton("Ontology", false);
 		bg.add(ontoRbtn);
-		List<OntologyChartType> ontoList = Arrays.asList(OntologyChartType.values()).subList(0, 3);
-		OntologyChartType[] ontoArray = ontoList.toArray(new OntologyChartType[ontoList.size()]);
-		
-		final JComboBox<OntologyChartType> ontoCbx = new JComboBox<>(ontoArray);
+		List<OntologyChart.OntologyChartType> ontoList = Arrays.asList(OntologyChart.OntologyChartType.values()).subList(0, 3);
+		OntologyChart.OntologyChartType[] ontoArray = ontoList.toArray(new OntologyChart.OntologyChartType[ontoList.size()]);
+
+		final JComboBox<OntologyChart.OntologyChartType> ontoCbx = new JComboBox<>(ontoArray);
 		ontoCbx.setEnabled(false);
 		JRadioButton taxoRbtn = new JRadioButton("Taxonomy", false);
 		bg.add(taxoRbtn);
-		final JComboBox<TaxonomyChartType> taxoCbx = new JComboBox<>(TaxonomyChartType.values());
+		JComboBox<TaxonomyChart.TaxonomyChartType> taxoCbx = new JComboBox<>(TaxonomyChart.TaxonomyChartType.values());
 		taxoCbx.setEnabled(false);
 		JRadioButton hieroRbtn = new JRadioButton("Hierarchy", true);
 		bg.add(hieroRbtn);
-		final JComboBox<HierarchyLevel> hieroCbx = new JComboBox<>(HierarchyLevel.values());
+		JComboBox<HierarchyLevel> hieroCbx = new JComboBox<>(HierarchyLevel.values());
 		
 		List<HierarchyLevel> countList = Arrays.asList(HierarchyLevel.values()).subList(2, 4);
 		HierarchyLevel[] countArray = countList.toArray(new HierarchyLevel[countList.size()]);
-		final JComboBox<HierarchyLevel> countCbx = new JComboBox<>(countArray);
+		JComboBox<HierarchyLevel> countCbx = new JComboBox<>(countArray);
 		countCbx.setSelectedIndex(1);
 		
 		// listen for radio button selection changes and enable/disable combo boxes accordingly
@@ -228,7 +225,7 @@ public class ComparePanel extends JPanel {
 		});
 
 		// create button-in-button component for advanced result fetching settings
-		final JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
+		JButton settingsBtn = new JButton(IconConstants.SETTINGS_SMALL_ICON);
 		settingsBtn.setEnabled(!Client.isViewer()); 
 		settingsBtn.setRolloverIcon(IconConstants.SETTINGS_SMALL_ROLLOVER_ICON);
 		settingsBtn.setPressedIcon(IconConstants.SETTINGS_SMALL_PRESSED_ICON);		
@@ -240,23 +237,23 @@ public class ComparePanel extends JPanel {
 				if (AdvancedSettingsDialog.showDialog(
 						ClientFrame.getInstance(),
 						"Result Fetching settings",
-						true, metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
+						true, ComparePanel.this.metaParams) == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
 				}
 			}
 		});
 
-		compareBtn = new JButton("Compare", IconConstants.COMPARE_ICON) {
+        this.compareBtn = new JButton("Compare", IconConstants.COMPARE_ICON) {
 			@Override
 			public void setEnabled(boolean b) {
 				super.setEnabled(b);
 				settingsBtn.setEnabled(b);
 			}
 		};
-		compareBtn.setEnabled(false); 
-		compareBtn.setRolloverIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
-		compareBtn.setPressedIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));		
-		compareBtn.setIconTextGap(7);
-		compareBtn.setUI(new PlasticButtonUI() {
+        this.compareBtn.setEnabled(false);
+        this.compareBtn.setRolloverIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 1.1f));
+        this.compareBtn.setPressedIcon(IconConstants.createColorRescaledIcon(IconConstants.COMPARE_ICON, 0.8f));
+        this.compareBtn.setIconTextGap(7);
+        this.compareBtn.setUI(new PlasticButtonUI() {
 			@Override
 			protected void paintFocus(Graphics g, AbstractButton b,
 					Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
@@ -264,7 +261,7 @@ public class ComparePanel extends JPanel {
 		        int width = b.getWidth() - 1 - topLeftInset * 2;
 		        int height = b.getHeight() - 1 - topLeftInset * 2;
 				
-				g.setColor(this.getFocusColor());
+				g.setColor(getFocusColor());
 				g.drawLine(2, 2, 2, 2 + height + 1);
 				g.drawLine(2, 2 + height + 1, 2 + width + 1, 2 + height + 1);
 				g.drawLine(2 + width + 1, 2 + height + 1, 2 + width + 1, 24);
@@ -273,13 +270,13 @@ public class ComparePanel extends JPanel {
 				g.drawLine(2 + width -20, 2, 2, 2);
 			}
 		});
-		
-		compareBtn.setLayout(new FormLayout("0px:g, p", "p, 0px:g"));
-		compareBtn.add(settingsBtn, CC.xy(2, 1));
-		compareBtn.setMargin(new Insets(-2, -3, -3, -3));
+
+        this.compareBtn.setLayout(new FormLayout("0px:g, p", "p, 0px:g"));
+        this.compareBtn.add(settingsBtn, CC.xy(2, 1));
+        this.compareBtn.setMargin(new Insets(-2, -3, -3, -3));
 
 		// install action on compare button to set up comparison background task
-		compareBtn.addActionListener(new ActionListener() {
+        this.compareBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// fetch experiments from list table
@@ -299,7 +296,7 @@ public class ComparePanel extends JPanel {
 				}
 				HierarchyLevel zAxisType = (HierarchyLevel) countCbx.getSelectedItem();
 				ComparePanel.this.experiments = experiments;
-				CompareTask compareTask = new CompareTask(yAxisType, zAxisType);
+				ComparePanel.CompareTask compareTask = new ComparePanel.CompareTask(yAxisType, zAxisType);
 				compareTask.execute();
 			}
 		});
@@ -312,7 +309,7 @@ public class ComparePanel extends JPanel {
 		controlPnl.add(hieroCbx, CC.xy(4, 6));
 		controlPnl.add(new JLabel("Count", SwingConstants.CENTER), CC.xy(2, 8));
 		controlPnl.add(countCbx, CC.xy(4, 8));
-		controlPnl.add(compareBtn, CC.xyw(2, 10, 3));
+		controlPnl.add(this.compareBtn, CC.xyw(2, 10, 3));
 		
 		settingsPnl.add(experimentPnl, CC.xy(2, 2));
 		settingsPnl.add(controlPnl, CC.xy(4, 2));
@@ -324,7 +321,7 @@ public class ComparePanel extends JPanel {
 		
 		ComparePanelTableModel comparePanelTableModel = new ComparePanelTableModel();
 		
-		final JXTable compareTbl = new JXTable(comparePanelTableModel) {
+		JXTable compareTbl = new JXTable(comparePanelTableModel) {
 			@Override
 			public Dimension getPreferredSize() {
 				Dimension size = super.getPreferredSize();
@@ -336,7 +333,7 @@ public class ComparePanel extends JPanel {
 		compareTbl.setHorizontalScrollEnabled(true);
 		compareTbl.addHighlighter(TableConfig.getSimpleStriping());
 		
-		final JXTable headerTbl = new JXTable(compareTbl.getModel()) {
+		JXTable headerTbl = new JXTable(compareTbl.getModel()) {
 			@Override
 			public Dimension getPreferredSize() {
 				Dimension size = super.getPreferredSize();
@@ -350,7 +347,7 @@ public class ComparePanel extends JPanel {
 		
 		headerTbl.setIntercellSpacing(new Dimension());
 		headerTbl.addHighlighter(new CompoundHighlighter(
-				new NotHighlightPredicate(new ColumnHighlightPredicate(0)),
+				new HighlightPredicate.NotHighlightPredicate(new HighlightPredicate.ColumnHighlightPredicate(0)),
 				TableConfig.getSimpleStriping(), new BorderHighlighter(
 						BorderFactory.createMatteBorder(0, 0, 1, 1, UIManager.getColor("Table.gridColor")))));
 		
@@ -359,7 +356,7 @@ public class ComparePanel extends JPanel {
 		headerTbl.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
 			@Override
 			public void columnMarginChanged(ChangeEvent evt) {
-				JViewport rowHeader = comparePane.getRowHeader();
+				JViewport rowHeader = ComparePanel.this.comparePane.getRowHeader();
 				Dimension prefSize = rowHeader.getPreferredSize();
 				prefSize.width = headerTbl.getPreferredSize().width;
 				rowHeader.setPreferredSize(prefSize);
@@ -370,26 +367,26 @@ public class ComparePanel extends JPanel {
 			public void columnMoved(TableColumnModelEvent evt) { }
 			public void columnAdded(TableColumnModelEvent evt) { }
 		});
-		
-		comparePane = new JScrollPane(compareTbl);
-		comparePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		comparePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		comparePane.setPreferredSize(new Dimension());
-		
-		comparePane.setRowHeaderView(headerTbl);
-		comparePane.setCorner(JScrollPane.UPPER_LEFT_CORNER, header);
+
+        this.comparePane = new JScrollPane(compareTbl);
+        this.comparePane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        this.comparePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.comparePane.setPreferredSize(new Dimension());
+
+        this.comparePane.setRowHeaderView(headerTbl);
+        this.comparePane.setCorner(JScrollPane.UPPER_LEFT_CORNER, header);
 		
 		JPanel dummyPnl = new JPanel();
 		dummyPnl.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIManager.getColor("controlDkShadow")));
-		comparePane.setCorner(JScrollPane.LOWER_LEFT_CORNER, dummyPnl);
+        this.comparePane.setCorner(JScrollPane.LOWER_LEFT_CORNER, dummyPnl);
 		
-		compareTblPnl.add(comparePane, CC.xy(2, 2));
+		compareTblPnl.add(this.comparePane, CC.xy(2, 2));
 		
 		// Create button panel
 		JPanel buttonPnl = new JPanel(new FormLayout("22px, 2px, 22px, 1px", "f:20px"));
 		buttonPnl.setOpaque(false);
 		
-		final JToggleButton numberTgl = new JToggleButton(IconConstants.TEXTFIELD_ICON);
+		JToggleButton numberTgl = new JToggleButton(IconConstants.TEXTFIELD_ICON);
 		numberTgl.setRolloverIcon(IconConstants.TEXTFIELD_ROLLOVER_ICON);
 		numberTgl.setPressedIcon(IconConstants.TEXTFIELD_PRESSED_ICON);
 		numberTgl.setUI((RolloverButtonUI) RolloverButtonUI.createUI(numberTgl));
@@ -412,7 +409,7 @@ public class ComparePanel extends JPanel {
 		exportBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				this.export2Csv();
+                export2Csv();
 			}
 
 			/**
@@ -422,7 +419,7 @@ public class ComparePanel extends JPanel {
 				/**
 				 * TSV format separator.
 				 */
-				final String SEP = "\t";
+				String SEP = "\t";
 		
 				// Add Filechooser
 				JFileChooser chooser = new JFileChooser();
@@ -439,7 +436,7 @@ public class ComparePanel extends JPanel {
 						bw = new BufferedWriter(new FileWriter(selectedFile));
 						
 						// Get model
-						TableModel model = ((JTable) comparePane.getViewport().getView()).getModel();
+						TableModel model = ((JTable) ComparePanel.this.comparePane.getViewport().getView()).getModel();
 						
 						// Add header line
 						for (int col = 0; col < model.getColumnCount(); col++) {
@@ -505,9 +502,9 @@ public class ComparePanel extends JPanel {
 		
 		JXTitledPanel compareTblTtlPnl = PanelConfig.createTitledPanel(
 				"Comparison Table", compareTblPnl, null, buttonPnl);
-		
-		this.add(settingsTtlPnl, CC.xy(2, 2));
-		this.add(compareTblTtlPnl, CC.xy(2, 4));
+
+        add(settingsTtlPnl, CC.xy(2, 2));
+        add(compareTblTtlPnl, CC.xy(2, 4));
 	}
 	
 	/**
@@ -519,7 +516,7 @@ public class ComparePanel extends JPanel {
 		/**
 		 * The table of choosen experiments
 		 */
-		private JTable table;
+		private final JTable table;
 		
 		/**
 		 * Creates a selection handler for the specified table.
@@ -532,30 +529,30 @@ public class ComparePanel extends JPanel {
 		@Override
 		public void valueChanged(ListSelectionEvent evt) {
 			if (!evt.getValueIsAdjusting()) {
-				int row = this.table.getSelectedRow();
-				if (row == (this.table.getRowCount() - 1)) {
+				int row = table.getSelectedRow();
+				if (row == (table.getRowCount() - 1)) {
 					try {
 						// create dialog for experiment selection from the database
-						List<ProjectExperiment> experiments = this.showExperimentSelectionDialog();
-						this.table.clearSelection();
+						List<ProjectExperiment> experiments = showExperimentSelectionDialog();
+                        table.clearSelection();
 						if (!experiments.isEmpty()) {
-							compareBtn.setEnabled(true);
+                            ComparePanel.this.compareBtn.setEnabled(true);
 							for (ProjectExperiment experiment : experiments) {
-								TableModel model = this.table.getModel();
+								TableModel model = table.getModel();
 								// check whether experiment already exists
 								for (int i = 0; i < model.getRowCount() - 1; i++) {
 									if (experiment.equals(model.getValueAt(i, 0))) {
-										this.table.getSelectionModel().setSelectionInterval(i, i);
+                                        table.getSelectionModel().setSelectionInterval(i, i);
 										return;
 									}
 								}
-								int lastRow = this.table.getRowCount() - 1;
+								int lastRow = table.getRowCount() - 1;
 								((DefaultTableModel) model).insertRow(
 										lastRow, new Object[] { experiment });
-								this.table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
+                                table.getSelectionModel().setSelectionInterval(lastRow, lastRow);
 							}
 						} else {
-							compareBtn.setEnabled(false);
+                            ComparePanel.this.compareBtn.setEnabled(false);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -573,8 +570,7 @@ public class ComparePanel extends JPanel {
 			JPanel dialogPnl = new JPanel();
 			dialogPnl.setLayout(new FormLayout("5dlu, p, 5dlu, p, 5dlu" , "5dlu, p, 5dlu"));
 		
-			@SuppressWarnings("serial")
-			final JTable projTbl = new JTable(new DefaultTableModel(new Object[] { "Projects" }, 0)) {
+			@SuppressWarnings("serial") JTable projTbl = new JTable(new DefaultTableModel(new Object[] { "Projects" }, 0)) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -584,16 +580,15 @@ public class ComparePanel extends JPanel {
 		
 			// Initialize ProjectManager to access projects and experiments in the database
 			// Get projects from database.
-			final List<AbstractProject> projects = ProjectManager.getInstance().getProjects();
+			List<AbstractProject> projects = ProjectManager.getInstance().getProjects();
 		
 			List<String> titles = new ArrayList<String>();
 			for (AbstractProject project : projects) {
 				titles.add(project.getTitle());
 			}
-			this.fillTable(projTbl, titles);
+            fillTable(projTbl, titles);
 		
-			@SuppressWarnings("serial")
-			final JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
+			@SuppressWarnings("serial") JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -601,7 +596,7 @@ public class ComparePanel extends JPanel {
 			};
 //			expTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-			final List<ProjectExperiment> experiments = new ArrayList<ProjectExperiment>();
+			List<ProjectExperiment> experiments = new ArrayList<ProjectExperiment>();
 		
 			projTbl.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				public void valueChanged(ListSelectionEvent e) {
@@ -615,7 +610,7 @@ public class ComparePanel extends JPanel {
 						for (ProjectExperiment experiment : experiments) {
 							titles.add(experiment.getTitle());
 						}
-						ExperimentTableHandler.this.fillTable(expTbl, titles);
+                        fillTable(expTbl, titles);
 					}
 				}
 			});
@@ -670,12 +665,12 @@ public class ComparePanel extends JPanel {
 		/**
 		 * The comparison attribute type.
 		 */
-		private ChartType chartType;
+		private final ChartType chartType;
 		
 		/**
 		 * The comparison count type.
 		 */
-		private HierarchyLevel countLevel;
+		private final HierarchyLevel countLevel;
 		
 		/**
 		 * ExperimentComparison instance.
@@ -693,7 +688,7 @@ public class ComparePanel extends JPanel {
 		 * @param countLevel
 		 */
 		public CompareTask(ChartType hierarchyLevel, HierarchyLevel countLevel) {
-			this.chartType = hierarchyLevel;
+            chartType = hierarchyLevel;
 			this.countLevel = countLevel;
 		}
 
@@ -704,19 +699,19 @@ public class ComparePanel extends JPanel {
 				client.firePropertyChange("new message", null, "STARTING COMPARISON AND FETCHING DATA");
 				client.setupGraphDatabase(false);
 				
-				final GraphDatabaseHandler graphDatabaseHandler = client.getGraphDatabaseHandler();
+				GraphDatabaseHandler graphDatabaseHandler = client.getGraphDatabaseHandler();
 				// Iterate the experiments.
-				metaProtList = new ProteinHitList();
-				for (AbstractExperiment experiment : experiments) {
+                this.metaProtList = new ProteinHitList();
+				for (AbstractExperiment experiment : ComparePanel.this.experiments) {
 					DbSearchResult dbSearchResult = experiment.getSearchResult();
-					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, metaParams);
+					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);
 					dbSearchResult.setRaw(false);
 					graphDatabaseHandler.setData(dbSearchResult);
-					metaProtList.addAll(dbSearchResult.getMetaProteins());
+                    this.metaProtList.addAll(dbSearchResult.getMetaProteins());
 				}
 				
 				// Compare the experiments.
-				expComparison = new ExperimentComparison(experiments, metaProtList, graphDatabaseHandler, this.chartType, this.countLevel);
+                this.expComparison = new ExperimentComparison(ComparePanel.this.experiments, this.metaProtList, graphDatabaseHandler, chartType, countLevel);
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -726,8 +721,8 @@ public class ComparePanel extends JPanel {
 		
 		@Override
 		protected void done() {
-			if (expComparison != null) {
-				refreshCompareTable(expComparison.getDataMap(), experiments);
+			if (this.expComparison != null) {
+                this.refreshCompareTable(this.expComparison.getDataMap(), ComparePanel.this.experiments);
 			} else {
 				Client.getInstance().firePropertyChange("new message", null, "QUERYING COMPARISON DATA FINISHED");
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
@@ -741,7 +736,7 @@ public class ComparePanel extends JPanel {
 		 */
 		private void refreshCompareTable(Map<String, Long[]> dataMap, List<AbstractExperiment> experiments) {
 			String[] columnNames;
-			final int offset = 1;
+			int offset = 1;
 			columnNames = new String[experiments.size() + offset];
 			columnNames[0] = "Description";
 			
@@ -753,7 +748,7 @@ public class ComparePanel extends JPanel {
 			}
 			
 			ComparePanelTableModel model = new ComparePanelTableModel(dataMap, experiments);
-			final JXTable compareTbl = (JXTable) comparePane.getViewport().getView();
+			JXTable compareTbl = (JXTable) ComparePanel.this.comparePane.getViewport().getView();
 			compareTbl.setModel(model);
 			compareTbl.setAutoCreateRowSorter(true);
 			
@@ -787,7 +782,7 @@ public class ComparePanel extends JPanel {
              */
             public CompareData(DbSearchResult result,
                             ChartType yAxisType, HierarchyLevel zAxisType) {
-                    super(result, EXPERIMENT, yAxisType, zAxisType);
+                    super(result, CompareData.EXPERIMENT, yAxisType, zAxisType);
             }
            
     }
@@ -812,19 +807,19 @@ public class ComparePanel extends JPanel {
 		 * @param model
 		 * @param editorString
 		 */
-		private ListTable(final DefaultTableModel model, final String editorString) {
+		private ListTable(DefaultTableModel model, String editorString) {
 			super(model);
 			model.addRow(new Object[] { editorString });
 
 			// Install highlighter to display last row's text in italics
 			Font italicFont = new JLabel().getFont().deriveFont(Font.ITALIC);
-			this.addHighlighter(new FontHighlighter(new HighlightPredicate() {
+            addHighlighter(new FontHighlighter(new HighlightPredicate() {
 				public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
 					return (adapter.row == (adapter.getRowCount() - 1));
 				}
 			}, italicFont));
 			// Install renderer to first column to remove focus border
-			this.getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
 				@Override
 				public Component getTableCellRendererComponent(JTable table,
 						Object value, boolean isSelected, boolean hasFocus,
@@ -834,7 +829,7 @@ public class ComparePanel extends JPanel {
 				}
 			});
 			// Install renderer to second column to display cross icon
-			this.getColumn(1).setCellRenderer(new TableCellRenderer() {
+            getColumn(1).setCellRenderer(new TableCellRenderer() {
 				@Override
 				public Component getTableCellRendererComponent(JTable table, Object value,
 						boolean isSelected, boolean hasFocus, int row, int column) {
@@ -851,19 +846,19 @@ public class ComparePanel extends JPanel {
 			});
 
 			// Hide vertical grid lines
-			this.setShowGrid(true, false);
+            setShowGrid(true, false);
 			// Allow only single selection
-			this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 			// Fix second column width and disallow reordering/resizing of columns
-			this.getColumn(1).setMaxWidth(18);
-			this.getTableHeader().setReorderingAllowed(false);
-			this.getTableHeader().setResizingAllowed(false);
+            getColumn(1).setMaxWidth(18);
+            getTableHeader().setReorderingAllowed(false);
+            getTableHeader().setResizingAllowed(false);
 
 			// Create text field editor for first column
 			JTextField editorTtf = new JTextField();
-			editorTtf.setBackground(this.getSelectionBackground());
-			editorTtf.setSelectionColor(this.getBackground());
+			editorTtf.setBackground(getSelectionBackground());
+			editorTtf.setSelectionColor(getBackground());
 			editorTtf.setBorder(null);
 			editorTtf.addFocusListener(new FocusAdapter() {
 				public void focusGained(FocusEvent e) {
@@ -875,24 +870,24 @@ public class ComparePanel extends JPanel {
 				@Override
 				public boolean stopCellEditing() {
 					// Check whether editor contents were changed
-					String val = (String) delegate.getCellEditorValue();
+					String val = (String) this.delegate.getCellEditorValue();
 					if (!val.equals(editorString)) {
 						// Changed row becomes non-editable, re-add editor row
 						boolean res = super.stopCellEditing();
 						model.addRow(new Object[] { editorString });
 						return res;
 					}
-					cancelCellEditing();
+                    this.cancelCellEditing();
 					return false;
 				}
 			};
-			this.getColumn(0).setCellEditor(textEditor);
+            getColumn(0).setCellEditor(textEditor);
 
 			// Create editor for second column, repurpose checkbox editor (checkboxes are basically buttons)
 			JCheckBox editorChk = new JCheckBox();
 			editorChk.setIcon(IconConstants.CROSS_ICON);
 			editorChk.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
-			this.getColumn(1).setCellEditor(new DefaultCellEditor(editorChk) {
+            getColumn(1).setCellEditor(new DefaultCellEditor(editorChk) {
 				@Override
 				public Component getTableCellEditorComponent(JTable table,
 						Object value, boolean isSelected, int row, int column) {
@@ -903,24 +898,24 @@ public class ComparePanel extends JPanel {
 				public boolean stopCellEditing() {
 					// Check whether editor value got changed (from 'false' to 'true')
 					boolean res = super.stopCellEditing();
-					if ((Boolean) getCellEditorValue()) {
+					if ((Boolean) this.getCellEditorValue()) {
 						// Remove selected table row
-						model.removeRow(getSelectedRow());
+						model.removeRow(ListTable.this.getSelectedRow());
 					}
 					return res;
 				}
 			});
 
 			// Remove table header to appear like a list
-			this.setTableHeader(null);
+            setTableHeader(null);
 		}
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			// only allow editing of last row's first column ('new group' editor)
 			// or every but last row's second column ('remove row' buttons)
-			return ((column == 0) && (row == (getRowCount() - 1))) ||
-					((column == 1) && (row < (getRowCount() - 1)));
+			return ((column == 0) && (row == (this.getRowCount() - 1))) ||
+					((column == 1) && (row < (this.getRowCount() - 1)));
 		}
 	}
 

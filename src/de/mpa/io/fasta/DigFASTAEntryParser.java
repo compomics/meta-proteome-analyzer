@@ -1,5 +1,7 @@
 package de.mpa.io.fasta;
 
+import de.mpa.io.fasta.DigFASTAEntry.Type;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -62,7 +64,7 @@ public class DigFASTAEntryParser {
 		String identifier = "";
 
 		// The type of the FASTA entry
-		DigFASTAEntry.Type type = null;
+		Type type = null;
 
 		// The subparts of the header
 		ArrayList<String> subHeaderList = new ArrayList<String>();
@@ -71,7 +73,7 @@ public class DigFASTAEntryParser {
 		String description = "";
 
 		// Parse the header line.
-		for (DigFASTAEntry.Type db_Type : DigFASTAEntry.Type.values()) {
+		for (Type db_Type : Type.values()) {
 			if (header.startsWith(db_Type.dbStartFlag)) {
 				// Defines the database entry type, see DigFASTAEntry class
 				type = db_Type;
@@ -96,7 +98,7 @@ public class DigFASTAEntryParser {
 				}
 				// Second entry is the description or in case from NCBI the 4th
 				// one
-				if (!type.equals(DigFASTAEntry.Type.NCBIGENBANK)) {
+				if (!type.equals(Type.NCBIGENBANK)) {
 					if (subHeaderList.size() > 1
 							&& subHeaderList.get(1) != null
 							& subHeaderList.get(1).length() > 0) {

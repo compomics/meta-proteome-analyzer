@@ -118,7 +118,7 @@ public class TableConfig {
 //				}
 				Enumeration<? extends MutableTreeTableNode> children = root.children();
 				while (children.hasMoreElements()) {
-					MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
+					MutableTreeTableNode child = children.nextElement();
 					model.removeNodeFromParent(child);
 					child = null;
 				}
@@ -143,7 +143,7 @@ public class TableConfig {
 			// Table is a checkbox treetable, so get at first the rootmpde
 			TreeTableNode root = (TreeTableNode) treeTbl.getTreeTableModel().getRoot();
 			// Get maximum tree length 
-			int maxDepth = getMaximumDepth(0, root);
+			int maxDepth = TableConfig.getMaximumDepth(0, root);
 			// Get separators for the csv file
 			String rowSep = System.getProperty("line.separator");
 			String colSep = Constants.TSV_FILE_SEPARATOR;
@@ -217,7 +217,7 @@ public class TableConfig {
 		Enumeration<? extends TreeTableNode> children = parent.children();
 		while (children.hasMoreElements()) {
 			TreeTableNode child = children.nextElement();
-			maxDepth = Math.max(depth, getMaximumDepth(depth + 1, child));
+			maxDepth = Math.max(depth, TableConfig.getMaximumDepth(depth + 1, child));
 		}
 		return maxDepth;
 	}
@@ -227,7 +227,7 @@ public class TableConfig {
 	 * @return a striping highlighter
 	 */
 	public static Highlighter getSimpleStriping() {
-		if (simpleStriping == null) {
+		if (TableConfig.simpleStriping == null) {
 			Color evenCol = UIManager.getColor("Table.background");
 			Color oddCol = ColorUtils.getRescaledColor(evenCol, 0.95f);
 			Color selOddCol = UIManager.getColor("Table.selectionBackground");
@@ -235,9 +235,9 @@ public class TableConfig {
 			
 			ColorHighlighter base = new ColorHighlighter(HighlightPredicate.EVEN, evenCol, null, selEvenCol, null);
 	        ColorHighlighter alternate = new ColorHighlighter(HighlightPredicate.ODD, oddCol, null, selOddCol, null);
-	        simpleStriping = new CompoundHighlighter(base, alternate);
+            TableConfig.simpleStriping = new CompoundHighlighter(base, alternate);
 		}
-		return simpleStriping;
+		return TableConfig.simpleStriping;
 	}
 	
 	/**
@@ -245,12 +245,12 @@ public class TableConfig {
 	 * @return a disabled striping highlighter
 	 */
 	public static Highlighter getDisabledStriping() {
-		if (disabledStriping == null) {
+		if (TableConfig.disabledStriping == null) {
 			Color backCol = UIManager.getColor("Panel.background");
 			Color altCol = ColorUtils.getRescaledColor(backCol, 0.95f);
-			disabledStriping = HighlighterFactory.createAlternateStriping(backCol, altCol);
+            TableConfig.disabledStriping = HighlighterFactory.createAlternateStriping(backCol, altCol);
 		}
-		return disabledStriping;
+		return TableConfig.disabledStriping;
 	}
 	
 	/**
@@ -259,7 +259,7 @@ public class TableConfig {
 	 * @param weights The weight array.
 	 */
 	public static void setColumnWidths(JTable table, double[] weights) {
-		setColumnWidths(table, weights, 800);
+        TableConfig.setColumnWidths(table, weights, 800);
 	}
 	
 	/**
@@ -301,7 +301,7 @@ public class TableConfig {
 	 * @param padding The amount of pixel padding to either side.
 	 */
 	public static void setColumnMinWidths(JTable table, int padding) {
-		setColumnMinWidths(table, padding, padding, new JLabel().getFont());
+        TableConfig.setColumnMinWidths(table, padding, padding, new JLabel().getFont());
 	}
 	
 	/**
@@ -342,8 +342,8 @@ public class TableConfig {
 	 */
 	public static class FormatHighlighter extends AbstractHighlighter {
 
-		private int alignment;
-		private DecimalFormat formatter;
+		private final int alignment;
+		private final DecimalFormat formatter;
 		
 		/**
 		 * FormatHighlighter constructor
@@ -358,8 +358,7 @@ public class TableConfig {
 		}
 		
 		public FormatHighlighter(int alignment, DecimalFormat formatter) {
-			super();
-			this.alignment = alignment;
+            this.alignment = alignment;
 			this.formatter = formatter;
 		}
 		
@@ -368,10 +367,10 @@ public class TableConfig {
 				ComponentAdapter adapter) {
 			if (component instanceof JLabel) {
 				JLabel label = (JLabel) component;
-				label.setHorizontalAlignment(this.alignment);
+				label.setHorizontalAlignment(alignment);
 				String text = label.getText();
 				if (NumberUtils.isNumber(text)) {
-					label.setText(this.formatter.format(Double.parseDouble(text)));
+					label.setText(formatter.format(Double.parseDouble(text)));
 				}
 			}
 			return component;
@@ -410,15 +409,15 @@ public class TableConfig {
 		 */
 		@Deprecated
 		public FormattedTableCellRenderer(int alignment, String decimalFormat) {
-			formatter = new DecimalFormat(decimalFormat);
-			setHorizontalAlignment(alignment);
+            this.formatter = new DecimalFormat(decimalFormat);
+            this.setHorizontalAlignment(alignment);
 		}
 
 		public Component getTableCellRendererComponent(
 				JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
 			if (value instanceof Number) {
-				value = formatter.format((Number) value);
+				value = this.formatter.format(value);
 			}
 			return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column );
 		}
@@ -444,9 +443,9 @@ public class TableConfig {
          * @param columns the columns to highlight in model coordinates.
          */
         public RowHighlightPredicate(int... rows) {
-            rowList = new ArrayList<Integer>();
+            this.rowList = new ArrayList<Integer>();
             for (int i = 0; i < rows.length; i++) {
-                rowList.add(rows[i]);
+                this.rowList.add(rows[i]);
             }
         }
         
@@ -458,7 +457,7 @@ public class TableConfig {
         @Override
         public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
             int modelIndex = adapter.convertRowIndexToModel(adapter.row);
-            return rowList.contains(modelIndex);
+            return this.rowList.contains(modelIndex);
         }
 
         /**
@@ -466,8 +465,8 @@ public class TableConfig {
          * @return the row indices
          */
         public Integer[] getColumns() {
-            if (rowList.isEmpty()) return EMPTY_INTEGER_ARRAY;
-            return rowList.toArray(new Integer[rowList.size()]);
+            if (this.rowList.isEmpty()) return HighlightPredicate.EMPTY_INTEGER_ARRAY;
+            return this.rowList.toArray(new Integer[this.rowList.size()]);
         }
         
     }

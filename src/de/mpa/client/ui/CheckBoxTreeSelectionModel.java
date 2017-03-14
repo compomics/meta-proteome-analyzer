@@ -26,7 +26,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	/**
 	 * The underlying tree model on top of which the selection model resides.
 	 */
-	private TreeModel model;
+	private final TreeModel model;
 
 	/**
 	 * Creates a checkbox tree selection model using the provided tree model.
@@ -38,7 +38,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	
 	@Override
 	public int getSelectionCount() {
-		return getSelectedChildCount(new TreePath(model.getRoot()));
+		return this.getSelectedChildCount(new TreePath(this.model.getRoot()));
 	}
 	
 	/**
@@ -48,15 +48,15 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 */
 	private int getSelectedChildCount(TreePath parentPath) {
 		int selCount = 0;
-		if (isPathSelected(parentPath, true) || isPartiallySelected(parentPath)) {
-			int childCount = model.getChildCount(parentPath.getLastPathComponent());
+		if (this.isPathSelected(parentPath, true) || this.isPartiallySelected(parentPath)) {
+			int childCount = this.model.getChildCount(parentPath.getLastPathComponent());
 			if (childCount == 0) {
 				selCount++;
 			} else {
 				for (int i = 0; i < childCount; i++) {
-					Object child = model.getChild(parentPath.getLastPathComponent(), i);
+					Object child = this.model.getChild(parentPath.getLastPathComponent(), i);
 					TreePath childPath = parentPath.pathByAddingChild(child);
-					selCount += getSelectedChildCount(childPath);
+					selCount += this.getSelectedChildCount(childPath);
 				}
 			}
 		}
@@ -73,12 +73,12 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 */
 	public boolean isPathSelected(TreePath path, boolean dig) {
 		if (dig) {
-			while ((path != null) && (!super.isPathSelected(path))) {
+			while ((path != null) && (!isPathSelected(path))) {
 				path = path.getParentPath();
 			}				
 			return path != null;
 		} else {
-			return super.isPathSelected(path);
+			return isPathSelected(path);
 		}
 	}
 
@@ -88,11 +88,11 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @return <i>boolean</i> denoting whether the path is partially selected.
 	 */
 	public boolean isPartiallySelected(TreePath path) {
-		if (!this.isPathSelected(path, true)) {
-			TreePath[] selectionPaths = this.getSelectionPaths();
+		if (!isPathSelected(path, true)) {
+			TreePath[] selectionPaths = getSelectionPaths();
 			if (selectionPaths != null) {
 				for (int i = 0; i < selectionPaths.length; i++) {
-					if (this.isDescendant(selectionPaths[i], path)) {
+					if (isDescendant(selectionPaths[i], path)) {
 						return true;
 					}
 				}            	
@@ -127,7 +127,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 */
 	public void addSelectionPaths(List<TreePath> paths) {
 		if (!paths.isEmpty()) {
-			this.addSelectionPaths(paths.toArray(new TreePath[0]));
+            addSelectionPaths(paths.toArray(new TreePath[0]));
 		}
 	}
 	
@@ -143,19 +143,19 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
         // deselect all descendants of added paths
         for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];
-            TreePath[] selectionPaths = this.getSelectionPaths();
+            TreePath[] selectionPaths = getSelectionPaths();
             if (selectionPaths == null) {
                 break;
             }
             ArrayList<TreePath> toBeRemoved = new ArrayList<TreePath>();
             for (int j = 0; j < selectionPaths.length; j++) {
-                if (this.isDescendant(selectionPaths[j], path)) {
-                	if (!this.isPathFixed(path)) {
+                if (isDescendant(selectionPaths[j], path)) {
+                	if (!isPathFixed(path)) {
                         toBeRemoved.add(selectionPaths[j]);
                 	}
                 }
             }
-            super.removeSelectionPaths((TreePath[]) toBeRemoved.toArray(new TreePath[0]));
+            super.removeSelectionPaths(toBeRemoved.toArray(new TreePath[0]));
         }
 
         // add each path
@@ -167,7 +167,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		// if all siblings of last added path are selected then deselect them
 		// and select parent recursively
         TreePath temp = null;
-        while (this.areSiblingsSelected(path)) {
+        while (areSiblingsSelected(path)) {
             temp = path;
             if (path.getParentPath() == null) {
                 break;
@@ -177,10 +177,10 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
         if (temp != null) {
         	// some parent has been determined
             if (temp.getParentPath() != null) {
-                super.addSelectionPath(temp.getParentPath());
+                addSelectionPath(temp.getParentPath());
             } else {
             	// root is about to be added, clear whole selection first
-            	this.clearSelection();
+                clearSelection();
 				super.addSelectionPaths(new TreePath[] { temp });
             }
 //        } else {
@@ -189,7 +189,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
         
 		// super calls can create a lot of event spam, therefore fire a final
 		// dummy event to notify that top-level processing is done
-        this.fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
+        fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
     }
 
     /**
@@ -210,13 +210,13 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		Object parentNode = parent.getLastPathComponent();
 		
 		try {
-			int childCount = model.getChildCount((TreeTableNode) parentNode);
+			int childCount = this.model.getChildCount(parentNode);
 			for (int i = 0; i < childCount; i++) {
-				Object childNode = model.getChild(parentNode, i);
+				Object childNode = this.model.getChild(parentNode, i);
 				if (childNode == node) {
 					continue;
 				}
-				if (!isPathSelected(parent.pathByAddingChild(childNode), true)) {
+				if (!this.isPathSelected(parent.pathByAddingChild(childNode), true)) {
 					return false;
 				}
 			}
@@ -231,7 +231,7 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	 * @param paths the paths to remove from the current selection
 	 */
 	public void removeSelectionPaths(List<TreePath> paths) {
-		this.removeSelectionPaths(paths.toArray(new TreePath[0]));
+        removeSelectionPaths(paths.toArray(new TreePath[0]));
 	}
 	
 	/**
@@ -245,18 +245,18 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 	public void removeSelectionPaths(TreePath[] paths) {
 		for (int i = 0; i < paths.length; i++) {
 			TreePath path = paths[i];
-			if ((path.getPathCount() == 1) && !this.isPathFixed(path)) {
+			if ((path.getPathCount() == 1) && !isPathFixed(path)) {
 				// remove single non-fixed sub-path
 				super.removeSelectionPaths(new TreePath[] { path });
 			} else {
 				// remove target selection while adding all siblings
-				this.toggleRemoveSelection(path);
+                toggleRemoveSelection(path);
 			}
 		}
 		
 		// super calls can create a lot of event spam, therefore fire a final
 		// dummy event to notify that top-level processing is done
-        this.fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
+        fireValueChanged(new TreeSelectionEvent(this, null, true, null, null));
 	}
     
     /**
@@ -269,34 +269,34 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
         // otherwise just deselect the given path 
 		Stack<TreePath> stack = new Stack<TreePath>();
 		TreePath parent = path.getParentPath();
-		while ((parent != null) && (!this.isPathSelected(parent))) {
+		while ((parent != null) && (!isPathSelected(parent))) {
 			stack.push(parent);
 			parent = parent.getParentPath();
 		}
 		if (parent != null)
 			stack.push(parent);
 		else {
-			if (!this.isPathFixed(path, true)) {
+			if (!isPathFixed(path, true)) {
 				super.removeSelectionPaths(new TreePath[] { path });
 			} else {
 				// iterate descendants and remove only non-fixed ones
-				List<TreePath> toBeKept = this.getFixedDescendants(path);
+				List<TreePath> toBeKept = getFixedDescendants(path);
 				super.removeSelectionPaths(new TreePath[] { path });
-				super.addSelectionPaths((TreePath[]) toBeKept.toArray(new TreePath[0]));
+				super.addSelectionPaths(toBeKept.toArray(new TreePath[0]));
 			}
 			return;
 		}
 
 		super.removeSelectionPaths(new TreePath[] { parent });
 		while (!stack.isEmpty()) {
-			TreePath temp = (TreePath) stack.pop();
-            TreePath peekPath = (stack.isEmpty()) ? path : (TreePath) stack.peek();
+			TreePath temp = stack.pop();
+            TreePath peekPath = (stack.isEmpty()) ? path : stack.peek();
 			Object node = temp.getLastPathComponent();
 			Object peekNode = peekPath.getLastPathComponent();
-			int childCount = model.getChildCount(node);
+			int childCount = this.model.getChildCount(node);
             TreePath[] childPaths = new TreePath[childCount];
             for (int i = 0; i < childCount; i++) {
-                Object childNode = model.getChild(node, i);
+                Object childNode = this.model.getChild(node, i);
                 if (childNode != peekNode) {
                 	childPaths[i] = temp.pathByAddingChild(childNode);
                 }
@@ -324,12 +324,12 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 				for (int i = 0; i < childCount; i++) {
 //					Object childNode = model.getChild(node, i);
 					TreeTableNode childNode = ((TreeTableNode) node).getChildAt(i);
-					fixed |= isPathFixed(path.pathByAddingChild(childNode), true);
+					fixed |= this.isPathFixed(path.pathByAddingChild(childNode), true);
 				}
 			}
 			return fixed;
 		} else {
-			return isPathFixed(path);
+			return this.isPathFixed(path);
 		}
 	}
 
@@ -352,10 +352,10 @@ public class CheckBoxTreeSelectionModel extends DefaultTreeSelectionModel {
 		List<TreePath> fixedDesc = new ArrayList<TreePath>();
 		Object node = path.getLastPathComponent();
 		if (!((CheckBoxTreeTableNode) node).isFixed()) {
-			int childCount = model.getChildCount(node);
+			int childCount = this.model.getChildCount(node);
 			for (int i = 0; i < childCount; i++) {
-				Object childNode = model.getChild(node, i);
-				fixedDesc.addAll(getFixedDescendants(path.pathByAddingChild(childNode)));
+				Object childNode = this.model.getChild(node, i);
+				fixedDesc.addAll(this.getFixedDescendants(path.pathByAddingChild(childNode)));
 			}
 		} else {
 			fixedDesc.add(path);

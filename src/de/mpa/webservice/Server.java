@@ -5,12 +5,11 @@ import java.io.File;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.Style;
 
 import de.mpa.client.SearchSettings;
 
 @WebService
-@SOAPBinding(style = Style.RPC)
+@SOAPBinding(style = SOAPBinding.Style.RPC)
 public interface Server {
 	
 	/**

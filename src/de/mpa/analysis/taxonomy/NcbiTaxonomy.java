@@ -1,5 +1,6 @@
 package de.mpa.analysis.taxonomy;
 
+import de.mpa.analysis.UniProtUtilities;
 import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.io.BufferedReader;
@@ -18,7 +19,6 @@ import java.sql.Connection;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.client.Constants;
 import de.mpa.db.DBManager;
 import de.mpa.db.accessor.Taxonomy;
@@ -79,7 +79,7 @@ public class NcbiTaxonomy implements Serializable {
 	/**
 	 * The root node constant.
 	 */
-	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+	public static final TaxonomyNode ROOT_NODE = new TaxonomyNode(1, UniProtUtilities.TaxonomyRank.NO_RANK, "root");
 
 	/**
 	 * Constructor for the NCBI taxonomy.
@@ -90,11 +90,11 @@ public class NcbiTaxonomy implements Serializable {
 		NcbiTaxonomy.namesFileString = namesFileString;
 		NcbiTaxonomy.nodesFileString = nodesFileString;
 		try {
-			namesRaf = new RandomAccessFile(new File(NcbiTaxonomy.namesFileString), "r");
-			nodesRaf = new RandomAccessFile(new File(NcbiTaxonomy.nodesFileString), "r");
-			createIndexFile();
-			readIndexFile();
-			storeTaxonomy();
+            this.namesRaf = new RandomAccessFile(new File(NcbiTaxonomy.namesFileString), "r");
+            this.nodesRaf = new RandomAccessFile(new File(NcbiTaxonomy.nodesFileString), "r");
+            NcbiTaxonomy.createIndexFile();
+            this.readIndexFile();
+            this.storeTaxonomy();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -110,10 +110,10 @@ public class NcbiTaxonomy implements Serializable {
 	public static NcbiTaxonomy getInstance(String inputNamesString, String inputNodesString) throws Exception {
 		String namesString = inputNamesString;
 		String nodesString = inputNodesString;
-		if (instance == null) {
-			instance = new NcbiTaxonomy(namesString, nodesString);
+		if (NcbiTaxonomy.instance == null) {
+            NcbiTaxonomy.instance = new NcbiTaxonomy(namesString, nodesString);
 		}
-		return instance;
+		return NcbiTaxonomy.instance;
 	}
 
 	/**
@@ -125,16 +125,16 @@ public class NcbiTaxonomy implements Serializable {
 	public static void createIndexFile() throws Exception {
 
 		// NCBI names.dmp file
-		File namesFile = new File(namesFileString);
+		File namesFile = new File(NcbiTaxonomy.namesFileString);
 
 		// NCBI nodes.dmp file
-		File nodesFile = new File(nodesFileString);
+		File nodesFile = new File(NcbiTaxonomy.nodesFileString);
 
 		// Map for NCBI names file 
-		namesMap = new TIntIntHashMap();
+        NcbiTaxonomy.namesMap = new TIntIntHashMap();
 
 		// Map for NCBI nodes file 
-		nodesMap = new TIntIntHashMap();
+        NcbiTaxonomy.nodesMap = new TIntIntHashMap();
 
 		// Gets the number of chars for a new line
 		int newline = Formatter.determineNewlineChars(nodesFile).length;
@@ -151,7 +151,7 @@ public class NcbiTaxonomy implements Serializable {
 		while ((line = br.readLine()) != null) {
 			if (line.endsWith("c name\t|")) {
 				String id = line.substring(0, line.indexOf('\t'));
-				namesMap.put(Integer.valueOf(id), pos);
+                NcbiTaxonomy.namesMap.put(Integer.valueOf(id), pos);
 			}
 			pos += line.getBytes().length + newline;
 		}
@@ -163,12 +163,12 @@ public class NcbiTaxonomy implements Serializable {
 		pos = 0;
 		while ((line = br.readLine()) != null) {
 			String id = line.substring(0, line.indexOf('\t'));
-			nodesMap.put(Integer.valueOf(id), pos);
+            NcbiTaxonomy.nodesMap.put(Integer.valueOf(id), pos);
 			pos += line.getBytes().length + newline;
 		}
 		br.close();
 		System.out.println("Read names.dmp and nodes.dmp" );
-		writeIndexFile();
+        NcbiTaxonomy.writeIndexFile();
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class NcbiTaxonomy implements Serializable {
 	private static void writeIndexFile() throws Exception {
 		// The file of the createt index file.
 		File indexFile;
-		String name = Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME;
+		String name = Constants.CONFIGURATION_PATH_JAR + NcbiTaxonomy.INDEX_FILENAME;
 		File file = new File(name);
 		URL url = file.getClass().getResource(name);
 		//		URL url = Client.getInstance().getClass().getResource(name);
@@ -190,12 +190,12 @@ public class NcbiTaxonomy implements Serializable {
 			indexFile = new File(url.toURI());
 		}
 		ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(indexFile)));
-		oos.writeObject(namesMap);
-		oos.writeObject(nodesMap);
+		oos.writeObject(NcbiTaxonomy.namesMap);
+		oos.writeObject(NcbiTaxonomy.nodesMap);
 		oos.flush();
 		oos.close();
-		namesMap.clear();
-		nodesMap.clear();
+        NcbiTaxonomy.namesMap.clear();
+        NcbiTaxonomy.nodesMap.clear();
 		System.out.println("NCBI taxonomy read successfully");
 	}
 
@@ -205,10 +205,10 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	public void storeTaxonomy() throws Exception{
 		Connection conn = DBManager.getInstance().getConnection();
-		int[] keys = this.getNodesMap().keys();
+		int[] keys = getNodesMap().keys();
 		for (int taxID : keys) {
 			if (taxID != 1) {
-				Taxonomy.addTaxonomy((long) taxID, (long) this.getParentTaxId(taxID), this.getTaxonName(taxID), this.getRank(taxID), conn);
+				Taxonomy.addTaxonomy((long) taxID, (long) getParentTaxId(taxID), getTaxonName(taxID), getRank(taxID), conn);
 				if (taxID % 1000 == 0) {
 					System.out.println(taxID);
 					conn.commit();
@@ -225,13 +225,13 @@ public class NcbiTaxonomy implements Serializable {
 	 */
 	public void readIndexFile() throws Exception {
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME)));
-			namesMap = (TIntIntHashMap) ois.readObject();
-			nodesMap = (TIntIntHashMap) ois.readObject();
+			ObjectInputStream ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream(Constants.CONFIGURATION_PATH_JAR + NcbiTaxonomy.INDEX_FILENAME)));
+            NcbiTaxonomy.namesMap = (TIntIntHashMap) ois.readObject();
+            NcbiTaxonomy.nodesMap = (TIntIntHashMap) ois.readObject();
 			ois.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH_JAR + INDEX_FILENAME + "\" not found!");
+			System.err.println("ERROR: \"" + Constants.CONFIGURATION_PATH_JAR + NcbiTaxonomy.INDEX_FILENAME + "\" not found!");
 		}
 	}
 	
@@ -240,7 +240,7 @@ public class NcbiTaxonomy implements Serializable {
 	 * @return Map containing the taxonomy nodes.
 	 */
 	public TIntIntHashMap getNodesMap() {
-		return nodesMap;
+		return NcbiTaxonomy.nodesMap;
 	}
 
 	/** 		
@@ -252,13 +252,13 @@ public class NcbiTaxonomy implements Serializable {
 	public int getParentTaxId(int taxId) throws Exception { 		
 
 		// Get mapping 		
-		int pos = nodesMap.get(taxId); 		
+		int pos = NcbiTaxonomy.nodesMap.get(taxId);
 
 		// Skip to mapped byte position in nodes file 		
-		nodesRaf.seek(pos); 		
+        this.nodesRaf.seek(pos);
 
 		// Read line and isolate second numeric value 		
-		String line = nodesRaf.readLine(); 		
+		String line = this.nodesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3); 		
 		line = line.substring(0, line.indexOf("\t")); 		
 		return Integer.valueOf(line).intValue(); 		
@@ -268,17 +268,17 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxID the taxonomy id 		
 	 * @return the taxonomic rank 		
 	 * @throws Exception if an I/O error occurs 		
-	 */ 		
-	synchronized public String getRank(int taxID) throws Exception { 		
+	 */
+    public synchronized String getRank(int taxID) throws Exception {
 
 		// Get mapping 		
-		int pos = nodesMap.get(taxID); 		
+		int pos = NcbiTaxonomy.nodesMap.get(taxID);
 
 		// Skip to mapped byte position in nodes file 		
-		nodesRaf.seek(pos); 		
+        this.nodesRaf.seek(pos);
 
 		// Read line and isolate third non-numeric value 		
-		String line = nodesRaf.readLine(); 		
+		String line = this.nodesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3); 		
 		line = line.substring(line.indexOf("\t|\t") + 3); 		
 		line = line.substring(0, line.indexOf("\t")); 		
@@ -291,17 +291,17 @@ public class NcbiTaxonomy implements Serializable {
 	 * @param taxID the taxonomy id 		
 	 * @return the taxonomy node name 		
 	 * @throws Exception if an I/O error occurs 		
-	 */ 		
-	synchronized public String getTaxonName(int taxID) throws Exception { 		
+	 */
+    public synchronized String getTaxonName(int taxID) throws Exception {
 
 		// Get mapping 		
-		int pos = namesMap.get(taxID); 		
+		int pos = NcbiTaxonomy.namesMap.get(taxID);
 
 		// Skip to mapped byte position in names file 		
-		namesRaf.seek(pos); 		
+        this.namesRaf.seek(pos);
 
 		// Read line and isolate second non-numeric value 		
-		String line = namesRaf.readLine(); 		
+		String line = this.namesRaf.readLine();
 		line = line.substring(line.indexOf("\t|\t") + 3); 		
 		line = line.substring(0, line.indexOf("\t")); 		
 

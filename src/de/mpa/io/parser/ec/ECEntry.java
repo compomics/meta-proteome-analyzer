@@ -15,7 +15,7 @@ public class ECEntry {
 	 * @return number
 	 */
 	public String getNumber() {
-		return number;
+		return this.number;
 	}
 
 	/**
@@ -23,7 +23,7 @@ public class ECEntry {
 	 * @param number
 	 */
 	public void setNumber(String eCNumber) {
-		this.number = eCNumber;
+        number = eCNumber;
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class ECEntry {
 	 * @return name The name of the ECEntry.
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class ECEntry {
 	 * @return EC-description
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**

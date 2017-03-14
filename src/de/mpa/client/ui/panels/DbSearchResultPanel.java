@@ -52,6 +52,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowFilter.Entry;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -66,6 +67,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import de.mpa.client.ui.chart.OntologyChart;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXMultiSplitPane.DividerPainter;
@@ -123,7 +125,6 @@ import de.mpa.client.ui.PhylogenyTreeTableNode;
 import de.mpa.client.ui.ProteinTreeTables;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.SortableCheckBoxTreeTable;
-import de.mpa.client.ui.SortableCheckBoxTreeTable.TableColumnExt2;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.TableConfig.FormatHighlighter;
@@ -132,7 +133,6 @@ import de.mpa.client.ui.chart.Chart;
 import de.mpa.client.ui.chart.ChartFactory;
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.ScrollableChartPane;
 import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
@@ -209,7 +209,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * The current type of chart to be displayed in the bottom right figure panel.
 	 */
-	private ChartType chartType = OntologyChartType.BIOLOGICAL_PROCESS;
+	private ChartType chartType = OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS;
 
 	/**
 	 * Data container for ontological meta-information of the fetched results.
@@ -239,8 +239,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Selection of possible panels to focus
 	 */
-	private enum focus {SPECTRUM, PEPTIDE, PROTEIN};
-	public focus view = focus.PROTEIN;
+	private enum focus {SPECTRUM, PEPTIDE, PROTEIN}
+
+    public DbSearchResultPanel.focus view = DbSearchResultPanel.focus.PROTEIN;
 	public JToggleButton focusSpectraBtn, focusPeptideBtn;
 
 	/**
@@ -458,14 +459,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 					}
 					// REFRESH peptide view
-					if (view == focus.PROTEIN) {
+					if (view == DbSearchResultPanel.focus.PROTEIN) {
 						Set<PeptideHit> peptides = new LinkedHashSet<PeptideHit>();
 						if (proteins != null) {
 							for (ProteinHit protein : proteins) {
 								peptides.addAll(protein.getPeptideHitList());
 							}
 						}
-						refreshPeptideViews(peptides);
+                        DbSearchResultPanel.this.refreshPeptideViews(peptides);
 					}
 				}
 
@@ -485,18 +486,18 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							Enumeration<? extends MutableTreeTableNode> children = node.children();
 							while (children.hasMoreElements()) {
 								MutableTreeTableNode child = children.nextElement();
-								proteins.addAll(this.getProteins((PhylogenyTreeTableNode) child));
+								proteins.addAll(getProteins((PhylogenyTreeTableNode) child));
 							}
 						}
 					}
 					return proteins;
 				}
-			});		
+			});
 
 			treeTbl.addPropertyChangeListener("checkboxSelectionDone", new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-					refreshChart(true);
+                    DbSearchResultPanel.this.refreshChart(true);
 				}
 			});
 
@@ -505,13 +506,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 			// install protein count highlighter
 			Color protCountCol = new Color(232, 122, 55, 132);
-			protCountHighlighter = new ColorHighlighter(
-					new ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
+            this.protCountHighlighter = new ColorHighlighter(
+					new DbSearchResultPanel.ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
 			treeTbl.addHighlighter(protCountHighlighter);
 
 			Color chartSelCol = new Color(0, 232, 122, 45);
 			chartSelHighlighter = new ColorHighlighter(
-					new ProteinHighlightPredicate(), chartSelCol, null, chartSelCol, null);
+					new DbSearchResultPanel.ProteinHighlightPredicate(), chartSelCol, null, chartSelCol, null);
 			treeTbl.addHighlighter(chartSelHighlighter);
 		}
 	}
@@ -528,8 +529,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
-				setColumnIdentifiers(Arrays.asList(new String[] {
-						"Sequence", "ProtC", "Proteins", "SpC", "Tax" }));
+				setColumnIdentifiers(Arrays.asList("Sequence", "ProtC", "Proteins", "SpC", "Tax"));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -590,7 +590,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 				Enumeration<? extends TreeTableNode> children = node.children();
 				while (children.hasMoreElements()) {
-					TreeTableNode child = (TreeTableNode) children.nextElement();
+					TreeTableNode child = children.nextElement();
 					strWidth = Math.max(strWidth, this.getMaximumStringWidth(child, column, formatter, fm));
 				}
 				return strWidth;
@@ -712,11 +712,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 
 				// REFRESH peptide spectrum match view
-				if (view != focus.SPECTRUM) {
+				if (view != DbSearchResultPanel.focus.SPECTRUM) {
 					refreshPSMView(matches);
 
 					// Update protein highlighting
-					ProteinHighlightPredicate pchp = (ProteinHighlightPredicate) protCountHighlighter
+					DbSearchResultPanel.ProteinHighlightPredicate pchp = (DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter
 							.getHighlightPredicate();
 					pchp.setProteinHits(proteins);
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
@@ -727,7 +727,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 				}
 
-				if (view == focus.PEPTIDE) {
+				if (view == DbSearchResultPanel.focus.PEPTIDE) {
 					// Narrow protein selection down to highlights
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 						CheckBoxTreeTable treeTable = ptt.getTreeTable();
@@ -751,14 +751,14 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
 					}
-					// Carry out selection in table view 
+					// Carry out selection in table view
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 						ptt.getTreeTable().setRowFilter((hideUnselected) ? new SelectionRowFilter(ptt.getTreeTable()) : null);
 					}
 				}
 
 				// refresh spectrum view
-				if (view == focus.SPECTRUM) {
+				if (view == DbSearchResultPanel.focus.SPECTRUM) {
 					int selRow = psmTbl.getSelectedRow();
 					if (selRow != -1) {
 						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) psmTbl
@@ -862,8 +862,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
-				setColumnIdentifiers(Arrays.asList(new String[] {
-						"ID", "z", "Pep", "X", "O", "C", "I", "M" }));
+				setColumnIdentifiers(Arrays.asList("ID", "z", "Pep", "X", "O", "C", "I", "M"));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -980,7 +979,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
-				if (view != focus.SPECTRUM) {
+				if (view != DbSearchResultPanel.focus.SPECTRUM) {
 					// refresh spectrum view
 					PhylogenyTreeTableNode node = ((PhylogenyTreeTableNode) evt
 							.getPath().getLastPathComponent());
@@ -989,7 +988,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					refreshSpectrumView(psm);
 				}
 				// REFRESH peptide view
-				if (view == focus.SPECTRUM) {
+				if (view == DbSearchResultPanel.focus.SPECTRUM) {
 					// select the view of peptides and proteins depending on the highlighted spectrum
 					Collection<PeptideHit> peptides = new HashSet<PeptideHit>();
 					int[] rows = treeTbl.getSelectedRows();
@@ -1000,8 +999,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					refreshPeptideViews(peptides);
 					// Update protein highlighting
-					ProteinHighlightPredicate pchp =
-							(ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
+					DbSearchResultPanel.ProteinHighlightPredicate pchp =
+							(DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
 					Collection<ProteinHit> proteins = new HashSet<ProteinHit>();
 					for (PeptideHit pepHit : peptides) {
 						proteins.addAll(pepHit.getProteinHits());
@@ -1037,7 +1036,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
 					}
-					// Carry out selection in table view 
+					// Carry out selection in table view
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 						ptt.getTreeTable().setRowFilter((hideUnselected) ? new SelectionRowFilter(ptt.getTreeTable()) : null);
 					}
@@ -1103,7 +1102,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		};
 
 		final ScrollableChartPane chartPane = new ScrollableChartPane(ChartFactory.createOntologyChart(
-				dummyData, OntologyChartType.BIOLOGICAL_PROCESS).getChart());
+				dummyData, OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS).getChart());
 
 		chartPane.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
@@ -1126,7 +1125,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					refreshChart(false);
 				} else if ("selection".equals(property)) {
 					Collection<ProteinHit> proteinHits = null;
-					if (chartType instanceof OntologyChartType) {
+					if (chartType instanceof OntologyChart.OntologyChartType) {
 						proteinHits = ontologyData.getProteinHits((String) value);
 					} else if (chartType instanceof TaxonomyChartType) {
 						proteinHits = taxonomyData.getProteinHits((String) value);
@@ -1137,8 +1136,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 					}
 					// Update protein highlighting
-					ProteinHighlightPredicate pchp =
-							(ProteinHighlightPredicate) chartSelHighlighter.getHighlightPredicate();
+					DbSearchResultPanel.ProteinHighlightPredicate pchp =
+							(DbSearchResultPanel.ProteinHighlightPredicate) chartSelHighlighter.getHighlightPredicate();
 					pchp.setProteinHits(proteinHits);
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
@@ -1257,7 +1256,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
 		exportBtn.setToolTipText("Export Table Contents");
 		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
-		exportBtn.addActionListener(new ActionListener() {			
+		exportBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// Determine currently visible tree table
@@ -1393,10 +1392,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// lock focus onto peptides - all peptides will be displayed and dependencies shifted onto this table
 				if (focusPeptideBtn.isSelected()) {
 					focusSpectraBtn.setSelected(false);
-					view = focus.PEPTIDE;
+					view = DbSearchResultPanel.focus.PEPTIDE;
 					refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getMetaProteins().getPeptideSet());
 				} else {
-					view = focus.PROTEIN;
+					view = DbSearchResultPanel.focus.PROTEIN;
 				}
 			}
 		});
@@ -1487,7 +1486,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// lock focus onto spectra - all spectra will be displayed and dependencies shifted onto spectra table
 				if (focusSpectraBtn.isSelected()) {
 					focusPeptideBtn.setSelected(false);
-					view = focus.SPECTRUM;
+					view = DbSearchResultPanel.focus.SPECTRUM;
 					List<SpectrumMatch> matches = new ArrayList<SpectrumMatch>();
 					for (ProteinHit protHit : Client.getInstance().getDatabaseSearchResult().getProteinHitList()) {
 						for (PeptideHit pepHit : protHit.getPeptideHitList()) {
@@ -1496,7 +1495,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					refreshPSMView(matches);
 				} else {
-					view = focus.PROTEIN;
+					view = DbSearchResultPanel.focus.PROTEIN;
 				}
 			}
 		});
@@ -1513,7 +1512,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				if (psmTbl.getRowCount() > 0) {
-					dumpTableContents(psmTbl);					
+					dumpTableContents(psmTbl);
 				} else {
 					JOptionPane.showMessageDialog(DbSearchResultPanel.this,
 							"Table is empty, nothing to export", "Note", JOptionPane.INFORMATION_MESSAGE);
@@ -1635,7 +1634,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	private JToggleButton createChartTypeButton() {
 		// init chart types
 		List<ChartType> tmp = new ArrayList<ChartType>();
-		for (ChartType oct : OntologyChartType.values()) {
+		for (ChartType oct : OntologyChart.OntologyChartType.values()) {
 			tmp.add(oct);
 		}
 		for (ChartType tct : TaxonomyChartType.values()) {
@@ -1689,7 +1688,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			JMenuItem item = new JRadioButtonMenuItem(chartType.toString(), (j++ == 0));
 			item.addActionListener(chartListener);
 			chartBtnGrp.add(item);
-			if (chartType instanceof OntologyChartType) {
+			if (chartType instanceof OntologyChart.OntologyChartType) {
 				ontologyMenu.add(item);
 			} else if (chartType instanceof TaxonomyChartType) {
 				taxonomyMenu.add(item);
@@ -1874,7 +1873,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Clear tables, etc.
 		TableConfig.clearTable(peptideTbl);
 		coveragePane.clear();
-		if (view != focus.SPECTRUM) {
+		if (view != DbSearchResultPanel.focus.SPECTRUM) {
 			TableConfig.clearTable(psmTbl);
 			spectrumPnl.clearSpectrum();
 		}
@@ -2009,7 +2008,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			} else {
 				// Read spectrum from MGF file accompanying imported result object, if possible
-				FileExperiment experiment = 
+				FileExperiment experiment =
 						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
 				mgf = Client.getInstance().readSpectrumFromFile(
 						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
@@ -2027,31 +2026,31 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// refreshData-Flag is obsolete !!
 		// get new proteinlist
 //		ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
-		// TODO : check if it is ok to use the same list 
+		// TODO : check if it is ok to use the same list
 		ProteinHitList metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 		// update chart data containers
 		ontologyData.setData(metaProteins);
 		taxonomyData.setData(metaProteins);
 		Chart chart = null;
 		// create chart instance
-		if (chartType instanceof OntologyChartType) {
+		if (chartType instanceof OntologyChart.OntologyChartType) {
 			chart = ChartFactory.createOntologyChart(ontologyData, chartType);
 		} else if (chartType instanceof TaxonomyChartType) {
 			chart = ChartFactory.createTaxonomyChart(taxonomyData, chartType);
 		}
-		// the highlighting kind of works 
+		// the highlighting kind of works
 		if (chart != null) {
 			// insert chart into panel
 			chartPane.setChart(chart.getChart(), true);
 			// reset protein highlighting
-			ProteinHighlightPredicate pchp =
-					(ProteinHighlightPredicate) chartSelHighlighter.getHighlightPredicate();
+			DbSearchResultPanel.ProteinHighlightPredicate pchp =
+					(DbSearchResultPanel.ProteinHighlightPredicate) this.chartSelHighlighter.getHighlightPredicate();
 			pchp.setProteinHits(new ArrayList<ProteinHit>());
 			for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 				CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 				// re-apply highlighter
-				treeTbl.removeHighlighter(chartSelHighlighter);
-				treeTbl.addHighlighter(chartSelHighlighter);
+				treeTbl.removeHighlighter(this.chartSelHighlighter);
+				treeTbl.addHighlighter(this.chartSelHighlighter);
 			}
 		} else {
 			System.err.println("Chart type could not be determined!");
@@ -2075,10 +2074,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 					TableConfig.clearTable(ptt.getTreeTable());
 				}
-				TableConfig.clearTable(peptideTbl);
-				coveragePane.clear();
-				TableConfig.clearTable(psmTbl);
-				spectrumPnl.clearSpectrum();
+				TableConfig.clearTable(DbSearchResultPanel.this.peptideTbl);
+                DbSearchResultPanel.this.coveragePane.clear();
+				TableConfig.clearTable(DbSearchResultPanel.this.psmTbl);
+                DbSearchResultPanel.this.spectrumPnl.clearSpectrum();
 
 				// Fetch search result object				
 				//				resultPnl.dbSearchResult = 	Client.getInstance().fetchResults();	
@@ -2087,7 +2086,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				resultPnl.ontologyData = new OntologyData(Client.getInstance().getDatabaseSearchResult(), hl);
 				resultPnl.taxonomyData = new TaxonomyData(Client.getInstance().getDatabaseSearchResult(), hl);
 				// Insert new result data into tables
-				this.refreshProteinTables();
+                refreshProteinTables();
 				// Refresh chart
 				resultPnl.refreshChart(true);
 			} catch (Exception e) {
@@ -2172,7 +2171,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
 				// Display number of proteins in title area
-				protTtlPnl.setTitle("Proteins (" + protCount + ")");
+                DbSearchResultPanel.this.protTtlPnl.setTitle("Proteins (" + protCount + ")");
 
 				if (protCount > 0) {
 					// Refresh tree tables by resetting root node
@@ -2182,11 +2181,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						sttm.setRoot(sttm.getRoot());
 					}
 
-					refreshPathwayStrings();
+                    DbSearchResultPanel.this.refreshPathwayStrings();
 
 					// Adjust highlighters
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-						final CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
 
 						// let table method determine baseline automatically, provide ranges
 						treeTbl.updateHighlighters(ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN, 0, maxCoverage);
@@ -2202,7 +2201,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 										i < ProteinTreeTables.WEB_RESOURCES_COLUMN; i++) {
 									int index = treeTbl.convertColumnIndexToView(i);
 									if (index != -1) {
-										((TableColumnExt2) treeTbl.getColumn(index)).aggregate();
+										((SortableCheckBoxTreeTable.TableColumnExt2) treeTbl.getColumn(index)).aggregate();
 									}
 								}
 							}
@@ -2220,10 +2219,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Stop appearing busy
-			DbSearchResultPanel.this.setBusy(false);
+            setBusy(false);
 			// Set up graph database contents
 			ResultsPanel resPnl =
-					(ResultsPanel) DbSearchResultPanel.this.getParent().getParent();
+					(ResultsPanel) getParent().getParent();
 			resPnl.setProcessingEnabled(true);
 			resPnl.getGraphDatabaseResultPanel().buildGraphDatabase();
 		}
@@ -2284,16 +2283,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @author A. Behne
 	 */
 	private class SelectionRowFilter extends RowFilter<Object, Object> {
-		private CheckBoxTreeTable treeTable;
+		private final CheckBoxTreeTable treeTable;
 		public SelectionRowFilter(CheckBoxTreeTable treeTable) {
 			this.treeTable = treeTable;
 		}
 		@Override
 		public boolean include(
-				RowFilter.Entry<? extends Object, ? extends Object> entry) {
+				Entry<? extends Object, ? extends Object> entry) {
 			PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) entry.getValue(-1);
 			TreePath path = node.getPath();
-			CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
+			CheckBoxTreeSelectionModel cbtsm = this.treeTable.getCheckBoxTreeSelectionModel();
 			boolean selected = cbtsm.isPathSelected(path, true)
 					|| cbtsm.isPartiallySelected(path);
 			return selected;
@@ -2330,8 +2329,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		@Override
 		public boolean isHighlighted(Component renderer, ComponentAdapter adapter) {
 			Object accession = adapter.getValue(adapter.getColumnIndex("Accession"));
-			if (protHits != null) {
-				for (ProteinHit protHit : protHits) {
+			if (this.protHits != null) {
+				for (ProteinHit protHit : this.protHits) {
 					if (protHit.getAccession().equals(accession)) {
 						return true;
 					}
@@ -2360,9 +2359,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	public void setBusy(boolean busy) {
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		ClientFrame.getInstance().setCursor(cursor);
-		split.setCursor(cursor);
+        this.split.setCursor(cursor);
 
-		ButtonTabbedPane tabPane = (ButtonTabbedPane) this.getParent();
+		ButtonTabbedPane tabPane = (ButtonTabbedPane) getParent();
 		int index = tabPane.indexOfComponent(this);
 		tabPane.setBusyAt(index, busy);
 		tabPane.setEnabledAt(index, !busy);

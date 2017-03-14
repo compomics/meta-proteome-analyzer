@@ -36,30 +36,30 @@ public class FileChooserDecorationFactory {
 	public enum DecorationType {
 		TEXT_PREVIEW,
 		IMAGE_PREVIEW,
-		NONE;
-	}
+		NONE
+    }
 	
-	public static void decorate(JFileChooser fc, DecorationType type) {
+	public static void decorate(JFileChooser fc, FileChooserDecorationFactory.DecorationType type) {
 		decorate(fc, type, null);
 	}
 
-	public static void decorate(JFileChooser fc, DecorationType type, JComponent addComp) {
+	public static void decorate(JFileChooser fc, FileChooserDecorationFactory.DecorationType type, JComponent addComp) {
 		switch (type) {
 		case TEXT_PREVIEW:
-			decorateWithTextPreview(fc, addComp);
+            FileChooserDecorationFactory.decorateWithTextPreview(fc, addComp);
 			break;
 		case IMAGE_PREVIEW:
-			decorateWithImagePreview(fc, addComp);
+            FileChooserDecorationFactory.decorateWithImagePreview(fc, addComp);
 			break;
 		case NONE:
 		default:
-			decorateWithComponent(fc, addComp);
+            FileChooserDecorationFactory.decorateWithComponent(fc, addComp);
 			break;
 		}
 	}
 	
 	public static void decorateWithTextPreview(JFileChooser fc) {
-		decorateWithTextPreview(fc, null);
+        FileChooserDecorationFactory.decorateWithTextPreview(fc, null);
 	}
 	
 	public static void decorateWithTextPreview(JFileChooser fc, JComponent addComp) {
@@ -70,19 +70,18 @@ public class FileChooserDecorationFactory {
 		}
 		JPanel panel = new JPanel(fl);
 		
-		@SuppressWarnings("serial")
-		final JTextArea textArea = new JTextArea() {
+		@SuppressWarnings("serial") JTextArea textArea = new JTextArea() {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				if (getText().isEmpty()) {
+				if (this.getText().isEmpty()) {
 					Graphics2D g2d = (Graphics2D) g;
 					g2d.setRenderingHint(
 							RenderingHints.KEY_TEXT_ANTIALIASING,
 							RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 					String str = "No preview available.";
 					int strWidth = g2d.getFontMetrics().stringWidth(str);
-					g2d.drawString(str, (getWidth() - strWidth) / 2.0f, getHeight() / 2.0f);
+					g2d.drawString(str, (this.getWidth() - strWidth) / 2.0f, this.getHeight() / 2.0f);
 				}
 			}
 		};
@@ -152,7 +151,7 @@ public class FileChooserDecorationFactory {
 	}
 	
 	public static void decorateWithImagePreview(JFileChooser fc) {
-		decorateWithImagePreview(fc, null);
+        FileChooserDecorationFactory.decorateWithImagePreview(fc, null);
 	}
 	
 	public static void decorateWithImagePreview(JFileChooser fc, JComponent addComp) {

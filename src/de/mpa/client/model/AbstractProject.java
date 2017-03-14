@@ -30,12 +30,12 @@ public abstract class AbstractProject implements ProjectExperiment {
 	/**
 	 * The experiment properties.
 	 */
-	private Map<String, String> properties;
+	private final Map<String, String> properties;
 	
 	/**
 	 * The project's list of child experiments.
 	 */
-	private List<AbstractExperiment> experiments;
+	private final List<AbstractExperiment> experiments;
 	
 	/**
 	 * Creates a project from the specified ID, title, creation date, properties
@@ -61,7 +61,7 @@ public abstract class AbstractProject implements ProjectExperiment {
 	 */
 	@Override
 	public Long getID() {
-		return id;
+		return this.id;
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public abstract class AbstractProject implements ProjectExperiment {
 	 */
 	@Override
 	public Map<String, String> getProperties() {
-		return properties;
+		return this.properties;
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public abstract class AbstractProject implements ProjectExperiment {
 	 * @return the experiments
 	 */
 	public List<AbstractExperiment> getExperiments() {
-		return experiments;
+		return this.experiments;
 	}
 	
 	/** 
@@ -95,7 +95,7 @@ public abstract class AbstractProject implements ProjectExperiment {
 	 */
 	@Override
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	/** 
@@ -112,7 +112,7 @@ public abstract class AbstractProject implements ProjectExperiment {
 	 */
 	@Override
 	public Date getCreationDate() {
-		return creationDate;
+		return this.creationDate;
 	}
 	
 	/**
@@ -127,10 +127,10 @@ public abstract class AbstractProject implements ProjectExperiment {
 	public boolean equals(Object obj) {
 		if (obj instanceof AbstractProject) {
 			AbstractProject that = (AbstractProject) obj;
-			if ((this.getID() != null) && (that.getID() != null)) {
-				return this.getID().equals(that.getID());
+			if ((getID() != null) && (that.getID() != null)) {
+				return getID().equals(that.getID());
 			} else {
-				return this.getCreationDate().equals(that.getCreationDate());
+				return getCreationDate().equals(that.getCreationDate());
 			}
 		}
 		return false;

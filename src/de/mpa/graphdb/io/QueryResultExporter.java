@@ -37,7 +37,7 @@ public class QueryResultExporter {
 				Object value = treeNode.getValueAt(i);
 				
 				if (value != null) {
-					writer.append(value.toString() + Constants.TSV_FILE_SEPARATOR);
+					writer.append(value + Constants.TSV_FILE_SEPARATOR);
 				}
 				
 			}

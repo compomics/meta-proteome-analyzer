@@ -18,7 +18,7 @@ public class TinyArrowIcon implements Icon {
 	 * Either one of <code>SwingConstants.NORTH</code>,
 	 *  <code>EAST</code>, <code>SOUTH</code> or <code>WEST</code>
 	 */
-	private int direction;
+	private final int direction;
 	
 	/**
 	 * Constructs a very small triangular arrow icon pointing in the specified direction.
@@ -35,14 +35,14 @@ public class TinyArrowIcon implements Icon {
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isHorizontal() {
-		return (this.direction == SwingConstants.LEFT) ||
-				(this.direction == SwingConstants.RIGHT);
+		return (direction == SwingConstants.LEFT) ||
+				(direction == SwingConstants.RIGHT);
 	}
 
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y) {
 		g.setColor(Color.BLACK);
-		switch (this.direction) {
+		switch (direction) {
 		case SwingConstants.NORTH:
 			g.drawLine(x - 1, y + 1, x + 3, y + 1);
 			g.drawLine(x    , y    , x + 2, y    );
@@ -68,7 +68,7 @@ public class TinyArrowIcon implements Icon {
 
 	@Override
 	public int getIconWidth() {
-		if (this.isHorizontal()) {
+		if (isHorizontal()) {
 			return 5;
 		} else {
 			return 3;
@@ -77,7 +77,7 @@ public class TinyArrowIcon implements Icon {
 
 	@Override
 	public int getIconHeight() {
-		if (this.isHorizontal()) {
+		if (isHorizontal()) {
 			return 3;
 		} else {
 			return 5;

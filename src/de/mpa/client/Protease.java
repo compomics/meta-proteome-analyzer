@@ -28,11 +28,11 @@ public enum Protease {
     SEMI_TRYPTIC;
 
     public String value() {
-        return name();
+        return this.name();
     }
 
     public static Protease fromValue(String v) {
-        return valueOf(v);
+        return Protease.valueOf(v);
     }
 
 }

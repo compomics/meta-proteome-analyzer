@@ -47,8 +47,7 @@ public abstract class CompoundQueryPanel extends JPanel {
 	 * @param items
 	 */
 	public CompoundQueryPanel(String label, Object[] items) {
-		super();
-		initComponents(label, items);
+        this.initComponents(label, items);
 	}
 	
 	/**
@@ -58,10 +57,10 @@ public abstract class CompoundQueryPanel extends JPanel {
 	 */
 	private void initComponents(String label, Object[] items) {
 		FormLayout layout = new FormLayout("3dlu, 21px, p:g, 21px, 3dlu", "3dlu, t:16px, 3dlu");
-		
-		this.setLayout(layout);
-		
-		this.add(new JLabel(label), CC.xyw(2, 2, 2));
+
+        setLayout(layout);
+
+        add(new JLabel(label), CC.xyw(2, 2, 2));
 		
 		int row = 2;
 		
@@ -73,13 +72,13 @@ public abstract class CompoundQueryPanel extends JPanel {
 			JComboBox comboBox = new JComboBox(items);
 			comboBox.addPopupMenuListener(new BoundsPopupMenuListener(true, false));
 			((JTextField) comboBox.getEditor().getEditorComponent()).setMargin(new Insets(1, 3, 2, 1));
-			
-			this.add(comboBox, CC.xyw(2, 4, 2));
+
+            add(comboBox, CC.xyw(2, 4, 2));
 			
 			row += 2;
 		}
 
-		final JToggleButton blockBtn = new JToggleButton(IconConstants.PLUGIN_ICON);
+		JToggleButton blockBtn = new JToggleButton(IconConstants.PLUGIN_ICON);
 		blockBtn.setRolloverIcon(IconConstants.PLUGIN_ROLLOVER_ICON);
 		blockBtn.setPressedIcon(IconConstants.PLUGIN_PRESSED_ICON);
 		blockBtn.setOpaque(false);
@@ -88,31 +87,31 @@ public abstract class CompoundQueryPanel extends JPanel {
 		blockBtn.setFocusPainted(false);
 		blockBtn.setToolTipText("Append/Remove " + label + " Block");
 
-		final JPopupMenu blockPop = new JPopupMenu();
-		
-		appendItem = new JMenuItem("Append " + label + " Block", IconConstants.ADD_ICON);
-		appendItem.setRolloverIcon(IconConstants.ADD_ROLLOVER_ICON);
-		appendItem.setPressedIcon(IconConstants.ADD_PRESSED_ICON);
-		
-		removeItem = new JMenuItem("Remove " + label + " Block", IconConstants.DELETE_ICON);
-		removeItem.setRolloverIcon(IconConstants.DELETE_ROLLOVER_ICON);
-		removeItem.setPressedIcon(IconConstants.DELETE_PRESSED_ICON);
-		removeItem.setEnabled(false);
-		
-		removeItem.addActionListener(new ActionListener() {
+		JPopupMenu blockPop = new JPopupMenu();
+
+        this.appendItem = new JMenuItem("Append " + label + " Block", IconConstants.ADD_ICON);
+        this.appendItem.setRolloverIcon(IconConstants.ADD_ROLLOVER_ICON);
+        this.appendItem.setPressedIcon(IconConstants.ADD_PRESSED_ICON);
+
+        this.removeItem = new JMenuItem("Remove " + label + " Block", IconConstants.DELETE_ICON);
+        this.removeItem.setRolloverIcon(IconConstants.DELETE_ROLLOVER_ICON);
+        this.removeItem.setPressedIcon(IconConstants.DELETE_PRESSED_ICON);
+        this.removeItem.setEnabled(false);
+
+        this.removeItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				removeBlock();
+                CompoundQueryPanel.this.removeBlock();
 			}
 		});
 
-		appendItem.addActionListener(new ActionListener() {
+        this.appendItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				appendBlock();
+                CompoundQueryPanel.this.appendBlock();
 			}
 		});
 
-		blockPop.add(appendItem);
-		blockPop.add(removeItem);
+		blockPop.add(this.appendItem);
+		blockPop.add(this.removeItem);
 		
 		blockBtn.addActionListener(new ActionListener() {
 			@Override
@@ -120,8 +119,8 @@ public abstract class CompoundQueryPanel extends JPanel {
 				blockPop.show(blockBtn, -3, blockBtn.getSize().height / 2 + 11);
 			}
 		});
-		
-		this.add(blockBtn, CC.xy(4, row));
+
+        add(blockBtn, CC.xy(4, row));
 	}
 	
 	/**
@@ -138,9 +137,9 @@ public abstract class CompoundQueryPanel extends JPanel {
 	 * Scrolls this panel's parent viewport to the bottom.
 	 */
 	protected void scrollToBottom() {
-		Container parent = this.getParent();
+		Container parent = getParent();
 		if (parent instanceof JViewport) {
-			((JViewport) parent).setViewPosition(new Point(0, this.getHeight()));
+			((JViewport) parent).setViewPosition(new Point(0, getHeight()));
 		}
 	}
 }

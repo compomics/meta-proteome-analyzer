@@ -31,7 +31,7 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.client.settings.MascotParameters.FilteringParameters;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
+import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.db.accessor.Mascothit;
 import de.mpa.db.accessor.Pep2prot;
@@ -67,22 +67,22 @@ public class MascotStorager extends BasicStorager {
 	/**
 	 * SearchSettings instance. 
 	 */
-	private SearchSettings searchSettings;
+	private final SearchSettings searchSettings;
 
 	/**
 	 * Mascot parameters.
 	 */
-	private ParameterMap mascotParams;
+	private final ParameterMap mascotParams;
 
 	/**
 	 * The list of protein accessions for which UniProt entries need to be retrieved.
 	 */
-	private Map<String, List<Long>> uniProtCandidates = new TreeMap<String, List<Long>>();
+	private final Map<String, List<Long>> uniProtCandidates = new TreeMap<String, List<Long>>();
 
 	/**
 	 * Loader for FASTA entries from a FASTA DB.
 	 */
-	private FastaLoader fastaLoader;
+	private final FastaLoader fastaLoader;
 
 	/**
 	 * Constructs a {@link MascotStorager} for parsing and storing of Mascot .dat files to the DB. 
@@ -94,7 +94,7 @@ public class MascotStorager extends BasicStorager {
 		this.file = file;
 		this.searchSettings = searchSettings;
 		this.mascotParams = mascotParams;
-		this.searchEngineType = SearchEngineType.MASCOT;
+        searchEngineType = SearchEngineType.MASCOT;
 		this.fastaLoader = fastaLoader;
 	}
 
@@ -102,7 +102,7 @@ public class MascotStorager extends BasicStorager {
 	// this method is now obsolete
 	@Override
 	public void load() {
-		client = Client.getInstance();
+        this.client = Client.getInstance();
 	}
 
 	/**
@@ -128,30 +128,30 @@ public class MascotStorager extends BasicStorager {
 	public void store() throws Exception {
 
 		// boolean whether I have a fasta in background or not
-		boolean fetchProteinSequenceFromFasta = ((Boolean) mascotParams.get("useFasta").getValue()).booleanValue();
+		boolean fetchProteinSequenceFromFasta = ((Boolean) this.mascotParams.get("useFasta").getValue()).booleanValue();
 
-		client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
-		client.firePropertyChange("indeterminate", false, true); 
+        this.client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
+        this.client.firePropertyChange("indeterminate", false, true);
 		// generate scoreThreshold from queries --> uses scores of ALL peptides from a query, this may be wrong
 		// TODO: check if this kind of FDR-based scorethreshold calculation is correct
-		client.firePropertyChange("new message", null, "CACLULATING SCORE THRESHOLD");
-		client.firePropertyChange("indeterminate", true, true);
-		double scoreThreshold = this.getScoreThreshold();	
+        this.client.firePropertyChange("new message", null, "CACLULATING SCORE THRESHOLD");
+        this.client.firePropertyChange("indeterminate", true, true);
+		double scoreThreshold = getScoreThreshold();
 		// instantiate uniprot-webservice
 		UniProtUtilities uniprotweb = new UniProtUtilities();
 		// Get experiment id.
 		long experimentId = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID();
 		// This code extracts spectra that are added through other search engines
 		// if in different experiment, is empty and just returns empty specTitleMap 
-		List<MascotGenericFile> dbSpectra = new SpectrumExtractor(conn).getSpectraByExperimentID(
-				experimentId, AnnotationType.IGNORE_ANNOTATIONS, false, true);		
+		List<MascotGenericFile> dbSpectra = new SpectrumExtractor(this.conn).getSpectraByExperimentID(
+				experimentId, SpectrumFetchParameters.AnnotationType.IGNORE_ANNOTATIONS, false, true);
 		// Put titles and spectrum Id's of "mgf" in list --> what does "mgf" mean here, omssa search?
 		Map<String,Long> specTitleMap = new TreeMap<String,Long>();
 		for (int i = 0; i < dbSpectra.size(); i++) {
 			specTitleMap.put(dbSpectra.get(i).getTitle(), dbSpectra.get(i).getSpectrumID());
 		}		
 		// disable mysql autocommit to speed up batch INSERTs
-		conn.setAutoCommit(false);
+        this.conn.setAutoCommit(false);
 		
 		// initialize stuff
 		int query_number = 0;
@@ -171,14 +171,14 @@ public class MascotStorager extends BasicStorager {
 		// nested hashmaps with peptide info and querynumber and peptidenumber-keys directly from dat-file
 		//HashMap<Integer, HashMap<Integer, List<Object>>> query_peptide_map = new HashMap<>();
 		// query to peptide hashmap
-		HashMap<Integer, HashMap<Integer, MascotPeptideHit>> query_peptide_map = new HashMap<>();
+		HashMap<Integer, HashMap<Integer, MascotStorager.MascotPeptideHit>> query_peptide_map = new HashMap<>();
 		// protein map with accession as key
 		HashMap<String, MascotProteinHit> protein_map = new HashMap<>();
 		// we can't store all spectra in memory, instead we have to do this while parsing
-		try {    
+		try {
 			if (!(this.file.exists())) {
 				throw new IllegalArgumentException("raw Mascot datfile from " + this.file + " does not exist.");
-			}		            
+			}
 			// load the dat file
 			BufferedReader datreader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
 			// start parsing
@@ -198,14 +198,14 @@ public class MascotStorager extends BasicStorager {
 					throw new IllegalArgumentException("Did not find 'boundary' definition in the datfile!");
 				}
 				// boundary is a hash that denotes a new section in the dat file and should be given at the beginning of the file
-				String boundary = this.getBoundary(line);			            
+				String boundary = this.getBoundary(line);
 				String currentsection =null;
 				// skip until we reach first boundary
 				while (!(datreader.readLine().contains(boundary))) {}
 				// find first section name
 				currentsection = getSectionName(datreader.readLine());
 				@SuppressWarnings("unused")
-				int testing_count = 0; 
+				int testing_count = 0;
 				// Cycle the stream.
 				while ((line = datreader.readLine()) != null) {
 					testing_count++;
@@ -219,7 +219,7 @@ public class MascotStorager extends BasicStorager {
 						currentsection = getSectionName(datreader.readLine());
 						// at the start of a new section we must initialize some stuff
 						if (currentsection.contains("query")) {
-							query_number = Integer.parseInt(currentsection.substring(5));		                    	
+							query_number = Integer.parseInt(currentsection.substring(5));
 							currentquerymap.clear();
 							// progress report here
 							//if ((query_number % 1000) == 0) {System.out.println("New query: "+query_number);}
@@ -237,23 +237,23 @@ public class MascotStorager extends BasicStorager {
 								client.firePropertyChange("resetall", 0L, num_queries);
 								client.firePropertyChange("resetcur", 0L, num_queries);
 							}
-						}		            		            		
+						}
 						// summary section contains precursor masses
 						// reusing the querynumber variable here for different purpose
 						if ("summary".equalsIgnoreCase(currentsection)) {
 							if (line.contains("qmass")) {
-								String[] qmass_split = line.split("=");		            				
+								String[] qmass_split = line.split("=");
 								query_number = Integer.parseInt(qmass_split[0].substring(5));
-								precursor_mass = Double.parseDouble(qmass_split[1]);	
+								precursor_mass = Double.parseDouble(qmass_split[1]);
 								precursor_mass_map.put(query_number, precursor_mass);
 							}
-							if (line.contains("qintensity")) {		            				
+							if (line.contains("qintensity")) {
 								String[] qintensity_split = line.split("=");
 								query_number = Integer.parseInt(qintensity_split[0].substring(10));
 								precursor_intensity = Double.parseDouble(qintensity_split[1]);
 								precursor_intensity_map.put(query_number, precursor_intensity);
 							}
-							if (line.contains("qexp")) {		            				
+							if (line.contains("qexp")) {
 								String[] qintensity_split = line.split("=");
 								query_number = Integer.parseInt(qintensity_split[0].substring(4));
 								String[] mzandcharge_split = qintensity_split[1].split(",");
@@ -261,7 +261,7 @@ public class MascotStorager extends BasicStorager {
 								precursor_charge = mzandcharge_split[1];
 								precursor_mz_map.put(query_number, precursor_mz);
 								precursor_charge_map.put(query_number, precursor_charge);
-							}	
+							}
 						}
 						// peptide section contains a lot of useful stuff
 						if ("peptides".equalsIgnoreCase(currentsection)) {
@@ -276,10 +276,10 @@ public class MascotStorager extends BasicStorager {
 									// now we parse the querynumber and peptidenumber
 									int query_num = Integer.parseInt(entryname_split[0].substring(1));
 									int peptide_num = Integer.parseInt(entryname_split[1].substring(1));
-									// now we parse the peptide information we need		                				
+									// now we parse the peptide information we need
 									String[] pepdata_split =  alldata_split[0].split(",");
 									String[] protdata_split =  alldata_split[1].split(",");
-									// the score is parsed first and tested against the threshold		                				
+									// the score is parsed first and tested against the threshold
 									Double pepscore = Double.parseDouble(pepdata_split[7]);
 									if (pepscore >= scoreThreshold) {
 										// the sequence is for storing the peptide itself
@@ -290,7 +290,7 @@ public class MascotStorager extends BasicStorager {
 										Double evalue = 0.0;
 										// the proteins are needed to to create proteins later
 										// parsing the proteins is kind of painful
-										List<String> proteinlist = new ArrayList<String>();		                					
+										List<String> proteinlist = new ArrayList<String>();
 										for (String prot_substring : protdata_split) {
 											// TODO: handle malformed accessions
 											String[] accession_split = prot_substring.split("\"");
@@ -301,15 +301,15 @@ public class MascotStorager extends BasicStorager {
 											} else {
 												proteinlist.add(accession_split[1]);
 											}
-											
+
 										}
 										// lastly we put it all into the map
-										MascotPeptideHit pep_hit = new MascotPeptideHit(pepsequence, pepscore, proteinlist, deltamass, evalue);
+										MascotStorager.MascotPeptideHit pep_hit = new MascotStorager.MascotPeptideHit(pepsequence, pepscore, proteinlist, deltamass, evalue);
 										// does query already contain data? If not create new peptidemap
 										if (query_peptide_map.containsKey(query_num)) {
 											query_peptide_map.get(query_num).put(peptide_num, pep_hit);
 										} else {
-											HashMap<Integer, MascotPeptideHit> peptidemap = new HashMap<>();
+											HashMap<Integer, MascotStorager.MascotPeptideHit> peptidemap = new HashMap<>();
 											peptidemap.put(peptide_num, pep_hit);
 											query_peptide_map.put(query_num, peptidemap);
 										}
@@ -328,11 +328,11 @@ public class MascotStorager extends BasicStorager {
 												protein_map.put(accession, protein_hit);
 
 											}
-										}		                					
+										}
 									}
-								}			                		
+								}
 							}
-						}	
+						}
 						if ("proteins".equalsIgnoreCase(currentsection)) {
 							// dont get description from protein section, just get it from fasta
 							// if entering we should do the full redundancy check and retrieve data from fasta once
@@ -343,7 +343,7 @@ public class MascotStorager extends BasicStorager {
 									String[] split = line.split("[=]",2);
 									if (!(split[0].contains("_tax"))) {
 										String accession = split[0].split("[|]")[1].replace("\"","");
-										String description = split[1].split("[,]",2)[1]; 
+										String description = split[1].split("[,]",2)[1];
 										// If map does not contain this entry, it was filtered out.
 										if (protein_map.containsKey(accession)) {
 											protein_map.get(accession).setDescription(description);
@@ -392,7 +392,7 @@ public class MascotStorager extends BasicStorager {
 										if (protein_map.containsKey(accession)) {
 											// Check whether this protein is redundant in the DAT file
 											if (protein_map.get(accession).was_this_protein_submitted()) {
-												System.out.println("Duplicate protein entry: "+accession);		            							
+												System.out.println("Duplicate protein entry: "+accession);
 											} else {
 												// and store the proteinid
 												long proteinID = aRS.getLong("proteinid");
@@ -412,21 +412,21 @@ public class MascotStorager extends BasicStorager {
 								client.firePropertyChange("new message", null, "PARSING MASCOT FILE");
 								client.firePropertyChange("indeterminate", true, false);
 							}
-							// get the query number and check if it got any peptides		            			
+							// get the query number and check if it got any peptides
 							// we need querynumber, charge(String), pre-MZ(Double), preINT(Double), peaklist(Array), maxINT(Double), Title(String)
 							// fill in the currentquerydata
-							String[] querysplit = line.split("="); 
+							String[] querysplit = line.split("=");
 							if (querysplit.length == 2) {
 								currentquerymap.put(querysplit[0], querysplit[1]);
-								// if we reached ions then we can process this thing			            			
+								// if we reached ions then we can process this thing
 								if (querysplit[0].equalsIgnoreCase("ions1")) {
 									// intensity values might be missing, check and set to 1 if missing
 									double current_intensity = 1;
 									if (precursor_intensity_map.containsKey(query_number)) {
 										current_intensity = precursor_intensity_map.get(query_number);
-									}			            				
-									Query current_query = new Query(currentquerymap, precursor_mz_map.get(query_number), 
-											precursor_charge_map.get(query_number), precursor_mass_map.get(query_number), 
+									}
+									Query current_query = new Query(currentquerymap, precursor_mz_map.get(query_number),
+											precursor_charge_map.get(query_number), precursor_mass_map.get(query_number),
 											current_intensity, query_number);
 									// here we finally have the query and can start storing stuff
 									// submit spectrum and searchspectrum, if not already stored
@@ -455,20 +455,20 @@ public class MascotStorager extends BasicStorager {
 										HashMap<Object, Object> data = new HashMap<Object, Object>(5);
 										data.put(Searchspectrum.FK_SPECTRUMID, spectrumId);
 										data.put(Searchspectrum.FK_EXPERIMENTID, searchSettings.getExpID());
-										Searchspectrum searchSpectrum = new Searchspectrum(data);			        						 
+										Searchspectrum searchSpectrum = new Searchspectrum(data);
 										searchSpectrum.persist(conn);
 										searchspectrumID = (Long) searchSpectrum.getGeneratedKeys()[0];
 										// Add new spectrum to map with title and spectrum IDs
 										specTitleMap.put(current_query.getTitle(),spectrumId);
 									}
 									// submit peptide and spec2pep reference
-									HashMap<Integer, MascotPeptideHit> peptidemap = query_peptide_map.get(query_number); 
+									HashMap<Integer, MascotStorager.MascotPeptideHit> peptidemap = query_peptide_map.get(query_number);
 									for (int peptide_number : peptidemap.keySet()) {
 										// Fill the peptide table and get peptideID
-										MascotPeptideHit current_pephit = peptidemap.get(peptide_number);
-										String pep_sequence = current_pephit.getSequence();	        						
+										MascotStorager.MascotPeptideHit current_pephit = peptidemap.get(peptide_number);
+										String pep_sequence = current_pephit.getSequence();
 										long peptideID = this.storePeptide(pep_sequence);
-										// Store peptide-spectrum association 
+										// Store peptide-spectrum association
 										this.storeSpec2Pep(searchspectrumID, peptideID);
 										// missing protein, pep2prot and mascothit (and uniprotentry/taxonomy which should work afterwards?)
 										// this code submits a protein entry and the pep2prot ref
@@ -480,7 +480,7 @@ public class MascotStorager extends BasicStorager {
 											if (protein_map.get(prot_acc).was_this_protein_submitted()) {
 												proteinID = protein_map.get(prot_acc).getProteinID();
 												// this just updates the pep2prot to a given protein
-												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);	
+												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 											} else {
 												String accession = protein_map.get(prot_acc).getAccession();
 
@@ -493,7 +493,7 @@ public class MascotStorager extends BasicStorager {
 													proteinID = prot_accessor.getProteinid();
 													// save the peptide to protein link
 													Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
-													// fetch uniprot data (if applicable) and store the uniprot entry 
+													// fetch uniprot data (if applicable) and store the uniprot entry
 													// Length of uniProt accessions is 6 for swissprot and 6 or 12 for trembl
 													if (accession.length() == 6 || accession.length() == 10 ) {
 														ArrayList<String> this_accession_as_list = new ArrayList<String>();
@@ -539,11 +539,11 @@ public class MascotStorager extends BasicStorager {
 									conn.commit();
 								}
 							}
-						}		                		
+						}
 					}
 				}
 			}
-			datreader.close();	    
+			datreader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -551,21 +551,21 @@ public class MascotStorager extends BasicStorager {
 		// final commit can probably go
 		conn.commit();
 //		conn.setAutoCommit(true);
-		
+
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		// this part of the code remained unchanged
 		// retrieve UniProt entries
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
-		
+
 //		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
 		//Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
-		
-		client.firePropertyChange("indeterminate", true, false);		
+
+		client.firePropertyChange("indeterminate", true, false);
 		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
 		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());
-		
+
 //		// iterate entries
 //		for (String accession : this.uniProtCandidates.keySet()) {
 //			// retrieve protein data from local cache
@@ -639,9 +639,9 @@ public class MascotStorager extends BasicStorager {
 //				Uniprotentry.addUniProtEntryWithProteinID(proteinID,
 //						taxID, ecNumbers, koNumbers, keywords,
 //						uniref100, uniref90, uniref50, conn);
-//			}			
+//			}
 //			client.firePropertyChange("progressmade", true, false);
-//		}		
+//		}
 //		conn.commit();
 //		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 	}
@@ -649,7 +649,7 @@ public class MascotStorager extends BasicStorager {
 	/**
 	 * Retrieves the score threshold based on local FDR or absolute limit.
 	 * In case of local FDR, scores for peptides and decoypeptides are retrieved from the dat-file
-	 * 
+	 *
 	 * @return {@link Double} Score threshold
 	 * @throws Exception
 	 * @author K. Schallert
@@ -659,15 +659,15 @@ public class MascotStorager extends BasicStorager {
 		if (filterType == FilteringParameters.ION_SCORE) {
 			return (Integer) mascotParams.get("ionScore").getValue();
 		} else {
-			// we need to retrieve queryScores and queryDecoyScores				
+			// we need to retrieve queryScores and queryDecoyScores
 			// Init score lists of identified target and decoy queries
 			List<Double> queryScores = new ArrayList<Double>();
 			List<Double> queryDecoyScores = new ArrayList<Double>();
 			// parse through file and retrieve queries one by one
-			try {		           
+			try {
 				if (!(this.file.exists())) {
 					throw new IllegalArgumentException("raw Mascot datfile from " + this.file + " does not exist.");
-				}		            
+				}
 				// load the dat file
 				@SuppressWarnings("resource")
 				BufferedReader datreader = new BufferedReader(new InputStreamReader(new FileInputStream(this.file)));
@@ -688,7 +688,7 @@ public class MascotStorager extends BasicStorager {
 						throw new IllegalArgumentException("Did not find 'boundary' definition in the datfile!");
 					}
 					// boundary is a hash that denotes a new section in the dat file and should be given at the beginning of the file
-					String boundary = this.getBoundary(line);			            
+					String boundary = this.getBoundary(line);
 					String currentsection =null;
 					// read until we reach first boundary
 					while (!(datreader.readLine().contains(boundary))) {}
@@ -706,7 +706,7 @@ public class MascotStorager extends BasicStorager {
 							currentsection = getSectionName(datreader.readLine());
 							// after we get the section name or break we are good
 						} else {
-							// if we reach queries we can abort 
+							// if we reach queries we can abort
 							if (currentsection.contains("query")) {
 								//
 								break;
@@ -716,16 +716,16 @@ public class MascotStorager extends BasicStorager {
 							if ("peptides".equalsIgnoreCase(currentsection)) {
 								// only look at lines that start with "q" (for query, which are all but empty lines)
 								if (line.startsWith("q")) {
-									String[] general_peptideentry_split = line.split("=");				                		
+									String[] general_peptideentry_split = line.split("=");
 									// correct split?
 									if (general_peptideentry_split.length == 2) {
 										// check wich section we have, we want the normal peptidedata which should split into 2 tokens
 										// q170_p9 --> peptidedata, q170_p9_terms --> other stuff
-										String[] header_split = general_peptideentry_split[0].split("_");				                			
+										String[] header_split = general_peptideentry_split[0].split("_");
 										if (header_split.length == 2) {
 											String[] pepdata_split = general_peptideentry_split[1].split(",");
 											// check if this is a proper peptide entry, empty entries  equal -1
-											if (pepdata_split.length >= 6) {						                				
+											if (pepdata_split.length >= 6) {
 												// 	finally retrieve score
 												queryScores.add(Double.parseDouble(pepdata_split[7]));
 											} else if (!(Integer.parseInt(general_peptideentry_split[1]) == -1)) {
@@ -733,23 +733,23 @@ public class MascotStorager extends BasicStorager {
 											}
 										}
 									} else {
-										throw new IllegalArgumentException("Parsing error: at getionthreshold()/split(peptideentry)");				                							                			
+										throw new IllegalArgumentException("Parsing error: at getionthreshold()/split(peptideentry)");
 									}
 								}
 							}
 							if ("decoy_peptides".equalsIgnoreCase(currentsection)) {
 								// only look at lines that start with "q" (for query, which are all but empty lines)
 								if (line.startsWith("q")) {
-									String[] general_peptideentry_split = line.split("=");				                		
+									String[] general_peptideentry_split = line.split("=");
 									// correct split?
 									if (general_peptideentry_split.length == 2) {
 										// check wich section we have, we want the normal peptidedata which should split into 2 tokens
 										// q170_p9 --> peptidedata, q170_p9_terms --> other stuff
-										String[] header_split = general_peptideentry_split[0].split("_");				                			
+										String[] header_split = general_peptideentry_split[0].split("_");
 										if (header_split.length == 2) {
 											String[] pepdata_split = general_peptideentry_split[1].split(",");
 											// check if this is a proper peptide entry, empty entries  equal -1
-											if (pepdata_split.length >= 6) {						                				
+											if (pepdata_split.length >= 6) {
 												// 	finally retrieve score
 												queryDecoyScores.add(Double.parseDouble(pepdata_split[7]));
 											} else if (!(Integer.parseInt(general_peptideentry_split[1]) == -1)) {
@@ -757,10 +757,10 @@ public class MascotStorager extends BasicStorager {
 											}
 										}
 									} else {
-										throw new IllegalArgumentException("Parsing error: at getionthreshold()/split(peptideentry)");				                							                			
+										throw new IllegalArgumentException("Parsing error: at getionthreshold()/split(peptideentry)");
 									}
 								}
-							}			                		
+							}
 						}
 					}
 				}
@@ -768,7 +768,7 @@ public class MascotStorager extends BasicStorager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			// this code remained unchanged, TODO: using all peptides from dat-file, is this correct? 
+			// this code remained unchanged, TODO: using all peptides from dat-file, is this correct?
 			Collections.sort(queryScores);
 			Collections.sort(queryDecoyScores);
 			// Extract maximum false discovery rate threshold from parameters
@@ -793,7 +793,7 @@ public class MascotStorager extends BasicStorager {
 						break;
 					}
 				}
-				
+
 				// See definition of Mascot FDR http://www.matrixscience.com/help/decoy_help.html
 				double fdr = 1.0 * queryDecoyScores.size() / (queryScores.size() + queryDecoyScores.size()) ;
 				if (fdr <= fdrThreshold ) {
@@ -813,10 +813,10 @@ public class MascotStorager extends BasicStorager {
 	 * @param  query from MascotDatFileParser
 	 * @param mDat The MascotDatFileParser
 	 * @return spectrumID The ID of the spectra in the database.
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	private Long storeSpectrum(Query query) throws SQLException {
-		
+
 		Long spectrumid = null;
 		HashMap<Object, Object> data = new HashMap<Object, Object>(12);
 		data.put(Spectrum.TITLE, query.getTitle().trim());
@@ -855,15 +855,15 @@ public class MascotStorager extends BasicStorager {
 //	 * This method puts the proteins and pep2proteins entries in the database
 //	 * @param peptideID. The ID of the peptide in the database
 //	 * @param datProtHit. A proteinHit from the MascotDatFile parser.
-//	 * @param proteinMap. The proteinMap from MascotDatFile parser, containing the link between accession and description 
+//	 * @param proteinMap. The proteinMap from MascotDatFile parser, containing the link between accession and description
 //	 * @return proteinID. The proteinID in the database.
-//	 * @throws SQLException 
+//	 * @throws SQLException
 //	 */
 //	// this method is now obsolete
 //	@SuppressWarnings("unused")
 //	private StoredProtein storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
 //		// save information of the protein storing
-//		StoredProtein storedProt;		
+//		StoredProtein storedProt;
 //		String protAccession = proteinHit.getAccession();
 //		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
 //		// therefore convert it to a FASTA header and parse accession from it
@@ -876,14 +876,14 @@ public class MascotStorager extends BasicStorager {
 //			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
 //			header = Header.parseFromFASTA(composedHeader);
 //			accession = header.getAccession();
-//			description = header.getDescription(); 
-//		}  
+//			description = header.getDescription();
+//		}
 //		// CASE NCBI--- try to get mapping to UNIPROT
 //		else if(protAccession.startsWith("gi")) {
 //			composedHeader = ">" + protAccession + "|" + proteinMap.getProteinDescription(protAccession);
 //			header = Header.parseFromFASTA(composedHeader);
 //			protAccession = header.getAccession();
-//			description = header.getDescription(); 
+//			description = header.getDescription();
 //			//			Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
 //			//			accession = gi2up.get(protAccession);
 //			if (accession == null) {
@@ -895,7 +895,7 @@ public class MascotStorager extends BasicStorager {
 //			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
 //			header = Header.parseFromFASTA(composedHeader);
 //			accession = header.getAccession();
-//			description = header.getDescription(); 
+//			description = header.getDescription();
 //		}
 //
 //		// If not UNIPROT or NCBI Header.parseFromFASTA(composedHeader) may fail.... hence set new accessions.
@@ -905,21 +905,21 @@ public class MascotStorager extends BasicStorager {
 //			accession = split[1].trim();
 //			// changed from 0 to 1
 //			description = proteinMap.getProteinDescription(protAccession);
-//			//TODO MAYBE here an Mistake with other accession rules 
+//			//TODO MAYBE here an Mistake with other accession rules
 //		}
-//		// Check whether protein is already in database		
+//		// Check whether protein is already in database
 //		// this old implementation created a hashmap which led to memory issues
 //		//HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
-//		//Long proteinID = proteinIdMap.get(accession);		
-//		// this new implementation just gets the proteinID if the accession is already in the database		
-//		PreparedStatement prs = conn.prepareStatement("select * from protein " + 
+//		//Long proteinID = proteinIdMap.get(accession);
+//		// this new implementation just gets the proteinID if the accession is already in the database
+//		PreparedStatement prs = conn.prepareStatement("select * from protein " +
 //				"where protein.accession = ?");
 //		prs.setString(1, accession);
 //		ResultSet rs = prs.executeQuery();
 //		Long proteinID = null;
-//		while(rs.next()) {			
+//		while(rs.next()) {
 //			ProteinTableAccessor currententry = new ProteinTableAccessor(rs);
-//			if (currententry.getAccession() == accession) {				
+//			if (currententry.getAccession() == accession) {
 //				proteinID = currententry.getProteinid();
 //			}
 //		}
@@ -957,13 +957,13 @@ public class MascotStorager extends BasicStorager {
 	 * This method puts a MascotHit entry to the database.
 	 * @param searchspectrumID. The spectrumID in the database.
 	 * @param peptideID. The peptideID in the database.
-	 * @param proteinID. The proteinID in the database. 
+	 * @param proteinID. The proteinID in the database.
 	 * @param query. The MascotDatFile parser query.
 	 * @param datPeptideHit. The MascotDatFile peptide. ---> was changed to local class MascotPeptideHit
 	 * @return mascothitID. The ID of the MascotHit in the database.
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
-	private long storeMascotHit(long searchspectrumID, long peptideID, long proteinID, Query query, MascotPeptideHit peptideHit) throws SQLException {
+	private long storeMascotHit(long searchspectrumID, long peptideID, long proteinID, Query query, MascotStorager.MascotPeptideHit peptideHit) throws SQLException {
 		long mascotHitID = 0;
 		HashMap<Object, Object> data = new HashMap<Object, Object>(10);
 		data.put(Mascothit.FK_SEARCHSPECTRUMID, searchspectrumID);
@@ -977,7 +977,7 @@ public class MascotStorager extends BasicStorager {
 		data.put(Mascothit.DELTA, peptideHit.getdeltamass());
 		// Save spectrum in database
 		Mascothit mascotHit	 = new Mascothit(data);
-		mascotHit.persist(conn);
+		mascotHit.persist(this.conn);
 		mascotHitID = (Long) mascotHit.getGeneratedKeys()[0];
 		return mascotHitID;
 	}
@@ -998,7 +998,7 @@ public class MascotStorager extends BasicStorager {
 		/**
 		 * The boolean added through this class, denotes if protein was submitted to database.
 		 */
-		private boolean wassubmitted = false;
+		private boolean wassubmitted;
 		
 		/**
 		 * The boolean added through this class, denotes if protein was submitted to database.
@@ -1012,7 +1012,7 @@ public class MascotStorager extends BasicStorager {
 		 * @return proteinID
 		 */
 		public long getProteinID() {
-			return proteinID;
+			return this.proteinID;
 		}
 
 		/**
@@ -1037,7 +1037,7 @@ public class MascotStorager extends BasicStorager {
 		 * Set the protein to submitted 
 		 */
 		public void set_this_protein_is_in_DB() {
-			this.wassubmitted = true;
+            wassubmitted = true;
 		}
 		
 		/**
@@ -1046,7 +1046,7 @@ public class MascotStorager extends BasicStorager {
 		 * @return wassubmitted
 		 */
 		public boolean was_this_protein_submitted() {
-			return this.wassubmitted;
+			return wassubmitted;
 		}
 	}
 
@@ -1065,17 +1065,17 @@ public class MascotStorager extends BasicStorager {
 		/**
 		 *  Mascot query peptide score         
 		 */
-		private Double peptide_score;
+		private final Double peptide_score;
 		
 		/**
 		 *  Deltamass of peptide hit
 		 */
-		private double deltamass;
+		private final double deltamass;
 		
 		/**
 		 *  Evalue of the peptide hit.
 		 */
-		private double Evalue;
+		private final double Evalue;
 
 		/**
 		 * Constructor method.        
@@ -1088,10 +1088,10 @@ public class MascotStorager extends BasicStorager {
 		 */
 		public MascotPeptideHit(String pepseq, Double pepscore, List<String> proteins, Double dmass, Double eval) {
 			super(pepseq, 0, 1);
-			this.peptide_score = pepscore;
-			this.deltamass = dmass;
-			this.Evalue = eval;
-			this.setProteinHitlist(proteins);
+            peptide_score = pepscore;
+            deltamass = dmass;
+            Evalue = eval;
+            setProteinHitlist(proteins);
 		}		
 		
 		/**
@@ -1100,7 +1100,7 @@ public class MascotStorager extends BasicStorager {
 		 *  @return peptide_score        
 		 */
 		public Double getscore() {
-			return this.peptide_score;
+			return peptide_score;
 		}
 		
 		/**
@@ -1109,7 +1109,7 @@ public class MascotStorager extends BasicStorager {
 		 *  @return Evalue        
 		 */
 		public double getEvalue() {
-			return this.Evalue;
+			return Evalue;
 		}
 		
 		/**
@@ -1118,7 +1118,7 @@ public class MascotStorager extends BasicStorager {
 		 *  @return deltamass        
 		 */
 		public double getdeltamass() {
-			return this.deltamass;
+			return deltamass;
 		}		
 	}
 
@@ -1130,9 +1130,9 @@ public class MascotStorager extends BasicStorager {
 	// this class is now obsolete
 	private class StoredProtein{
 		/* Protein accession*/
-		private String accession;
+		private final String accession;
 		/* Protein ID from the database*/
-		private long protID;
+		private final long protID;
 
 		/**
 		 * Default Constructor
@@ -1149,7 +1149,7 @@ public class MascotStorager extends BasicStorager {
 		 */
 		@SuppressWarnings("unused")
 		public String getAccession() {
-			return accession;
+			return this.accession;
 		}
 		/**
 		 * Gets the proteinID from the stored protein
@@ -1157,7 +1157,7 @@ public class MascotStorager extends BasicStorager {
 		 */
 		@SuppressWarnings("unused")
 		public long getProtID() {
-			return protID;
+			return this.protID;
 		}
 	}
 
@@ -1169,7 +1169,7 @@ public class MascotStorager extends BasicStorager {
 	 * @return String  with the section name.
 	 */
 	private String getSectionName(String sectionDefLine) {
-		return this.getProp(sectionDefLine, "name");
+		return getProp(sectionDefLine, "name");
 	}
 
 	/**
@@ -1180,7 +1180,7 @@ public class MascotStorager extends BasicStorager {
 	 */
 	private String getBoundary(String boundaryDefLine) {
 		String lookFor = "boundary";
-		String found = this.getProp(boundaryDefLine, lookFor);
+		String found = getProp(boundaryDefLine, lookFor);
 		return found;
 	}
 

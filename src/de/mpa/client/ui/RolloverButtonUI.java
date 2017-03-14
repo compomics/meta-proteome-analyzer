@@ -34,19 +34,19 @@ public class RolloverButtonUI extends PlasticButtonUI {
     private static final RolloverButtonUI instance = new RolloverButtonUI();
 
     public static ComponentUI createUI(JComponent b) {
-        return instance;
+        return RolloverButtonUI.instance;
     }
 
     public void installDefaults(AbstractButton b) {
     	super.installDefaults(b);
     	
     	b.setMargin(new Insets(1, 1, 1, 1));
-    	b.setBorder(RolloverButtonBorder.getInstance());
+    	b.setBorder(RolloverButtonUI.RolloverButtonBorder.getInstance());
     	b.setBackground(new Color(255, 255, 255, 159));
     	b.setOpaque(false);
-    };
-    
-	@Override
+    }
+
+    @Override
 	public void update(Graphics g, JComponent c) {
         AbstractButton btn = (AbstractButton) c;
 		ButtonModel model = btn.getModel();
@@ -60,13 +60,13 @@ public class RolloverButtonUI extends PlasticButtonUI {
             if (btn.isContentAreaFilled()) {
             	g.setColor(c.getBackground());
             	g.fillRect(1, 1, c.getWidth() - 2, c.getHeight() - 2);
-                
+
 				Rectangle r = new Rectangle(1, 1, c.getWidth() - 2, c.getHeight() - 1);
 				Color brightenStop = UIManager.getColor("Plastic.brightenStop");
 				if (brightenStop == null) {
 		            brightenStop = PlasticTheme.BRIGHTEN_STOP;
 		        }
-//	                	
+//
             	// Add round sides
         		Graphics2D g2 = (Graphics2D) g;
         		int border = 10;
@@ -90,14 +90,14 @@ public class RolloverButtonUI extends PlasticButtonUI {
 		}
         this.paint(g, c);
 	}
-	
+
 	@Override
 	protected void paintFocus(Graphics g, AbstractButton b,
 			Rectangle viewRect, Rectangle textRect, Rectangle iconRect) {
         g.setColor(getFocusColor());
         g.drawRect(2, 2, b.getWidth() - 5, b.getHeight() - 5);
 	}
-	
+
 	@Override
 	protected void paintButtonPressed(Graphics g, AbstractButton b) {
 		if (b.isContentAreaFilled()) {
@@ -106,32 +106,31 @@ public class RolloverButtonUI extends PlasticButtonUI {
 			g.fillRoundRect(0, 0, size.width, size.height, 5, 5);
 		}
 	}
-	
+
 	/**
 	 * TODO: API
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	@SuppressWarnings("serial")
 	public static class RolloverButtonBorder extends AbstractBorder {
-		
-		private static RolloverButtonBorder instance;
-		
-		public static RolloverButtonBorder getInstance() {
+
+		private static RolloverButtonUI.RolloverButtonBorder instance;
+
+		public static RolloverButtonUI.RolloverButtonBorder getInstance() {
 			if (instance == null) {
-				instance = new RolloverButtonBorder();
+				instance = new RolloverButtonUI.RolloverButtonBorder();
 			}
-			return instance;
+			return RolloverButtonUI.RolloverButtonBorder.instance;
 		}
 		
 		private RolloverButtonBorder() {
-			super();
-		}
+        }
 		
 		/**
 		 * The border insets.
 		 */
-		private Insets insets = new Insets(3, 2, 3, 2);
+		private final Insets insets = new Insets(3, 2, 3, 2);
 		
 		@Override
 		public void paintBorder(Component c, Graphics g, int x, int y,
@@ -141,7 +140,7 @@ public class RolloverButtonUI extends PlasticButtonUI {
 			ButtonModel model = button.getModel();
 			
 			if (model.isRollover() || model.isArmed() || model.isSelected()) {
-				this.drawButtonBorder(g, x, y, w, h,
+                drawButtonBorder(g, x, y, w, h,
 						PlasticLookAndFeel.getControlDarkShadow(),
 						LookUtils.getSlightlyBrighter(
 								PlasticLookAndFeel.getControlDarkShadow(),
@@ -189,7 +188,7 @@ public class RolloverButtonUI extends PlasticButtonUI {
 	    
 		@Override
 		public Insets getBorderInsets(Component c) {
-			return insets;
+			return this.insets;
 		}
 	}
 

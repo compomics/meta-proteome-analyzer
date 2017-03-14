@@ -91,7 +91,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isCrux() {
-        return crux;
+        return this.crux;
     }
 
     /**
@@ -99,7 +99,7 @@ public class DbSearchSettings {
      * 
      */
     public void setCrux(boolean value) {
-        this.crux = value;
+        crux = value;
     }
 
     /**
@@ -111,7 +111,7 @@ public class DbSearchSettings {
      *     
      */
     public String getCruxParams() {
-        return cruxParams;
+        return this.cruxParams;
     }
 
     /**
@@ -123,7 +123,7 @@ public class DbSearchSettings {
      *     
      */
     public void setCruxParams(String value) {
-        this.cruxParams = value;
+        cruxParams = value;
     }
 
     /**
@@ -135,7 +135,7 @@ public class DbSearchSettings {
      *     
      */
     public String getFastaFile() {
-        return fastaFile;
+        return this.fastaFile;
     }
 
     /**
@@ -147,7 +147,7 @@ public class DbSearchSettings {
      *     
      */
     public void setFastaFile(String value) {
-        this.fastaFile = value;
+        fastaFile = value;
     }
 
     /**
@@ -155,7 +155,7 @@ public class DbSearchSettings {
      * 
      */
     public double getFragmentIonTol() {
-        return fragmentIonTol;
+        return this.fragmentIonTol;
     }
 
     /**
@@ -163,7 +163,7 @@ public class DbSearchSettings {
      * 
      */
     public void setFragmentIonTol(double value) {
-        this.fragmentIonTol = value;
+        fragmentIonTol = value;
     }
 
     /**
@@ -171,7 +171,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isInspect() {
-        return inspect;
+        return this.inspect;
     }
 
     /**
@@ -179,7 +179,7 @@ public class DbSearchSettings {
      * 
      */
     public void setInspect(boolean value) {
-        this.inspect = value;
+        inspect = value;
     }
 
     /**
@@ -191,7 +191,7 @@ public class DbSearchSettings {
      *     
      */
     public String getInspectParams() {
-        return inspectParams;
+        return this.inspectParams;
     }
 
     /**
@@ -203,7 +203,7 @@ public class DbSearchSettings {
      *     
      */
     public void setInspectParams(String value) {
-        this.inspectParams = value;
+        inspectParams = value;
     }
 
     /**
@@ -211,7 +211,7 @@ public class DbSearchSettings {
      * 
      */
     public int getNumMissedCleavages() {
-        return numMissedCleavages;
+        return this.numMissedCleavages;
     }
 
     /**
@@ -219,7 +219,7 @@ public class DbSearchSettings {
      * 
      */
     public void setNumMissedCleavages(int value) {
-        this.numMissedCleavages = value;
+        numMissedCleavages = value;
     }
     
     /**
@@ -227,7 +227,7 @@ public class DbSearchSettings {
      * 
      */
     public void setpepFASTA(boolean value) {
-    	addProtHitUse = value;
+        this.addProtHitUse = value;
     }
 
     /**
@@ -235,7 +235,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean getPepDBFlag() {
-    	return addProtHitUse;
+    	return this.addProtHitUse;
     }
     
     /**
@@ -243,7 +243,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isOmssa() {
-        return omssa;
+        return this.omssa;
     }
 
     /**
@@ -251,7 +251,7 @@ public class DbSearchSettings {
      * 
      */
     public void setOmssa(boolean value) {
-        this.omssa = value;
+        omssa = value;
     }
 
     /**
@@ -263,7 +263,7 @@ public class DbSearchSettings {
      *     
      */
     public String getOmssaParams() {
-        return omssaParams;
+        return this.omssaParams;
     }
 
     /**
@@ -275,7 +275,7 @@ public class DbSearchSettings {
      *     
      */
     public void setOmssaParams(String value) {
-        this.omssaParams = value;
+        omssaParams = value;
     }
 
     /**
@@ -283,7 +283,7 @@ public class DbSearchSettings {
      * 
      */
     public double getPrecursorIonTol() {
-        return precursorIonTol;
+        return this.precursorIonTol;
     }
 
     /**
@@ -291,7 +291,7 @@ public class DbSearchSettings {
      * 
      */
     public void setPrecursorIonTol(double value) {
-        this.precursorIonTol = value;
+        precursorIonTol = value;
     }
 
     /**
@@ -299,7 +299,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isPrecursorIonUnitPpm() {
-        return precursorIonUnit;
+        return this.precursorIonUnit;
     }
 
     /**
@@ -307,7 +307,7 @@ public class DbSearchSettings {
      * 
      */
     public void setPrecursorIonUnitPpm(boolean value) {
-        this.precursorIonUnit = value;
+        precursorIonUnit = value;
     }
 
     /**
@@ -315,7 +315,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isXTandem() {
-        return xTandem;
+        return this.xTandem;
     }
 
     /**
@@ -323,7 +323,7 @@ public class DbSearchSettings {
      * 
      */
     public void setXTandem(boolean value) {
-        this.xTandem = value;
+        xTandem = value;
     }
 
     /**
@@ -335,7 +335,7 @@ public class DbSearchSettings {
      *     
      */
     public String getXtandemParams() {
-        return xtandemParams;
+        return this.xtandemParams;
     }
 
     /**
@@ -347,7 +347,7 @@ public class DbSearchSettings {
      *     
      */
     public void setXtandemParams(String value) {
-        this.xtandemParams = value;
+        xtandemParams = value;
     }
 
     /**
@@ -355,7 +355,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isDecoy() {
-        return decoy;
+        return this.decoy;
     }
 
     /**
@@ -363,7 +363,7 @@ public class DbSearchSettings {
      * 
      */
     public void setDecoy(boolean value) {
-        this.decoy = value;
+        decoy = value;
     }
 
     /**
@@ -371,7 +371,7 @@ public class DbSearchSettings {
      * 
      */
     public boolean isMascot() {
-        return mascot;
+        return this.mascot;
     }
 
     /**
@@ -379,7 +379,7 @@ public class DbSearchSettings {
      * 
      */
     public void setMascot(boolean value) {
-        this.mascot = value;
+        mascot = value;
     }
 
     /**
@@ -387,7 +387,7 @@ public class DbSearchSettings {
      * 
      */
     public long getExperimentid() {
-        return experimentid;
+        return this.experimentid;
     }
 
     /**
@@ -395,7 +395,7 @@ public class DbSearchSettings {
      * 
      */
     public void setExperimentid(long value) {
-        this.experimentid = value;
+        experimentid = value;
     }
 
     

@@ -13,7 +13,6 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.SpectrumMatch;
@@ -97,7 +96,7 @@ public class TaxonomyData implements ChartData {
 	 */
 	public TaxonomyData(DbSearchResult dbSearchResult, HierarchyLevel hierarchyLevel) {
 		this.hierarchyLevel = hierarchyLevel;
-		this.setResult(dbSearchResult);
+        setResult(dbSearchResult);
 	}
 
 	/**
@@ -106,7 +105,7 @@ public class TaxonomyData implements ChartData {
 	 * @param dbSearchResult the database search result object
 	 */
 	public void setResult(DbSearchResult dbSearchResult) {
-		this.setData(dbSearchResult.getMetaProteins());
+        setData(dbSearchResult.getMetaProteins());
 	}
 
 	/**
@@ -116,19 +115,19 @@ public class TaxonomyData implements ChartData {
 	 */
 	public void setData(ProteinHitList data) {
 		this.data = data;
-		this.init();
+        init();
 	}
 
 	/**
 	 * Sets up the taxonomies.
 	 */
 	public void init() {
-		
-		this.hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
-		this.hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, this.data);
-		this.hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, this.data.getProteinSet());
-		this.hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, this.data.getPeptideSet());
-		this.hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, this.data.getMatchSet());
+
+        hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
+        hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, data);
+        hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, data.getProteinSet());
+        hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, data.getPeptideSet());
+        hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, data.getMatchSet());
 		
 		
 		
@@ -161,7 +160,7 @@ public class TaxonomyData implements ChartData {
 	public PieDataset getDataset() {
 		// TODO: pre-process dataset generation and return only cached variables
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		pieDataset.setGroup(new DatasetGroup(this.hierarchyLevel.getTitle()));
+		pieDataset.setGroup(new DatasetGroup(hierarchyLevel.getTitle()));
 		
 		// Add empty categories so they always show up first (to keep colors consistent)
 		String unknownKey = "Unknown";
@@ -169,16 +168,16 @@ public class TaxonomyData implements ChartData {
 		String othersKey = "Others";
 		pieDataset.setValue(othersKey, new Integer(0));
 
-		TaxonomyRank topRank = ((TaxonomyChartType) this.chartType).getRank();
-		List<TaxonomyRank> targetRanks = this.getTargetRanks(topRank);
+		UniProtUtilities.TaxonomyRank topRank = ((TaxonomyChartType) this.chartType).getRank();
+		List<UniProtUtilities.TaxonomyRank> targetRanks = this.getTargetRanks(topRank);
 
 		Collection<? extends Hit> hits = this.hierarchyMap.get(this.hierarchyLevel);
 		List<Taxonomic> knownList = new ArrayList<Taxonomic>();
 		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
-		
+
 		// this properly checks the selection status of peptides and spectra based on protein-selection
 		for (Hit hit : hits) {
-			boolean selected = false; 
+			boolean selected = false;
 			if (hit instanceof PeptideHit) {
 				PeptideHit pephit = (PeptideHit) hit;
 				for (ProteinHit protein : pephit.getProteinHits()) {
@@ -205,7 +204,7 @@ public class TaxonomyData implements ChartData {
 			if (selected) {
 				Taxonomic taxonomic = (Taxonomic) hit;
 				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
-				TaxonomyRank rank = taxonNode.getRank();
+				UniProtUtilities.TaxonomyRank rank = taxonNode.getRank();
 				if (targetRanks.contains(rank)) {
 					knownList.add(taxonomic);
 				} else {
@@ -213,7 +212,7 @@ public class TaxonomyData implements ChartData {
 				}
 			}
 		}
-		
+
 		this.occMap = new HashMap<String, ProteinHitList>();
 		final Map<String, Integer> valMap = new HashMap<String, Integer>();
 		for (Taxonomic taxonomic : knownList) {
@@ -225,7 +224,7 @@ public class TaxonomyData implements ChartData {
 			}
 			hitList.addAll(this.getProteinHits(taxonomic));
 			this.occMap.put(key, hitList);
-			
+
 			Integer value = valMap.get(key);
 			value = (value == null) ? 1 : value + 1;
 			valMap.put(key, value);
@@ -242,19 +241,19 @@ public class TaxonomyData implements ChartData {
 			this.occMap.put(unknownKey, unknownHits);
 			valMap.put(unknownKey, unknownHits.size());
 		}
-		
-		
+
+
 		if (hierarchyLevel != HierarchyLevel.META_PROTEIN_LEVEL) {
 			// trim redundant elements from protein hit lists
 			for (ProteinHitList phl : this.occMap.values()) {
 				Set<ProteinHit> proteinSet = phl.getProteinSet();
-				
+
 				phl.clear();
 				// FIXME: NullPointer Exception thrown
 				phl.addAll(proteinSet);
 			}
 		}
-		
+
 		double total = knownList.size() + unknownTaxa.size();
 		ProteinHitList others = new ProteinHitList();
 		int othersVal = 0;
@@ -270,7 +269,7 @@ public class TaxonomyData implements ChartData {
 				// add grouped hits to list and store it in map they originate from
 				// TODO: do this in pre-processing step, e.g. inside init()
 				others.addAll(this.occMap.get(entry.getKey()));
-				
+
 				othersVal += absVal;
 				absVal = othersVal;
 			}
@@ -282,13 +281,13 @@ public class TaxonomyData implements ChartData {
 			this.occMap.remove(othersKey);
 			pieDataset.remove(othersKey);
 		}
-		
+
 		if (this.hideUnknown || (pieDataset.getValue(unknownKey).intValue() == 0)) {
 //			pieDataset.setValue(unknownKey, 0);
 			pieDataset.remove(unknownKey);
 		}
-		
-		
+
+
 		return pieDataset;
 	}
 
@@ -339,16 +338,16 @@ public class TaxonomyData implements ChartData {
 	 * ranks below it.
 	 * @return all target rank types
 	 */
-	private List<TaxonomyRank> getTargetRanks(TaxonomyRank topRank) {
-		List<TaxonomyRank> targetRanks =
-				new ArrayList<TaxonomyRank>(UniProtUtilities.TAXONOMY_RANKS_MAP.values());
+	private List<UniProtUtilities.TaxonomyRank> getTargetRanks(UniProtUtilities.TaxonomyRank topRank) {
+		List<UniProtUtilities.TaxonomyRank> targetRanks =
+				new ArrayList<UniProtUtilities.TaxonomyRank>(UniProtUtilities.TAXONOMY_RANKS_MAP.values());
 		targetRanks = targetRanks.subList(targetRanks.indexOf(topRank), targetRanks.size());
 		return targetRanks;
 	}
 
 	@Override
 	public ProteinHitList getProteinHits(String key) {
-		return this.occMap.get(key);
+		return occMap.get(key);
 	}
 	
 	/**
@@ -373,8 +372,8 @@ public class TaxonomyData implements ChartData {
 	 * Clears the occurrences map. 
 	 */
 	public void clear() {
-		if (this.hierarchyMap != null) {
-			this.hierarchyMap.clear();
+		if (hierarchyMap != null) {
+            hierarchyMap.clear();
 		}
 	}
 	
@@ -400,7 +399,7 @@ public class TaxonomyData implements ChartData {
 	}
 	
 	public boolean getShowAsPie() {
-		return this.showAsPie;
+		return showAsPie;
 	}
 	
 }

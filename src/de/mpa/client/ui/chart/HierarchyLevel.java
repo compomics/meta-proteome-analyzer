@@ -15,29 +15,29 @@ public enum HierarchyLevel implements ChartType {
 	/**
 	 * The description string.
 	 */
-	private String description;
+	private final String description;
 	
 	/**
 	 * Graphdb identifier string.
 	 */
-	private String countIdentifier;
+	private final String countIdentifier;
 	
-	private HierarchyLevel(String description, String countIdentifier) {
+	HierarchyLevel(String description, String countIdentifier) {
 		this.description = description;
 		this.countIdentifier = countIdentifier;
 	}
 	
 	@Override
 	public String toString() {
-		return description;
+		return this.description;
 	}
 
 	@Override
 	public String getTitle() {
-		return this.toString();
+		return toString();
 	}
 
 	public String getCountIdentifier() {
-		return countIdentifier;
+		return this.countIdentifier;
 	}
 }

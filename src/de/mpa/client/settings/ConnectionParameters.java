@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -15,10 +15,6 @@ import javax.swing.JPasswordField;
 import javax.xml.ws.WebServiceException;
 
 import de.mpa.client.Client;
-import de.mpa.client.settings.Parameter.ButtonParameter;
-import de.mpa.client.settings.Parameter.NumberParameter;
-import de.mpa.client.settings.Parameter.PasswordParameter;
-import de.mpa.client.settings.Parameter.TextParameter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.util.PropertyLoader;
@@ -49,7 +45,7 @@ public class ConnectionParameters extends ParameterMap {
 	 * Initializes connection parameters from default values.
 	 */
 	public ConnectionParameters() {
-		this.initDefaults();
+        initDefaults();
 	}
 
 	@SuppressWarnings("serial")
@@ -57,14 +53,14 @@ public class ConnectionParameters extends ParameterMap {
 	public void initDefaults() {
 
 		// database settings
-		this.put("dbAddress", new TextParameter("", "Database Address",
+        put("dbAddress", new Parameter.TextParameter("", "Database Address",
 				"The network address of the database. May be an URL or IP address.", "Database Connection"));
-		this.put("dbName", new TextParameter("", "Database Name", "The database name.", "Database Connection"));
-		this.put("dbUsername", new TextParameter("", "Username", "The username for connecting to the database.",
+		this.put("dbName", new Parameter.TextParameter("", "Database Name", "The database name.", "Database Connection"));
+		this.put("dbUsername", new Parameter.TextParameter("", "Username", "The username for connecting to the database.",
 				"Database Connection"));
-		this.put("dbPass", new PasswordParameter("", "Password", "The password for connecting to the database.",
+        put("dbPass", new Parameter.PasswordParameter("", "Password", "The password for connecting to the database.",
 				"Database Connection"));
-		this.put("dbPort", new NumberParameter(DEFAULT_DB_PORT, 0, 65535, "Database Port",
+        put("dbPort", new Parameter.NumberParameter(ConnectionParameters.DEFAULT_DB_PORT, 0, 65535, "Database Port",
 				"The network port number for communicating with the database.", "Database Connection"));
 
 		Action testDbAction = new AbstractAction("Test Connection", IconConstants.DATABASE_CONNECT_ICON) {
@@ -80,7 +76,7 @@ public class ConnectionParameters extends ParameterMap {
 				}
 
 				// Update connection parameters in the client
-				updateParams();
+                ConnectionParameters.this.updateParams();
 
 				// try new connection
 				try {
@@ -95,12 +91,12 @@ public class ConnectionParameters extends ParameterMap {
 			}
 		};
 		testDbAction.putValue(Action.SHORT_DESCRIPTION, "Test the validity of the database connection settings.");
-		this.put("dbTest", new ButtonParameter(testDbAction, "Database Connection"));
+        put("dbTest", new Parameter.ButtonParameter(testDbAction, "Database Connection"));
 
 		// web service settings
-		this.put("srvAddress", new TextParameter("", "Server Address",
+		this.put("srvAddress", new Parameter.TextParameter("", "Server Address",
 				"The network address of the server application. May be an URL or IP address.", "Server Connection"));
-		this.put("srvPort", new NumberParameter(DEFAULT_SRV_PORT, 0, 65535, "Server Port",
+		this.put("srvPort", new Parameter.NumberParameter(DEFAULT_SRV_PORT, 0, 65535, "Server Port",
 				"The network port number for communicating with the server application.", "Server Connection"));
 
 		Action testSrvAction = new AbstractAction("Test Connection", IconConstants.SERVER_CONNECT_ICON) {
@@ -121,14 +117,10 @@ public class ConnectionParameters extends ParameterMap {
 				}
 			}
 		};
-		this.put("srvTest", new ButtonParameter(testSrvAction, "Server Connection"));
+		this.put("srvTest", new Parameter.ButtonParameter(testSrvAction, "Server Connection"));
 
 		// parse settings file
-		try {
-			this.readUserParamsFromFile();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		readUserParamsFromFile();
 	}
 
 	/**
@@ -143,7 +135,7 @@ public class ConnectionParameters extends ParameterMap {
 	 * 
 	 * @throws IOException
 	 */
-	private void readUserParamsFromFile() throws IOException {
+	private void readUserParamsFromFile() {
 
 		// dbAddress=localhost
 		// dbName=metaprot
@@ -152,15 +144,15 @@ public class ConnectionParameters extends ParameterMap {
 		// srvAddress=localhost
 
 		//set DB adress
-		this.setValue(PropertyLoader.DB_ADRESS, PropertyLoader.getProperty(PropertyLoader.DB_ADRESS));
+        setValue(PropertyLoader.DB_ADRESS, PropertyLoader.getProperty(PropertyLoader.DB_ADRESS));
 		//set DB name
-		this.setValue(PropertyLoader.DB_NAME, PropertyLoader.getProperty(PropertyLoader.DB_NAME));
+        setValue(PropertyLoader.DB_NAME, PropertyLoader.getProperty(PropertyLoader.DB_NAME));
 		//set db username
-		this.setValue(PropertyLoader.DB_USERNAME, PropertyLoader.getProperty(PropertyLoader.DB_USERNAME));
+        setValue(PropertyLoader.DB_USERNAME, PropertyLoader.getProperty(PropertyLoader.DB_USERNAME));
 		//set db user password
-		this.setValue(PropertyLoader.DB_PASSWORD, PropertyLoader.getProperty(PropertyLoader.DB_PASSWORD));
+        setValue(PropertyLoader.DB_PASSWORD, PropertyLoader.getProperty(PropertyLoader.DB_PASSWORD));
 		//set server adress
-		this.setValue(PropertyLoader.SERVER_ADRESS, PropertyLoader.getProperty(PropertyLoader.SERVER_ADRESS));
+        setValue(PropertyLoader.SERVER_ADRESS, PropertyLoader.getProperty(PropertyLoader.SERVER_ADRESS));
 
 //		BufferedReader br = null;
 //
@@ -207,7 +199,7 @@ public class ConnectionParameters extends ParameterMap {
 		ConnectionParameters defaults = new ConnectionParameters();
 
 		// Iterate stored parameter values and compare them to the defaults
-		for (Entry<String, Parameter> entry : this.entrySet()) {
+		for (Map.Entry<String, Parameter> entry : entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			Object defaultValue = defaults.get(key).getValue();

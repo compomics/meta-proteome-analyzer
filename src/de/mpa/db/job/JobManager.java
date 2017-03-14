@@ -19,14 +19,14 @@ public class JobManager implements Runnable {
 	/**
 	 * JobQueue instance.
 	 */
-	private Queue<Job> jobQueue;
+	private final Queue<Job> jobQueue;
 	
 	
 	/**
 	 * Constructor for the job manager.
 	 */
 	private JobManager() {
-		this.jobQueue = new ArrayDeque<Job>();
+        jobQueue = new ArrayDeque<Job>();
 	}
 	
 	/**
@@ -35,10 +35,10 @@ public class JobManager implements Runnable {
 	 * @return the JobManager instance
 	 */
 	public static JobManager getInstance() {
-		if (instance == null) {
-			instance = new JobManager();
+		if (JobManager.instance == null) {
+            JobManager.instance = new JobManager();
 		}
-		return instance;
+		return JobManager.instance;
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class JobManager implements Runnable {
 	 * @param job
 	 */
 	public void addJob(Job job) {
-		jobQueue.add(job);
+        this.jobQueue.add(job);
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class JobManager implements Runnable {
 	 * @param job
 	 */
 	public void deleteJob(Job job){
-		jobQueue.remove(job);
+        this.jobQueue.remove(job);
 	}
 	
 	/**
@@ -62,18 +62,18 @@ public class JobManager implements Runnable {
 	 */
 	public void run() {
 		// Iterate the job queue
-		for (Job job : jobQueue) {			
+		for (Job job : this.jobQueue) {
 			job.run();
 			// Remove job from the queue after successful execution.
-			jobQueue.remove(job);
+            this.jobQueue.remove(job);
 		}
 	}
     
 	/**
 	 * This method deletes all the jobs from the queue.	
 	 */	
-	public void clear() {		
-		jobQueue.clear();
+	public void clear() {
+        this.jobQueue.clear();
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class JobManager implements Runnable {
 	 * @return The number of remaining jobs.
 	 */
 	public int getRemainingJobs() {
-		return jobQueue.size();
+		return this.jobQueue.size();
 	}
 	
 }

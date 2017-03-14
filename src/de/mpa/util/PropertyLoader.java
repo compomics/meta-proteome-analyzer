@@ -85,7 +85,7 @@ public class PropertyLoader {
 		try {
 			// load the properties
 			properties.load(new FileInputStream(propFile));
-			props = properties;
+            PropertyLoader.props = properties;
 		} catch (FileNotFoundException e) {
 
 			e.printStackTrace();
@@ -103,12 +103,12 @@ public class PropertyLoader {
 	 * @return
 	 */
 	public static String getProperty(String key) {
-		return props.getProperty(key);
+		return PropertyLoader.props.getProperty(key);
 	}
 
 	public static void main(String[] args) {
-		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
-				+ PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
+		String pathFasta = getProperty(BASE_PATH)
+				+ getProperty(PATH_FASTA);
 		System.out.println(pathFasta);
 	}
 

@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,12 +40,12 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'omssahitid' column.
@@ -79,13 +80,13 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'evalue' column.
 	 */
-	protected Number iEvalue = null;
+	protected Number iEvalue;
 
 
 	/**
 	 * This variable represents the contents for the 'pvalue' column.
 	 */
-	protected Number iPvalue = null;
+	protected Number iPvalue;
 
 
 	/**
@@ -97,49 +98,49 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'mass' column.
 	 */
-	protected Number iMass = null;
+	protected Number iMass;
 
 
 	/**
 	 * This variable represents the contents for the 'theomass' column.
 	 */
-	protected Number iTheomass = null;
+	protected Number iTheomass;
 
 
 	/**
 	 * This variable represents the contents for the 'start' column.
 	 */
-	protected String iStart = null;
+	protected String iStart;
 
 
 	/**
 	 * This variable represents the contents for the 'end' column.
 	 */
-	protected String iEnd = null;
+	protected String iEnd;
 
 
 	/**
 	 * This variable represents the contents for the 'qvalue' column.
 	 */
-	protected Number iQvalue = null;
+	protected Number iQvalue;
 
 
 	/**
 	 * This variable represents the contents for the 'pep' column.
 	 */
-	protected Number iPep = null;
+	protected Number iPep;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected String iModificationdate = null;
+	protected String iModificationdate;
 
 
 	/**
@@ -238,55 +239,55 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public OmssahitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(OMSSAHITID)) {
-			this.iOmssahitid = ((Long)aParams.get(OMSSAHITID)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.OMSSAHITID)) {
+            iOmssahitid = ((Long)aParams.get(OmssahitTableAccessor.OMSSAHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
-			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.FK_SEARCHSPECTRUMID)) {
+            iFk_searchspectrumid = ((Long)aParams.get(OmssahitTableAccessor.FK_SEARCHSPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(FK_PEPTIDEID)) {
-			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.FK_PEPTIDEID)) {
+            iFk_peptideid = ((Long)aParams.get(OmssahitTableAccessor.FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(FK_PROTEINID)) {
-			this.iFk_proteinid = ((Long)aParams.get(FK_PROTEINID)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.FK_PROTEINID)) {
+            iFk_proteinid = ((Long)aParams.get(OmssahitTableAccessor.FK_PROTEINID)).longValue();
 		}
-		if(aParams.containsKey(HITSETNUMBER)) {
-			this.iHitsetnumber = ((Long)aParams.get(HITSETNUMBER)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.HITSETNUMBER)) {
+            iHitsetnumber = ((Long)aParams.get(OmssahitTableAccessor.HITSETNUMBER)).longValue();
 		}
-		if(aParams.containsKey(EVALUE)) {
-			this.iEvalue = (Number)aParams.get(EVALUE);
+		if(aParams.containsKey(OmssahitTableAccessor.EVALUE)) {
+            iEvalue = (Number)aParams.get(OmssahitTableAccessor.EVALUE);
 		}
-		if(aParams.containsKey(PVALUE)) {
-			this.iPvalue = (Number)aParams.get(PVALUE);
+		if(aParams.containsKey(OmssahitTableAccessor.PVALUE)) {
+            iPvalue = (Number)aParams.get(OmssahitTableAccessor.PVALUE);
 		}
-		if(aParams.containsKey(CHARGE)) {
-			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
+		if(aParams.containsKey(OmssahitTableAccessor.CHARGE)) {
+            iCharge = ((Long)aParams.get(OmssahitTableAccessor.CHARGE)).longValue();
 		}
-		if(aParams.containsKey(MASS)) {
-			this.iMass = (Number)aParams.get(MASS);
+		if(aParams.containsKey(OmssahitTableAccessor.MASS)) {
+            iMass = (Number)aParams.get(OmssahitTableAccessor.MASS);
 		}
-		if(aParams.containsKey(THEOMASS)) {
-			this.iTheomass = (Number)aParams.get(THEOMASS);
+		if(aParams.containsKey(OmssahitTableAccessor.THEOMASS)) {
+            iTheomass = (Number)aParams.get(OmssahitTableAccessor.THEOMASS);
 		}
-		if(aParams.containsKey(START)) {
-			this.iStart = (String)aParams.get(START);
+		if(aParams.containsKey(OmssahitTableAccessor.START)) {
+            iStart = (String)aParams.get(OmssahitTableAccessor.START);
 		}
-		if(aParams.containsKey(END)) {
-			this.iEnd = (String)aParams.get(END);
+		if(aParams.containsKey(OmssahitTableAccessor.END)) {
+            iEnd = (String)aParams.get(OmssahitTableAccessor.END);
 		}
-		if(aParams.containsKey(QVALUE)) {
-			this.iQvalue = (Number)aParams.get(QVALUE);
+		if(aParams.containsKey(OmssahitTableAccessor.QVALUE)) {
+            iQvalue = (Number)aParams.get(OmssahitTableAccessor.QVALUE);
 		}
-		if(aParams.containsKey(PEP)) {
-			this.iPep = (Number)aParams.get(PEP);
+		if(aParams.containsKey(OmssahitTableAccessor.PEP)) {
+            iPep = (Number)aParams.get(OmssahitTableAccessor.PEP);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(OmssahitTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(OmssahitTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (String)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(OmssahitTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (String)aParams.get(OmssahitTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -298,24 +299,24 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public OmssahitTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iOmssahitid = aResultSet.getLong("omssahitid");
-		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
-		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
-		this.iHitsetnumber = aResultSet.getLong("hitsetnumber");
-		this.iEvalue = (Number)aResultSet.getObject("evalue");
-		this.iPvalue = (Number)aResultSet.getObject("pvalue");
-		this.iCharge = aResultSet.getLong("charge");
-		this.iMass = (Number)aResultSet.getObject("mass");
-		this.iTheomass = (Number)aResultSet.getObject("theomass");
-		this.iStart = (String)aResultSet.getObject("start");
-		this.iEnd = (String)aResultSet.getObject("end");
-		this.iQvalue = (Number)aResultSet.getObject("qvalue");
-		this.iPep = (Number)aResultSet.getObject("pep");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (String)aResultSet.getObject("modificationdate");
+        iOmssahitid = aResultSet.getLong("omssahitid");
+        iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
+        iFk_peptideid = aResultSet.getLong("fk_peptideid");
+        iFk_proteinid = aResultSet.getLong("fk_proteinid");
+        iHitsetnumber = aResultSet.getLong("hitsetnumber");
+        iEvalue = (Number)aResultSet.getObject("evalue");
+        iPvalue = (Number)aResultSet.getObject("pvalue");
+        iCharge = aResultSet.getLong("charge");
+        iMass = (Number)aResultSet.getObject("mass");
+        iTheomass = (Number)aResultSet.getObject("theomass");
+        iStart = (String)aResultSet.getObject("start");
+        iEnd = (String)aResultSet.getObject("end");
+        iQvalue = (Number)aResultSet.getObject("qvalue");
+        iPep = (Number)aResultSet.getObject("pep");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (String)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -325,7 +326,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Omssahitid column.
 	 */
 	public long getOmssahitid() {
-		return this.iOmssahitid;
+		return iOmssahitid;
 	}
 
 	/**
@@ -334,7 +335,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
 	public long getFk_searchspectrumid() {
-		return this.iFk_searchspectrumid;
+		return iFk_searchspectrumid;
 	}
 
 	/**
@@ -343,7 +344,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_peptideid column.
 	 */
 	public long getFk_peptideid() {
-		return this.iFk_peptideid;
+		return iFk_peptideid;
 	}
 
 	/**
@@ -352,7 +353,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_proteinid column.
 	 */
 	public long getFk_proteinid() {
-		return this.iFk_proteinid;
+		return iFk_proteinid;
 	}
 
 	/**
@@ -361,7 +362,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Hitsetnumber column.
 	 */
 	public long getHitsetnumber() {
-		return this.iHitsetnumber;
+		return iHitsetnumber;
 	}
 
 	/**
@@ -370,7 +371,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Evalue column.
 	 */
 	public Number getEvalue() {
-		return this.iEvalue;
+		return iEvalue;
 	}
 
 	/**
@@ -379,7 +380,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Pvalue column.
 	 */
 	public Number getPvalue() {
-		return this.iPvalue;
+		return iPvalue;
 	}
 
 	/**
@@ -388,7 +389,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Charge column.
 	 */
 	public long getCharge() {
-		return this.iCharge;
+		return iCharge;
 	}
 
 	/**
@@ -397,7 +398,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Mass column.
 	 */
 	public Number getMass() {
-		return this.iMass;
+		return iMass;
 	}
 
 	/**
@@ -406,7 +407,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Theomass column.
 	 */
 	public Number getTheomass() {
-		return this.iTheomass;
+		return iTheomass;
 	}
 
 	/**
@@ -415,7 +416,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Start column.
 	 */
 	public String getStart() {
-		return this.iStart;
+		return iStart;
 	}
 
 	/**
@@ -424,7 +425,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the End column.
 	 */
 	public String getEnd() {
-		return this.iEnd;
+		return iEnd;
 	}
 
 	/**
@@ -433,7 +434,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Qvalue column.
 	 */
 	public Number getQvalue() {
-		return this.iQvalue;
+		return iQvalue;
 	}
 
 	/**
@@ -442,7 +443,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Pep column.
 	 */
 	public Number getPep() {
-		return this.iPep;
+		return iPep;
 	}
 
 	/**
@@ -450,8 +451,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -460,7 +461,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Modificationdate column.
 	 */
 	public String getModificationdate() {
-		return this.iModificationdate;
+		return iModificationdate;
 	}
 
 	/**
@@ -469,8 +470,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aOmssahitid	long with the value for the Omssahitid column.
 	 */
 	public void setOmssahitid(long aOmssahitid) {
-		this.iOmssahitid = aOmssahitid;
-		this.iUpdated = true;
+        iOmssahitid = aOmssahitid;
+        iUpdated = true;
 	}
 
 	/**
@@ -479,8 +480,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
 	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
-		this.iFk_searchspectrumid = aFk_searchspectrumid;
-		this.iUpdated = true;
+        iFk_searchspectrumid = aFk_searchspectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -489,8 +490,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_peptideid	long with the value for the Fk_peptideid column.
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
-		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
+        iFk_peptideid = aFk_peptideid;
+        iUpdated = true;
 	}
 
 	/**
@@ -499,8 +500,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_proteinid	long with the value for the Fk_proteinid column.
 	 */
 	public void setFk_proteinid(long aFk_proteinid) {
-		this.iFk_proteinid = aFk_proteinid;
-		this.iUpdated = true;
+        iFk_proteinid = aFk_proteinid;
+        iUpdated = true;
 	}
 
 	/**
@@ -509,8 +510,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aHitsetnumber	long with the value for the Hitsetnumber column.
 	 */
 	public void setHitsetnumber(long aHitsetnumber) {
-		this.iHitsetnumber = aHitsetnumber;
-		this.iUpdated = true;
+        iHitsetnumber = aHitsetnumber;
+        iUpdated = true;
 	}
 
 	/**
@@ -519,8 +520,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aEvalue	Number with the value for the Evalue column.
 	 */
 	public void setEvalue(Number aEvalue) {
-		this.iEvalue = aEvalue;
-		this.iUpdated = true;
+        iEvalue = aEvalue;
+        iUpdated = true;
 	}
 
 	/**
@@ -529,8 +530,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPvalue	Number with the value for the Pvalue column.
 	 */
 	public void setPvalue(Number aPvalue) {
-		this.iPvalue = aPvalue;
-		this.iUpdated = true;
+        iPvalue = aPvalue;
+        iUpdated = true;
 	}
 
 	/**
@@ -539,8 +540,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aCharge	long with the value for the Charge column.
 	 */
 	public void setCharge(long aCharge) {
-		this.iCharge = aCharge;
-		this.iUpdated = true;
+        iCharge = aCharge;
+        iUpdated = true;
 	}
 
 	/**
@@ -549,8 +550,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aMass	Number with the value for the Mass column.
 	 */
 	public void setMass(Number aMass) {
-		this.iMass = aMass;
-		this.iUpdated = true;
+        iMass = aMass;
+        iUpdated = true;
 	}
 
 	/**
@@ -559,8 +560,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aTheomass	Number with the value for the Theomass column.
 	 */
 	public void setTheomass(Number aTheomass) {
-		this.iTheomass = aTheomass;
-		this.iUpdated = true;
+        iTheomass = aTheomass;
+        iUpdated = true;
 	}
 
 	/**
@@ -569,8 +570,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aStart	String with the value for the Start column.
 	 */
 	public void setStart(String aStart) {
-		this.iStart = aStart;
-		this.iUpdated = true;
+        iStart = aStart;
+        iUpdated = true;
 	}
 
 	/**
@@ -579,8 +580,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aEnd	String with the value for the End column.
 	 */
 	public void setEnd(String aEnd) {
-		this.iEnd = aEnd;
-		this.iUpdated = true;
+        iEnd = aEnd;
+        iUpdated = true;
 	}
 
 	/**
@@ -589,8 +590,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aQvalue	Number with the value for the Qvalue column.
 	 */
 	public void setQvalue(Number aQvalue) {
-		this.iQvalue = aQvalue;
-		this.iUpdated = true;
+        iQvalue = aQvalue;
+        iUpdated = true;
 	}
 
 	/**
@@ -599,8 +600,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPep	Number with the value for the Pep column.
 	 */
 	public void setPep(Number aPep) {
-		this.iPep = aPep;
-		this.iUpdated = true;
+        iPep = aPep;
+        iUpdated = true;
 	}
 
 	/**
@@ -608,9 +609,9 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -619,8 +620,8 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aModificationdate	String with the value for the Modificationdate column.
 	 */
 	public void setModificationdate(String aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -633,7 +634,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM omssahit WHERE omssahitid = ?");
-		lStat.setLong(1, iOmssahitid);
+		lStat.setLong(1, this.iOmssahitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -648,34 +649,34 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(OMSSAHITID)) {
+		if(!aKeys.containsKey(OmssahitTableAccessor.OMSSAHITID)) {
 			throw new IllegalArgumentException("Primary key field 'OMSSAHITID' is missing in HashMap!");
 		} else {
-			iOmssahitid = ((Long)aKeys.get(OMSSAHITID)).longValue();
+            this.iOmssahitid = ((Long)aKeys.get(OmssahitTableAccessor.OMSSAHITID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM omssahit WHERE omssahitid = ?");
-		lStat.setLong(1, iOmssahitid);
+		lStat.setLong(1, this.iOmssahitid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iOmssahitid = lRS.getLong("omssahitid");
-			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
-			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iFk_proteinid = lRS.getLong("fk_proteinid");
-			iHitsetnumber = lRS.getLong("hitsetnumber");
-			iEvalue = (Number)lRS.getObject("evalue");
-			iPvalue = (Number)lRS.getObject("pvalue");
-			iCharge = lRS.getLong("charge");
-			iMass = (Number)lRS.getObject("mass");
-			iTheomass = (Number)lRS.getObject("theomass");
-			iStart = (String)lRS.getObject("start");
-			iEnd = (String)lRS.getObject("end");
-			iQvalue = (Number)lRS.getObject("qvalue");
-			iPep = (Number)lRS.getObject("pep");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (String)lRS.getObject("modificationdate");
+            this.iOmssahitid = lRS.getLong("omssahitid");
+            this.iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
+            this.iFk_peptideid = lRS.getLong("fk_peptideid");
+            this.iFk_proteinid = lRS.getLong("fk_proteinid");
+            this.iHitsetnumber = lRS.getLong("hitsetnumber");
+            this.iEvalue = (Number)lRS.getObject("evalue");
+            this.iPvalue = (Number)lRS.getObject("pvalue");
+            this.iCharge = lRS.getLong("charge");
+            this.iMass = (Number)lRS.getObject("mass");
+            this.iTheomass = (Number)lRS.getObject("theomass");
+            this.iStart = (String)lRS.getObject("start");
+            this.iEnd = (String)lRS.getObject("end");
+            this.iQvalue = (Number)lRS.getObject("qvalue");
+            this.iPep = (Number)lRS.getObject("pep");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (String)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -704,7 +705,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<OmssahitTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<OmssahitTableAccessor>  entities = new ArrayList<OmssahitTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(OmssahitTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new OmssahitTableAccessor(rs));
 		}
@@ -722,29 +723,29 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE omssahit SET omssahitid = ?, fk_searchspectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, hitsetnumber = ?, evalue = ?, pvalue = ?, charge = ?, mass = ?, theomass = ?, start = ?, end = ?, qvalue = ?, pep = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE omssahitid = ?");
-		lStat.setLong(1, iOmssahitid);
-		lStat.setLong(2, iFk_searchspectrumid);
-		lStat.setLong(3, iFk_peptideid);
-		lStat.setLong(4, iFk_proteinid);
-		lStat.setLong(5, iHitsetnumber);
-		lStat.setObject(6, iEvalue);
-		lStat.setObject(7, iPvalue);
-		lStat.setLong(8, iCharge);
-		lStat.setObject(9, iMass);
-		lStat.setObject(10, iTheomass);
-		lStat.setObject(11, iStart);
-		lStat.setObject(12, iEnd);
-		lStat.setObject(13, iQvalue);
-		lStat.setObject(14, iPep);
-		lStat.setObject(15, iCreationdate);
-		lStat.setLong(16, iOmssahitid);
+		lStat.setLong(1, this.iOmssahitid);
+		lStat.setLong(2, this.iFk_searchspectrumid);
+		lStat.setLong(3, this.iFk_peptideid);
+		lStat.setLong(4, this.iFk_proteinid);
+		lStat.setLong(5, this.iHitsetnumber);
+		lStat.setObject(6, this.iEvalue);
+		lStat.setObject(7, this.iPvalue);
+		lStat.setLong(8, this.iCharge);
+		lStat.setObject(9, this.iMass);
+		lStat.setObject(10, this.iTheomass);
+		lStat.setObject(11, this.iStart);
+		lStat.setObject(12, this.iEnd);
+		lStat.setObject(13, this.iQvalue);
+		lStat.setObject(14, this.iPep);
+		lStat.setObject(15, this.iCreationdate);
+		lStat.setLong(16, this.iOmssahitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -757,75 +758,75 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO omssahit (omssahitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, hitsetnumber, evalue, pvalue, charge, mass, theomass, start, end, qvalue, pep, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iOmssahitid == Long.MIN_VALUE) {
+		if(this.iOmssahitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iOmssahitid);
+			lStat.setLong(1, this.iOmssahitid);
 		}
-		if(iFk_searchspectrumid == Long.MIN_VALUE) {
+		if(this.iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_searchspectrumid);
+			lStat.setLong(2, this.iFk_searchspectrumid);
 		}
-		if(iFk_peptideid == Long.MIN_VALUE) {
+		if(this.iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_peptideid);
+			lStat.setLong(3, this.iFk_peptideid);
 		}
-		if(iFk_proteinid == Long.MIN_VALUE) {
+		if(this.iFk_proteinid == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
 		} else {
-			lStat.setLong(4, iFk_proteinid);
+			lStat.setLong(4, this.iFk_proteinid);
 		}
-		if(iHitsetnumber == Long.MIN_VALUE) {
+		if(this.iHitsetnumber == Long.MIN_VALUE) {
 			lStat.setNull(5, 4);
 		} else {
-			lStat.setLong(5, iHitsetnumber);
+			lStat.setLong(5, this.iHitsetnumber);
 		}
-		if(iEvalue == null) {
+		if(this.iEvalue == null) {
 			lStat.setNull(6, 3);
 		} else {
-			lStat.setObject(6, iEvalue);
+			lStat.setObject(6, this.iEvalue);
 		}
-		if(iPvalue == null) {
+		if(this.iPvalue == null) {
 			lStat.setNull(7, 3);
 		} else {
-			lStat.setObject(7, iPvalue);
+			lStat.setObject(7, this.iPvalue);
 		}
-		if(iCharge == Long.MIN_VALUE) {
+		if(this.iCharge == Long.MIN_VALUE) {
 			lStat.setNull(8, 4);
 		} else {
-			lStat.setLong(8, iCharge);
+			lStat.setLong(8, this.iCharge);
 		}
-		if(iMass == null) {
+		if(this.iMass == null) {
 			lStat.setNull(9, 3);
 		} else {
-			lStat.setObject(9, iMass);
+			lStat.setObject(9, this.iMass);
 		}
-		if(iTheomass == null) {
+		if(this.iTheomass == null) {
 			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(10, iTheomass);
+			lStat.setObject(10, this.iTheomass);
 		}
-		if(iStart == null) {
+		if(this.iStart == null) {
 			lStat.setNull(11, 12);
 		} else {
-			lStat.setObject(11, iStart);
+			lStat.setObject(11, this.iStart);
 		}
-		if(iEnd == null) {
+		if(this.iEnd == null) {
 			lStat.setNull(12, 12);
 		} else {
-			lStat.setObject(12, iEnd);
+			lStat.setObject(12, this.iEnd);
 		}
-		if(iQvalue == null) {
+		if(this.iQvalue == null) {
 			lStat.setNull(13, 3);
 		} else {
-			lStat.setObject(13, iQvalue);
+			lStat.setObject(13, this.iQvalue);
 		}
-		if(iPep == null) {
+		if(this.iPep == null) {
 			lStat.setNull(14, 3);
 		} else {
-			lStat.setObject(14, iPep);
+			lStat.setObject(14, this.iPep);
 		}
 		int result = lStat.executeUpdate();
 
@@ -833,22 +834,22 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iOmssahitid = ((Number) iKeys[0]).longValue();
+            this.iOmssahitid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -859,7 +860,7 @@ public class OmssahitTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

@@ -9,7 +9,6 @@ import org.jfree.data.xy.MatrixSeries;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.ui.chart.HeatMapPane.Axis;
 
 /**
  * Container class for heat map-related data.
@@ -61,7 +60,7 @@ public class HeatMapData {
 	 * Constructor to create a default placeholder heat map data.
 	 */
 	public HeatMapData() {
-		this.createDefault();
+        createDefault();
 	}
 
 	/**
@@ -76,7 +75,7 @@ public class HeatMapData {
 		this.xAxisType = xAxisType;
 		this.yAxisType = yAxisType;
 		this.zAxisType = zAxisType;
-		this.createMatrix();
+        createMatrix();
 	}
 	
 	/**
@@ -87,18 +86,18 @@ public class HeatMapData {
 		List<Hit> hitList = new ArrayList<Hit>();
 		
 		// Determine type of hits to iterate, fill hit list accordingly
-		switch (this.zAxisType) {
+		switch (zAxisType) {
 		case META_PROTEIN_LEVEL:
-			hitList.addAll(result.getMetaProteins());
+			hitList.addAll(this.result.getMetaProteins());
 			break;
 		case PROTEIN_LEVEL:
-			hitList.addAll(result.getProteinHitList());
+			hitList.addAll(this.result.getProteinHitList());
 			break;
 		case PEPTIDE_LEVEL:
-			hitList.addAll(((ProteinHitList) result.getProteinHitList()).getPeptideSet());
+			hitList.addAll(((ProteinHitList) this.result.getProteinHitList()).getPeptideSet());
 			break;
 		case SPECTRUM_LEVEL:
-			hitList.addAll(((ProteinHitList) result.getProteinHitList()).getMatchSet());
+			hitList.addAll(((ProteinHitList) this.result.getProteinHitList()).getMatchSet());
 			break;
 		default:
 			// if we get here something went wrong - investigate!
@@ -116,7 +115,7 @@ public class HeatMapData {
 		for (Hit hit : hitList) {
 			int row = -1, col = -1;
 			// Get set of hit properties for horizontal axis type
-			Set<Object> xProps = hit.getProperties(xAxisType);
+			Set<Object> xProps = hit.getProperties(this.xAxisType);
 			// Iterate properties
 			for (Object xProp : xProps) {
 				// Check whether property has been stored before, set matrix column index accordingly
@@ -131,7 +130,7 @@ public class HeatMapData {
 				}
 				
 				// Get set of hit properties for vertical axis type
-				Set<Object> yProps = hit.getProperties(this.yAxisType);
+				Set<Object> yProps = hit.getProperties(yAxisType);
 				// Iterate properties
 				for (Object yProp : yProps) {
 					// Check whether property has been stored before, set matrix row index accordingly
@@ -199,7 +198,7 @@ public class HeatMapData {
 //				}
 //			}
 //		}
-		this.matrix = new MatrixSeriesExt(matrix, yLabels.size(), xLabels.size());
+		this.matrix = new HeatMapData.MatrixSeriesExt(matrix, yLabels.size(), xLabels.size());
 		
 		// Cache maximum value
 		this.max = max;
@@ -211,28 +210,28 @@ public class HeatMapData {
 	protected void createDefault() {
 		// Generate value matrix
 		int height = 26, width = 26;
-		this.matrix = new MatrixSeries("matrix", height, width);
+        matrix = new MatrixSeries("matrix", height, width);
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				double mij = Math.sin((j + 0.5) / width * Math.PI) *
 						Math.cos((i + 0.5) / height * Math.PI - Math.PI / 2.0);
-				this.matrix.update(i, j, Math.round(mij * 100.0));
+                matrix.update(i, j, Math.round(mij * 100.0));
 			}
 		}
 		// Generate x axis labels
-		this.xLabels = new String[width];
-		for (int i = 0; i < this.xLabels.length; i++) {
-			this.xLabels[i] = "" + (i + 1);
+        xLabels = new String[width];
+		for (int i = 0; i < xLabels.length; i++) {
+            xLabels[i] = "" + (i + 1);
 		}
 		// Generate y axis labels
-		this.yLabels = new String[height];
-		for (int i = 0; i < this.yLabels.length; i++) {
-			this.yLabels[i] = "" + (char) (i + 'A');
+        yLabels = new String[height];
+		for (int i = 0; i < yLabels.length; i++) {
+            yLabels[i] = "" + (char) (i + 'A');
 		}
-		this.max = 100.0;
+        max = 100.0;
 	}
 	
-	public ChartType getAxisType(Axis axis) {
+	public ChartType getAxisType(HeatMapPane.Axis axis) {
 		switch (axis) {
 		case X_AXIS:
 			return this.xAxisType;
@@ -251,11 +250,11 @@ public class HeatMapData {
 	 * @param type the type to set
 	 * @param axis the axis to change
 	 */
-	public void setAxisType(ChartType type, Axis axis) {
+	public void setAxisType(ChartType type, HeatMapPane.Axis axis) {
 		this.setAxisTypes(
-				(axis == Axis.X_AXIS) ? type : null,
-				(axis == Axis.Y_AXIS) ? type : null,
-				(axis == Axis.Z_AXIS) ? (HierarchyLevel) type : null);
+				(axis == HeatMapPane.Axis.X_AXIS) ? type : null,
+				(axis == HeatMapPane.Axis.Y_AXIS) ? type : null,
+				(axis == HeatMapPane.Axis.Z_AXIS) ? (HierarchyLevel) type : null);
 	}
 	
 	/**
@@ -275,7 +274,7 @@ public class HeatMapData {
 			this.zAxisType = zAxisType;
 		}
 		// Rebuild data matrix
-		this.createMatrix();
+        createMatrix();
 	}
 	
 	/**
@@ -283,7 +282,7 @@ public class HeatMapData {
 	 * @return the result object
 	 */
 	public DbSearchResult getResult() {
-		return result;
+		return this.result;
 	}
 
 	/**
@@ -299,7 +298,7 @@ public class HeatMapData {
 	 * @return the value matrix.
 	 */
 	public MatrixSeries getMatrix() {
-		return matrix;
+		return this.matrix;
 	}
 
 	/**
@@ -307,7 +306,7 @@ public class HeatMapData {
 	 * @return the maximum
 	 */
 	public double getMaximum() {
-		return max;
+		return this.max;
 	}
 
 	/**
@@ -315,7 +314,7 @@ public class HeatMapData {
 	 * @return the x axis labels.
 	 */
 	public String[] getXLabels() {
-		return xLabels;
+		return this.xLabels;
 	}
 
 	/**
@@ -323,7 +322,7 @@ public class HeatMapData {
 	 * @return the y axis labels.
 	 */
 	public String[] getYLabels() {
-		return yLabels;
+		return this.yLabels;
 	}
 	
 	/**
@@ -340,7 +339,7 @@ public class HeatMapData {
 		/**
 		 * The hit matrix.
 		 */
-		private List<List<List<Hit>>> matrix;
+		private final List<List<List<Hit>>> matrix;
 
 		/**
 		 * Creates an extended matrix series wrapping the provided hit matrix.
@@ -358,13 +357,13 @@ public class HeatMapData {
 		 * @return the hit matrix
 		 */
 		public List<List<List<Hit>>> getMatrix() {
-			return matrix;
+			return this.matrix;
 		}
 
 		@Override
 		public double get(int i, int j) {
-			if (i < matrix.size()) {
-				List<List<Hit>> row = matrix.get(i);
+			if (i < this.matrix.size()) {
+				List<List<Hit>> row = this.matrix.get(i);
 				if (j < row.size()) {
 					List<Hit> val = row.get(j);
 					if (val != null) {

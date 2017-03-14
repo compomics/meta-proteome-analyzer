@@ -36,7 +36,7 @@ public class BlastDialog extends JDialog {
 	/**
 	 * The parent (ClientFrame)
 	 */
-	private ClientFrame owner;
+	private final ClientFrame owner;
 	
 	/**
 	 * File of the BLAST algorithm
@@ -61,8 +61,8 @@ public class BlastDialog extends JDialog {
 	/**
 	 * The result option checkbox
 	 */
-	private JComboBox<BlastResultOption> resultOptionCbx;
-	
+	private JComboBox<BlastDialog.BlastResultOption> resultOptionCbx;
+
 	/**
 	 * ENUM for the BLAST options
 	 * @author Robert H. and Kay. S
@@ -70,32 +70,32 @@ public class BlastDialog extends JDialog {
 	 */
 	public enum BlastResultOption {
 		BEST_EVALUES("Best E-value"),
-		BEST_IDENTITIES("Best Identity"), 
+		BEST_IDENTITIES("Best Identity"),
 		BEST_BITSCORE("Best BitScore"),
 		FIRST_EVALUE("First E-value"),
 		FIRST_IDENTITY("First Identity"),
 		FIRST_BITSCORE("First BitScore"),
 		ALL_HITS("All Hits");
-		
+
 		/**
 		 * The String behind the ENUM
 		 */
 		private String val;
-		
+
 		/**
 		 * Method to return the String of the ENUM
 		 * @param value
 		 */
-		private BlastResultOption(String value) {
+        BlastResultOption(String value) {
 			this.val = value;
 		}
-		
+
 		@Override
 		public String toString() {
 			return val;
 		}
 	}
-	
+
 	/**
 	 * @param owner. The owner of the dialog.
 	 * @param title. The title of the dialog.
@@ -106,7 +106,7 @@ public class BlastDialog extends JDialog {
 		initComponents();
 		showDialog();
 	}
-	
+
 	/**
 	 * Initializes and lays out all components inside this dialog grouped by sections identifiers.
 	 */
@@ -116,17 +116,17 @@ public class BlastDialog extends JDialog {
 		JPanel blastDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
 		JLabel blastLbl 		= new JLabel("Path of the BLAST Algorithms");
-		blastTxt = new JTextField(Constants.BLAST_FILE); 
+		blastTxt = new JTextField(Constants.BLAST_FILE);
 		JLabel dbLbl 			= new JLabel("Path of the preformatted db (See BLAST Manual");
-		dbTxt = new JTextField(Constants.BLAST_UNIPROT_DB); 
+		dbTxt = new JTextField(Constants.BLAST_UNIPROT_DB);
 		JLabel eValueLbl 		= new JLabel("E-Value cut-off");
-		eValueTxt = new JTextField("" + Constants.BLAST_EVALUE); 
+		eValueTxt = new JTextField("" + Constants.BLAST_EVALUE);
 		JLabel expLbl 		= new JLabel("Choose experiment ID (-1 for all)");
-		expTxt = new JTextField("-1"); 
+		expTxt = new JTextField("-1");
 		JLabel resultOptionLbl = new JLabel("Select the option for hit selection");
-		BlastResultOption[] items = BlastResultOption.values();		
-		resultOptionCbx = new JComboBox<BlastResultOption>(items);
-		
+		BlastDialog.BlastResultOption[] items = BlastDialog.BlastResultOption.values();
+		resultOptionCbx = new JComboBox<BlastDialog.BlastResultOption>(items);
+
 		// Add Components to the BLAST panel
 		blastSettingsPnl.add(blastLbl, 	CC.xy(2, 2));
 		blastSettingsPnl.add(blastTxt, 	CC.xy(2, 4));
@@ -138,14 +138,14 @@ public class BlastDialog extends JDialog {
 		blastSettingsPnl.add(expTxt, 	CC.xy(2, 16));
 		blastSettingsPnl.add(resultOptionLbl,	CC.xy(2, 18));
 		blastSettingsPnl.add(resultOptionCbx, 	CC.xy(2, 20));
-		
+
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
 		okBtn.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 					BlastWorker blastWorker = new BlastWorker();
@@ -153,7 +153,7 @@ public class BlastDialog extends JDialog {
 					close();
 			}
 		});
-		
+
 		// Configure 'Cancel' button
 		JButton cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
 		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
@@ -165,11 +165,11 @@ public class BlastDialog extends JDialog {
 			close();
 			}
 		});
-		
+
 		blastDlgPnl.add(blastSettingsPnl, CC.xyw(2, 2,3));
 		blastDlgPnl.add(okBtn,CC.xy(2, 4) );
 		blastDlgPnl.add(cancelBtn,CC.xy(4, 4) );
-		Container cp = this.getContentPane();		
+		Container cp = this.getContentPane();
 		cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		cp.add(blastDlgPnl, CC.xy(2,  2));
@@ -187,19 +187,19 @@ public class BlastDialog extends JDialog {
 		// Show dialog
 		this.setVisible(true);
 	}
-	
+
 	/**
 	 * Close method for the dialog.
 	 */
 	private void close() {
 		dispose();
 	}
-	
+
 	public class BlastWorker extends SwingWorker<Object, Object> {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), (BlastResultOption) resultOptionCbx.getSelectedItem());
+			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), (BlastDialog.BlastResultOption) BlastDialog.this.resultOptionCbx.getSelectedItem());
 //			UniProtUtilities uniprotweb = new UniProtUtilities();
 			// filter list to proteins for blast
 			

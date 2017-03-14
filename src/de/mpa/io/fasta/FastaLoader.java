@@ -1,5 +1,6 @@
 package de.mpa.io.fasta;
 
+import de.mpa.db.storager.MascotStorager;
 import gnu.trove.map.TObjectLongMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 
@@ -44,10 +45,8 @@ import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.ProteinTableAccessor;
 import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.accessor.UniprotentryTableAccessor;
-import de.mpa.db.storager.MascotStorager.MascotProteinHit;
 //import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
 //import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-import de.mpa.io.fasta.DigFASTAEntry.Type;
 import de.mpa.main.Starter;
 import de.mpa.util.PropertyLoader;
 
@@ -107,10 +106,10 @@ public class FastaLoader {
 	 */
 	public static FastaLoader getInstance() {
 		// Lazy instantation
-		if (instance == null) {
-			instance = new FastaLoader();
+		if (FastaLoader.instance == null) {
+            FastaLoader.instance = new FastaLoader();
 		}
-		return instance;
+		return FastaLoader.instance;
 	}
 
 	//	/**
@@ -174,11 +173,11 @@ public class FastaLoader {
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */
-	public void writeIndexFile() throws FileNotFoundException, IOException, ClassNotFoundException {
-		indexFile = new File(file.getAbsolutePath() + ".fb");
+	public void writeIndexFile() throws IOException, ClassNotFoundException {
+        FastaLoader.indexFile = new File(FastaLoader.file.getAbsolutePath() + ".fb");
 
-		if(indexFile.exists()){
-			FileInputStream fis = new FileInputStream(indexFile);
+		if(FastaLoader.indexFile.exists()){
+			FileInputStream fis = new FileInputStream(FastaLoader.indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			@SuppressWarnings("unchecked")
 			TObjectLongHashMap<String> tempMap = (TObjectLongHashMap<String>) ois.readObject();
@@ -186,12 +185,12 @@ public class FastaLoader {
 			ois.close();
 
 			// Add entries of old map
-			acc2pos.putAll(tempMap);
+            FastaLoader.acc2pos.putAll(tempMap);
 			tempMap.clear();
 		}		
 
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile));
-		oos.writeObject(acc2pos);
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FastaLoader.indexFile));
+		oos.writeObject(FastaLoader.acc2pos);
 		oos.flush();
 		oos.close();
 	}
@@ -203,11 +202,11 @@ public class FastaLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void readIndexFile() throws IOException, ClassNotFoundException {
-		if(hasChanged) {
-			FileInputStream fis = new FileInputStream(indexFile);
+		if(FastaLoader.hasChanged) {
+			FileInputStream fis = new FileInputStream(FastaLoader.indexFile);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 
-			acc2pos = (TObjectLongHashMap<String>) ois.readObject();
+            FastaLoader.acc2pos = (TObjectLongHashMap<String>) ois.readObject();
 			fis.close();
 			ois.close();
 		}
@@ -224,7 +223,7 @@ public class FastaLoader {
 	 * @author K. Schallert
 	 * @throws SQLException 
 	 */
-	public HashMap<String, MascotProteinHit> updateProteinMapfromFasta(HashMap<String, MascotProteinHit> proteinmap) throws FileNotFoundException, SQLException {
+	public HashMap<String, MascotStorager.MascotProteinHit> updateProteinMapfromFasta(HashMap<String, MascotStorager.MascotProteinHit> proteinmap) throws FileNotFoundException, SQLException {
 		// Name and directory of the new fasta
 		Connection conn = DBManager.getInstance().getConnection();
 		// Initialize the buffered reader
@@ -237,7 +236,7 @@ public class FastaLoader {
 			// Start the parsing of the FASTA file
 			line = br.readLine();
 			// Check if not an empty row occur and if begin of a new protein entry
-			if (line.trim().length() > 0 && line.charAt(0) == '>' ){	
+			if (line.trim().length() > 0 && line.charAt(0) == '>' ){
 				// Get elements of the database entry
 				String header = line;
 				// Add Sequence
@@ -247,14 +246,14 @@ public class FastaLoader {
 						// Get parsed fasta-entry and write it to the new fasta
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
 						// update the mascotproteinhit with sequence, description and database type data
-						MascotProteinHit m_hit = proteinmap.get(entry.getIdentifier());
+						MascotStorager.MascotProteinHit m_hit = proteinmap.get(entry.getIdentifier());
 						// but only if found in the mascot dat file
 						if (m_hit != null) {
 							m_hit.setDatabaseType(entry.getType());
 							m_hit.setDescription(entry.getDescription());
 							m_hit.setSequence(entry.getSequence());
-						} 
-						
+						}
+
 						// Reset the sequence
 						sequence = "";
 						// Add new header
@@ -266,7 +265,7 @@ public class FastaLoader {
 				// save last entry
 				DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
 				// update the mascotproteinhit with sequence, description and database type data
-				MascotProteinHit m_hit = proteinmap.get(entry.getIdentifier());
+				MascotStorager.MascotProteinHit m_hit = proteinmap.get(entry.getIdentifier());
 				// but only if found in the mascot dat file
 				if (m_hit != null) {
 					m_hit.setDatabaseType(entry.getType());
@@ -299,23 +298,23 @@ public class FastaLoader {
 
 		try {
 			// Initialize the random access file instance
-			raf = new RandomAccessFile(file, "r");
+            FastaLoader.raf = new RandomAccessFile(FastaLoader.file, "r");
 
 			// Initialize index maps
-			acc2pos = new TObjectLongHashMap<String>();
+            FastaLoader.acc2pos = new TObjectLongHashMap<String>();
 
 			// Get the first position at the beginning of the file
-			Long pos = raf.getFilePointer();
+			Long pos = FastaLoader.raf.getFilePointer();
 			int count = 0;
 			// Iterate FASTA file line by line
 			String line;
-			while ((line = raf.readLine()) != null) {
+			while ((line = FastaLoader.raf.readLine()) != null) {
 				// Check for header
 				if (!line.isEmpty() && line.startsWith(">")) {
 					// Parse header
 					Header header = Header.parseFromFASTA(line);
 					// Add map entry
-					acc2pos.put(header.getAccession(), pos);
+                    FastaLoader.acc2pos.put(header.getAccession(), pos);
 					count++;
 					if(count % 10000 == 0) {						
 						System.out.println(count + " sequences parsed...");
@@ -328,11 +327,11 @@ public class FastaLoader {
 
 				} else {
 					// End of the sequence part == Start of a new header
-					pos = raf.getFilePointer();
+					pos = FastaLoader.raf.getFilePointer();
 				}
 			}
 			System.out.println("Writing index file...");
-			writeIndexFile();
+            this.writeIndexFile();
 			//raf.close(); // Has to stay open for further methods
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -347,7 +346,7 @@ public class FastaLoader {
 	 * @return indexMap The index map. 
 	 */
 	public TObjectLongMap<String> getIndexMap() {
-		return acc2pos;
+		return FastaLoader.acc2pos;
 	}
 
 	/**
@@ -358,13 +357,13 @@ public class FastaLoader {
 	public void setFastaFile(File file) {
 		this.file = file;
 		// reset map on change of FASTA file
-		this.acc2pos = null;
+        acc2pos = null;
 		// include a in-silico peptide file
 		String filestring = file.getAbsolutePath();
 		filestring = filestring.substring(0, filestring.lastIndexOf('.'))+".pep";
-		this.pepfile = new File(filestring.substring(0, filestring.lastIndexOf('.'))+".pep");
-		if (!pepfile.exists() || pepfile.isDirectory()) {
-			pepfile = null;
+        pepfile = new File(filestring.substring(0, filestring.lastIndexOf('.'))+".pep");
+		if (!this.pepfile.exists() || this.pepfile.isDirectory()) {
+            this.pepfile = null;
 		}
 	}
 
@@ -373,7 +372,7 @@ public class FastaLoader {
 	 * @param file The peptide FASTA file
 	 */
 	public void setPepFile(File file) {
-		this.pepfile = file;
+        pepfile = file;
 	}
 
 	/**
@@ -381,7 +380,7 @@ public class FastaLoader {
 	 * @return pepFile the current peptide file.
 	 */
 	public File getPepFile() {
-		return pepfile;
+		return this.pepfile;
 	}
 
 	/**
@@ -389,16 +388,16 @@ public class FastaLoader {
 	 * @return file the active protein FASTA file.
 	 */
 	public File getFile() {
-		return file;
+		return FastaLoader.file;
 	}
 
 	/**
 	 * Loads the designated in-silico digested peptide database file.
 	 */
 	public void loadPepFile() {
-		if (pepfile!=null) {
-			fastaDigester = new PeptideDigester();
-			fastaDigester.parsePeptideDB(pepfile.getAbsolutePath());
+		if (this.pepfile !=null) {
+            this.fastaDigester = new PeptideDigester();
+            this.fastaDigester.parsePeptideDB(this.pepfile.getAbsolutePath());
 		}
 	}
 
@@ -407,10 +406,10 @@ public class FastaLoader {
 	 */
 	@SuppressWarnings("static-access")
 	public HashSet<String> getProtHits(String sequeString) {
-		if (pepfile == null) {
+		if (this.pepfile == null) {
 			return new HashSet<String>();
 		}
-		return fastaDigester.fetchProteinsFromPeptideSequence(sequeString, pepfile.getAbsolutePath());
+		return this.fastaDigester.fetchProteinsFromPeptideSequence(sequeString, this.pepfile.getAbsolutePath());
 	}
 
 	/**
@@ -418,7 +417,7 @@ public class FastaLoader {
 	 * @return indexFile
 	 */
 	public File getIndexFile() {
-		return indexFile;
+		return FastaLoader.indexFile;
 	}
 
 	/**
@@ -430,9 +429,9 @@ public class FastaLoader {
 		// Compare two file paths
 		if (!indexFile.equals(this.indexFile)) {
 			this.indexFile = indexFile;
-			hasChanged = true;
+            FastaLoader.hasChanged = true;
 			// reset map on change of index file
-			this.acc2pos = null;
+            acc2pos = null;
 		}
 	}
 
@@ -447,7 +446,7 @@ public class FastaLoader {
 			System.err.println("No file provided.");
 		} else {
 			File file = new File(args[0]);
-			FastaLoader fastaLoader = FastaLoader.getInstance();
+			FastaLoader fastaLoader = getInstance();
 			fastaLoader.setFastaFile(file);
 			try {
 				System.out.print("Loading file... ");
@@ -472,8 +471,8 @@ public class FastaLoader {
 	 * @throws SQLException 
 	 */
 	public static void addFastaDatabases(File fastaFile, File outpath, boolean mascotFlag, int batchSize) throws IOException, SQLException {
-		
-		sql_fail_count = 0L;
+
+        FastaLoader.sql_fail_count = 0L;
 		// Instance of the Buffered Reader
 		BufferedReader br = null;
 
@@ -574,7 +573,7 @@ public class FastaLoader {
 				entryNo = entryNo + 1;
 				// Get parsed fasta-entry and write it to the new fasta
 				DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(header, sequence);
-				writeEntry(bw, "", entry);
+                FastaLoader.writeEntry(bw, "", entry);
 				// add protein to list
 				fastaEntryList.add(entry);
 				// Reset the sequence
@@ -598,7 +597,7 @@ public class FastaLoader {
 		
 		
 		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
-		createNewUniprotEntries(empty_up, conn);
+        FastaLoader.createNewUniprotEntries(empty_up, conn);
 		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 		for (Long protid : empty_up) {
 			ProteinAccessor protein = ProteinAccessor.findFromID(protid, conn);
@@ -609,7 +608,7 @@ public class FastaLoader {
 		bw.flush();
 		bw.close();
 		
-		System.out.println("Fails: " + sql_fail_count);
+		System.out.println("Fails: " + FastaLoader.sql_fail_count);
 		
 		// Add permissions to the new *.fasta file
 		outputFastaFile.setExecutable(true);
@@ -626,7 +625,7 @@ public class FastaLoader {
 		fastaFromater.formatFastaDatabase(outputFastaFile.toPath().toString());
 
 		// Add *.fasta filename to the client settings.
-		addFastaTotheClientSetting(outputFastaFile.getName());
+        FastaLoader.addFastaTotheClientSetting(outputFastaFile.getName());
 
 		// create peptide fasta
 		String pep_out = outputFastaFile.getAbsolutePath().substring(outputFastaFile.getAbsolutePath().lastIndexOf("/"), outputFastaFile.getAbsolutePath().lastIndexOf(".")) + ".pep";
@@ -679,7 +678,7 @@ public class FastaLoader {
 					System.out.println("Retry: " + e.getMessage());
 					// try again
 					uniprotentries = utils.processBatch(accessions, true);
-					sql_fail_count++;
+                    FastaLoader.sql_fail_count++;
 				}
 				if (uniprotentries != null) {
 					for (String protein : uniprotentries.keySet()) {
@@ -717,7 +716,7 @@ public class FastaLoader {
 	 * @throws IOException
 	 */
 	public void writeEntry(BufferedWriter bw, DigFASTAEntry fastaEntry) throws IOException {
-		writeEntry(bw, "",fastaEntry );
+        FastaLoader.writeEntry(bw, "",fastaEntry );
 	}
 
 	/**
@@ -733,36 +732,36 @@ public class FastaLoader {
 		sequenceContainer = fastaEntry.getSequence();
 
 		// Keep database Format
-		if (fastaEntry.getType().equals(Type.UNIPROTSPROT)) {
+		if (fastaEntry.getType().equals(DigFASTAEntry.Type.UNIPROTSPROT)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(1));
-		}else if (fastaEntry.getType().equals(Type.UNIPROTTREMBL)) {
+		}else if (fastaEntry.getType().equals(DigFASTAEntry.Type.UNIPROTTREMBL)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(1));
-		}		else if (fastaEntry.getType().equals(Type.NCBIGENBANK)) {
+		}		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.NCBIGENBANK)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(3));
-		} 
+		}
 		//		else if (getType().equals(Type.NCBIREFERENCE)) {
 		//			bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
 		//			bw.write("|" + getSubHeader().get(3));
-		//		} 
-		else if (fastaEntry.getType().equals(Type.Database)) {
+		//		}
+		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.Database)) {
 			bw.write(fastaEntry.getType().dbStartFlag  +  prefix  + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
-		} 
-		else if (fastaEntry.getType().equals(Type.SILICO_PEPTIDE)) {
+		}
+		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.SILICO_PEPTIDE)) {
 			bw.write(fastaEntry.getType().dbStartFlag+  prefix  + fastaEntry.getIdentifier());
-		} 
-		else if (fastaEntry.getType().equals(Type.METAGENOME1)) {
+		}
+		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.METAGENOME1)) {
 			bw.write(fastaEntry.getType().dbStartFlag  +  prefix + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
-		} 
-		else if (fastaEntry.getType().equals(Type.METAGENOME2)) {
+		}
+		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.METAGENOME2)) {
 			bw.write(">generic|"  +   fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
-		} 
-		else if (fastaEntry.getType().equals(Type.METAGENOME3)) {
+		}
+		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.METAGENOME3)) {
 			bw.write(">generic|"  +  prefix + fastaEntry.getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		} 

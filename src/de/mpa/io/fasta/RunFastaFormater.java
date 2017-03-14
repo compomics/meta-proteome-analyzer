@@ -19,7 +19,7 @@ public class RunFastaFormater {
 	/**
 	 * The MPA log.
 	 */
-	private Logger log = Logger.getLogger(getClass());
+	private final Logger log = Logger.getLogger(this.getClass());
 	/**
 	 * Default Constructor 
 	 */
@@ -40,9 +40,9 @@ public class RunFastaFormater {
 		fastaFormatQuery.trimToSize();
 
 		// Get Logging Panel
-		log.info("FASTAFORMATER:  Starts the fastaformter");
-		log.info("FASTAFORMATER:  Database:");
-		log.info("FASTAFORMATER:  " + fastaPath);
+        this.log.info("FASTAFORMATER:  Starts the fastaformter");
+        this.log.info("FASTAFORMATER:  Database:");
+        this.log.info("FASTAFORMATER:  " + fastaPath);
 		
 		// Construct Process
 		Process process = null;
@@ -56,7 +56,7 @@ public class RunFastaFormater {
 			BufferedReader reader =  new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String line = null;
 			while ( (line = reader.readLine()) != null) {
-				log.info("FASTAFORMATER:  " + line);
+                this.log.info("FASTAFORMATER:  " + line);
 			}
 			process.waitFor();
 		} catch (IOException | InterruptedException e) {

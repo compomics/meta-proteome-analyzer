@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -37,22 +39,22 @@ public abstract class Parameter {
 	/**
 	 * The default value of the parameter.
 	 */
-	private Object defaultValue;
+	private final Object defaultValue;
 	
 	/**
 	 * The name of the parameter.
 	 */
-	private String name;
+	private final String name;
 	
 	/**
 	 * The description string of the parameter. Used for tooltips.
 	 */
-	private String description;
+	private final String description;
 
 	/**
 	 * The section identifier of the parameter.
 	 */
-	private String section;
+	private final String section;
 	
 	/**
 	 * Constructs a configuration parameter object instance from the specified variables.
@@ -63,7 +65,7 @@ public abstract class Parameter {
 	 */
 	public Parameter(Object value, String name, String description, String section) {
 		this.value = value;
-		this.defaultValue = value;
+        defaultValue = value;
 		this.name = name;
 		this.description = description;
 		this.section = section;
@@ -74,7 +76,7 @@ public abstract class Parameter {
 	 * @return the name of the parameter
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -82,7 +84,7 @@ public abstract class Parameter {
 	 * @return the value of the parameter
 	 */
 	public Object getValue() {
-		return value;
+		return this.value;
 	}
 	
 	/**
@@ -90,7 +92,7 @@ public abstract class Parameter {
 	 * @return the default value of the parameter
 	 */
 	public Object getDefaultValue() {
-		return defaultValue;
+		return this.defaultValue;
 	}
 	
 	/**
@@ -111,7 +113,7 @@ public abstract class Parameter {
 	 * @return the section identifier of the parameter
 	 */
 	public String getSection() {
-		return section;
+		return this.section;
 	}
 
 	/**
@@ -119,14 +121,14 @@ public abstract class Parameter {
 	 * @return the description string of the parameter
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Parameter) {
 			Parameter that = (Parameter) obj;
-			return (this.getValue().equals(that.getValue()));
+			return (getValue().equals(that.getValue()));
 		}
 		return false;
 	}
@@ -136,8 +138,8 @@ public abstract class Parameter {
 	 * @return the left-hand side component
 	 */
 	public JComponent createLeftComponent() {
-		JLabel label = new JLabel(name);
-		label.setToolTipText(description);
+		JLabel label = new JLabel(this.name);
+		label.setToolTipText(this.description);
 		return label;
 	}
 	
@@ -159,7 +161,7 @@ public abstract class Parameter {
 	 * Restores the default value of the parameter.
 	 */
 	public void restoreDefaults() {
-		this.setValue(this.getDefaultValue());
+        setValue(getDefaultValue());
 	}
 	
 	/**
@@ -172,13 +174,13 @@ public abstract class Parameter {
 		 * The lower bound of the value range.
 		 */
 		@SuppressWarnings("rawtypes")
-		private Comparable minimum;
+		private final Comparable minimum;
 		
 		/**
 		 * The upper bound of the value range.
 		 */
 		@SuppressWarnings("rawtypes")
-		private Comparable maximum;
+		private final Comparable maximum;
 		
 		/**
 		 * The spinner component.
@@ -188,7 +190,7 @@ public abstract class Parameter {
 		/**
 		 * Flag indicating whether the spinner component is editable.
 		 */
-		private boolean editable;
+		private final boolean editable;
 		
 		/**
 		 * Creates a number parameter using the specified value inside the range
@@ -232,7 +234,7 @@ public abstract class Parameter {
 		 * @return <code>true</code> if editable, <code>false</code> otherwise
 		 */
 		public boolean isEditable() {
-			return editable;
+			return this.editable;
 		}
 		
 		@Override
@@ -250,8 +252,8 @@ public abstract class Parameter {
 				}
 			}
 			if (number != null) {
-				if (spinner != null) {
-					spinner.setValue(number);
+				if (this.spinner != null) {
+                    this.spinner.setValue(number);
 				}
 				return super.setValue(number);
 			}
@@ -260,36 +262,36 @@ public abstract class Parameter {
 		
 		@Override
 		public JComponent createRightComponent() {
-			Number value = (Number) this.getValue();
+			Number value = (Number) getValue();
 			Number stepSize = (value instanceof Integer) ? Integer.valueOf(1) : Double.valueOf(0.01);
-			spinner = new JSpinner(new SpinnerNumberModel(
-					value, minimum, maximum, stepSize));
+            this.spinner = new JSpinner(new SpinnerNumberModel(
+					value, this.minimum, this.maximum, stepSize));
 			if (value instanceof Double) {
-				spinner.setEditor(new JSpinner.NumberEditor(spinner, "0.00"));
+                this.spinner.setEditor(new NumberEditor(this.spinner, "0.00"));
 			}
-			spinner.setToolTipText(this.getDescription());
-			if (!this.isEditable()) {
-				spinner.setEnabled(false);
-				JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
+            this.spinner.setToolTipText(getDescription());
+			if (!isEditable()) {
+                this.spinner.setEnabled(false);
+				DefaultEditor editor = (DefaultEditor) this.spinner.getEditor();
 				editor.getTextField().setEnabled(true);
 				editor.getTextField().setEditable(false);
 			}
-			return spinner;
+			return this.spinner;
 		}
 
 		@Override
 		public boolean applyChanges() {
-			Object oldValue = this.getValue();
-			Object newValue = spinner.getValue();
-			this.setValue(newValue);
+			Object oldValue = getValue();
+			Object newValue = this.spinner.getValue();
+            setValue(newValue);
 			return !oldValue.equals(newValue);
 		}
 		
 		@Override
 		public void restoreDefaults() {
-			if (this.isEditable()) {
+			if (isEditable()) {
 				super.restoreDefaults();
-				spinner.setValue(this.getValue());
+                this.spinner.setValue(getValue());
 			}
 		}
 
@@ -319,28 +321,28 @@ public abstract class Parameter {
 		
 		@Override
 		public JComponent createLeftComponent() {
-			checkBox = new JCheckBox(this.getName(), (Boolean) this.getValue());
-			checkBox.setToolTipText(this.getDescription());
+            this.checkBox = new JCheckBox(getName(), (Boolean) getValue());
+            this.checkBox.setToolTipText(getDescription());
+
+            this.checkBox.setHorizontalTextPosition(SwingConstants.LEFT);
+            this.checkBox.setHorizontalAlignment(SwingConstants.RIGHT);
+            this.checkBox.setIconTextGap(7);
 			
-			checkBox.setHorizontalTextPosition(SwingConstants.LEFT);
-			checkBox.setHorizontalAlignment(SwingConstants.RIGHT);
-			checkBox.setIconTextGap(7);
-			
-			return checkBox;
+			return this.checkBox;
 		}
 
 		@Override
 		public boolean applyChanges() {
-			Object oldValue = this.getValue();
-			boolean newValue = checkBox.isSelected();
-			this.setValue(newValue);
+			Object oldValue = getValue();
+			boolean newValue = this.checkBox.isSelected();
+            setValue(newValue);
 			return !oldValue.equals(newValue);
 		}
 
 		@Override
 		public void restoreDefaults() {
 			super.restoreDefaults();
-			checkBox.setSelected((Boolean) this.getValue());
+            this.checkBox.setSelected((Boolean) getValue());
 		}
 		
 	}
@@ -356,18 +358,18 @@ public abstract class Parameter {
 		/**
 		 * The number of columns of the logical matrix.
 		 */
-		private int width;
+		private final int width;
 		
 		/**
 		 * The number of rows of the logical matrix.
 		 */
-		private int height;
+		private final int height;
 		
 		/**
 		 * The logical value parameters.
 		 */
-		private BooleanParameter[] params;
-		
+		private Parameter.BooleanParameter[] params;
+
 		/**
 		 * Creates a boolean matrix parameter with the specified dimensions and
 		 * states.
@@ -384,13 +386,13 @@ public abstract class Parameter {
 			this.width = width;
 			this.height = height;
 
-			params = new BooleanParameter[selected.length];
+			params = new Parameter.BooleanParameter[selected.length];
 			for (int i = 0; i < selected.length; i++) {
-				params[i] = new BooleanParameter(selected[i],
+				params[i] = new Parameter.BooleanParameter(selected[i],
 						names[i], descriptions[i], null);
 			}
 		}
-		
+
 		/**
 		 * Returns the value of the sub-parameter at the specified coordinates.
 		 * @param row the row index
@@ -400,7 +402,7 @@ public abstract class Parameter {
 		public Object getValue(int row, int col) {
 			return params[row * width + col].getValue();
 		}
-		
+
 		@Override
 		public JComponent createLeftComponent() {
 			// Matrix of checkboxes
@@ -411,7 +413,7 @@ public abstract class Parameter {
 				layout.appendColumn(ColumnSpec.decode("p:g"));
 //				layout.addGroupedColumn(2 * i + 1);
 			}
-			
+
 			DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 			int i = 0;
 			outer:
@@ -425,7 +427,7 @@ public abstract class Parameter {
 				}
 				builder.nextLine();
 			}
-			
+
 			return builder.getPanel();
 		}
 
@@ -444,7 +446,7 @@ public abstract class Parameter {
 		@Override
 		public void restoreDefaults() {
 			super.restoreDefaults();
-			for (BooleanParameter param : params) {
+			for (Parameter.BooleanParameter param : this.params) {
 				param.restoreDefaults();
 			}
 		}
@@ -465,7 +467,7 @@ public abstract class Parameter {
 		/**
 		 * Flag indicating whether the text component is editable.
 		 */
-		private boolean editable;
+		private final boolean editable;
 		
 		/**
 		 * Creates a text parameter using the specified value.
@@ -497,29 +499,29 @@ public abstract class Parameter {
 		 * @return <code>true</code> if editable, <code>false</code> otherwise
 		 */
 		public boolean isEditable() {
-			return editable;
+			return this.editable;
 		}
 		
 		@Override
 		public JComponent createRightComponent() {
-			textComp = new JTextField((String) this.getValue());
-			textComp.setToolTipText(this.getDescription());
-			textComp.setEditable(this.isEditable());
-			return textComp;
+            this.textComp = new JTextField((String) getValue());
+            this.textComp.setToolTipText(getDescription());
+            this.textComp.setEditable(isEditable());
+			return this.textComp;
 		}
 
 		@Override
 		public boolean applyChanges() {
-			Object oldValue = this.getValue();
-			String newValue = textComp.getText();
-			this.setValue(newValue);
+			Object oldValue = getValue();
+			String newValue = this.textComp.getText();
+            setValue(newValue);
 			return !oldValue.equals(newValue);
 		}
 
 		@Override
 		public void restoreDefaults() {
 			super.restoreDefaults();
-			textComp.setText((String) this.getValue());
+            this.textComp.setText((String) getValue());
 		}
 		
 	}
@@ -529,7 +531,7 @@ public abstract class Parameter {
 	 * text area.
 	 * @author A. Behne
 	 */
-	public static class TextAreaParameter extends TextParameter {
+	public static class TextAreaParameter extends Parameter.TextParameter {
 
 		/**
 		 * Creates a multi-line text parameter using the specified value.
@@ -542,7 +544,7 @@ public abstract class Parameter {
 				String section) {
 			super(value, name, description, section);
 		}
-		
+
 		@Override
 		public JComponent createRightComponent() {
 			textComp = new JTextArea((String) this.getValue());
@@ -553,15 +555,15 @@ public abstract class Parameter {
 					JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			return scrollPane;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Text parameter implementation for password texts. Editable via password
 	 * field.
 	 * @author A. Behne
 	 */
-	public static class PasswordParameter extends TextParameter {
+	public static class PasswordParameter extends Parameter.TextParameter {
 		
 		/**
 		 * Creates a password parameter using the specified value.
@@ -577,17 +579,17 @@ public abstract class Parameter {
 
 		@Override
 		public JComponent createRightComponent() {
-			textComp = new JPasswordField((String) this.getValue());
-			textComp.setToolTipText(this.getDescription());
-			textComp.setEditable(this.isEditable());
-			return textComp;
+            this.textComp = new JPasswordField((String) getValue());
+            this.textComp.setToolTipText(getDescription());
+            this.textComp.setEditable(isEditable());
+			return this.textComp;
 		}
 		
 		@Override
 		public boolean applyChanges() {
-			Object oldValue = this.getValue();
-			String newValue = new String(((JPasswordField) textComp).getPassword());
-			this.setValue(newValue);
+			Object oldValue = getValue();
+			String newValue = new String(((JPasswordField) this.textComp).getPassword());
+            setValue(newValue);
 			return !oldValue.equals(newValue);
 		}
 		
@@ -602,7 +604,7 @@ public abstract class Parameter {
 		/**
 		 * The available options.
 		 */
-		private Object[] options;
+		private final Object[] options;
 		
 		/**
 		 * The selected index.
@@ -631,18 +633,18 @@ public abstract class Parameter {
 		
 		@Override
 		public JComponent createRightComponent() {
-			comboBox = new JComboBox<>(options);
-			comboBox.setSelectedIndex(index);
-			comboBox.setToolTipText(this.getDescription());
-			return comboBox;
+            this.comboBox = new JComboBox<>(this.options);
+            this.comboBox.setSelectedIndex(this.index);
+            this.comboBox.setToolTipText(getDescription());
+			return this.comboBox;
 		}
 		
 		@Override
 		public boolean applyChanges() {
-			Object oldValue = this.getValue();
-			index = comboBox.getSelectedIndex();
-			Object newValue = comboBox.getItemAt(index);
-			this.setValue(newValue);
+			Object oldValue = getValue();
+            this.index = this.comboBox.getSelectedIndex();
+			Object newValue = this.comboBox.getItemAt(this.index);
+            setValue(newValue);
 			return !oldValue.equals(newValue);
 		}
 		
@@ -651,13 +653,13 @@ public abstract class Parameter {
 		 * @return the index
 		 */
 		public int getIndex() {
-			return index;
+			return this.index;
 		}
 	
 		@Override
 		public void restoreDefaults() {
 			super.restoreDefaults();
-			comboBox.setSelectedItem(this.getValue());
+            this.comboBox.setSelectedItem(getValue());
 		}
 		
 	}
@@ -672,7 +674,7 @@ public abstract class Parameter {
 		/**
 		 * The button action
 		 */
-		private Action action;
+		private final Action action;
 
 		/**
 		 * Creates a button parameter using the specified action.
@@ -686,7 +688,7 @@ public abstract class Parameter {
 		
 		@Override
 		public JComponent createLeftComponent() {
-			return new JButton(action);
+			return new JButton(this.action);
 		}
 
 		@Override

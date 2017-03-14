@@ -37,12 +37,12 @@ public class BlastQuery {
 
 	    @Override
 	    public String toString() {
-	        return name;
+	        return this.name;
 	    }
 	}
 	
-    private List<BlastHit> blastHits = new ArrayList<BlastHit>();
-    private static Map<BlastHitHeaderEnum, Integer> headerMap;
+    private final List<BlastHit> blastHits = new ArrayList<BlastHit>();
+    private static Map<BlastQuery.BlastHitHeaderEnum, Integer> headerMap;
     private int queryLength;
     private static String[] headers;
     private String content;
@@ -79,43 +79,43 @@ public class BlastQuery {
     /**
      * Gets the essential headers into a HashMap.
      */
-    public static Map<BlastHitHeaderEnum, Integer> getHeaderMap() {
-            headerMap = new HashMap<BlastHitHeaderEnum, Integer>();
+    public static Map<BlastQuery.BlastHitHeaderEnum, Integer> getHeaderMap() {
+            headerMap = new HashMap<BlastQuery.BlastHitHeaderEnum, Integer>();
             for (int i = 0; i < headers.length; i++) {
                 String header = headers[i].trim();
-                if (header.equals(BlastHitHeaderEnum.QUERY.name)) {
-                    headerMap.put(BlastHitHeaderEnum.QUERY, i);
-                } else if (header.equals(BlastHitHeaderEnum.TARGET.name)) {
-                    headerMap.put(BlastHitHeaderEnum.TARGET, i);
-                } else if (header.equals(BlastHitHeaderEnum.IDENTITY.name)) {
-                    headerMap.put(BlastHitHeaderEnum.IDENTITY, i);
-                } else if (header.equals(BlastHitHeaderEnum.LENGTH.name)) {
-                    headerMap.put(BlastHitHeaderEnum.LENGTH, i);
-                } else if (header.equals(BlastHitHeaderEnum.TSTART.name)) {
-                    headerMap.put(BlastHitHeaderEnum.TSTART, i);
-                } else if (header.equals(BlastHitHeaderEnum.TEND.name)) {
-                    headerMap.put(BlastHitHeaderEnum.TEND, i);
-                } else if (header.equals(BlastHitHeaderEnum.MISMATCH.name)) {
-                    headerMap.put(BlastHitHeaderEnum.MISMATCH, i);
-                } else if (header.equals(BlastHitHeaderEnum.EVALUE.name)) {
-                    headerMap.put(BlastHitHeaderEnum.EVALUE, i);
-                }else if (header.equals(BlastHitHeaderEnum.BIT.name)) {
-                    headerMap.put(BlastHitHeaderEnum.BIT, i);
+                if (header.equals(BlastQuery.BlastHitHeaderEnum.QUERY.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.QUERY, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.TARGET.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.TARGET, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.IDENTITY.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.IDENTITY, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.LENGTH.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.LENGTH, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.TSTART.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.TSTART, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.TEND.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.TEND, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.MISMATCH.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.MISMATCH, i);
+                } else if (header.equals(BlastQuery.BlastHitHeaderEnum.EVALUE.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.EVALUE, i);
+                }else if (header.equals(BlastQuery.BlastHitHeaderEnum.BIT.name)) {
+                    headerMap.put(BlastQuery.BlastHitHeaderEnum.BIT, i);
                 }
         }
-        return headerMap;
+        return BlastQuery.headerMap;
     }
 
     public String getQueryName() {
-        return queryName;
+        return this.queryName;
     }
 
     public int getQueryLength() {
-        return queryLength;
+        return this.queryLength;
     }
 
     public List<BlastHit> getAllBlastHits() {
-        return blastHits;
+        return this.blastHits;
     }
 
     /**
@@ -125,9 +125,9 @@ public class BlastQuery {
      */
     public List<BlastHit> getPerfectBlastHits() {
         List<BlastHit> resultHits = new ArrayList<BlastHit>();
-        for (Iterator<BlastHit> hitIterator = blastHits.iterator(); hitIterator.hasNext();) {
+        for (Iterator<BlastHit> hitIterator = this.blastHits.iterator(); hitIterator.hasNext();) {
             BlastHit hit = hitIterator.next();
-            if ((hit.getIdentity() == 100) && (hit.getLength() == this.getQueryLength())) {
+            if ((hit.getIdentity() == 100) && (hit.getLength() == getQueryLength())) {
                 resultHits.add(hit);
             }
         }
@@ -139,8 +139,8 @@ public class BlastQuery {
      * @return BlastHit The highest ranked Blast hit.
      */
     public BlastHit getFirstHit() {
-    	if(blastHits.size() > 0){
-    		return blastHits.get(0);
+    	if(this.blastHits.size() > 0){
+    		return this.blastHits.get(0);
     	} else {
     		return null;
     	}
@@ -153,7 +153,7 @@ public class BlastQuery {
     public List<BlastHit> getBlastHitsAboveBitThreshold(double bitThreshold) {
         List<BlastHit> resultHits = new ArrayList<BlastHit>();
         
-        for (Iterator<BlastHit> hitIterator = blastHits.iterator(); hitIterator.hasNext();) {
+        for (Iterator<BlastHit> hitIterator = this.blastHits.iterator(); hitIterator.hasNext();) {
             BlastHit hit = hitIterator.next();
             if ((hit.getBitScore() > bitThreshold)) {
                 resultHits.add(hit);
@@ -169,9 +169,9 @@ public class BlastQuery {
      */
     public List<BlastHit> getMismatchHits(int numMismatches) {
         List<BlastHit> resultHits = new ArrayList<BlastHit>();
-        for (Iterator<BlastHit> hitIterator = blastHits.iterator(); hitIterator.hasNext();) {
+        for (Iterator<BlastHit> hitIterator = this.blastHits.iterator(); hitIterator.hasNext();) {
             BlastHit hit = hitIterator.next();
-            if ((hit.getLength() == this.getQueryLength()) && (hit.getNumberOfMismatches() == numMismatches)) {
+            if ((hit.getLength() == getQueryLength()) && (hit.getNumberOfMismatches() == numMismatches)) {
                 resultHits.add(hit);
             }
         }

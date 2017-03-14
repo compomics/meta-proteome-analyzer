@@ -33,7 +33,7 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {
     	Spectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement(Spectrum.getBasicSelect() +
+        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
         		" WHERE title = ?");
         ps.setString(1, title);
         ResultSet rs = ps.executeQuery();
@@ -77,7 +77,7 @@ public class Spectrum extends SpectrumTableAccessor {
         }
         if (id != null) {
         	// get actual spectrum
-        	ps = aConn.prepareStatement(Spectrum.getBasicSelect() + " WHERE spectrumid = ?");
+        	ps = aConn.prepareStatement(getBasicSelect() + " WHERE spectrumid = ?");
         	ps.setLong(1, id);
         	rs = ps.executeQuery();
         	while (rs.next()) {
@@ -102,7 +102,7 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static MascotGenericFile getSpectrumFileFromTitle(String title, Connection conn) throws SQLException {
 		MascotGenericFile res = null;
-        PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
+        PreparedStatement ps = conn.prepareStatement(getBasicSelect() +
         		" WHERE title = ? ORDER BY creationdate");
         ps.setString(1, title);
         ResultSet rs = ps.executeQuery();
@@ -124,7 +124,7 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static MascotGenericFile getSpectrumFileFromIdAndTitle(Long spectrumId, String title, Connection conn) throws SQLException {
 		MascotGenericFile res = null;
-        PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() + " WHERE spectrumid = ? AND title LIKE ? ORDER BY creationdate");
+        PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE spectrumid = ? AND title LIKE ? ORDER BY creationdate");
         ps.setLong(1, spectrumId);
         ps.setString(2, title + "%");
         ResultSet rs = ps.executeQuery();
@@ -142,7 +142,7 @@ public class Spectrum extends SpectrumTableAccessor {
      * @return
      */
     public static long getSpectrumIdFromTitle(String title) {
-    	return getSpectrumIdFromTitle(title, false);
+    	return Spectrum.getSpectrumIdFromTitle(title, false);
     }
     
     /**
@@ -153,7 +153,7 @@ public class Spectrum extends SpectrumTableAccessor {
      */
     public static Spectrum findFromSpectrumID(long spectrumid, Connection conn) throws SQLException{
     	Spectrum temp = null;
-         PreparedStatement ps = conn.prepareStatement(Spectrum.getBasicSelect() +
+         PreparedStatement ps = conn.prepareStatement(getBasicSelect() +
          		" WHERE spectrumid = ?");
          ps.setLong(1, spectrumid);
          ResultSet rs = ps.executeQuery();
@@ -205,7 +205,7 @@ public class Spectrum extends SpectrumTableAccessor {
 	 * @return ChargeAndTitle instance (wrapper class to return both values)  
 	 * @throws SQLException
 	 */
-	public static ChargeAndTitle getTitleAndCharge(Long spectrumid, Connection conn) throws SQLException {
+	public static Spectrum.ChargeAndTitle getTitleAndCharge(Long spectrumid, Connection conn) throws SQLException {
 		String title = "";
 		int charge = 0;
         PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_charge FROM spectrum WHERE spectrumid = ?");
@@ -213,7 +213,7 @@ public class Spectrum extends SpectrumTableAccessor {
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
     		title = rs.getString("title");
-    		charge = rs.getInt("precursor_charge");        	
+    		charge = rs.getInt("precursor_charge");
         }
 		return new Spectrum.ChargeAndTitle(title, charge);
 	}
@@ -227,17 +227,17 @@ public class Spectrum extends SpectrumTableAccessor {
 	 *
 	 */
 	public static class ChargeAndTitle {
-		private String title;
-		private int charge;
+		private final String title;
+		private final int charge;
 		public ChargeAndTitle(String t, int c) {
-			this.title = t;
-			this.charge = c;
+            title = t;
+            charge = c;
 		}
 		public String getTitle() {
-			return this.title;
+			return title;
 		}
 		public int getCharge() {
-			return this.charge;
+			return charge;
 		}
 		
 	}

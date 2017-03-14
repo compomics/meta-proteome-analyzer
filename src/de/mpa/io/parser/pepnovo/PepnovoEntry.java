@@ -30,7 +30,7 @@ public class PepnovoEntry {
 	 * @return spectrumName String
 	 */	
 	public String getSpectrumName() {
-		return spectrumName;
+		return this.spectrumName;
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class PepnovoEntry {
 	 * @return predictionList List<Prediction>
 	 */
 	public List<Prediction> getPredictionList() {
-		return predictionList;
+		return this.predictionList;
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class PepnovoEntry {
 	 * @return
 	 */
 	public int getSpectrumNumber() {
-		return spectrumNumber;
+		return this.spectrumNumber;
 	}
 	
 	/**

@@ -44,7 +44,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
     public static PeptideAccessor findFromSequence(String sequence, Connection aConn) throws SQLException {
 
         PeptideAccessor temp = null;
-        PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE sequence = ?");
+        PreparedStatement ps = aConn.prepareStatement(PeptideTableAccessor.getBasicSelect() + " WHERE sequence = ?");
         ps.setString(1, sequence);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -65,7 +65,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
      */
     public static PeptideAccessor findFromID(long peptideID, Connection conn) throws SQLException {
     	PeptideAccessor temp = null;
-    	PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + PEPTIDEID + " = ?");
+    	PreparedStatement ps = conn.prepareStatement(PeptideTableAccessor.getBasicSelect() + " WHERE " + PeptideTableAccessor.PEPTIDEID + " = ?");
         ps.setLong(1, peptideID);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -87,9 +87,9 @@ public class PeptideAccessor extends PeptideTableAccessor {
     public static List<PeptideAccessor> findFromMultipleIDs(List<Long> peptideIDs, Connection conn) throws SQLException {
     	
     	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
-    	String statement = getBasicSelect() + " WHERE " + PEPTIDEID + " = ?";
+    	String statement = PeptideTableAccessor.getBasicSelect() + " WHERE " + PeptideTableAccessor.PEPTIDEID + " = ?";
     	for (int i = 1; i < peptideIDs.size(); i++) {
-			statement += "OR " + PEPTIDEID + " = ?";
+			statement += "OR " + PeptideTableAccessor.PEPTIDEID + " = ?";
 		}
     	PreparedStatement ps = conn.prepareStatement(statement);
     	for (int i = 0; i < peptideIDs.size(); i++) {
@@ -109,7 +109,7 @@ public class PeptideAccessor extends PeptideTableAccessor {
     public static List<PeptideAccessor> findFromSpectrumID(long spectrumID, Connection aConn) throws SQLException {
     	
     	List<PeptideAccessor> temp = new ArrayList<PeptideAccessor>();
-    	PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+    	PreparedStatement ps = aConn.prepareStatement(PeptideTableAccessor.getBasicSelect() +
 									    			  " INNER JOIN speclibentry" +
 									    			  " ON peptide.peptideid = spec2pep.fk_peptideid" +
 									    			  " INNER JOIN libspectrum" +

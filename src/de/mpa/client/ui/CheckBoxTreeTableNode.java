@@ -25,7 +25,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * The flag determining whether the selection state may be changed. 
 	 * Defaults to <code>false</code>.
 	 */
-	private boolean fixed = false;
+	private boolean fixed;
 	
 	/**
 	 * URI reference for hyperlink interactivity in tree views.
@@ -65,7 +65,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	
 	@Override
 	public Object getUserObject() {
-		return this.getUserObject(0);
+		return getUserObject(0);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * @return The i-th object stored in this node.
 	 */
 	private Object getUserObject(int i) {
-		return this.userObjects[i];
+		return userObjects[i];
 	}
 
 	/**
@@ -87,18 +87,18 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	
 	@Override
 	public int getColumnCount() {
-		return this.userObjects.length;
+		return userObjects.length;
 	}
 	
 	@Override
 	public Object getValueAt(int column) {
-		return (column >= this.userObjects.length) ? null : this.userObjects[column];
+		return (column >= userObjects.length) ? null : userObjects[column];
 	}
 	
 	@Override
 	public void setValueAt(Object aValue, int column) {
 		try {
-			this.userObjects[column] = aValue;
+            userObjects[column] = aValue;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -109,7 +109,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * @return
 	 */
 	public boolean isFixed() {
-		return fixed;
+		return this.fixed;
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * @return <code>true</code> if the URI is valid, <code>false</code> otherwise.
 	 */
 	public boolean hasURI() {
-		return (uri != null);
+		return (this.uri != null);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * @return This node's URI.
 	 */
 	public URI getURI() {
-		return uri;
+		return this.uri;
 	}
 	
 	/**
@@ -170,8 +170,8 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	 * Removes all child nodes from this node.
 	 */
 	public void removeAllChildren() {
-		for (int i = getChildCount() - 1; i >= 0; i--) {
-			remove(i);
+		for (int i = this.getChildCount() - 1; i >= 0; i--) {
+            this.remove(i);
 		}
 	}
 
@@ -188,7 +188,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 		if (aNode == null) {
 			retval = false;
 		} else {
-			if (getChildCount() == 0) {
+			if (this.getChildCount() == 0) {
 				retval = false;
 			} else {
 				retval = (aNode.getParent() == this);
@@ -206,10 +206,10 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
      * @exception	NoSuchElementException	if this node has no children
      */
 	public TreeNode getFirstChild() {
-		if (getChildCount() == 0) {
+		if (this.getChildCount() == 0) {
 			throw new NoSuchElementException("node has no children");
 		}
-		return getChildAt(0);
+		return this.getChildAt(0);
 	}
 
     /**
@@ -231,14 +231,14 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 			throw new IllegalArgumentException("argument is null");
 		}
 
-		int index = getIndex(aChild); // linear search
+		int index = this.getIndex(aChild); // linear search
 
 		if (index == -1) {
 			throw new IllegalArgumentException("node is not a child");
 		}
 
-		if (index < getChildCount() - 1) {
-			return getChildAt(index + 1);
+		if (index < this.getChildCount() - 1) {
+			return this.getChildAt(index + 1);
 		} else {
 			return null;
 		}
@@ -260,11 +260,11 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 		} else if (anotherNode == this) {
 			retval = true;
 		} else {
-			TreeNode myParent = getParent();
+			TreeNode myParent = this.getParent();
 			retval = (myParent != null && myParent == anotherNode.getParent());
 
 			if (retval
-					&& !((CheckBoxTreeTableNode) getParent())
+					&& !((CheckBoxTreeTableNode) this.getParent())
 							.isNodeChild(anotherNode)) {
 				throw new Error("sibling has different parent");
 			}
@@ -286,7 +286,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	public CheckBoxTreeTableNode getNextSibling() {
 		CheckBoxTreeTableNode retval;
 
-		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) getParent();
+		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) this.getParent();
 
 		if (myParent == null) {
 			retval = null;
@@ -294,7 +294,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 			retval = (CheckBoxTreeTableNode) myParent.getChildAfter(this);	// linear search
 		}
 
-		if (retval != null && !isNodeSibling(retval)) {
+		if (retval != null && !this.isNodeSibling(retval)) {
 			throw new Error("child of parent is not a sibling");
 		}
 
@@ -321,7 +321,7 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 	}
 	
 	public boolean isRoot() {
-		return (getParent() == null);
+		return (this.getParent() == null);
 	}
 
 	/**
@@ -344,13 +344,13 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
      * @return	returns the next leaf past this node
      */
 	public CheckBoxTreeTableNode getNextLeaf() {
-		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) this.getParent();
+		CheckBoxTreeTableNode myParent = (CheckBoxTreeTableNode) getParent();
 		
 		if (myParent == null) {
 			return null;
 		}
 
-		CheckBoxTreeTableNode nextSibling = this.getNextSibling();	// linear search
+		CheckBoxTreeTableNode nextSibling = getNextSibling();	// linear search
 
 		if (nextSibling != null) {
 			return nextSibling.getFirstLeaf();
@@ -393,28 +393,27 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
         @SuppressWarnings("unchecked")
 		public PostorderEnumeration(TreeNode rootNode) {
-            super();
-            root = rootNode;
-            children = root.children();
-            subtree = DefaultMutableTreeNode.EMPTY_ENUMERATION;
+            this.root = rootNode;
+            this.children = this.root.children();
+            this.subtree = DefaultMutableTreeNode.EMPTY_ENUMERATION;
         }
 
         public boolean hasMoreElements() {
-            return root != null;
+            return this.root != null;
         }
 
         public TreeNode nextElement() {
             TreeNode retval;
 
-            if (subtree.hasMoreElements()) {
-                retval = subtree.nextElement();
-            } else if (children.hasMoreElements()) {
-                subtree = new PostorderEnumeration(
-                                (TreeNode)children.nextElement());
-                retval = subtree.nextElement();
+            if (this.subtree.hasMoreElements()) {
+                retval = this.subtree.nextElement();
+            } else if (this.children.hasMoreElements()) {
+                this.subtree = new PostorderEnumeration(
+                        this.children.nextElement());
+                retval = this.subtree.nextElement();
             } else {
-                retval = root;
-                root = null;
+                retval = this.root;
+                this.root = null;
             }
 
             return retval;
@@ -431,22 +430,22 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 
 		@SuppressWarnings("unchecked")
 		public PreorderEnumeration(TreeNode node) {
-			next = node;
-			childrenEnums.push(node.children());
+            this.next = node;
+            this.childrenEnums.push(node.children());
 		}
 
 		public boolean hasMoreElements() {
-			return next != null;
+			return this.next != null;
 		}
 
 		@SuppressWarnings("rawtypes")
 		public TreeNode nextElement() {
-			if (next == null)
+			if (this.next == null)
 				throw new NoSuchElementException("No more elements left.");
-			TreeNode current = next;
-			Enumeration children = (Enumeration) childrenEnums.peek();
+			TreeNode current = this.next;
+			Enumeration children = this.childrenEnums.peek();
 
-			next = traverse(children);
+            this.next = this.traverse(children);
 			return current;
 		}
 
@@ -454,15 +453,15 @@ public class CheckBoxTreeTableNode extends DefaultMutableTreeTableNode {
 		private TreeNode traverse(Enumeration children) {
 			if (children.hasMoreElements()) {
 				TreeNode child = (TreeNode) children.nextElement();
-				childrenEnums.push(child.children());
+                this.childrenEnums.push(child.children());
 				return child;
 			}
-			childrenEnums.pop();
+            this.childrenEnums.pop();
 
-			if (childrenEnums.isEmpty())
+			if (this.childrenEnums.isEmpty())
 				return null;
 			else {
-				return traverse((Enumeration) childrenEnums.peek());
+				return this.traverse(this.childrenEnums.peek());
 			}
 		}
 	}

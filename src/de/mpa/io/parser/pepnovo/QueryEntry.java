@@ -34,7 +34,7 @@ public class QueryEntry {
 	 * @return The spectrum number.
 	 */
 	public int getSpectrumNumber() {
-		return spectrumNumber;
+		return this.spectrumNumber;
 	}
 	
 	/**
@@ -42,7 +42,7 @@ public class QueryEntry {
 	 * @return The list of queries.
 	 */
 	public List<String> getQueries() {
-		return queries;
+		return this.queries;
 	}
 	
 	/**
@@ -50,7 +50,7 @@ public class QueryEntry {
 	 * @return The number of sequences.
 	 */
 	public int getNumSequences() {
-		return queries.size();
+		return this.queries.size();
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class QueryEntry {
 	 * @return The query score.
 	 */
 	public double getScore() {	
-		return score;
+		return this.score;
 	}
 
 	/**

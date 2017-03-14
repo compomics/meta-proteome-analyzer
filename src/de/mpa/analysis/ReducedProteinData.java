@@ -12,7 +12,7 @@ public class ReducedProteinData {
 	/**
 	 * The UniProt entry... belongs to UniprotJapi
 	 */
-	private UniProtEntry uniProtEntry;
+	private final UniProtEntry uniProtEntry;
 	
 	/**
 	 * The UniRef100 entry
@@ -49,7 +49,7 @@ public class ReducedProteinData {
 	 * @return. The UniProt entry
 	 */
 	public UniProtEntry getUniProtEntry() {
-		return uniProtEntry;
+		return this.uniProtEntry;
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class ReducedProteinData {
 	 * @return. The UniRef 100ID
 	 */
 	public String getUniRef100EntryId() {
-		return uniRef100EntryId;
+		return this.uniRef100EntryId;
 	}
 	
 	/**
@@ -65,7 +65,7 @@ public class ReducedProteinData {
 	 * @return. The UniRef 90 ID
 	 */
 	public String getUniRef90EntryId() {
-		return uniRef90EntryId;
+		return this.uniRef90EntryId;
 	}
 	
 	/**
@@ -73,7 +73,7 @@ public class ReducedProteinData {
 	 * @return. The UniRef 50 ID
 	 */
 	public String getUniRef50EntryId() {
-		return uniRef50EntryId;
+		return this.uniRef50EntryId;
 	}
 
 	/**

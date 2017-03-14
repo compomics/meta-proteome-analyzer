@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
 import de.mpa.io.fasta.DigFASTAEntry;
+import de.mpa.io.fasta.DigFASTAEntry.Type;
 
 public class ProteinAccessor extends ProteinTableAccessor {
 
@@ -137,7 +138,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public static ProteinAccessor findFromID(long proteinID, Connection aConn) throws SQLException {
 		ProteinAccessor temp = null;
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + PROTEINID + " = ?");
+		PreparedStatement ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE " + ProteinTableAccessor.PROTEINID + " = ?");
 		ps.setLong(1, proteinID);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -158,7 +159,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public static List<ProteinTableAccessor> findBlastHits(Connection aConn) throws SQLException {
 		List<ProteinTableAccessor> temp = new ArrayList<ProteinTableAccessor>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " WHERE " + SOURCE + " LIKE 'BLAST_%'");
+		PreparedStatement ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE " + ProteinTableAccessor.SOURCE + " LIKE 'BLAST_%'");
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			temp.add(new ProteinTableAccessor(rs));
@@ -182,13 +183,13 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		ProteinAccessor temp = null;
 		PreparedStatement ps;
 		if (description == null) {
-			ps = aConn.prepareStatement(getBasicSelect() + " WHERE accession = ?");
+			ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE accession = ?");
 			ps.setString(1, accession);
 		} else if (accession == null) {
-			ps = aConn.prepareStatement(getBasicSelect() + " WHERE description = ?");
+			ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE description = ?");
 			ps.setString(1, description);
 		} else {
-			ps = aConn.prepareStatement(getBasicSelect() + " WHERE accession = ? AND description = ?");
+			ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE accession = ? AND description = ?");
 			ps.setString(1, accession);
 			ps.setString(2, description);
 		}
@@ -216,7 +217,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		ProteinAccessor temp = null;
 		PreparedStatement ps = null;
 		if (accession != null) {
-			ps = aConn.prepareStatement(getBasicSelect() + " WHERE accession = ?");
+			ps = aConn.prepareStatement(ProteinTableAccessor.getBasicSelect() + " WHERE accession = ?");
 			ps.setString(1, accession);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -289,7 +290,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	     * @return protein The newly created Protein object.
 	     * @throws SQLException when the persistence did not succeed.
 	     */
-	    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, DigFASTAEntry.Type source, Long uniprotid, Connection conn) throws SQLException{
+	    public static ProteinAccessor addProteinWithPeptideID(Long peptideID, String accession, String description, String sequence, Type source, Long uniprotid, Connection conn) throws SQLException{
 	    	HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(6);
 			dataProtein.put(ProteinAccessor.ACCESSION, accession);
 			dataProtein.put(ProteinAccessor.DESCRIPTION, description);
@@ -336,21 +337,21 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 */
 	public void updateUniprotForProtein(Connection conn) throws SQLException {
 		// Check Length of uniProt accessions is 6 for swissprot and 6 or 12 for trembl, ignore other entries
-		if (this.getAccession().length()  == 6 || this.getAccession().length() == 10 ) {
+		if (getAccession().length()  == 6 || getAccession().length() == 10 ) {
 			// fetch new uniprotentry from webservice
 			// Get UniProt information
 			UniProtUtilities utils = new UniProtUtilities();
 			// Map with UniProt entries with UniProtAccession as key
 			Set<String> proteinSet = new TreeSet<String>();
-			proteinSet.add(this.getAccession());
+			proteinSet.add(getAccession());
 			TreeMap<String, UniProtEntryMPA> acc2uniprotentry = utils.processBatch(proteinSet, true);
 			// create new uniprot entry
 			TreeMap<Long, UniProtEntryMPA> protid2uniprotentry = new TreeMap<Long, UniProtEntryMPA>();
-			protid2uniprotentry.put(this.getProteinid(), acc2uniprotentry.get(this.getAccession()));
+			protid2uniprotentry.put(getProteinid(), acc2uniprotentry.get(getAccession()));
 			TreeMap<Long, Long> proteinID2uniprotIDmap = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(protid2uniprotentry, conn);
 			// update protein data
-			this.setFK_uniProtID(proteinID2uniprotIDmap.get(this.getProteinid()));
-			this.update(conn);
+            setFK_uniProtID(proteinID2uniprotIDmap.get(getProteinid()));
+            update(conn);
 			conn.commit();
 		}
 	}
@@ -364,7 +365,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return protein The newly created Protein object.
 	 * @throws SQLException when the persistence did not succeed.
 	 */
-	public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, DigFASTAEntry.Type type, Long UniProtID, Connection conn) throws SQLException{
+	public static ProteinAccessor addProteinToDatabase(String accession, String description, String sequence, Type type, Long UniProtID, Connection conn) throws SQLException{
 		HashMap<Object, Object> dataProtein = new HashMap<Object, Object>(5);
 		dataProtein.put(ProteinAccessor.ACCESSION, accession);
 		dataProtein.put(ProteinAccessor.DESCRIPTION, description);
@@ -383,7 +384,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 
 	@Override
 	public String toString() {
-		return ("" + iProteinid + " " + iAccession + " " + iDescription);
+		return ("" + this.iProteinid + " " + this.iAccession + " " + this.iDescription);
 	}
 
 
@@ -408,7 +409,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		// Add all FASTA entries to the sql statement
 		while (protIter2.hasNext()) {
 			// Get next FASTA entry
-			DigFASTAEntry fastaEntry = (DigFASTAEntry) protIter2.next();
+			DigFASTAEntry fastaEntry = protIter2.next();
 
 			// ProtID is unknown at the beginning
 			lStat.setNull(1, 4);
@@ -437,8 +438,8 @@ public class ProteinAccessor extends ProteinTableAccessor {
 			} else {
 				lStat.setObject(6, fastaEntry.getType().toString());
 			}
-			lStat.addBatch();;
-			lStat.executeBatch();
+			lStat.addBatch();
+            lStat.executeBatch();
 		}
 	} 
 	 
@@ -467,7 +468,7 @@ public class ProteinAccessor extends ProteinTableAccessor {
 		PreparedStatement ps = conn.prepareStatement("SELECT protein.proteinid FROM protein "
 				+ "WHERE protein.fk_uniprotentryid = ? AND protein.source = ?");
 		ps.setLong(1, -1L);
-		ps.setString(2, DigFASTAEntry.Type.UNIPROTSPROT.toString());
+		ps.setString(2, Type.UNIPROTSPROT.toString());
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			protein_ids.add(rs.getLong("protein.proteinid"));

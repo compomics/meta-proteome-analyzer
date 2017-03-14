@@ -2,7 +2,7 @@ package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
 
-public enum SearchEngineType implements Serializable {
+public enum SearchEngineType {
 	
 	XTANDEM("X!Tandem"), 
 	OMSSA("OMSSA"), 
@@ -11,7 +11,7 @@ public enum SearchEngineType implements Serializable {
 	MASCOT("Mascot"),
 	SPECLIB("Spectral Library");
 	
-	SearchEngineType(final String searchEngineName){
+	SearchEngineType(String searchEngineName){
 		this.searchEngineName = searchEngineName;
 	}
 	
@@ -19,6 +19,6 @@ public enum SearchEngineType implements Serializable {
 	
 	@Override
 	public String toString() {
-		return searchEngineName;
+		return this.searchEngineName;
 	}
 }

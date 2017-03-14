@@ -17,13 +17,13 @@ public class Peak {
 	}
 
 	public Peak(Peak peak) {
-		this.mz = peak.getMz();
-		this.intensity = peak.getIntensity();
+        mz = peak.getMz();
+        intensity = peak.getIntensity();
 	}
 
 
 	public double getMz() {
-		return mz;
+		return this.mz;
 	}
 
 	public void setMz(double mz) {
@@ -31,7 +31,7 @@ public class Peak {
 	}
 
 	public double getIntensity() {
-		return intensity;
+		return this.intensity;
 	}
 
 	public void setIntensity(double intensity) {
@@ -39,7 +39,7 @@ public class Peak {
 	}
 
 	public int getCharge() {
-		return charge;
+		return this.charge;
 	}
 
 	public void setCharge(int charge) {

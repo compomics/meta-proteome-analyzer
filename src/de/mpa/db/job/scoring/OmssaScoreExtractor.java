@@ -45,11 +45,11 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	 */
 	protected void extract() {
 		// Initialize the score lists
-		targetScores = new ArrayList<Double>();
-		decoyScores = new ArrayList<Double>();		
-		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
+        this.targetScores = new ArrayList<Double>();
+        this.decoyScores = new ArrayList<Double>();
+        this.omxFileTarget = new OmssaOmxFile(this.targetFile.getAbsolutePath());
 		 // Initialize the spectrum iterators
-        HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
+        HashMap<MSSpectrum, MSHitSet> targetResults = this.omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
     	
     	// Target hits
@@ -66,7 +66,7 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    	}
     	    }
     	    if (lowestEValue < Double.POSITIVE_INFINITY) {
-    	    	targetScores.add(lowestEValue);
+                this.targetScores.add(lowestEValue);
 //    	     	String spectrumTitle = formatSpectrumTitle(msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString());
 //    	    	searchHits.add(new CustomSearchHit(lowestEValue, peptideSequence, spectrumTitle));
     	    }
@@ -74,16 +74,16 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	}
     	
     	// Sort the target scores ascending.
-    	Collections.sort(targetScores);
+    	Collections.sort(this.targetScores);
     	
     	// Help the GC:
-    	omxFileTarget = null;
+        this.omxFileTarget = null;
     	targetResults = null;
     	targetIter = null;
     	
     	// Decoy
-    	omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());	
-    	HashMap<MSSpectrum, MSHitSet> decoyResults = omxFileDecoy.getSpectrumToHitSetMap();
+        this.omxFileDecoy = new OmssaOmxFile(this.decoyFile.getAbsolutePath());
+    	HashMap<MSSpectrum, MSHitSet> decoyResults = this.omxFileDecoy.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> decoyIter = decoyResults.keySet().iterator();  	
     	
     	// Decoy hits
@@ -98,7 +98,7 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    	}
     	    }
     	    if (lowestEValue < Double.POSITIVE_INFINITY) {
-    	    	decoyScores.add(lowestEValue);
+                this.decoyScores.add(lowestEValue);
     	    }
     	}    	
    	}
@@ -121,11 +121,11 @@ public class OmssaScoreExtractor extends ScoreExtractor {
 	@Override
 	void extractTargetOnly() {
 		// Initialize the score lists
-		targetScores = new ArrayList<Double>();
-		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
+        this.targetScores = new ArrayList<Double>();
+        this.omxFileTarget = new OmssaOmxFile(this.targetFile.getAbsolutePath());
 		
 		 // Initialize the spectrum iterators
-        HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
+        HashMap<MSSpectrum, MSHitSet> targetResults = this.omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
     	
     	// Target hits
@@ -140,7 +140,7 @@ public class OmssaScoreExtractor extends ScoreExtractor {
     	    	}
     	    }
     	    if (lowestEValue < Double.POSITIVE_INFINITY) {
-    	    	targetScores.add(lowestEValue);
+                this.targetScores.add(lowestEValue);
     	    }
     	}
 

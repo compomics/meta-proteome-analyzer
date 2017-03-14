@@ -45,24 +45,24 @@ public class ComparePanelTableModel extends DefaultTableModel {
      */
     public ComparePanelTableModel(Map<String, Long[]> dataMap, List<AbstractExperiment> experiments) {
         this.dataMap = dataMap;
-     	this.descriptions = new ArrayList<String>(dataMap.keySet());
+        descriptions = new ArrayList<String>(dataMap.keySet());
         this.experiments = experiments;
     }
     
 	@Override
     public int getRowCount() {
-        if (dataMap == null || dataMap.size() == 0) {
+        if (this.dataMap == null || this.dataMap.size() == 0) {
             return 0;
         }
-        return descriptions.size();
+        return this.descriptions.size();
     }
 
     @Override
     public int getColumnCount() {
-        if (experiments == null) {
+        if (this.experiments == null) {
             return 0;
         }
-        return experiments.size() + 1;
+        return this.experiments.size() + 1;
     }
 
     @Override
@@ -71,15 +71,15 @@ public class ComparePanelTableModel extends DefaultTableModel {
 		if (column == 0)
 			return "Description";
 		else
-			return experiments.get(column - 1).getTitle();
+			return this.experiments.get(column - 1).getTitle();
 	}
 
 	@Override
 	public Object getValueAt(int row, int column) {
 		if (column == 0) {
-			return descriptions.get(row);
+			return this.descriptions.get(row);
 		} else if (column >= 1) {
-			Long[] values = dataMap.get(descriptions.get(row));
+			Long[] values = this.dataMap.get(this.descriptions.get(row));
 			return values[column - 1];
 		} 
 		return 0L;

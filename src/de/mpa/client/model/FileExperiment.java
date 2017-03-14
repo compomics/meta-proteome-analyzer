@@ -68,9 +68,9 @@ public class FileExperiment extends AbstractExperiment {
 	 */
 	public void setResultFile(File resultFile) {
 		this.resultFile = resultFile;
-		if ((this.getTitle() == null) && (resultFile != null)) {
+		if ((getTitle() == null) && (resultFile != null)) {
 			String filename = resultFile.getName();
-			this.setTitle(filename.substring(0, filename.lastIndexOf('.')));
+            setTitle(filename.substring(0, filename.lastIndexOf('.')));
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class FileExperiment extends AbstractExperiment {
 	 * @return the spectrum file
 	 */
 	public File getSpectrumFile() {
-		return spectrumFile;
+		return this.spectrumFile;
 	}
 	
 	/**
@@ -92,20 +92,20 @@ public class FileExperiment extends AbstractExperiment {
 	
 	@Override
 	public boolean hasSearchResult() {
-		return (resultFile != null) && resultFile.exists();
+		return (this.resultFile != null) && this.resultFile.exists();
 	}
 
 	@Override
 	public DbSearchResult getSearchResult() {
-		if (searchResult == null) {
+		if (this.searchResult == null) {
 			Client client = Client.getInstance();
 			client.firePropertyChange("new message", null, "READING RESULTS FILE");
 			client.firePropertyChange("resetall", 0L, 100L);
 			client.firePropertyChange("indeterminate", false, true);
 			
 			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
-					new GZIPInputStream(new FileInputStream(resultFile))))) {
-				searchResult = (DbSearchResult) ois.readObject();
+					new GZIPInputStream(new FileInputStream(this.resultFile))))) {
+                this.searchResult = (DbSearchResult) ois.readObject();
 				
 				ClientFrame.getInstance().getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
@@ -118,7 +118,7 @@ public class FileExperiment extends AbstractExperiment {
 			}
 			client.firePropertyChange("indeterminate", true, false);
 		}
-		return searchResult;
+		return this.searchResult;
 	}
 	
 	@Override
@@ -129,15 +129,15 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.setTitle(title);
-			this.setCreationDate(new Date());
-			this.getProperties().putAll(properties);
+            setTitle(title);
+            setCreationDate(new Date());
+            getProperties().putAll(properties);
 			
-			AbstractProject project = this.getProject();
+			AbstractProject project = getProject();
 			List<AbstractExperiment> experiments = project.getExperiments();
 			experiments.add(this);
-		
-			this.serialize();
+
+            serialize();
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -147,11 +147,11 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void update(String title, Map<String, String> properties, Object... params) {
 		try {
-			this.setTitle(title);
-			this.getProperties().clear();
-			this.getProperties().putAll(properties);
-		
-			this.serialize();
+            setTitle(title);
+            getProperties().clear();
+            getProperties().putAll(properties);
+
+            serialize();
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -161,11 +161,11 @@ public class FileExperiment extends AbstractExperiment {
 	@Override
 	public void delete() {
 		try {
-			AbstractProject project = this.getProject();
+			AbstractProject project = getProject();
 			List<AbstractExperiment> experiments = project.getExperiments();
 			experiments.remove(this);
-			
-			this.serialize();
+
+            serialize();
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));

@@ -26,7 +26,7 @@ public class MultiPlotPanel extends JPanel {
 	private int k;
 	
 	// flag to determine whether upper and lower part should be normalized separately
-	private boolean normalizeSeparately = false;
+	private boolean normalizeSeparately;
 
 	// padding
 	private int padX = 5, padY = 5;
@@ -36,42 +36,42 @@ public class MultiPlotPanel extends JPanel {
 	private ArrayList<Color> lineColors;
 	
 	public MultiPlotPanel() {
-		initComponents();
+        this.initComponents();
 	}
 	
 	private void initComponents() {
 		// generate default colors
-		lineColors = new ArrayList<Color>();
-		lineColors.add(Color.RED);
-		lineColors.add(Color.BLUE);
+        this.lineColors = new ArrayList<Color>();
+        this.lineColors.add(Color.RED);
+        this.lineColors.add(Color.BLUE);
 		
 		// generate context menu
-		final JPopupMenu mPlotPopup = new JPopupMenu();
-		final JCheckBoxMenuItem normSepItem = new JCheckBoxMenuItem("Normalize separately", false);
+		JPopupMenu mPlotPopup = new JPopupMenu();
+		JCheckBoxMenuItem normSepItem = new JCheckBoxMenuItem("Normalize separately", false);
 		normSepItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				repaint(normSepItem.getState());
+                MultiPlotPanel.this.repaint(normSepItem.getState());
 			}
 		});
-		final JCheckBoxMenuItem highlightItem = new JCheckBoxMenuItem("Highlight only " + Math.abs(k) + " most intensive peaks", true);
+		JCheckBoxMenuItem highlightItem = new JCheckBoxMenuItem("Highlight only " + Math.abs(this.k) + " most intensive peaks", true);
 		highlightItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				k = -k;
-				repaint();
+                MultiPlotPanel.this.k = -MultiPlotPanel.this.k;
+                MultiPlotPanel.this.repaint();
 			}
 		});
 	    mPlotPopup.add(normSepItem);
 	    mPlotPopup.add(highlightItem);
-	    
-		this.addMouseListener(new MouseAdapter() {
+
+        addMouseListener(new MouseAdapter() {
 		    public void mousePressed(MouseEvent e) {
-		        maybeShowPopup(e);
+                this.maybeShowPopup(e);
 		    }
 
 		    public void mouseReleased(MouseEvent e) {
-		        maybeShowPopup(e);
+                this.maybeShowPopup(e);
 		    }
 			private void maybeShowPopup(MouseEvent e) {
 		        if (e.isPopupTrigger()) {
@@ -83,71 +83,71 @@ public class MultiPlotPanel extends JPanel {
 	}
 
 	public ArrayList<MascotGenericFile> getSpectra() {
-		return spectra;
+		return this.spectra;
 	}
 	public void setSpectra(ArrayList<MascotGenericFile> spectra) {
 		this.spectra = spectra;
 	}
 
 	public int getK() {
-		return k;
+		return this.k;
 	}
 	public void setK(int k) {
 		this.k = k;
 	}
 
 	public boolean isNormalizedSeparately() {
-		return normalizeSeparately;
+		return this.normalizeSeparately;
 	}
 
 	public int getPadX() {
-		return padX;
+		return this.padX;
 	}
 	public void setPadX(int padX) {
 		this.padX = padX;
 	}
 
 	public int getPadY() {
-		return padY;
+		return this.padY;
 	}
 	public void setPadY(int padY) {
 		this.padY = padY;
 	}
 
 	public Color getBgColor() {
-		return bgColor;
+		return this.bgColor;
 	}
 	public void setBgColor(Color bgColor) {
 		this.bgColor = bgColor;
 	}
 
 	public ArrayList<Color> getLineColors() {
-		return lineColors;
+		return this.lineColors;
 	}
 	public void setLineColors(ArrayList<Color> lineColors) {
 		this.lineColors = lineColors;
 	}
 	
 	public void setFirstSpectrum(MascotGenericFile spec) {
-		if (this.spectra != null) {
-			this.spectra.set(0, spec);
+		if (spectra != null) {
+            spectra.set(0, spec);
 		} else {
-			this.spectra = new ArrayList<MascotGenericFile>();
-			this.spectra.add(spec);
+            spectra = new ArrayList<MascotGenericFile>();
+            spectra.add(spec);
 		}
 	}
 	
 	public void setSecondSpectrum(MascotGenericFile spec) {
-		if (this.spectra != null) {
-			if (this.spectra.size() >= 2) {
-				this.spectra.set(1, spec);
+		if (spectra != null) {
+			if (spectra.size() >= 2) {
+                spectra.set(1, spec);
 			} else {
-				this.spectra.add(spec);
+                spectra.add(spec);
 			}
 		} else {
-			this.spectra = new ArrayList<MascotGenericFile>();
-			this.spectra.add(null);
-			this.spectra.add(spec);
+            spectra = new ArrayList<MascotGenericFile>();
+            spectra.add(null);
+            spectra.add(spec);
 		}
 	}
 	
@@ -157,7 +157,7 @@ public class MultiPlotPanel extends JPanel {
 	 */
 	public void repaint(boolean normalizeSeparately) {
 		this.normalizeSeparately = normalizeSeparately;
-		repaint();
+        this.repaint();
 	}
 
 	@Override
@@ -165,14 +165,14 @@ public class MultiPlotPanel extends JPanel {
 	{
 		super.paintComponent( g );
 
-		g.setColor(bgColor);
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		g.setColor(this.bgColor);
+		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		// determine axis limits
 		double minX = Double.MAX_VALUE, maxX = 0, maxY = 0;
 		int k = this.k;
-		if (this.spectra != null) {
-			for (MascotGenericFile spectrum : this.spectra) {
+		if (spectra != null) {
+			for (MascotGenericFile spectrum : spectra) {
 				if (spectrum != null) {
 //					ArrayList<Peak> peaks = spectrum.getPeakList();
 					TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(spectrum.getPeaks());
@@ -185,7 +185,7 @@ public class MultiPlotPanel extends JPanel {
 //					maxX = Math.max(maxX, peaks.get(peaks.size()-1).getMz());
 					minX = Math.min(minX, peaks.firstKey());
 					maxX = Math.max(maxX, peaks.lastKey());
-					if (!normalizeSeparately) {
+					if (!this.normalizeSeparately) {
 						maxY = Math.max(maxY, spectrum.getHighestIntensity());
 					}
 				}
@@ -193,11 +193,11 @@ public class MultiPlotPanel extends JPanel {
 		}
 
 		// plot spectra
-		if (this.spectra != null) {
+		if (spectra != null) {
 			int i = 0;
-			for (MascotGenericFile spectrum : this.spectra) {
-				if ((spectrum != null) && (lineColors.get(i) != null)) {
-					if (normalizeSeparately) {
+			for (MascotGenericFile spectrum : spectra) {
+				if ((spectrum != null) && (this.lineColors.get(i) != null)) {
+					if (this.normalizeSeparately) {
 						maxY = spectrum.getHighestIntensity();
 					}
 //					ArrayList<Peak> peaks = spectrum.getPeakList();
@@ -217,30 +217,30 @@ public class MultiPlotPanel extends JPanel {
 							continue;
 						}
 						// highlight k highest peaks by brightening all others
-						g.setColor(new Color((lineColors.get(i).getRed()  +7*255)/8,
-								 (lineColors.get(i).getGreen()+7*255)/8,
-								 (lineColors.get(i).getBlue() +7*255)/8));
+						g.setColor(new Color((this.lineColors.get(i).getRed()  +7*255)/8,
+								 (this.lineColors.get(i).getGreen()+7*255)/8,
+								 (this.lineColors.get(i).getBlue() +7*255)/8));
 //						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 //									    (getHeight()/2),
 //								   (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 //								   (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
-						g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-							    		(getHeight()/2),
-							       (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-							       (int)(getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(getHeight()/2-padY)));
+						g.drawLine((int)((mz-minX)/(maxX-minX)*(this.getWidth()-2* this.padX)+ this.padX),
+							    		(this.getHeight()/2),
+							       (int)((mz-minX)/(maxX-minX)*(this.getWidth()-2* this.padX)+ this.padX),
+							       (int)(this.getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(this.getHeight()/2- this.padY)));
 					}
 //					for (Peak peak : hPeak) {
 					for (Double mz : hPeaks.keySet()) {
 						// plot highlighted peaks on top of other peaks
-						g.setColor(lineColors.get(i));
+						g.setColor(this.lineColors.get(i));
 //						g.drawLine((int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 //							    	    (getHeight()/2),
 //							       (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
 //							       (int)(getHeight()/2+((i%2)*2-1)*peak.getIntensity()/maxY*(getHeight()/2-padY)));
-						g.drawLine((int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-					    	    		(getHeight()/2),
-					    	       (int)((mz-minX)/(maxX-minX)*(getWidth()-2*padX)+padX),
-					    	       (int)(getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(getHeight()/2-padY)));
+						g.drawLine((int)((mz-minX)/(maxX-minX)*(this.getWidth()-2* this.padX)+ this.padX),
+					    	    		(this.getHeight()/2),
+					    	       (int)((mz-minX)/(maxX-minX)*(this.getWidth()-2* this.padX)+ this.padX),
+					    	       (int)(this.getHeight()/2+((i%2)*2-1)*peaks.get(mz)/maxY*(this.getHeight()/2- this.padY)));
 					}
 				}
 				i++;

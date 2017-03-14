@@ -32,7 +32,7 @@ public class QueryHandler {
 	 * @throws IOException Exception thrown if importing does not work.
 	 * @throws ClassNotFoundException Exception thrwon if the class is not found.
 	 */
-	public static UserQueries importUserQueries(File queryFile) throws IOException, ClassNotFoundException, EOFException {
+	public static UserQueries importUserQueries(File queryFile) {
 		XStream xstream = new XStream();
 		UserQueries userQueries = (UserQueries) xstream.fromXML(queryFile);
 		return userQueries;

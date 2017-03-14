@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface Vectorization {
 	
-	public abstract Map<Double, Double> vectorize(Map<Double, Double> input, Transformation trafo);
+	Map<Double, Double> vectorize(Map<Double, Double> input, Transformation trafo);
 	
-	public abstract void cleanup();
+	void cleanup();
 }

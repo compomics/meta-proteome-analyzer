@@ -14,22 +14,22 @@ public class CypherMatch {
 	/**
 	 * The node identifier.
 	 */
-	private String nodeId;
+	private final String nodeId;
 	
 	/**
 	 * The relation type.
 	 */
-	private RelationType relation;
+	private final RelationType relation;
 	
 	/**
 	 * The relation identifier.
 	 */
-	private String relationId;
+	private final String relationId;
 	
 	/**
 	 * The direction of the relation.
 	 */
-	private DirectionType direction;
+	private final DirectionType direction;
 
 	/**
 	 * Constructs a Cypher match from the specified target node, relation and direction parameters.
@@ -50,7 +50,7 @@ public class CypherMatch {
 	 * @return the node identifier
 	 */
 	public String getNodeIdentifier() {
-		return nodeId;
+		return this.nodeId;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class CypherMatch {
 	 * @return the relation identifier
 	 */
 	public String getRelationIdentifier() {
-		return relationId;
+		return this.relationId;
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class CypherMatch {
 	 * @return the relation
 	 */
 	public RelationType getRelation() {
-		return relation;
+		return this.relation;
 	}
 
 	/**
@@ -74,17 +74,17 @@ public class CypherMatch {
 	 * @return the direction
 	 */
 	public DirectionType getDirection() {
-		return direction;
+		return this.direction;
 	}
 
 	@Override
 	public String toString() {
-		String match = "(" + getNodeIdentifier() + ")";
-		if (relation != null) {
-			match += direction.getLeft() + "[" + relationId + ":" + relation + "]" + direction.getRight();
+		String match = "(" + this.getNodeIdentifier() + ")";
+		if (this.relation != null) {
+			match += this.direction.getLeft() + "[" + this.relationId + ":" + this.relation + "]" + this.direction.getRight();
 		} else {
-			if (direction != null) {
-				match += direction.getLeft() + direction.getRight();
+			if (this.direction != null) {
+				match += this.direction.getLeft() + this.direction.getRight();
 			}
 		}
 		return match;

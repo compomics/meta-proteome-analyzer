@@ -18,12 +18,12 @@ public class SpecSimStorager extends BasicStorager {
 	/**
 	 * The database connection instance.
 	 */
-	private Connection conn;
+	private final Connection conn;
 	
 	/**
 	 * The list of SSMs to store.
 	 */
-	private List<SpectrumSpectrumMatch> results;
+	private final List<SpectrumSpectrumMatch> results;
 
 	/**
 	 * Constructs a storager instance with the specified database connection and
@@ -48,7 +48,7 @@ public class SpecSimStorager extends BasicStorager {
 //				conn.commit();
 //			}
 //		}
-		SpecSearchHit.batchPersist(results, 10000, conn);
+		SpecSearchHit.batchPersist(this.results, 10000, this.conn);
 	}
 
 }

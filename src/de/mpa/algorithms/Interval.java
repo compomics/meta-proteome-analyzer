@@ -55,8 +55,8 @@ public class Interval {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean contains(double value, boolean leftInclusive, boolean rightInclusive) {
-		boolean res = (leftInclusive) ? (value >= leftBorder) : (value > leftBorder);
-		return res & ((rightInclusive) ? (value <= rightBorder) : (value < rightBorder));
+		boolean res = (leftInclusive) ? (value >= this.leftBorder) : (value > this.leftBorder);
+		return res & ((rightInclusive) ? (value <= this.rightBorder) : (value < this.rightBorder));
 	}
 	
 	/**
@@ -66,7 +66,7 @@ public class Interval {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean containsExclusive(double value) {
-		return contains(value, false, false);
+		return this.contains(value, false, false);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class Interval {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean containsInclusive(double value) {
-		return contains(value, true, true);
+		return this.contains(value, true, true);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class Interval {
 	 * @return The interval's width.
 	 */
 	public double getWidth() {
-		return rightBorder - leftBorder;
+		return this.rightBorder - this.leftBorder;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class Interval {
 	 * @return The interval's lower boundary.
 	 */
 	public double getLeftBorder() {
-		return leftBorder;
+		return this.leftBorder;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class Interval {
 	 * @return The interval's upper boundary.
 	 */
 	public double getRightBorder() {
-		return rightBorder;
+		return this.rightBorder;
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class Interval {
 	 * @return The interval's user Object.
 	 */
 	public Object getUserObject() {
-		return userObject;
+		return this.userObject;
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class Interval {
 	
 	@Override
 	public String toString() {
-		return "[" + leftBorder + ", " + rightBorder + "]";
+		return "[" + this.leftBorder + ", " + this.rightBorder + "]";
 	}
 
 }

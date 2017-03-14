@@ -25,7 +25,7 @@ public class Message {
 	protected String description;
 	
 	// When was the message sent 
-	private Date dateSent;
+	private final Date dateSent;
 	
 	/**
 	 * Convenience constructor. 
@@ -41,9 +41,9 @@ public class Message {
 	 * @param dateSent
 	 */
 	public Message(Job job, Date dateSent) {
-		this.status = job.getStatus();
-		this.description = job.getDescription();
-		this.error = job.getError();
+        status = job.getStatus();
+        description = job.getDescription();
+        error = job.getError();
 		this.dateSent = dateSent;
 	}
 		
@@ -52,7 +52,7 @@ public class Message {
 	 * @return
 	 */
 	public Date getDateSent() {
-		return dateSent;
+		return this.dateSent;
 	}
 	
 	/**
@@ -60,7 +60,7 @@ public class Message {
 	 * @return The error message.
 	 */
 	public String getError() {
-		return error;
+		return this.error;
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class Message {
 	 * @return The job status.
 	 */
 	public JobStatus getStatus() {
-		return status;
+		return this.status;
 	}
 	
 	/**
@@ -76,6 +76,6 @@ public class Message {
 	 * @return The job description.
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}	
 }

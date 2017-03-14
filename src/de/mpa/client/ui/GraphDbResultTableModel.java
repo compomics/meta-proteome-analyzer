@@ -14,9 +14,9 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 		/**
 		 * List of the column identifiers.
 		 */
-		private List<String> columnNames = new ArrayList<String>();;
-		
-		/**
+		private final List<String> columnNames = new ArrayList<String>();
+
+    /**
 		 * Table columns row count.
 		 */
 		private int rowCount;
@@ -37,7 +37,7 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 	     * Constructor which sets a new table model for the graph database result.
 	     */
 	    public GraphDbResultTableModel(Iterator<Object> resultObjects) {
-	        setUpTableModel(resultObjects);
+            this.setUpTableModel(resultObjects);
 	    }
 
 	    /**
@@ -46,8 +46,8 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 	     * @param result ExecutionResult
 	     */
 	    public void updateDataModel(Iterator<Object> resultObjects) {
-	        setUpTableModel(resultObjects);
-	        fireTableStructureChanged();
+            this.setUpTableModel(resultObjects);
+            this.fireTableStructureChanged();
 	        //fireTableDataChanged();
 	    }
 
@@ -57,20 +57,20 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 	     * @param result ExecutionResult result
 	     */
 	    private void setUpTableModel(Iterator<Object> resultObjects) {
-			rowCount = 0;
-			firstNodes = new ArrayList<Node>();
+            this.rowCount = 0;
+            this.firstNodes = new ArrayList<Node>();
 	        while (resultObjects.hasNext()) {
-	            final Object value = resultObjects.next();
+	            Object value = resultObjects.next();
 	            if (value instanceof Node) {
 	                Node n = (Node) value;
-	                firstNodes.add(n);
-	                rowCount++;
+                    this.firstNodes.add(n);
+                    this.rowCount++;
 	                Iterator<String> iter = n.getPropertyKeys().iterator();
 	                while(iter.hasNext()) {
 	                	String propertyKey = iter.next();
 	                	// Add only if column name is not already in the list.
-	                	if(!columnNames.contains(propertyKey)){
-	                		columnNames.add(propertyKey);
+	                	if(!this.columnNames.contains(propertyKey)){
+                            this.columnNames.add(propertyKey);
 	                	}
 	                }
 	            }
@@ -79,7 +79,7 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 
 	    @Override
 	    public int getRowCount() {
-	    	return rowCount;
+	    	return this.rowCount;
 	    }
 
 	    @Override
@@ -93,8 +93,8 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 	            return "";
 	        } else if (column == 1) {
 	            return "#";
-	        } else if (column > 1 && column - 2 < columnNames.size()) {
-	            return columnNames.get(column - 2);
+	        } else if (column > 1 && column - 2 < this.columnNames.size()) {
+	            return this.columnNames.get(column - 2);
 	        } else {
 	            return "";
 	        }
@@ -106,10 +106,10 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 	    		return true;
 	    	} else if (column == 1) {
                 return row + 1;
-            } else if (column > 1 && column - 2 < columnNames.size()) {
-            	Node node = firstNodes.get(row);
+            } else if (column > 1 && column - 2 < this.columnNames.size()) {
+            	Node node = this.firstNodes.get(row);
             	
-            	String propertyKey = columnNames.get(column);
+            	String propertyKey = this.columnNames.get(column);
 				if(node.hasProperty(propertyKey)) {
             		return node.getProperty(propertyKey);
             	} 
@@ -121,9 +121,9 @@ public class GraphDbResultTableModel extends DefaultTableModel {
 
 	    @Override
 	    public Class<?> getColumnClass(int columnIndex) {
-	        for (int i = 0; i < getRowCount(); i++) {
-	            if (getValueAt(i, columnIndex) != null) {
-	                return getValueAt(i, columnIndex).getClass();
+	        for (int i = 0; i < this.getRowCount(); i++) {
+	            if (this.getValueAt(i, columnIndex) != null) {
+	                return this.getValueAt(i, columnIndex).getClass();
 	            }
 	        }
 	        return String.class;

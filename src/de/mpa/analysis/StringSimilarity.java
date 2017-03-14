@@ -26,7 +26,7 @@ public class StringSimilarity {
 			if (peptide1.split("(?<=[RK])(?=[^P])").length <2) {
 				for (String peptide2 : pepSeqsB) {
 					if (peptide2.split("(?<=[RK])(?=[^P])").length <2) {
-						int levDistance = StringSimilarity.calculateLevenshteinDistance(peptide1, peptide2);
+						int levDistance = calculateLevenshteinDistance(peptide1, peptide2);
 						if(( levDistance > 0) && (levDistance <= threshold)){return true;}
 					}
 				}

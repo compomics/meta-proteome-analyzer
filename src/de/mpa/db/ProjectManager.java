@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
@@ -24,7 +23,7 @@ import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.model.DatabaseExperiment;
 import de.mpa.client.model.DatabaseProject;
-import de.mpa.client.ui.dialogs.GeneralDialog.Operation;
+import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.db.accessor.ExpProperty;
 import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.ProjectAccessor;
@@ -54,7 +53,7 @@ public class ProjectManager {
 	 * @param conn Database connection.
 	 */
 	private ProjectManager(Connection conn) {
-		this.updateConnection(conn);
+        updateConnection(conn);
 	}
 	
 	/**
@@ -72,7 +71,7 @@ public class ProjectManager {
 			// do nothing
 			e.printStackTrace();
 		}
-		return getInstance(conn);
+		return ProjectManager.getInstance(conn);
 	}
 
 	/**
@@ -83,12 +82,12 @@ public class ProjectManager {
 	 * @return
 	 */
 	public static ProjectManager getInstance(Connection conn) {
-		if (instance == null) {
-			instance = new ProjectManager(conn);
+		if (ProjectManager.instance == null) {
+            ProjectManager.instance = new ProjectManager(conn);
 		} else {
-			instance.updateConnection(conn);
+            ProjectManager.instance.updateConnection(conn);
 		}
-		return instance;
+		return ProjectManager.instance;
 	}
 	
 	/**
@@ -98,7 +97,7 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public boolean isConnected() throws SQLException {
-		return (conn != null) && conn.isValid(0);
+		return (this.conn != null) && this.conn.isValid(0);
 	}
 
 	/**
@@ -126,8 +125,8 @@ public class ProjectManager {
 		HashMap<Object, Object> data = new HashMap<Object, Object>(4);
 		data.put(ProjectAccessor.TITLE, title);
 		ProjectAccessor projectAcc = new ProjectAccessor(data);
-		projectAcc.persist(conn);
-		conn.commit();
+		projectAcc.persist(this.conn);
+        this.conn.commit();
 		return projectAcc;
 	}
 	
@@ -139,11 +138,11 @@ public class ProjectManager {
 	 * @throws SQLException if a database error occurs
 	 */
 	public void modifyProjectName(long projectId, String projectName) throws SQLException {
-		ProjectAccessor tempProject = ProjectAccessor.findFromProjectID(projectId, conn);
+		ProjectAccessor tempProject = ProjectAccessor.findFromProjectID(projectId, this.conn);
 		tempProject.setTitle(projectName);
 		tempProject.setModificationdate(new Timestamp((new Date()).getTime()));
-		tempProject.update(conn);
-		conn.commit();
+		tempProject.update(this.conn);
+        this.conn.commit();
 	}
 
 	/**
@@ -155,15 +154,15 @@ public class ProjectManager {
 	 */
 	public void addProjectProperties(Long projectId, Map<String, String> properties) throws SQLException {
 		// Iterate the given project properties and add them to the database.
-		for(Entry<String, String> entry : properties.entrySet()){
+		for(Map.Entry<String, String> entry : properties.entrySet()){
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(Property.FK_PROJECTID, projectId);
 			data.put(Property.NAME, entry.getKey());
 			data.put(Property.VALUE, entry.getValue());
 			Property projProperty = new Property(data);
-			projProperty.persist(conn);
+			projProperty.persist(this.conn);
 		}
-		conn.commit();
+        this.conn.commit();
 	}
 
 	/**
@@ -176,12 +175,12 @@ public class ProjectManager {
 	 */
 	public void modifyProjectProperties(Long projectId,
 			Map<String, String> newProperties,
-			List<Operation> operations) throws SQLException {
-		
+			List<GeneralDialog.Operation> operations) throws SQLException {
+
 		List<Property> properties = Property.findAllPropertiesOfProject(projectId, conn);
-		
+
 		int i = 0;
-		for (Entry<String, String> newProperty : newProperties.entrySet()) {
+		for (Map.Entry<String, String> newProperty : newProperties.entrySet()) {
 			switch (operations.get(i)) {
 			case NONE:
 				break;
@@ -202,7 +201,7 @@ public class ProjectManager {
 			i++;
 		}
 		for (int j = i; j < operations.size(); j++) {
-			if (operations.get(j) == Operation.DELETE) {
+			if (operations.get(j) == GeneralDialog.Operation.DELETE) {
 				properties.get(j).delete(conn);
 			}
 		}
@@ -218,12 +217,12 @@ public class ProjectManager {
 	public void deleteProject(Long projectId) throws SQLException {
 		ProjectAccessor project = ProjectAccessor.findFromProjectID(projectId, conn);
 		List<ExperimentAccessor> experimentList =  ExperimentAccessor.findAllExperimentsOfProject(projectId, conn);
-		
+
 		// Delete all experiment
 		for (int i = 0; i < experimentList.size(); i++) {
 			this.deleteExperiment(experimentList.get(i).getExperimentid());
 		}
-		
+
 		// Delete all project properties
 		List<Property> projectPropertyList = Property.findAllPropertiesOfProject(projectId, conn);
 		for (Property property : projectPropertyList) {
@@ -252,7 +251,7 @@ public class ProjectManager {
 		conn.commit();
 		return experimentAcc;
 	}
-	
+
 	/**
 	 * Changes the title of an experiment associated with the specified database
 	 * id to the specified string.
@@ -279,7 +278,7 @@ public class ProjectManager {
 	 */
 	public void addExperimentProperties(Long experimentId, Map<String, String> expProperties) throws SQLException {
 		// iterate properties and store them
-		for (@SuppressWarnings("rawtypes") Entry entry : expProperties.entrySet()) {
+		for (@SuppressWarnings("rawtypes") Map.Entry entry : expProperties.entrySet()) {
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(ExpProperty.FK_EXPERIMENTID, experimentId);
 			data.put(ExpProperty.NAME, entry.getKey());
@@ -299,13 +298,13 @@ public class ProjectManager {
 	 */
 	public void modifyExperimentProperties(Long experimentId,
 			Map<String, String> newProperties,
-			List<Operation> operations) throws SQLException {
-		
+			List<GeneralDialog.Operation> operations) throws SQLException {
+
 		List<ExpProperty> expProperties = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
-		
+
 		// iterate properties
 		int i = 0;
-		for (Entry<String, String> newProperty : newProperties.entrySet()) {
+		for (Map.Entry<String, String> newProperty : newProperties.entrySet()) {
 			// determine operation
 			switch (operations.get(i)) {
 			case NONE:
@@ -332,11 +331,11 @@ public class ProjectManager {
 		}
 		// iterate remaining operations (usually deletes)
 		for (int j = i; j < operations.size(); j++) {
-			if (operations.get(j) == Operation.DELETE) {
-				expProperties.get(j).delete(conn);
+			if (operations.get(j) == GeneralDialog.Operation.DELETE) {
+				expProperties.get(j).delete(this.conn);
 			}
 		}
-		conn.commit();
+        this.conn.commit();
 	}
 	
 	/**
@@ -349,8 +348,8 @@ public class ProjectManager {
 	public void deleteExperiment(Long experimentId) throws SQLException {
 				
 		Client client = Client.getInstance();
-		conn.setAutoCommit(false);
-		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, conn);
+        this.conn.setAutoCommit(false);
+		ExperimentAccessor experiment = ExperimentAccessor.findExperimentByID(experimentId, this.conn);
 		
 		// TODO: client property change isn't working properly, likely due to messy initialization
 		client.firePropertyChange("indeterminate", false, true);
@@ -360,10 +359,10 @@ public class ProjectManager {
 		client.firePropertyChange("resetcur", 0L, 7);
 		
 		// delete all properties of the experiment
-		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, conn);
+		List<ExpProperty> expPropList = ExpProperty.findAllPropertiesOfExperiment(experimentId, this.conn);
 		for (ExpProperty expProperty : expPropList) {
-			expProperty.delete(conn);
-			conn.commit();
+			expProperty.delete(this.conn);
+            this.conn.commit();
 		}
 		
 		
@@ -371,12 +370,12 @@ public class ProjectManager {
 		client.firePropertyChange("progressmade", true, false);
 		
 		// delete mascothits
-		Statement stmt = conn.createStatement();
+		Statement stmt = this.conn.createStatement();
 		stmt.executeUpdate("DELETE m.* " +
 				  "FROM mascothit m, searchspectrum s " +
 				  "WHERE m.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = "+ experimentId);
-		conn.commit();
+        this.conn.commit();
 		
 		client.firePropertyChange("new message", null, "DELETE OMSSAHITS");
 		client.firePropertyChange("progressmade", true, false);
@@ -386,7 +385,7 @@ public class ProjectManager {
 				  "FROM omssahit o, searchspectrum s " +
 				  "WHERE o.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = " + experimentId);
-		conn.commit();
+        this.conn.commit();
 
 		client.firePropertyChange("new message", null, "DELETE XTANDEMHITS");
 		client.firePropertyChange("progressmade", true, false);
@@ -396,7 +395,7 @@ public class ProjectManager {
 				  "FROM xtandemhit x, searchspectrum s " +
 				  "WHERE x.fk_searchspectrumid = s.searchspectrumid " +
 				  "AND s.fk_experimentid = " + experimentId);
-		conn.commit();
+        this.conn.commit();
 		
 		client.firePropertyChange("new message", null, "DELETE REFERENCES");
 		client.firePropertyChange("progressmade", true, false);
@@ -411,7 +410,7 @@ public class ProjectManager {
     	// delete searchspectra     	
 		stmt.executeUpdate("DELETE FROM searchspectrum " +
 				  			"WHERE searchspectrum.fk_experimentid = " + experimentId);
-		conn.commit();
+        this.conn.commit();
 		
 		client.firePropertyChange("progressmade", true, false);
 		
@@ -423,12 +422,12 @@ public class ProjectManager {
 							"INNER JOIN spec2pep ON spec2pep.fk_spectrumid = spectrum.spectrumid " +
 							"WHERE spectrum.spectrumid NOT IN " +
 							"(SELECT searchspectrum.fk_spectrumid FROM searchspectrum)");
-		conn.commit();
+        this.conn.commit();
 		client.firePropertyChange("progressmade", true, false);
 				
 		// delete the experiment itself
-		experiment.delete(conn);
-		conn.commit();
+		experiment.delete(this.conn);
+        this.conn.commit();
 		
 		client.firePropertyChange("progressmade", true, false);
 		client.firePropertyChange("new message", null, "FINISHED DELETING");
@@ -445,12 +444,12 @@ public class ProjectManager {
 	 */
 	
 	@SuppressWarnings("unused")
-	private void RemoveOrphanedSpectra(Client client) throws SQLException {		
-		conn.setAutoCommit(false);
+	private void RemoveOrphanedSpectra(Client client) throws SQLException {
+        this.conn.setAutoCommit(false);
 		// only the spectra with an associated searchspectrum should actually remain in the database
 		// get all spectrum ids in the searchspectrum table
 		Map<Long, Integer> used_spectra_ids = new TreeMap<Long, Integer>();			
-		PreparedStatement prs = conn.prepareStatement("SELECT ss.fk_spectrumid FROM searchspectrum ss");		
+		PreparedStatement prs = this.conn.prepareStatement("SELECT ss.fk_spectrumid FROM searchspectrum ss");
 		ResultSet aRS = prs.executeQuery();			
 		while (aRS.next()) {			
 			used_spectra_ids.put(aRS.getLong("fk_spectrumid"), 0);			
@@ -459,7 +458,7 @@ public class ProjectManager {
 		aRS.close();		
 
 		// get all spectrum ids from the spectrum table (these are the actual spectra)		
-		prs = conn.prepareStatement("SELECT s.spectrumid FROM spectrum s");		
+		prs = this.conn.prepareStatement("SELECT s.spectrumid FROM spectrum s");
 		aRS = prs.executeQuery();
 		List<Long> all_spectra_ids = new ArrayList<Long>();						
 		while (aRS.next()) {
@@ -481,23 +480,23 @@ public class ProjectManager {
 		}		
 		
 		// actual deletion
-		Statement stmt = conn.createStatement();
+		Statement stmt = this.conn.createStatement();
 		for (Long spectrum_id : orphaned_spectra) {
-			PreparedStatement prs2 = conn.prepareStatement("SELECT s.* FROM spectrum s WHERE s.spectrumid = ?");
+			PreparedStatement prs2 = this.conn.prepareStatement("SELECT s.* FROM spectrum s WHERE s.spectrumid = ?");
 			prs2.setLong(1, spectrum_id);
 			ResultSet aRS2 = prs2.executeQuery();			
 			while (aRS2.next())  {
 				SpectrumTableAccessor spectrum = new SpectrumTableAccessor(aRS2);
 				stmt.executeUpdate("DELETE sp.* " +
 						  "FROM spec2pep sp WHERE sp.fk_spectrumid = " + spectrum.getSpectrumid());
-				spectrum.delete(conn);
-				conn.commit();
+				spectrum.delete(this.conn);
+                this.conn.commit();
 				client.firePropertyChange("progressmade", true, false);
 			}
 			prs2.close();
 			aRS2.close();
 		}
-		conn.commit();		
+        this.conn.commit();
 	}
 	
 	
@@ -516,19 +515,19 @@ public class ProjectManager {
 			File projectsFile = Constants.getProjectsFile();
 			projects = (List<AbstractProject>) new XStream().fromXML(projectsFile);
 		} else {
-			List<ProjectAccessor> projectAccs = ProjectAccessor.findAllProjects(conn);
+			List<ProjectAccessor> projectAccs = ProjectAccessor.findAllProjects(this.conn);
 			for (ProjectAccessor projectAcc : projectAccs) {
-				List<Property> projProps = Property.findAllPropertiesOfProject(projectAcc.getProjectid(), conn);
+				List<Property> projProps = Property.findAllPropertiesOfProject(projectAcc.getProjectid(), this.conn);
 				
 				List<AbstractExperiment> experiments = new ArrayList<>();
 
 				AbstractProject project = new DatabaseProject(projectAcc, projProps, experiments);
 				List<ExperimentAccessor> experimentAccs =
-						ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), conn);
+						ExperimentAccessor.findAllExperimentsOfProject(projectAcc.getProjectid(), this.conn);
 				
 				for (ExperimentAccessor experimentAcc : experimentAccs) {
 					List<ExpProperty> expProps =
-							ExpProperty.findAllPropertiesOfExperiment(experimentAcc.getExperimentid(), conn);
+							ExpProperty.findAllPropertiesOfExperiment(experimentAcc.getExperimentid(), this.conn);
 					experiments.add(new DatabaseExperiment(experimentAcc, expProps, project));
 				}
 				

@@ -11,7 +11,7 @@ public interface ElementProperty {
 	/**
 	 * The generic identifier property.
 	 */
-	public static final ElementProperty IDENTIFIER = new ElementProperty() {
+    ElementProperty IDENTIFIER = new ElementProperty() {
 		@Override
 		public String toString() {
 			return "Identifier";
@@ -19,5 +19,5 @@ public interface ElementProperty {
 	};
 	
 	@Override
-	public String toString();
+    String toString();
 }

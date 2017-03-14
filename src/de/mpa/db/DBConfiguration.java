@@ -21,7 +21,7 @@ public class DBConfiguration {
 	/**
 	 * Connection settings.
 	 */
-	private ParameterMap connectionParams;
+	private final ParameterMap connectionParams;
 	
     /**
      * Constructor of the DatabaseStarter.
@@ -30,7 +30,7 @@ public class DBConfiguration {
      */
     public DBConfiguration(ParameterMap connectionParams) throws SQLException {
     	this.connectionParams = connectionParams;
-        this.initConnection();
+        initConnection();
     }
     
 	/**
@@ -43,17 +43,17 @@ public class DBConfiguration {
 			Class.forName("com.mysql.jdbc.Driver");
 
 			// Extract connection parameters
-			String dbAddress = (String) connectionParams.get("dbAddress").getValue();
-			Integer dbPort = (Integer) connectionParams.get("dbPort").getValue();
-			String dbName = (String) connectionParams.get("dbName").getValue();
-			String dbUser = (String) connectionParams.get("dbUsername").getValue();
-			String dbPass = (String) connectionParams.get("dbPass").getValue();
+			String dbAddress = (String) this.connectionParams.get("dbAddress").getValue();
+			Integer dbPort = (Integer) this.connectionParams.get("dbPort").getValue();
+			String dbName = (String) this.connectionParams.get("dbName").getValue();
+			String dbUser = (String) this.connectionParams.get("dbUsername").getValue();
+			String dbPass = (String) this.connectionParams.get("dbPass").getValue();
 			
 			// Establish connection to the DB
-			conn = DriverManager.getConnection("jdbc:mysql://" + dbAddress + ":" + dbPort + "/" + dbName, dbUser, dbPass);
+            this.conn = DriverManager.getConnection("jdbc:mysql://" + dbAddress + ":" + dbPort + "/" + dbName, dbUser, dbPass);
 			
 			// Set auto commit == FALSE --> Manual commit & rollback.
-			conn.setAutoCommit(false);
+            this.conn.setAutoCommit(false);
 			
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
@@ -66,6 +66,6 @@ public class DBConfiguration {
      * @throws SQLException 
      */
     public Connection getConnection() throws SQLException {
-        return conn;
+        return this.conn;
     }
 }

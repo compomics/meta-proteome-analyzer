@@ -21,7 +21,7 @@ public class PieToCategoryDataset extends AbstractDataset implements
 	/**
 	 * The source pie dataset.
 	 */
-	private PieDataset source;
+	private final PieDataset source;
 	
 	public PieToCategoryDataset(PieDataset source) {
 		this.source = source;
@@ -29,7 +29,7 @@ public class PieToCategoryDataset extends AbstractDataset implements
 	}
 	
 	public PieDataset getPieDataset() {
-		return this.source;
+		return source;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -47,31 +47,31 @@ public class PieToCategoryDataset extends AbstractDataset implements
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List getRowKeys() {
-		return Arrays.asList(new Comparable[] { "items" });
+		return Arrays.asList("items");
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Comparable getColumnKey(int column) {
-		return this.source.getKey(column);
+		return source.getKey(column);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public int getColumnIndex(Comparable key) {
-		return this.source.getIndex(key);
+		return source.getIndex(key);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List getColumnKeys() {
-		return this.source.getKeys();
+		return source.getKeys();
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Number getValue(Comparable rowKey, Comparable columnKey) {
-		return this.source.getValue(columnKey);
+		return source.getValue(columnKey);
 	}
 
 	@Override
@@ -81,12 +81,12 @@ public class PieToCategoryDataset extends AbstractDataset implements
 
 	@Override
 	public int getColumnCount() {
-		return this.source.getItemCount();
+		return source.getItemCount();
 	}
 
 	@Override
 	public Number getValue(int row, int column) {
-		return this.source.getValue(column);
+		return source.getValue(column);
 	}
 
 	/**
@@ -98,6 +98,6 @@ public class PieToCategoryDataset extends AbstractDataset implements
      */
 	@Override
     public void datasetChanged(DatasetChangeEvent event) {
-        fireDatasetChanged();
+        this.fireDatasetChanged();
     }
 }

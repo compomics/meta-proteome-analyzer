@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,12 +40,12 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'mascothitid' column.
@@ -79,31 +80,31 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	/**
 	 * This variable represents the contents for the 'ionscore' column.
 	 */
-	protected Number iIonscore = null;
+	protected Number iIonscore;
 
 
 	/**
 	 * This variable represents the contents for the 'evalue' column.
 	 */
-	protected Number iEvalue = null;
+	protected Number iEvalue;
 
 
 	/**
 	 * This variable represents the contents for the 'delta' column.
 	 */
-	protected Number iDelta = null;
+	protected Number iDelta;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -172,37 +173,37 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public MascothitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(MASCOTHITID)) {
-			this.iMascothitid = ((Long)aParams.get(MASCOTHITID)).longValue();
+		if(aParams.containsKey(MascothitTableAccessor.MASCOTHITID)) {
+            iMascothitid = ((Long)aParams.get(MascothitTableAccessor.MASCOTHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
-			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
+		if(aParams.containsKey(MascothitTableAccessor.FK_SEARCHSPECTRUMID)) {
+            iFk_searchspectrumid = ((Long)aParams.get(MascothitTableAccessor.FK_SEARCHSPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(FK_PEPTIDEID)) {
-			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
+		if(aParams.containsKey(MascothitTableAccessor.FK_PEPTIDEID)) {
+            iFk_peptideid = ((Long)aParams.get(MascothitTableAccessor.FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(FK_PROTEINID)) {
-			this.iFk_proteinid = ((Long)aParams.get(FK_PROTEINID)).longValue();
+		if(aParams.containsKey(MascothitTableAccessor.FK_PROTEINID)) {
+            iFk_proteinid = ((Long)aParams.get(MascothitTableAccessor.FK_PROTEINID)).longValue();
 		}
-		if(aParams.containsKey(CHARGE)) {
-			this.iCharge = ((Long)aParams.get(CHARGE)).longValue();
+		if(aParams.containsKey(MascothitTableAccessor.CHARGE)) {
+            iCharge = ((Long)aParams.get(MascothitTableAccessor.CHARGE)).longValue();
 		}
-		if(aParams.containsKey(IONSCORE)) {
-			this.iIonscore = (Number)aParams.get(IONSCORE);
+		if(aParams.containsKey(MascothitTableAccessor.IONSCORE)) {
+            iIonscore = (Number)aParams.get(MascothitTableAccessor.IONSCORE);
 		}
-		if(aParams.containsKey(EVALUE)) {
-			this.iEvalue = (Number)aParams.get(EVALUE);
+		if(aParams.containsKey(MascothitTableAccessor.EVALUE)) {
+            iEvalue = (Number)aParams.get(MascothitTableAccessor.EVALUE);
 		}
-		if(aParams.containsKey(DELTA)) {
-			this.iDelta = (Number)aParams.get(DELTA);
+		if(aParams.containsKey(MascothitTableAccessor.DELTA)) {
+            iDelta = (Number)aParams.get(MascothitTableAccessor.DELTA);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(MascothitTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(MascothitTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(MascothitTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(MascothitTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -214,17 +215,17 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public MascothitTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iMascothitid = aResultSet.getLong("mascothitid");
-		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
-		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
-		this.iCharge = aResultSet.getLong("charge");
-		this.iIonscore = (Number)aResultSet.getObject("ionscore");
-		this.iEvalue = (Number)aResultSet.getObject("evalue");
-		this.iDelta = (Number)aResultSet.getObject("delta");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
-		this.iUpdated = true;
+        iMascothitid = aResultSet.getLong("mascothitid");
+        iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
+        iFk_peptideid = aResultSet.getLong("fk_peptideid");
+        iFk_proteinid = aResultSet.getLong("fk_proteinid");
+        iCharge = aResultSet.getLong("charge");
+        iIonscore = (Number)aResultSet.getObject("ionscore");
+        iEvalue = (Number)aResultSet.getObject("evalue");
+        iDelta = (Number)aResultSet.getObject("delta");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
+        iUpdated = true;
 	}
 
 
@@ -234,7 +235,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	long	with the value for the Mascothitid column.
 	 */
 	public long getMascothitid() {
-		return this.iMascothitid;
+		return iMascothitid;
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
 	public long getFk_searchspectrumid() {
-		return this.iFk_searchspectrumid;
+		return iFk_searchspectrumid;
 	}
 
 	/**
@@ -252,7 +253,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	long	with the value for the Fk_peptideid column.
 	 */
 	public long getFk_peptideid() {
-		return this.iFk_peptideid;
+		return iFk_peptideid;
 	}
 
 	/**
@@ -261,7 +262,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	long	with the value for the Fk_proteinid column.
 	 */
 	public long getFk_proteinid() {
-		return this.iFk_proteinid;
+		return iFk_proteinid;
 	}
 
 	/**
@@ -270,7 +271,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	long	with the value for the Charge column.
 	 */
 	public long getCharge() {
-		return this.iCharge;
+		return iCharge;
 	}
 
 	/**
@@ -279,7 +280,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	Number	with the value for the Ionscore column.
 	 */
 	public Number getIonscore() {
-		return this.iIonscore;
+		return iIonscore;
 	}
 
 	/**
@@ -288,7 +289,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	Number	with the value for the Evalue column.
 	 */
 	public Number getEvalue() {
-		return this.iEvalue;
+		return iEvalue;
 	}
 
 	/**
@@ -297,7 +298,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	Number	with the value for the Delta column.
 	 */
 	public Number getDelta() {
-		return this.iDelta;
+		return iDelta;
 	}
 
 	/**
@@ -305,8 +306,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -314,8 +315,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -324,8 +325,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aMascothitid	long with the value for the Mascothitid column.
 	 */
 	public void setMascothitid(long aMascothitid) {
-		this.iMascothitid = aMascothitid;
-		this.iUpdated = true;
+        iMascothitid = aMascothitid;
+        iUpdated = true;
 	}
 
 	/**
@@ -334,8 +335,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
 	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
-		this.iFk_searchspectrumid = aFk_searchspectrumid;
-		this.iUpdated = true;
+        iFk_searchspectrumid = aFk_searchspectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -344,8 +345,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aFk_peptideid	long with the value for the Fk_peptideid column.
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
-		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
+        iFk_peptideid = aFk_peptideid;
+        iUpdated = true;
 	}
 
 	/**
@@ -354,8 +355,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aFk_proteinid	long with the value for the Fk_proteinid column.
 	 */
 	public void setFk_proteinid(long aFk_proteinid) {
-		this.iFk_proteinid = aFk_proteinid;
-		this.iUpdated = true;
+        iFk_proteinid = aFk_proteinid;
+        iUpdated = true;
 	}
 
 	/**
@@ -364,8 +365,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aCharge	long with the value for the Charge column.
 	 */
 	public void setCharge(long aCharge) {
-		this.iCharge = aCharge;
-		this.iUpdated = true;
+        iCharge = aCharge;
+        iUpdated = true;
 	}
 
 	/**
@@ -374,8 +375,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aIonscore	Number with the value for the Ionscore column.
 	 */
 	public void setIonscore(Number aIonscore) {
-		this.iIonscore = aIonscore;
-		this.iUpdated = true;
+        iIonscore = aIonscore;
+        iUpdated = true;
 	}
 
 	/**
@@ -384,8 +385,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aEvalue	Number with the value for the Evalue column.
 	 */
 	public void setEvalue(Number aEvalue) {
-		this.iEvalue = aEvalue;
-		this.iUpdated = true;
+        iEvalue = aEvalue;
+        iUpdated = true;
 	}
 
 	/**
@@ -394,8 +395,8 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param	aDelta	Number with the value for the Delta column.
 	 */
 	public void setDelta(Number aDelta) {
-		this.iDelta = aDelta;
-		this.iUpdated = true;
+        iDelta = aDelta;
+        iUpdated = true;
 	}
 
 	/**
@@ -403,9 +404,9 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -413,9 +414,9 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -428,7 +429,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM mascothit WHERE mascothitid = ?");
-		lStat.setLong(1, iMascothitid);
+		lStat.setLong(1, this.iMascothitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -443,28 +444,28 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(MASCOTHITID)) {
+		if(!aKeys.containsKey(MascothitTableAccessor.MASCOTHITID)) {
 			throw new IllegalArgumentException("Primary key field 'MASCOTHITID' is missing in HashMap!");
 		} else {
-			iMascothitid = ((Long)aKeys.get(MASCOTHITID)).longValue();
+            this.iMascothitid = ((Long)aKeys.get(MascothitTableAccessor.MASCOTHITID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM mascothit WHERE mascothitid = ?");
-		lStat.setLong(1, iMascothitid);
+		lStat.setLong(1, this.iMascothitid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iMascothitid = lRS.getLong("mascothitid");
-			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
-			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iFk_proteinid = lRS.getLong("fk_proteinid");
-			iCharge = lRS.getLong("charge");
-			iIonscore = (Number)lRS.getObject("ionscore");
-			iEvalue = (Number)lRS.getObject("evalue");
-			iDelta = (Number)lRS.getObject("delta");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iMascothitid = lRS.getLong("mascothitid");
+            this.iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
+            this.iFk_peptideid = lRS.getLong("fk_peptideid");
+            this.iFk_proteinid = lRS.getLong("fk_proteinid");
+            this.iCharge = lRS.getLong("charge");
+            this.iIonscore = (Number)lRS.getObject("ionscore");
+            this.iEvalue = (Number)lRS.getObject("evalue");
+            this.iDelta = (Number)lRS.getObject("delta");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -493,7 +494,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	public static ArrayList<MascothitTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<MascothitTableAccessor>  entities = new ArrayList<MascothitTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(MascothitTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new MascothitTableAccessor(rs));
 		}
@@ -511,23 +512,23 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE mascothit SET mascothitid = ?, fk_searchspectrumid = ?, fk_peptideid = ?, fk_proteinid = ?, charge = ?, ionscore = ?, evalue = ?, delta = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE mascothitid = ?");
-		lStat.setLong(1, iMascothitid);
-		lStat.setLong(2, iFk_searchspectrumid);
-		lStat.setLong(3, iFk_peptideid);
-		lStat.setLong(4, iFk_proteinid);
-		lStat.setLong(5, iCharge);
-		lStat.setObject(6, iIonscore);
-		lStat.setObject(7, iEvalue);
-		lStat.setObject(8, iDelta);
-		lStat.setObject(9, iCreationdate);
-		lStat.setLong(10, iMascothitid);
+		lStat.setLong(1, this.iMascothitid);
+		lStat.setLong(2, this.iFk_searchspectrumid);
+		lStat.setLong(3, this.iFk_peptideid);
+		lStat.setLong(4, this.iFk_proteinid);
+		lStat.setLong(5, this.iCharge);
+		lStat.setObject(6, this.iIonscore);
+		lStat.setObject(7, this.iEvalue);
+		lStat.setObject(8, this.iDelta);
+		lStat.setObject(9, this.iCreationdate);
+		lStat.setLong(10, this.iMascothitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -540,45 +541,45 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO mascothit (mascothitid, fk_searchspectrumid, fk_peptideid, fk_proteinid, charge, ionscore, evalue, delta, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iMascothitid == Long.MIN_VALUE) {
+		if(this.iMascothitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iMascothitid);
+			lStat.setLong(1, this.iMascothitid);
 		}
-		if(iFk_searchspectrumid == Long.MIN_VALUE) {
+		if(this.iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_searchspectrumid);
+			lStat.setLong(2, this.iFk_searchspectrumid);
 		}
-		if(iFk_peptideid == Long.MIN_VALUE) {
+		if(this.iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_peptideid);
+			lStat.setLong(3, this.iFk_peptideid);
 		}
-		if(iFk_proteinid == Long.MIN_VALUE) {
+		if(this.iFk_proteinid == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
 		} else {
-			lStat.setLong(4, iFk_proteinid);
+			lStat.setLong(4, this.iFk_proteinid);
 		}
-		if(iCharge == Long.MIN_VALUE) {
+		if(this.iCharge == Long.MIN_VALUE) {
 			lStat.setNull(5, 4);
 		} else {
-			lStat.setLong(5, iCharge);
+			lStat.setLong(5, this.iCharge);
 		}
-		if(iIonscore == null) {
+		if(this.iIonscore == null) {
 			lStat.setNull(6, 3);
 		} else {
-			lStat.setObject(6, iIonscore);
+			lStat.setObject(6, this.iIonscore);
 		}
-		if(iEvalue == null) {
+		if(this.iEvalue == null) {
 			lStat.setNull(7, 3);
 		} else {
-			lStat.setObject(7, iEvalue);
+			lStat.setObject(7, this.iEvalue);
 		}
-		if(iDelta == null) {
+		if(this.iDelta == null) {
 			lStat.setNull(8, 3);
 		} else {
-			lStat.setObject(8, iDelta);
+			lStat.setObject(8, this.iDelta);
 		}
 		int result = lStat.executeUpdate();
 
@@ -586,22 +587,22 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iMascothitid = ((Number) iKeys[0]).longValue();
+            this.iMascothitid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -612,7 +613,7 @@ public class MascothitTableAccessor implements Deleteable, Retrievable, Updateab
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

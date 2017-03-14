@@ -28,6 +28,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
@@ -105,27 +106,26 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	 * @param chart the chart
 	 */
 	public ScrollableChartPane(JFreeChart chart) {
-		super();
-		
-		this.initComponents();
-		
-		this.setChart(chart, true);
-		
-		this.setViewportView(this.chartPnl);
+
+        initComponents();
+
+        setChart(chart, true);
+
+        setViewportView(chartPnl);
 	}
 
 	/**
 	 * Creates and lays out the pane's components.
 	 */
 	private void initComponents() {
-		
-		chartPnl = new ChartPanel(null) {
+
+        this.chartPnl = new ChartPanel(null) {
 			@Override
 			protected void paintChildren(Graphics g) {
 				// Fade chart if disabled
-				if (!this.isEnabled()) {
+				if (!isEnabled()) {
 					g.setColor(new Color(255, 255, 255, 192));
-					g.fillRect(0, 0, this.getWidth(), this.getHeight());
+					g.fillRect(0, 0, getWidth(), getHeight());
 					
 					// TODO: Paint notification string if no data has been loaded yet
 //					if (!ResultsPanel.this.isBusy()) {
@@ -149,62 +149,62 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			@Override
 			public void setEnabled(boolean enabled) {
 				super.setEnabled(enabled);
-				chartHierarchyCbx.setEnabled(enabled);
-				chartHideUnknownChk.setEnabled(enabled);
-				chartGroupMinorPnl.setEnabled(enabled);
+                ScrollableChartPane.this.chartHierarchyCbx.setEnabled(enabled);
+                ScrollableChartPane.this.chartHideUnknownChk.setEnabled(enabled);
+                ScrollableChartPane.this.chartGroupMinorPnl.setEnabled(enabled);
 			}
 		};
-		
-		chartPnl.setLayout(new FormLayout(
+
+        this.chartPnl.setLayout(new FormLayout(
 				"r:p:g, 2dlu, p, 2dlu, l:p:g",
 				"0px:g, p, 2dlu"));
-		chartPnl.setMinimumDrawHeight(144);
-		chartPnl.setMaximumDrawHeight(1440);
-		chartPnl.setMinimumDrawWidth(256);
-		chartPnl.setMaximumDrawWidth(2560);
-		chartPnl.setOpaque(false);
-		chartPnl.setPreferredSize(new Dimension(256, 144));
-		chartPnl.setMinimumSize(new Dimension(256, 144));
+        this.chartPnl.setMinimumDrawHeight(144);
+        this.chartPnl.setMaximumDrawHeight(1440);
+        this.chartPnl.setMinimumDrawWidth(256);
+        this.chartPnl.setMaximumDrawWidth(2560);
+        this.chartPnl.setOpaque(false);
+        this.chartPnl.setPreferredSize(new Dimension(256, 144));
+        this.chartPnl.setMinimumSize(new Dimension(256, 144));
 		
 		// create mouse adapter to interact with plot sections
-		MouseAdapter ma = new InteractionMouseAdapter(chartPnl);
-		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
-		chartPnl.removeMouseMotionListener(chartPnl.getMouseMotionListeners()[1]);
-		chartPnl.addMouseListener(ma);
-		chartPnl.addMouseMotionListener(ma);
+		MouseAdapter ma = new InteractionMouseAdapter(this.chartPnl);
+        this.chartPnl.removeMouseListener(this.chartPnl.getMouseListeners()[1]);
+        this.chartPnl.removeMouseMotionListener(this.chartPnl.getMouseMotionListeners()[1]);
+        this.chartPnl.addMouseListener(ma);
+        this.chartPnl.addMouseMotionListener(ma);
 		
 		// create combobox to control what counts to display in the plots (protein/peptide/spectrum count)
-		chartHierarchyCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
-		chartHierarchyCbx.addItemListener(new ItemListener() {
+        this.chartHierarchyCbx = new JComboBox<HierarchyLevel>(HierarchyLevel.values());
+        this.chartHierarchyCbx.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
 				if (evt.getStateChange() == ItemEvent.SELECTED) {
 					HierarchyLevel hl = (HierarchyLevel) evt.getItem();
 
-					firePropertyChange("hierarchy", null, hl);
+                    ScrollableChartPane.this.firePropertyChange("hierarchy", null, hl);
 				}
 			}
 		});
-		chartHierarchyCbx.setEnabled(false);
+        this.chartHierarchyCbx.setEnabled(false);
 
-		chartHideUnknownChk = new JCheckBox("Hide Unknown", false);
-		chartHideUnknownChk.setOpaque(false);
-		chartHideUnknownChk.setEnabled(false);
-		chartHideUnknownChk.addItemListener(new ItemListener() {
+        this.chartHideUnknownChk = new JCheckBox("Hide Unknown", false);
+        this.chartHideUnknownChk.setOpaque(false);
+        this.chartHideUnknownChk.setEnabled(false);
+        this.chartHideUnknownChk.addItemListener(new ItemListener() {
 			/** Flag denoting whether the 'Unknown' category shall be hidden. */
 			private boolean doHide;
 			/** The value of the category to hide. */
 			private Number hiddenVal;
 			@Override
 			public void itemStateChanged(ItemEvent evt) {
-				this.doHide = (evt.getStateChange() == ItemEvent.SELECTED);
-				firePropertyChange("hideUnknown", null, this.doHide);
+                doHide = (evt.getStateChange() == ItemEvent.SELECTED);
+                ScrollableChartPane.this.firePropertyChange("hideUnknown", null, doHide);
 				
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
-						ScrollableChartPane.this.chartHideUnknownChk.setEnabled(false);
-						Plot plot = chartPnl.getChart().getPlot();
+                        chartHideUnknownChk.setEnabled(false);
+						Plot plot = ScrollableChartPane.this.chartPnl.getChart().getPlot();
 						DefaultPieDataset dataset;
 						if (plot instanceof PiePlot) {
 							dataset = (DefaultPieDataset) ((PiePlot) plot).getDataset();
@@ -251,25 +251,25 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 					}
 					@Override
 					protected void done() {
-						chartHideUnknownChk.setEnabled(true);
-					};
+                        ScrollableChartPane.this.chartHideUnknownChk.setEnabled(true);
+					}
 
-				}.execute();
+                }.execute();
 			}
 		});
 
-		final JCheckBox chartGroupMinorChk = new JCheckBox("Group segments <", true);
+		JCheckBox chartGroupMinorChk = new JCheckBox("Group segments <", true);
 		chartGroupMinorChk.setOpaque(false);
 		chartGroupMinorChk.setEnabled(false);
 		
-		final JSpinner chartGroupMinorSpn = new JSpinner(new SpinnerNumberModel(0.01, 0.0, 1.0, 0.001));
-		chartGroupMinorSpn.setEditor(new JSpinner.NumberEditor(chartGroupMinorSpn, "0.0%"));
-		final ChangeListener groupListener = new ChangeListener() {
+		JSpinner chartGroupMinorSpn = new JSpinner(new SpinnerNumberModel(0.01, 0.0, 1.0, 0.001));
+		chartGroupMinorSpn.setEditor(new NumberEditor(chartGroupMinorSpn, "0.0%"));
+		ChangeListener groupListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent evt) {
 				Double value = (chartGroupMinorSpn.isEnabled()) ?
 						(Double) chartGroupMinorSpn.getValue() : 0.0;
-				firePropertyChange("groupingLimit", null, value);
+                ScrollableChartPane.this.firePropertyChange("groupingLimit", null, value);
 			}
 		};
 		chartGroupMinorSpn.addChangeListener(groupListener);
@@ -283,7 +283,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 			}
 		});
 
-		chartGroupMinorPnl = new JPanel(new FormLayout("p, 2dlu, 50px", "p")) {
+        this.chartGroupMinorPnl = new JPanel(new FormLayout("p, 2dlu, 50px", "p")) {
 			@Override
 			public void setEnabled(boolean enabled) {
 				super.setEnabled(enabled);
@@ -291,25 +291,25 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 				chartGroupMinorSpn.setEnabled(enabled);
 			}
 		};
-		chartGroupMinorPnl.setOpaque(false);
-		chartGroupMinorPnl.add(chartGroupMinorChk, CC.xy(1, 1));
-		chartGroupMinorPnl.add(chartGroupMinorSpn, CC.xy(3, 1));
+        this.chartGroupMinorPnl.setOpaque(false);
+        this.chartGroupMinorPnl.add(chartGroupMinorChk, CC.xy(1, 1));
+        this.chartGroupMinorPnl.add(chartGroupMinorSpn, CC.xy(3, 1));
 		
 		JXBusyLabel busyLbl = new JXBusyLabel(new Dimension(70, 70));
 		busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
 		busyLbl.setVisible(false);
-		
-		chartPnl.add(busyLbl, CC.xywh(1, 1, 5, 3));
-		chartPnl.add(chartHierarchyCbx, CC.xy(1, 2));
-		chartPnl.add(chartHideUnknownChk, CC.xy(3, 2));
-		chartPnl.add(chartGroupMinorPnl, CC.xy(5, 2));
-		
-		for (ChangeListener cl : viewport.getChangeListeners()) {
-			viewport.removeChangeListener(cl);
-		}
-		viewport.setBackground(Color.WHITE);
 
-		JScrollBar chartBar = this.getVerticalScrollBar();
+        this.chartPnl.add(busyLbl, CC.xywh(1, 1, 5, 3));
+        this.chartPnl.add(this.chartHierarchyCbx, CC.xy(1, 2));
+        this.chartPnl.add(this.chartHideUnknownChk, CC.xy(3, 2));
+        this.chartPnl.add(this.chartGroupMinorPnl, CC.xy(5, 2));
+		
+		for (ChangeListener cl : this.viewport.getChangeListeners()) {
+            this.viewport.removeChangeListener(cl);
+		}
+        this.viewport.setBackground(Color.WHITE);
+
+		JScrollBar chartBar = getVerticalScrollBar();
 		chartBar.setValues(0, 0, 0, 0);
 		chartBar.setBlockIncrement(36);
 		DefaultBoundedRangeModel chartBarMdl = (DefaultBoundedRangeModel) chartBar.getModel();
@@ -318,18 +318,18 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 
 		chartBar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent evt) {
-				JFreeChart chart = chartPnl.getChart();
+				JFreeChart chart = ScrollableChartPane.this.chartPnl.getChart();
 				if (chart != null) {
 					if (chart.getPlot() instanceof PiePlot) {
-						chartPieAngle = evt.getValue();
-						((PiePlot) chart.getPlot()).setStartAngle(chartPieAngle);
+                        ScrollableChartPane.this.chartPieAngle = evt.getValue();
+						((PiePlot) chart.getPlot()).setStartAngle(ScrollableChartPane.this.chartPieAngle);
 					}
 				}
 			}
 		});
-		
-		this.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 	
 	/**
@@ -337,7 +337,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	 * @return the chart
 	 */
 	public JFreeChart getChart() {
-		return chartPnl.getChart();
+		return this.chartPnl.getChart();
 	}
 	
 	/**
@@ -347,28 +347,28 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	 *  shall be displayed for this chart, <code>false</code> otherwise
 	 */
 	public void setChart(JFreeChart chart, boolean showAdditionalControls) {
-		this.chartPnl.setChart(chart);
-		JScrollBar chartBar = this.getVerticalScrollBar();
+        chartPnl.setChart(chart);
+		JScrollBar chartBar = getVerticalScrollBar();
 
-		final Plot plot = chart.getPlot();
+		Plot plot = chart.getPlot();
 		boolean isPie = plot instanceof PiePlot;
 		if (isPie) {
 			// enable chart scroll bar
-			chartBar.getModel().setRangeProperties((int) chartPieAngle, 1, 0, 360, true);
-			((PiePlot) plot).setStartAngle(chartPieAngle);
+			chartBar.getModel().setRangeProperties((int) this.chartPieAngle, 1, 0, 360, true);
+			((PiePlot) plot).setStartAngle(this.chartPieAngle);
 		} else {
 			// disable chart scroll bar
-			double temp = chartPieAngle;
+			double temp = this.chartPieAngle;
 			chartBar.setMaximum(0);
-			chartPieAngle = temp;
+            this.chartPieAngle = temp;
 		}
 		// hide/show additional controls
-		chartHierarchyCbx.setVisible(showAdditionalControls);
-		chartHierarchyCbx.setEnabled(showAdditionalControls);
-		chartHideUnknownChk.setVisible(showAdditionalControls);
-		chartHideUnknownChk.setEnabled(showAdditionalControls);
-		chartGroupMinorPnl.setVisible(showAdditionalControls);
-		chartGroupMinorPnl.setEnabled(showAdditionalControls);
+        this.chartHierarchyCbx.setVisible(showAdditionalControls);
+        this.chartHierarchyCbx.setEnabled(showAdditionalControls);
+        this.chartHideUnknownChk.setVisible(showAdditionalControls);
+        this.chartHideUnknownChk.setEnabled(showAdditionalControls);
+        this.chartGroupMinorPnl.setVisible(showAdditionalControls);
+        this.chartGroupMinorPnl.setEnabled(showAdditionalControls);
 	}
 	
 	/**
@@ -377,28 +377,28 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 	 *  <code>PROTEIN_LEVEL</code>, <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>
 	 */
 	public HierarchyLevel getHierarchyLevel() {
-		return (HierarchyLevel) this.chartHierarchyCbx.getSelectedItem();
+		return (HierarchyLevel) chartHierarchyCbx.getSelectedItem();
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		this.getVerticalScrollBar().setEnabled(enabled);
-		this.chartPnl.setEnabled(enabled);
+        getVerticalScrollBar().setEnabled(enabled);
+        chartPnl.setEnabled(enabled);
 	}
 	
 	@Override
 	public boolean isBusy() {
-		return this.busy;
+		return busy;
 	}
 
 	@Override
 	public void setBusy(boolean busy) {
 		this.busy = busy;
-		JXBusyLabel busyLbl = (JXBusyLabel) this.chartPnl.getComponent(0);
+		JXBusyLabel busyLbl = (JXBusyLabel) chartPnl.getComponent(0);
 		busyLbl.setBusy(busy);
 		busyLbl.setVisible(busy);
-		this.setEnabled(!busy);
+        setEnabled(!busy);
 	}
 
 	/**
@@ -410,24 +410,24 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		/**
 		 * The parent chart panel to interact with.
 		 */
-		private ChartPanel chartPnl;
+		private final ChartPanel chartPnl;
 		
 		/**
 		 * The currently highlighted section's identifier.
 		 */
 		@SuppressWarnings("rawtypes")
-		private Comparable highlightedKey = null;
+		private Comparable highlightedKey;
 		
 		/**
 		 * The currently selected section's identifier.
 		 */
 		@SuppressWarnings("rawtypes")
-		private Comparable selectedKey = null;
+		private Comparable selectedKey;
 		
 		/**
 		 * The re-usable 'Save As...' action instance.
 		 */
-		private Action saveAsAction;
+		private final Action saveAsAction;
 		
 		/**
 		 * 
@@ -435,46 +435,46 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		 */
 		public InteractionMouseAdapter(ChartPanel chartPnl) {
 			this.chartPnl = chartPnl;
-			this.saveAsAction = new SaveAsAction(chartPnl);
+            saveAsAction = new SaveAsAction(chartPnl);
 		}
 
 		@SuppressWarnings("rawtypes")
 		@Override
 		public void mouseMoved(MouseEvent me) {
-			Plot plot = this.getPlot();
+			Plot plot = getPlot();
 			if (plot instanceof PiePlot3DExt) {
 				PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 				Comparable key = piePlot.getSectionKeyForPoint(me.getPoint());
-				if (key != highlightedKey) {
+				if (key != this.highlightedKey) {
 					for (Object dataKey : piePlot.getDataset().getKeys()) {
-						if (dataKey != selectedKey) {
+						if (dataKey != this.selectedKey) {
 							piePlot.setExplodePercent((Comparable) dataKey,
 									0.0);
 						}
 					}
-					if ((key != null) && (key != selectedKey)) {
+					if ((key != null) && (key != this.selectedKey)) {
 						piePlot.setExplodePercent(key, 0.1);
 					}
-					highlightedKey = key;
+                    this.highlightedKey = key;
 				}
 			} else if (plot instanceof PieToCategoryPlot) {
 				PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
-				EntityCollection entities = this.chartPnl.getChartRenderingInfo().getEntityCollection();
+				EntityCollection entities = chartPnl.getChartRenderingInfo().getEntityCollection();
 				if (entities != null) {
-	                Insets insets = this.chartPnl.getInsets();
+	                Insets insets = chartPnl.getInsets();
 	                ChartEntity entity = entities.getEntity(
-	                        (int) ((me.getX() - insets.left) / this.chartPnl.getScaleX()),
-	                        (int) ((me.getY() - insets.top) / this.chartPnl.getScaleY()));
+	                        (int) ((me.getX() - insets.left) / chartPnl.getScaleX()),
+	                        (int) ((me.getY() - insets.top) / chartPnl.getScaleY()));
 	                if ((entity != null) && (entity instanceof CategoryItemEntity)) {
 	                	CategoryItemEntity catEntity = (CategoryItemEntity) entity;
 	                	Comparable key = catEntity.getColumnKey();
-	                	if (key != highlightedKey) {
+	                	if (key != this.highlightedKey) {
 	                		catPlot.setHighlightedKey(key);
-							highlightedKey = key;
+                            this.highlightedKey = key;
 	                	}
 	                } else {
 	                	catPlot.setHighlightedKey(null);
-						highlightedKey = null;
+                        this.highlightedKey = null;
 	                }
 	            }
 			}
@@ -483,37 +483,37 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		@Override
 		public void mouseClicked(MouseEvent me) {
 			if (me.isPopupTrigger()) {
-				maybeShowPopup(me);
+                this.maybeShowPopup(me);
 			} else {
-				Plot plot = this.getPlot();
+				Plot plot = getPlot();
 				if (plot instanceof PiePlot3DExt) {
 					PiePlot3DExt piePlot = (PiePlot3DExt) plot;
-					if (selectedKey != null) {
+					if (this.selectedKey != null) {
 						// clear old selection
-						piePlot.setExplodePercent(selectedKey, 0.0);
+						piePlot.setExplodePercent(this.selectedKey, 0.0);
 					}
-					if (highlightedKey != null) {
-						piePlot.setExplodePercent(highlightedKey, 0.2);
-						if (highlightedKey != selectedKey) {
+					if (this.highlightedKey != null) {
+						piePlot.setExplodePercent(this.highlightedKey, 0.2);
+						if (this.highlightedKey != this.selectedKey) {
 //							// update table if new section got clicked
-							firePropertyChange("selection", "", highlightedKey);
+                            ScrollableChartPane.this.firePropertyChange("selection", "", this.highlightedKey);
 						}
 					} else {
-						firePropertyChange("selection", selectedKey, "");
+                        ScrollableChartPane.this.firePropertyChange("selection", this.selectedKey, "");
 					}
-					selectedKey = highlightedKey;
+                    this.selectedKey = this.highlightedKey;
 				} else if (plot instanceof PieToCategoryPlot) {
 					PieToCategoryPlot catPlot = (PieToCategoryPlot) plot;
-					if (highlightedKey != null) {
-						if (highlightedKey != selectedKey) {
+					if (this.highlightedKey != null) {
+						if (this.highlightedKey != this.selectedKey) {
 //							// update table if new section got clicked
-							firePropertyChange("selection", null, highlightedKey);
+                            ScrollableChartPane.this.firePropertyChange("selection", null, this.highlightedKey);
 						}
 					} else {
-						firePropertyChange("selection", selectedKey, null);
+                        ScrollableChartPane.this.firePropertyChange("selection", this.selectedKey, null);
 					}
-					catPlot.setSelectedKey(highlightedKey);
-					selectedKey = highlightedKey;
+					catPlot.setSelectedKey(this.highlightedKey);
+                    this.selectedKey = this.highlightedKey;
 				}
 			}
 		}
@@ -521,9 +521,9 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		@Override
 		public void mouseEntered(MouseEvent me) {
 			// re-validate fields in case chart type has been changed
-			highlightedKey = null;
-			selectedKey = null;
-			Plot plot = this.getPlot();
+            this.highlightedKey = null;
+            this.selectedKey = null;
+			Plot plot = getPlot();
 			if (plot instanceof PiePlot3DExt) {
 				PiePlot3DExt piePlot = (PiePlot3DExt) plot;
 				for (Object dataKey : piePlot.getDataset().getKeys()) {
@@ -531,7 +531,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 					Comparable key = (Comparable) dataKey;
 					double explodePercent = piePlot.getExplodePercent(key);
 					if (explodePercent > 0.1) {
-						selectedKey = key;
+                        this.selectedKey = key;
 					}
 				}
 			}
@@ -539,12 +539,12 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 
 		@Override
 		public void mousePressed(MouseEvent me) {
-			maybeShowPopup(me);
+            this.maybeShowPopup(me);
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent me) {
-			maybeShowPopup(me);
+            this.maybeShowPopup(me);
 		}
 
 		/**
@@ -553,11 +553,11 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		 */
 		private void maybeShowPopup(MouseEvent me) {
 			if (me.isPopupTrigger()) {
-				Plot plot = this.getPlot();
+				Plot plot = getPlot();
 				if (plot != null) {
 					JPopupMenu popup = new JPopupMenu();
 
-					JMenuItem item = new JMenuItem(saveAsAction);
+					JMenuItem item = new JMenuItem(this.saveAsAction);
 					item.setText("Save as CSV...");
 					item.setIcon(IconConstants.FILE_CSV);
 
@@ -572,8 +572,8 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		 * Utility method to get valid pie plot.
 		 */
 		private Plot getPlot() {
-			if (this.chartPnl.isEnabled()) {
-				JFreeChart chart = this.chartPnl.getChart();
+			if (chartPnl.isEnabled()) {
+				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
 					return chart.getPlot();
 				}
@@ -591,7 +591,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		/**
 		 * The parent chart panel.
 		 */
-		private ChartPanel chartPnl;
+		private final ChartPanel chartPnl;
 
 		/**
 		 * Creates a 'Save As...' action for use with the provided parent chart panel.
@@ -603,7 +603,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			Plot plot = this.getPlot();
+			Plot plot = getPlot();
 			if (plot != null) {
 				JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(Constants.CSV_FILE_FILTER);
@@ -619,7 +619,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 					}
 
 //					this.chartPnl.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-					setBusy(true);
+                    ScrollableChartPane.this.setBusy(true);
 
 					try {
 						if (selectedFile.exists()) {
@@ -657,7 +657,7 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 					}
 
 //					setCursor(null);
-					setBusy(false);
+                    ScrollableChartPane.this.setBusy(false);
 				}
 			}
 		}
@@ -666,8 +666,8 @@ public class ScrollableChartPane extends JScrollPane implements Busyable {
 		 * Utility method to get valid pie plot.
 		 */
 		private Plot getPlot() {
-			if (this.chartPnl.isEnabled()) {
-				JFreeChart chart = this.chartPnl.getChart();
+			if (chartPnl.isEnabled()) {
+				JFreeChart chart = chartPnl.getChart();
 				if (chart != null) {
 					return chart.getPlot();
 				}

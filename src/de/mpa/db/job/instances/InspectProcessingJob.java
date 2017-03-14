@@ -8,8 +8,8 @@ import de.mpa.util.PropertyLoader;
 
 public class InspectProcessingJob extends Job {
 	
-	private File inspectFile;
-	private String filename;
+	private final File inspectFile;
+	private final String filename;
 	
 	/**
 	 * Constructor for the InspectProcessingJob.
@@ -23,10 +23,10 @@ public class InspectProcessingJob extends Job {
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT);
 		String pathInspectOutputPValued = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT_OUTPUT_PVALUED);
-		
-		this.inspectFile = new File(pathInspect);
-		filename = pathInspectOutputPValued + mgfFile.getName() + ".out";
-		initJob();
+
+        inspectFile = new File(pathInspect);
+        this.filename = pathInspectOutputPValued + mgfFile.getName() + ".out";
+        this.initJob();
 	}
 	
 	/**
@@ -34,8 +34,8 @@ public class InspectProcessingJob extends Job {
 	 * Statistically insignificant results are weeded out by the python script. 
 	 */
 	private void initJob() {
-		setDescription("POST-PROCESSING JOB");
-		procCommands = new ArrayList<String>();
+        this.setDescription("POST-PROCESSING JOB");
+        this.procCommands = new ArrayList<String>();
 		
 		String pathInspect = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_INSPECT);
@@ -46,25 +46,25 @@ public class InspectProcessingJob extends Job {
 		
 		
 		// Link to the output file.
-		procCommands.add("python");
-		procCommands.add(pathInspect + "PValue.py");
-		procCommands.add("-r");
-		procCommands.add(pathInspectOutputRaw);
-		procCommands.add("-w");
-		procCommands.add(pathInspectOutputPValued);
-		procCommands.add("-S");
-		procCommands.add("0.5");
-		procCommands.trimToSize();
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(inspectFile);
+        this.procCommands.add("python");
+        this.procCommands.add(pathInspect + "PValue.py");
+        this.procCommands.add("-r");
+        this.procCommands.add(pathInspectOutputRaw);
+        this.procCommands.add("-w");
+        this.procCommands.add(pathInspectOutputPValued);
+        this.procCommands.add("-S");
+        this.procCommands.add("0.5");
+        this.procCommands.trimToSize();
+        this.procBuilder = new ProcessBuilder(this.procCommands);
+        this.procBuilder.directory(this.inspectFile);
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 	
 	/**
 	 * Returns the path to the Inspect PValued output file.
 	 */
 	public String getFilename(){
-		return filename;
+		return this.filename;
 	}
 }

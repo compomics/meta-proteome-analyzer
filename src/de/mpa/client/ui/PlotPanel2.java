@@ -16,12 +16,12 @@ public class PlotPanel2 extends SpectrumPanel {
 
 	public PlotPanel2(SpectrumFile aSpecFile) {
 		super(aSpecFile);
-		this.showResolution = false;
+        showResolution = false;
 	}
 
-	@ Override
+	@Override
 	public void setSpectrumFile(SpectrumFile aSpecFile) {
-		this.iSpecFile = aSpecFile;
+        iSpecFile = aSpecFile;
 		super.setSpectrumFile(aSpecFile);
 	}
 
@@ -29,24 +29,24 @@ public class PlotPanel2 extends SpectrumPanel {
 	public void setSpectrumFile(SpectrumFile aSpecFile, Color lineCol) {
 		
 		if (aSpecFile == null) {
-			clearSpectrumFile();
+            this.clearSpectrumFile();
 		} else {
-			this.iSpecFile = aSpecFile;
+            iSpecFile = aSpecFile;
 
-			iXAxisData = new ArrayList<double[]>();
-			iYAxisData = new ArrayList<double[]>();
+            this.iXAxisData = new ArrayList<double[]>();
+            this.iYAxisData = new ArrayList<double[]>();
 
-			iDataPointAndLineColor = new ArrayList<Color>();
-			iDataPointAndLineColor.add(lineCol);
-			iAreaUnderCurveColor = new ArrayList<Color>();
-			iAreaUnderCurveColor.add(Color.PINK);
+            this.iDataPointAndLineColor = new ArrayList<Color>();
+            this.iDataPointAndLineColor.add(lineCol);
+            this.iAreaUnderCurveColor = new ArrayList<Color>();
+            this.iAreaUnderCurveColor.add(Color.PINK);
 
 			HashMap peaks = aSpecFile.getPeaks();
 
-			iXAxisData.add(new double[peaks.size()]);
-			iYAxisData.add(new double[peaks.size()]);
+            this.iXAxisData.add(new double[peaks.size()]);
+            this.iYAxisData.add(new double[peaks.size()]);
 
-			iFilename = aSpecFile.getFilename();
+            this.iFilename = aSpecFile.getFilename();
 
 //			// Maximum intensity of the peaks.
 //			double maxInt = 0.0;
@@ -59,47 +59,47 @@ public class PlotPanel2 extends SpectrumPanel {
 
 			while (iter.hasNext()) {
 				Double key = (Double) iter.next();
-				iXAxisData.get(0)[count] = key.doubleValue();
-				iYAxisData.get(0)[count] = ((Double) peaks.get(key)).doubleValue();
+                this.iXAxisData.get(0)[count] = key.doubleValue();
+                this.iYAxisData.get(0)[count] = ((Double) peaks.get(key)).doubleValue();
 				count++;
 			}
 
-			this.rescale(0.0, getMaxXAxisValue()*1.05);
+            rescale(0.0, this.getMaxXAxisValue()*1.05);
 
-			this.iPrecursorMZ = aSpecFile.getPrecursorMZ();
+            iPrecursorMZ = aSpecFile.getPrecursorMZ();
 			int liTemp = aSpecFile.getCharge();
 
 			if (liTemp == 0) {
-				iPrecursorCharge = "?";
+                this.iPrecursorCharge = "?";
 			} else {
-				iPrecursorCharge = Integer.toString(liTemp);
-				iPrecursorCharge += (liTemp > 0 ? "+" : "-");
+                this.iPrecursorCharge = Integer.toString(liTemp);
+                this.iPrecursorCharge += (liTemp > 0 ? "+" : "-");
 			}
 		}
 	}
 	
 	public void clearSpectrumFile() {
 
-		dataSetCounter = 0;
-		this.iSpecFile = null;
-		iXAxisData = new ArrayList<double[]>();
-		iYAxisData = new ArrayList<double[]>();
-		iXAxisData.add(new double[] {0.0});
-		iYAxisData.add(new double[] {90.909});
-		iDataPointAndLineColor = new ArrayList<Color>();
-		iDataPointAndLineColor.add(Color.BLACK);
-		iAreaUnderCurveColor = new ArrayList<Color>();
-		iAreaUnderCurveColor.add(Color.PINK);
-		iFilename = "no file selected";
-		this.rescale(0.0, 999.0);
-		this.iPrecursorMZ = 0.0;
-	
-		iPrecursorCharge = "?";
+        this.dataSetCounter = 0;
+        iSpecFile = null;
+        this.iXAxisData = new ArrayList<double[]>();
+        this.iYAxisData = new ArrayList<double[]>();
+        this.iXAxisData.add(new double[] {0.0});
+        this.iYAxisData.add(new double[] {90.909});
+        this.iDataPointAndLineColor = new ArrayList<Color>();
+        this.iDataPointAndLineColor.add(Color.BLACK);
+        this.iAreaUnderCurveColor = new ArrayList<Color>();
+        this.iAreaUnderCurveColor.add(Color.PINK);
+        this.iFilename = "no file selected";
+        rescale(0.0, 999.0);
+        iPrecursorMZ = 0.0;
+
+        this.iPrecursorCharge = "?";
 				
 	}
 
 	public SpectrumFile getSpectrumFile() {
-		return iSpecFile;
+		return this.iSpecFile;
 	}
 	
 	@Override

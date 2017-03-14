@@ -75,42 +75,42 @@ public class Masses extends HashMap<String, Double> {
      * Private constructor for the singleton convention.
      */
     private Masses(){
-    	fillMap();
+        this.fillMap();
     }
     
     /**
      * Fill the masses map with key and values.
      */
     private void fillMap() {
-    	 this.put("A", Masses.A);
-         this.put("C", Masses.C);
-         this.put("D", Masses.D);
-         this.put("E", Masses.E);
-         this.put("F", Masses.F);
-         this.put("G", Masses.G);
-         this.put("H", Masses.H);
-         this.put("I", Masses.I);
-         this.put("K", Masses.K);
-         this.put("L", Masses.L);
-         this.put("M", Masses.M);
-         this.put("N", Masses.N);
-         this.put("O", Masses.O);
-         this.put("P", Masses.P);
-         this.put("Q", Masses.Q);
-         this.put("R", Masses.R);
-         this.put("S", Masses.S);
-         this.put("T", Masses.T);
-         this.put("U", Masses.U);
-         this.put("V", Masses.V);
-         this.put("W", Masses.W);
-         this.put("Y", Masses.Y);
-         this.put("Hydrogen", Masses.Hydrogen);
-         this.put("Carbon", Masses.Carbon);
-         this.put("Nitrogen", Masses.Nitrogen);
-         this.put("Oxygen", Masses.Oxygen);
-         this.put("Electron", Masses.Electron);
-         this.put("C_term", Masses.C_term);
-         this.put("N_term", Masses.N_term);
+        put("A", A);
+        put("C", C);
+        put("D", D);
+        put("E", E);
+        put("F", F);
+        put("G", G);
+        put("H", H);
+        put("I", I);
+        put("K", K);
+        put("L", L);
+        put("M", M);
+        put("N", N);
+        put("O", O);
+        put("P", P);
+        put("Q", Q);
+        put("R", R);
+        put("S", S);
+        put("T", T);
+        put("U", U);
+        put("V", V);
+        put("W", W);
+        put("Y", Y);
+        put("Hydrogen", Hydrogen);
+        put("Carbon", Carbon);
+        put("Nitrogen", Nitrogen);
+        put("Oxygen", Oxygen);
+        put("Electron", Electron);
+        put("C_term", C_term);
+        put("N_term", N_term);
 	}
 
 	/**
@@ -118,8 +118,8 @@ public class Masses extends HashMap<String, Double> {
      * @return
      */
 	public static Masses getInstance() {
-		if (instance == null)
-			instance = new Masses();
-		return instance;
+		if (Masses.instance == null)
+            Masses.instance = new Masses();
+		return Masses.instance;
 	}
 }

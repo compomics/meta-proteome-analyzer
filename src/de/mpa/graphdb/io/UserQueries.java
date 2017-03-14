@@ -18,12 +18,12 @@ public class UserQueries {
 	/**
 	 * List of user-defined list of <code>CypherQuery</code> objects.
 	 */
-	private List<CypherQuery> queries;
+	private final List<CypherQuery> queries;
 	
 	/**
 	 * Last modified <code>Date</code>.
 	 */
-	private Date lastModified;
+	private final Date lastModified;
 	
 	/**
 	 * Default constructor.
@@ -38,7 +38,7 @@ public class UserQueries {
 	 */
 	public UserQueries(List<CypherQuery> queries) {
 		this.queries = queries;
-		this.lastModified = new Date();
+        lastModified = new Date();
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class UserQueries {
 	 * @return User-defined list of <code>CypherQuery</code> objects.
 	 */
 	public List<CypherQuery> getQueries() {
-		return queries;
+		return this.queries;
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class UserQueries {
 	 * @return Last-modified <code>Date</code>
 	 */
 	public Date getLastModified() {
-		return lastModified;
+		return this.lastModified;
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class UserQueries {
 	 * @param query User query
 	 */
 	public void addQuery(CypherQuery query) {
-		this.queries.add(query);
+        queries.add(query);
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class UserQueries {
 	 * @param index Index of user query. 
 	 */
 	public CypherQuery getQuery(int index) {
-		return this.queries.get(index);
+		return queries.get(index);
 	}
 	
 	/**
@@ -79,9 +79,9 @@ public class UserQueries {
 	 * @see GraphQueryDialog
 	 */
 	public Object[] getTitleObjects() {
-		Object[] data = new Object[this.queries.size()];
-		for (int i = 0; i < this.queries.size(); i++) {
-			data[i] = getQuery(i).getTitle();
+		Object[] data = new Object[queries.size()];
+		for (int i = 0; i < queries.size(); i++) {
+			data[i] = this.getQuery(i).getTitle();
 		}
 		return data;
 	}

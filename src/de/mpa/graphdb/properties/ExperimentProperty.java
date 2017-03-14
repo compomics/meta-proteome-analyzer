@@ -4,7 +4,7 @@ public enum ExperimentProperty implements ElementProperty {
 	IDENTIFIER("Experiment Title"),
 	PROJECTTITLE("Project Title");
 	
-	ExperimentProperty(final String propertyName){
+	ExperimentProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -12,6 +12,6 @@ public enum ExperimentProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

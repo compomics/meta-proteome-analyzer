@@ -15,7 +15,7 @@ public class MultiExtensionFileFilter extends ExtensionFileFilter {
 	/**
 	 * The array of referenced filters.
 	 */
-	private FileFilter[] filters;
+	private final FileFilter[] filters;
 	
 	/**
 	 * Constructs an extension file filter filtering on the extensions defined
@@ -32,7 +32,7 @@ public class MultiExtensionFileFilter extends ExtensionFileFilter {
 	@Override
 	public boolean accept(File pathname) {
 		boolean result = false;
-		for (FileFilter filter : filters) {
+		for (FileFilter filter : this.filters) {
 			result |= filter.accept(pathname);
 			if (result) {
 				break;

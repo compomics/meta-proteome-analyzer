@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -44,7 +43,7 @@ public enum AggregateFunction {
 	MEAN {
 		@Override
 		public Object aggregate(Object... values) {
-			return ((Number) SUM.aggregate(values)).doubleValue() / values.length;
+			return ((Number) AggregateFunction.SUM.aggregate(values)).doubleValue() / values.length;
 		}
 	},
 	MEDIAN {
@@ -69,7 +68,7 @@ public enum AggregateFunction {
 			// find maximum of mapped value counts
 			Object mode = null;
 			int max = Integer.MIN_VALUE;
-			for (Entry<Object, Integer> entry : modeMap.entrySet()) {
+			for (Map.Entry<Object, Integer> entry : modeMap.entrySet()) {
 				Integer value = entry.getValue();
 				if (value > max) {
 					mode = entry.getKey();

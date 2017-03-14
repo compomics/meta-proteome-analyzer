@@ -62,10 +62,10 @@ public class SpectrumFeatures {
 	private int numH20LossPeaks;
 	
 	// MGF file
-	private MascotGenericFile mgf;
+	private final MascotGenericFile mgf;
 	
 	// Fragment ion tolerance
-	private double fragTol;
+	private final double fragTol;
 	
 	/**
 	 * Class constructor.
@@ -75,7 +75,7 @@ public class SpectrumFeatures {
 	public SpectrumFeatures(MascotGenericFile mgf, double fragTol) {
 		this.mgf = mgf;
 		this.fragTol = fragTol;
-		init();
+        this.init();
 	}
 	
 	/**
@@ -84,19 +84,19 @@ public class SpectrumFeatures {
 	 */
 	private void init(){
 		// Standard
-		this.numPeaks = mgf.getPeaks().size();
-		this.totalInt = mgf.getTotalIntensity();
-		this.highestInt = mgf.getHighestIntensity();		
-		this.meanInt = totalInt / numPeaks; 
-		this.devInt = calcPeakIntensityDeviation();
-		this.precursorMass = mgf.getPrecursorMZ();
-		this.precursorCharge = mgf.getCharge();
+        numPeaks = this.mgf.getPeaks().size();
+        totalInt = this.mgf.getTotalIntensity();
+        highestInt = this.mgf.getHighestIntensity();
+        meanInt = this.totalInt / this.numPeaks;
+        devInt = this.calcPeakIntensityDeviation();
+        precursorMass = this.mgf.getPrecursorMZ();
+        precursorCharge = this.mgf.getCharge();
 		
 		// Init the masses
 		Masses.init();
 		
 		// Optional
-		this.y1PeakInt = calcY1IonIntensity();
+        y1PeakInt = this.calcY1IonIntensity();
 	}
 	
 	/**
@@ -105,10 +105,10 @@ public class SpectrumFeatures {
 	 */
 	private double calcPeakIntensityDeviation(){		
 		double sum = 0.0;		
-		for(double intensity : mgf.getPeaks().values()){
-			sum += Math.pow(intensity - this.meanInt, 2);
+		for(double intensity : this.mgf.getPeaks().values()){
+			sum += Math.pow(intensity - meanInt, 2);
 		}
-		return Math.sqrt(sum / this.numPeaks);		
+		return Math.sqrt(sum / numPeaks);
 	}
 	
 	/**
@@ -123,12 +123,12 @@ public class SpectrumFeatures {
 		double y1_lys = Masses.C_term + Masses.aaMap.get('K');
 		double y1_arg = Masses.C_term + Masses.aaMap.get('R');	
 		
-		HashMap<Double, Double> peaks = mgf.getPeaks();
+		HashMap<Double, Double> peaks = this.mgf.getPeaks();
 		for (double mz : peaks.keySet()) {
 			// Check whether both ions match within a certain fragment ion tolerance window.
-			if(Math.abs(mz - y1_lys) <= fragTol) {
+			if(Math.abs(mz - y1_lys) <= this.fragTol) {
 				y1_lysInt = peaks.get(mz);
-			} else if (Math.abs(mz - y1_arg) <= fragTol) {
+			} else if (Math.abs(mz - y1_arg) <= this.fragTol) {
 				y1_argInt = peaks.get(mz);
 			}
 		}
@@ -136,62 +136,62 @@ public class SpectrumFeatures {
 	}
 	
 	public int getNumPeaks() {
-		return numPeaks;
+		return this.numPeaks;
 	}
 
 	public double getTotalInt() {
-		return totalInt;
+		return this.totalInt;
 	}
 
 	public double getHighestInt() {
-		return highestInt;
+		return this.highestInt;
 	}
 
 	public double getMeanInt() {
-		return meanInt;
+		return this.meanInt;
 	}
 
 	public double getDevInt() {
-		return devInt;
+		return this.devInt;
 	}
 
 	public double getPrecursorMass() {
-		return precursorMass;
+		return this.precursorMass;
 	}
 
 	public double getPrecursorCharge() {
-		return precursorCharge;
+		return this.precursorCharge;
 	}
 
 	public double getPrecursorInt() {
-		return precursorInt;
+		return this.precursorInt;
 	}
 
 	public double getNormTotalInt() {
-		return normTotalInt;
+		return this.normTotalInt;
 	}
 
 	public int getNumSignPeaks() {
-		return numSignPeaks;
+		return this.numSignPeaks;
 	}
 
 	public double getTotalSignPeaksInt() {
-		return totalSignPeaksInt;
+		return this.totalSignPeaksInt;
 	}
 
 	public double getY1PeakInt() {
-		return y1PeakInt;
+		return this.y1PeakInt;
 	}
 
 	public int getNumDeNovoPeaks() {
-		return numDeNovoPeaks;
+		return this.numDeNovoPeaks;
 	}
 
 	public int getNumIsotopePeaks() {
-		return numIsotopePeaks;
+		return this.numIsotopePeaks;
 	}
 
 	public int getNumH20LossPeaks() {
-		return numH20LossPeaks;
+		return this.numH20LossPeaks;
 	}
 }	

@@ -9,7 +9,6 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
@@ -29,7 +28,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.algorithms.fragmentation.FragmentIon;
 import de.mpa.algorithms.fragmentation.Fragmentizer;
-import de.mpa.algorithms.fragmentation.Ion.IonType;
+import de.mpa.algorithms.fragmentation.Ion;
 import de.mpa.analysis.Masses;
 import de.mpa.io.MascotGenericFile;
 
@@ -50,7 +49,7 @@ public class SpectrumViewerPanel extends JPanel {
 	/**
 	 * The filter panel.
 	 */
-	private FilterPanel filterPnl;
+	private SpectrumViewerPanel.FilterPanel filterPnl;
 
 	/**
 	 * The maximum x value to which the spectrum view shall be scaled.
@@ -66,30 +65,29 @@ public class SpectrumViewerPanel extends JPanel {
 	 * Constructs a spectrum viewer panel with annotation filter controls.
 	 */
 	public SpectrumViewerPanel() {
-		super();
-		this.initComponents();
+        initComponents();
 	}
 
 	/**
 	 * Creates and lays out the panel components.
 	 */
 	private void initComponents() {
-		this.setLayout(new FormLayout("p:g, 5dlu, r:p", "f:p:g"));
-		
-		specPnl = FilePanel.createDefaultSpectrumPanel();
-		specPnl.setMinimumSize(new Dimension(200, 200));
-		
-		filterPnl = new FilterPanel();
+        setLayout(new FormLayout("p:g, 5dlu, r:p", "f:p:g"));
 
-		this.add(specPnl, CC.xy(1, 1));
-		this.add(filterPnl, CC.xy(3, 1));
+        this.specPnl = FilePanel.createDefaultSpectrumPanel();
+        this.specPnl.setMinimumSize(new Dimension(200, 200));
+
+        this.filterPnl = new SpectrumViewerPanel.FilterPanel();
+
+        add(this.specPnl, CC.xy(1, 1));
+        add(this.filterPnl, CC.xy(3, 1));
 	}
 	
 	/**
 	 * Resets the spectrum viewer to display the default placeholder spectrum.
 	 */
 	protected void clearSpectrum() {
-		this.refreshSpectrum(null, null);
+        refreshSpectrum(null, null);
 	}
 	
 	/**
@@ -100,22 +98,22 @@ public class SpectrumViewerPanel extends JPanel {
 	 */
 	protected void refreshSpectrum(MascotGenericFile mgf, String sequence) {
 		// clear the spectrum panel
-		Container specCont = specPnl.getParent();
-		specCont.remove(specPnl);
+		Container specCont = this.specPnl.getParent();
+		specCont.remove(this.specPnl);
 		
 		// add spectrum
 		if (mgf != null && sequence != null) {
-			specPnl = new SpectrumPanel(mgf) {
+            this.specPnl = new SpectrumPanel(mgf) {
 				@Override
 				public void paint(Graphics g) {
 					((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					super.paint(g);
 				}
 			};
-			specPnl.showAnnotatedPeaksOnly(true);
-			specPnl.setShowResolution(false);
-			
-			specPnl.setLayout(new FormLayout("0px:g, 0px:g, 15px", "b:p:g, 1px"));
+            this.specPnl.showAnnotatedPeaksOnly(true);
+            this.specPnl.setShowResolution(false);
+
+            this.specPnl.setLayout(new FormLayout("0px:g, 0px:g, 15px", "b:p:g, 1px"));
 			
 			JTextField titleTtf = new JTextField(mgf.getTitle());
 			titleTtf.setEditable(false);
@@ -130,20 +128,20 @@ public class SpectrumViewerPanel extends JPanel {
 //					System.out.println(((Component) evt.getSource()).getSize());
 //				}
 //			});
-			
-			specPnl.add(titleTtf, CC.xy(2, 1));
 
-			maxX = Math.max(maxX, specPnl.getMaxXAxisValue());
-			specPnl.rescale(0.0, maxX);
+            this.specPnl.add(titleTtf, CC.xy(2, 1));
+
+            this.maxX = Math.max(this.maxX, this.specPnl.getMaxXAxisValue());
+            this.specPnl.rescale(0.0, this.maxX);
 
 			Fragmentizer fragmentizer = new Fragmentizer(sequence, Masses.getInstance(), mgf.getCharge());
-			this.addSpectrumAnnotations(fragmentizer.getFragmentIons());
+            addSpectrumAnnotations(fragmentizer.getFragmentIons());
 		} else {
 			// revert to defaults
-			specPnl = FilePanel.createDefaultSpectrumPanel();
-			maxX = 0.0;
+            this.specPnl = FilePanel.createDefaultSpectrumPanel();
+            this.maxX = 0.0;
 		}
-		specCont.add(specPnl, CC.xy(1, 1));
+		specCont.add(this.specPnl, CC.xy(1, 1));
 		specCont.validate();
 	}
 
@@ -151,14 +149,14 @@ public class SpectrumViewerPanel extends JPanel {
 	 * Method to add annotations to spectrum plot.
 	 * @param fragmentIons
 	 */
-	protected void addSpectrumAnnotations(Map<IonType, FragmentIon[]> fragmentIons) {
-	
-		annotations = new HashMap<FragmentIon, SpectrumAnnotation>();
-		Set<Entry<IonType, FragmentIon[]>> entrySet = fragmentIons.entrySet();
+	protected void addSpectrumAnnotations(Map<Ion.IonType, FragmentIon[]> fragmentIons) {
+
+        this.annotations = new HashMap<FragmentIon, SpectrumAnnotation>();
+		Set<Map.Entry<Ion.IonType, FragmentIon[]>> entrySet = fragmentIons.entrySet();
 		int i = 0;
-		for (Entry<IonType, FragmentIon[]> entry : entrySet) {
+		for (Map.Entry<Ion.IonType, FragmentIon[]> entry : entrySet) {
 			FragmentIon[] ions = entry.getValue();
-	
+
 			for (FragmentIon ion : ions) {
 				double mzValue = ion.getMZ();
 				Color color;
@@ -167,19 +165,19 @@ public class SpectrumViewerPanel extends JPanel {
 				} else {
 					color = Color.BLACK;
 				}
-	
+
 				// Use standard ion type names, such as y5++
 				String ionDesc = ion.toString();
-				
+
 				// TODO: Get fragment ion mass error from db or settings file!
 //				annotations.add(new DefaultSpectrumAnnotation(mzValue, 0.5, color, ionDesc));
 				annotations.put(ion, new DefaultSpectrumAnnotation(mzValue, 0.5, color, ionDesc));
 			}
 			i++;
 		}
-		
+
 		this.filterAnnotations();
-	
+
 	}
 
 	/**
@@ -201,11 +199,11 @@ public class SpectrumViewerPanel extends JPanel {
 	private Vector<SpectrumAnnotation> filterAnnotations(Map<FragmentIon, SpectrumAnnotation> annotations) {
 		// init the collection of remaining annotations
 		Vector<SpectrumAnnotation> filteredAnnotations = new Vector<SpectrumAnnotation>();
-	
+
 		// iterate collection of all annotations
-		for (Entry<FragmentIon, SpectrumAnnotation> entry : annotations.entrySet()) {
+		for (Map.Entry<FragmentIon, SpectrumAnnotation> entry : annotations.entrySet()) {
 			// query filter panel
-			if (filterPnl.filterAnnotation(entry.getKey())) {
+			if (this.filterPnl.filterAnnotation(entry.getKey())) {
 				// append annotation
 				filteredAnnotations.add(entry.getValue());
 			}
@@ -284,15 +282,14 @@ public class SpectrumViewerPanel extends JPanel {
 		 * Constructs a filter panel.
 		 */
 		public FilterPanel() {
-			super();
-			this.initComponents();
+            initComponents();
 		}
 		
 		/**
 		 * Creates and lays out the filter panel's components.
 		 */
 		private void initComponents() {
-			this.setLayout(new FormLayout("39px",
+            setLayout(new FormLayout("39px",
 					"f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, "		// a, b, c
 					+ "5dlu, p, 5dlu, "
 					+ "f:p:g, 2dlu, f:p:g, 2dlu, f:p:g, "	// x, y, z
@@ -305,26 +302,26 @@ public class SpectrumViewerPanel extends JPanel {
 		
 			Action action = new AbstractAction() {
 				public void actionPerformed(ActionEvent e) {
-					filterAnnotations();
+                    SpectrumViewerPanel.this.filterAnnotations();
 				}
 			};
-			
-			this.add(aIonsTgl = this.createFilterButton("a", false, "Show a ions", action), CC.xy(1, 1));
-			this.add(bIonsTgl = this.createFilterButton("b", true, "Show b ions", action), CC.xy(1, 3));
-			this.add(cIonsTgl = this.createFilterButton("c", false, "Show c ions", action), CC.xy(1, 5));
-			this.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 7));
-			this.add(xIonsTgl = this.createFilterButton("x", false, "Show x ions", action), CC.xy(1, 9));
-			this.add(yIonsTgl = this.createFilterButton("y", true, "Show y ions", action), CC.xy(1, 11));
-			this.add(zIonsTgl = this.createFilterButton("z", false, "Show z ions", action), CC.xy(1, 13));
-			this.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 15));
-			this.add(h2oIonsTgl = this.createFilterButton("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", action), CC.xy(1, 17));
-			this.add(nh3IonsTgl = this.createFilterButton("*", false, "<html>Show NH<sub>3</sub> losses</html>", action), CC.xy(1, 19));
-			this.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 21));
-			this.add(sglIonsTgl = this.createFilterButton("+", true, "Show ions with charge 1", action), CC.xy(1, 23));
-			this.add(dblIonsTgl = this.createFilterButton("++", false, "Show ions with charge 2", action), CC.xy(1, 25));
-			this.add(mltIonsTgl = this.createFilterButton(">2", false, "Show ions with charge >2", action), CC.xy(1, 27));
-			this.add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 29));
-			this.add(precIonsTgl = this.createFilterButton("MH", true, "Show precursor ion", action), CC.xy(1, 31));
+
+            add(this.aIonsTgl = createFilterButton("a", false, "Show a ions", action), CC.xy(1, 1));
+            add(this.bIonsTgl = createFilterButton("b", true, "Show b ions", action), CC.xy(1, 3));
+            add(this.cIonsTgl = createFilterButton("c", false, "Show c ions", action), CC.xy(1, 5));
+            add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 7));
+            add(this.xIonsTgl = createFilterButton("x", false, "Show x ions", action), CC.xy(1, 9));
+            add(this.yIonsTgl = createFilterButton("y", true, "Show y ions", action), CC.xy(1, 11));
+            add(this.zIonsTgl = createFilterButton("z", false, "Show z ions", action), CC.xy(1, 13));
+            add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 15));
+            add(this.h2oIonsTgl = createFilterButton("\u00B0", false, "<html>Show H<sub>2</sub>0 losses</html>", action), CC.xy(1, 17));
+            add(this.nh3IonsTgl = createFilterButton("*", false, "<html>Show NH<sub>3</sub> losses</html>", action), CC.xy(1, 19));
+            add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 21));
+            add(this.sglIonsTgl = createFilterButton("+", true, "Show ions with charge 1", action), CC.xy(1, 23));
+            add(this.dblIonsTgl = createFilterButton("++", false, "Show ions with charge 2", action), CC.xy(1, 25));
+            add(this.mltIonsTgl = createFilterButton(">2", false, "Show ions with charge >2", action), CC.xy(1, 27));
+            add(new JSeparator(JSeparator.HORIZONTAL), CC.xy(1, 29));
+            add(this.precIonsTgl = createFilterButton("MH", true, "Show precursor ion", action), CC.xy(1, 31));
 			
 		}
 
@@ -353,48 +350,48 @@ public class SpectrumViewerPanel extends JPanel {
 		public boolean filterAnnotation(FragmentIon ion) {
 			// check ion charge
 			double charge = ion.getCharge();
-			if (!mltIonsTgl.isSelected() && (charge > 2)) {
+			if (!this.mltIonsTgl.isSelected() && (charge > 2)) {
 				return false;
 			}
-			if (!dblIonsTgl.isSelected() && (charge == 2)) {
+			if (!this.dblIonsTgl.isSelected() && (charge == 2)) {
 				return false;
 			}
-			if (!sglIonsTgl.isSelected() && (charge == 1)) {
+			if (!this.sglIonsTgl.isSelected() && (charge == 1)) {
 				return false;
 			}
 			
 			// check ion type
 			switch (ion.getType()) {
 				case A_ION:
-					return aIonsTgl.isSelected();
+					return this.aIonsTgl.isSelected();
 				case AH2O_ION:
-					return aIonsTgl.isSelected() && h2oIonsTgl.isSelected();
+					return this.aIonsTgl.isSelected() && this.h2oIonsTgl.isSelected();
 				case ANH3_ION:
-					return aIonsTgl.isSelected() && nh3IonsTgl.isSelected();
+					return this.aIonsTgl.isSelected() && this.nh3IonsTgl.isSelected();
 				case B_ION:
-					return bIonsTgl.isSelected();
+					return this.bIonsTgl.isSelected();
 				case BH2O_ION:
-					return bIonsTgl.isSelected() && h2oIonsTgl.isSelected();
+					return this.bIonsTgl.isSelected() && this.h2oIonsTgl.isSelected();
 				case BNH3_ION:
-					return bIonsTgl.isSelected() && nh3IonsTgl.isSelected();
+					return this.bIonsTgl.isSelected() && this.nh3IonsTgl.isSelected();
 				case C_ION:
-					return cIonsTgl.isSelected();
+					return this.cIonsTgl.isSelected();
 				case X_ION:
-					return xIonsTgl.isSelected();
+					return this.xIonsTgl.isSelected();
 				case Y_ION:
-					return yIonsTgl.isSelected();
+					return this.yIonsTgl.isSelected();
 				case YH2O_ION:
-					return yIonsTgl.isSelected() && h2oIonsTgl.isSelected();
+					return this.yIonsTgl.isSelected() && this.h2oIonsTgl.isSelected();
 				case YNH3_ION:
-					return yIonsTgl.isSelected() && nh3IonsTgl.isSelected();
+					return this.yIonsTgl.isSelected() && this.nh3IonsTgl.isSelected();
 				case Z_ION:
-					return zIonsTgl.isSelected();
+					return this.zIonsTgl.isSelected();
 				case MH_ION:
-					return precIonsTgl.isSelected();
+					return this.precIonsTgl.isSelected();
 				case MHH2O_ION:
-					return precIonsTgl.isSelected() && h2oIonsTgl.isSelected();
+					return this.precIonsTgl.isSelected() && this.h2oIonsTgl.isSelected();
 				case MHNH3_ION:
-					return precIonsTgl.isSelected() && nh3IonsTgl.isSelected();
+					return this.precIonsTgl.isSelected() && this.nh3IonsTgl.isSelected();
 				default:
 					return true;
 			}

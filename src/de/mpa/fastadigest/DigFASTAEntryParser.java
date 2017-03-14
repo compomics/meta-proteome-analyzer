@@ -1,5 +1,7 @@
 package de.mpa.fastadigest;
 
+import de.mpa.fastadigest.DigFASTAEntry.Type;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -46,11 +48,11 @@ public class DigFASTAEntryParser {
 			
 		DigFASTAEntry dbEntry;
 		String identifier = null;
-		DigFASTAEntry.Type type = null;
+		Type type = null;
 		ArrayList<String> subHeaderList = new ArrayList<String>();
 		
 		// Parse the header line.
-		for (DigFASTAEntry.Type db_Type : DigFASTAEntry.Type.values()) {
+		for (Type db_Type : Type.values()) {
 			if (header.startsWith(db_Type.dbStartFlag)) {
 				// Remove start tag
 				header	= header.substring(db_Type.dbStartFlag.length(), header.length());

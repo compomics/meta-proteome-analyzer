@@ -46,7 +46,7 @@ public class AddFastaDialog extends JDialog {
 	/**
 	 * The ClientFrame
 	 */
-	private ClientFrame owner;
+	private final ClientFrame owner;
 
 	/**
 	 * @param owner. The owner of the dialog.
@@ -55,8 +55,8 @@ public class AddFastaDialog extends JDialog {
 	public AddFastaDialog(ClientFrame owner, String title) {
 		super(owner, title);
 		this.owner = owner;
-		initComponents();
-		showDialog();
+        this.initComponents();
+        this.showDialog();
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class AddFastaDialog extends JDialog {
 		lablePnl.setMaximumSize(new Dimension(370, 35));
 
 		// Checkbox for new Mascot-database
-		final JCheckBox mascotFastaCbx = new JCheckBox("<html><p align='justify'>" +"Create a new *.fasta-database in the same directory as the input databases for the Mascot searches."+ 
+		JCheckBox mascotFastaCbx = new JCheckBox("<html><p align='justify'>" +"Create a new *.fasta-database in the same directory as the input databases for the Mascot searches."+
 				" For later uploaded of Mascot dat-files please use following parsing rules: \n <b> >..|[^|]*|\\([^ ]*\\)     SwissProt</b></p>  </html>");
 		mascotFastaCbx.setFont(new Font("Serif", Font.PLAIN, 14));
 		mascotFastaCbx.setPreferredSize(new Dimension(360, 100));
@@ -98,10 +98,10 @@ public class AddFastaDialog extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				close();
+                AddFastaDialog.this.close();
 				Client.getInstance().firePropertyChange("indeterminate", false, true);
 				// TODO: make sure clientFrame gives correct feedback 
-				addFastaDatabases(mascotFastaCbx.isSelected());
+                AddFastaDialog.this.addFastaDatabases(mascotFastaCbx.isSelected());
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
 			}
 		});
@@ -114,14 +114,14 @@ public class AddFastaDialog extends JDialog {
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				close();
+                AddFastaDialog.this.close();
 			}
 		});
 
 		addFastaDlgPnl.add(descPnl, CC.xyw(2, 2,3));
 		addFastaDlgPnl.add(okBtn,CC.xy(2, 4) );
 		addFastaDlgPnl.add(cancelBtn,CC.xy(4, 4) );
-		Container cp = this.getContentPane();		
+		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		cp.add(addFastaDlgPnl, CC.xy(2,  2));
@@ -133,19 +133,19 @@ public class AddFastaDialog extends JDialog {
 	 */
 	private void showDialog() {
 		// Configure size and position
-		this.pack();
-		this.setResizable(false);
+        pack();
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 
 	/**
 	 * Close method for the dialog.
 	 */
 	private void close() {
-		dispose();
+        this.dispose();
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class AddFastaDialog extends JDialog {
 		JFileChooser fastaChooser = new JFileChooser();
 		fastaChooser.setFileFilter(Constants.FASTA_FILE_FILTER);
 		fastaChooser.setMultiSelectionEnabled(false);
-		int returnVal = fastaChooser.showOpenDialog(owner);
+		int returnVal = fastaChooser.showOpenDialog(this.owner);
 		fastaChooser.setAcceptAllFileFilterUsed(false);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			fastaFile = fastaChooser.getSelectedFile();
@@ -204,7 +204,7 @@ public class AddFastaDialog extends JDialog {
 		try {
 			Client.getInstance().firePropertyChange("new message", null, "Adding a new *.fasta database");
 			Client.getInstance().firePropertyChange("indeterminate", false, true);
-			System.out.println(fastaFile.toString());
+			System.out.println(fastaFile);
 			FastaLoader.addFastaDatabases(fastaFile, new File(outpath), mascotFlag, UniProtUtilities.BATCH_SIZE);
 
 			// Show finished message

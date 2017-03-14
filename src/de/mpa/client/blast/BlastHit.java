@@ -78,7 +78,7 @@ public class BlastHit {
 	 * @return accession.
 	 */
 	public String getAccession() {
-		return accession;
+		return this.accession;
 	}
 
 
@@ -87,7 +87,7 @@ public class BlastHit {
 	 * @return name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class BlastHit {
 	 * @return sequence length.
 	 */
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class BlastHit {
 	 * @return score
 	 */
 	public double getScore() {
-		return bitScore;
+		return this.bitScore;
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class BlastHit {
 	 * @param score
 	 */
 	public void setScore(double score) {
-		bitScore = score;
+        this.bitScore = score;
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class BlastHit {
 	 * @return BLAST metho
 	 */
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class BlastHit {
 	 * @return e-value
 	 */
 	public double geteValue() {
-		return eValue;
+		return this.eValue;
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class BlastHit {
 	 * @return identities
 	 */
 	public double getIdentities() {
-		return identities;
+		return this.identities;
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class BlastHit {
 	 * @return positives.
 	 */
 	public String getPositives() {
-		return positives;
+		return this.positives;
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class BlastHit {
 	 * @return gaps.
 	 */
 	public String getGaps() {
-		return gaps;
+		return this.gaps;
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class BlastHit {
 	 * @return query sequence.
 	 */
 	public String getQuery() {
-		return query;
+		return this.query;
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class BlastHit {
 	 * @return BLAST sequence.
 	 */
 	public String getSbjct() {
-		return Sbjct;
+		return this.Sbjct;
 	}
 
 	/**
@@ -231,6 +231,6 @@ public class BlastHit {
 	 * @param sbjct. Sequence of a BLAST hit.
 	 */
 	public void setSbjct(String sbjct) {
-		Sbjct = sbjct;
+        this.Sbjct = sbjct;
 	}
 }

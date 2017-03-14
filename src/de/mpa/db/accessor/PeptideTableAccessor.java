@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +38,12 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'peptideid' column.
@@ -53,19 +54,19 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	/**
 	 * This variable represents the contents for the 'sequence' column.
 	 */
-	protected String iSequence = null;
+	protected String iSequence;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -104,19 +105,19 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public PeptideTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(PEPTIDEID)) {
-			this.iPeptideid = ((Long)aParams.get(PEPTIDEID)).longValue();
+		if(aParams.containsKey(PeptideTableAccessor.PEPTIDEID)) {
+            iPeptideid = ((Long)aParams.get(PeptideTableAccessor.PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(SEQUENCE)) {
-			this.iSequence = (String)aParams.get(SEQUENCE);
+		if(aParams.containsKey(PeptideTableAccessor.SEQUENCE)) {
+            iSequence = (String)aParams.get(PeptideTableAccessor.SEQUENCE);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(PeptideTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(PeptideTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(PeptideTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(PeptideTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -128,12 +129,12 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public PeptideTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iPeptideid = aResultSet.getLong("peptideid");
-		this.iSequence = (String)aResultSet.getObject("sequence");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+        iPeptideid = aResultSet.getLong("peptideid");
+        iSequence = (String)aResultSet.getObject("sequence");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -143,7 +144,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @return	long	with the value for the Peptideid column.
 	 */
 	public long getPeptideid() {
-		return this.iPeptideid;
+		return iPeptideid;
 	}
 
 	/**
@@ -152,7 +153,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @return	String	with the value for the Sequence column.
 	 */
 	public String getSequence() {
-		return this.iSequence;
+		return iSequence;
 	}
 
 	/**
@@ -160,8 +161,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -169,8 +170,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -179,8 +180,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param	aPeptideid	long with the value for the Peptideid column.
 	 */
 	public void setPeptideid(long aPeptideid) {
-		this.iPeptideid = aPeptideid;
-		this.iUpdated = true;
+        iPeptideid = aPeptideid;
+        iUpdated = true;
 	}
 
 	/**
@@ -189,8 +190,8 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param	aSequence	String with the value for the Sequence column.
 	 */
 	public void setSequence(String aSequence) {
-		this.iSequence = aSequence;
-		this.iUpdated = true;
+        iSequence = aSequence;
+        iUpdated = true;
 	}
 
 	/**
@@ -198,9 +199,9 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -208,9 +209,9 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -223,7 +224,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM peptide WHERE peptideid = ?");
-		lStat.setLong(1, iPeptideid);
+		lStat.setLong(1, this.iPeptideid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -238,22 +239,22 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(PEPTIDEID)) {
+		if(!aKeys.containsKey(PeptideTableAccessor.PEPTIDEID)) {
 			throw new IllegalArgumentException("Primary key field 'PEPTIDEID' is missing in HashMap!");
 		} else {
-			iPeptideid = ((Long)aKeys.get(PEPTIDEID)).longValue();
+            this.iPeptideid = ((Long)aKeys.get(PeptideTableAccessor.PEPTIDEID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM peptide WHERE peptideid = ?");
-		lStat.setLong(1, iPeptideid);
+		lStat.setLong(1, this.iPeptideid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iPeptideid = lRS.getLong("peptideid");
-			iSequence = (String)lRS.getObject("sequence");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iPeptideid = lRS.getLong("peptideid");
+            this.iSequence = (String)lRS.getObject("sequence");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -282,7 +283,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	public static ArrayList<PeptideTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<PeptideTableAccessor>  entities = new ArrayList<PeptideTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(PeptideTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new PeptideTableAccessor(rs));
 		}
@@ -300,17 +301,17 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE peptide SET peptideid = ?, sequence = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE peptideid = ?");
-		lStat.setLong(1, iPeptideid);
-		lStat.setObject(2, iSequence);
-		lStat.setObject(3, iCreationdate);
-		lStat.setLong(4, iPeptideid);
+		lStat.setLong(1, this.iPeptideid);
+		lStat.setObject(2, this.iSequence);
+		lStat.setObject(3, this.iCreationdate);
+		lStat.setLong(4, this.iPeptideid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -323,15 +324,15 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO peptide (peptideid, sequence, creationdate, modificationdate) values(?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iPeptideid == Long.MIN_VALUE) {
+		if(this.iPeptideid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iPeptideid);
+			lStat.setLong(1, this.iPeptideid);
 		}
-		if(iSequence == null) {
+		if(this.iSequence == null) {
 			lStat.setNull(2, 12);
 		} else {
-			lStat.setObject(2, iSequence);
+			lStat.setObject(2, this.iSequence);
 		}
 		int result = lStat.executeUpdate();
 
@@ -339,22 +340,22 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iPeptideid = ((Number) iKeys[0]).longValue();
+            this.iPeptideid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -365,7 +366,7 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

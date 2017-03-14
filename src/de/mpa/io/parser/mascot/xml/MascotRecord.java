@@ -40,7 +40,7 @@ public class MascotRecord {
 	/**
 	 * The total number of annotated queries.
 	 */
-	private int numQueries = 0;
+	private int numQueries;
 	
 	/**
 	 * The global list of post-translational amino acid modifications.
@@ -53,58 +53,58 @@ public class MascotRecord {
 	 * @param peptideHit Mascot peptidehit
 	 */
 	public void addPeptide(String scanTitle, MascotPeptideHit peptideHit) {
-		List<MascotPeptideHit> hitList = pepMap.get(scanTitle);
+		List<MascotPeptideHit> hitList = this.pepMap.get(scanTitle);
 		if (hitList == null) {
 			hitList = new ArrayList<MascotPeptideHit>();
 		}
 		hitList.add(peptideHit);
-		pepMap.put(scanTitle, hitList);
+        this.pepMap.put(scanTitle, hitList);
 	}
 
 	public String getXmlFilename() {
-		return xmlFilename;
+		return this.xmlFilename;
 	}
 	public void setXmlFilename(String xmlFilename) {
 		this.xmlFilename = xmlFilename;
 	}
 
 	public String getURI() {
-		return uri;
+		return this.uri;
 	}
 	public void setURI(String uri) {
 		this.uri = uri;
 	}
 
 	public String getInputFilename() {
-		return inputFilename;
+		return this.inputFilename;
 	}
 	public void setInputFilename(String mascotFilename) {
-		this.inputFilename = mascotFilename;
+        inputFilename = mascotFilename;
 	}
 
 	public List<MascotProteinHit> getProteins() {
-		return proteinHits;
+		return this.proteinHits;
 	}
 	public void setProteins(List<MascotProteinHit> proteinHits) {
 		this.proteinHits = proteinHits;
 	}
 	
 	public Map<String, List<MascotPeptideHit>> getPeptideMap() {
-		return pepMap;
+		return this.pepMap;
 	}
 	public void setPeptides(Map<String, List<MascotPeptideHit>> pepMap) {
 		this.pepMap = pepMap;
 	}
 
 	public int getNumQueries() {
-		return numQueries;
+		return this.numQueries;
 	}
 	public void setNumQueries(int numQueries) {
 		this.numQueries = numQueries;
 	}
 
 	public List<MascotModification> getModifications() {
-		return modifications;
+		return this.modifications;
 	}
 
 	public void setModifications(List<MascotModification> modifications) {

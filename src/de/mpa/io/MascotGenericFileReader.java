@@ -21,12 +21,12 @@ public class MascotGenericFileReader extends InputFileReader {
     /**
      * This String holds the run identification for this mergefile.
      */
-    protected String runName = null;
+    protected String runName;
 
     /**
      * This String holds the comments located on top of the MascotGenericMergeFile.
      */
-    protected String comments = null;
+    protected String comments;
     
     /**
      * This file stream will be used to read from the specified mergefile.
@@ -37,18 +37,18 @@ public class MascotGenericFileReader extends InputFileReader {
 	/**
 	 * List of registered property change listeners.
 	 */
-	private List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+	private final List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		listeners.add(listener);
+        this.listeners.add(listener);
 	}
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		listeners.remove(listener);
+        this.listeners.remove(listener);
 	}
 	
 	private void fireProgressMade(long oldProgress, long newProgress) {
-		for (PropertyChangeListener listener : listeners) {
+		for (PropertyChangeListener listener : this.listeners) {
 			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
 		}
 	}
@@ -60,44 +60,44 @@ public class MascotGenericFileReader extends InputFileReader {
     public enum LoadMode {
     	LOAD,
     	SURVEY,
-    	NONE;
+    	NONE
     }
     
 	/**
      * This constructor opens the specified mergefile and maps it to memory.
      *
      * @param mgfFile The input MGF file
-     * @throws java.io.IOException when the file could not be read.
+     * @throws IOException when the file could not be read.
      */
     public MascotGenericFileReader(File file) throws IOException {
-    	this(file, LoadMode.LOAD);
+    	this(file, MascotGenericFileReader.LoadMode.LOAD);
     }
-        
+
     /**
      * This constructor opens the specified mergefile and optionally maps it to memory.
      *
      * @param mgfFile The input MGF file
      * @param doLoad Boolean to determine whether to auto-load the specified file.
-     * @throws java.io.IOException when the file could not be read.
+     * @throws IOException when the file could not be read.
      */
-	public MascotGenericFileReader(File file, LoadMode mode) throws IOException {
+	public MascotGenericFileReader(File file, MascotGenericFileReader.LoadMode mode) throws IOException {
 		super(file);
         this.raf = new RandomAccessFile(file, "r");
-        if (mode == LoadMode.LOAD) {
+        if (mode == MascotGenericFileReader.LoadMode.LOAD) {
         	this.load();
-        } else if (mode == LoadMode.SURVEY) {
-        	this.survey();
+        } else if (mode == MascotGenericFileReader.LoadMode.SURVEY) {
+            survey();
         }
 	}
 
 	/**
      * This method loads the specified file in this MergeFileReader.
      *
-     * @throws java.io.IOException when the loading operation failed.
+     * @throws IOException when the loading operation failed.
      */
     public void load() throws IOException {
-        spectrumFiles = new ArrayList<MascotGenericFile>();
-    	spectrumPositions = new ArrayList<Long>();
+        this.spectrumFiles = new ArrayList<MascotGenericFile>();
+        this.spectrumPositions = new ArrayList<Long>();
 
         // First parse the header.
         // First (non-empty?) line can be CHARGE= --> omit it if present.
@@ -112,8 +112,8 @@ public class MascotGenericFileReader extends InputFileReader {
         long oldPos = 0L;
         long newPos = 0L;
         
-        if (newlineCharCount == 0) {
-        	newlineCharCount = determineNewlineCharCount();
+        if (this.newlineCharCount == 0) {
+            this.newlineCharCount = this.determineNewlineCharCount();
         }
         
         int spectrumCounter = 0;
@@ -122,9 +122,9 @@ public class MascotGenericFileReader extends InputFileReader {
         StringBuffer spectrum = new StringBuffer();
         // Cycle the file.
         boolean runnameNotYetFound = true;
-        while ((line = raf.readLine()) != null) {
+        while ((line = this.raf.readLine()) != null) {
         	lineCounter++;
-        	newPos = raf.getFilePointer();
+        	newPos = this.raf.getFilePointer();
             line = line.trim();
             // Skip empty lines and file-level charge statement.
             if (line.equals("") || (lineCounter == 1 && line.startsWith("CHARGE"))) {
@@ -133,7 +133,7 @@ public class MascotGenericFileReader extends InputFileReader {
                 // Comment lines.
             	
                 // First strip off the comment markings in a new String ('cleanLine').
-                String cleanLine = this.cleanCommentMarks(line);
+                String cleanLine = cleanCommentMarks(line);
                 // If cleanLine trimmed is empty String, it's an empty comment line
                 // and therefore skipped without counting.
                 String cleanLineTrimmed = cleanLine.trim();
@@ -147,7 +147,7 @@ public class MascotGenericFileReader extends InputFileReader {
                     // See if it is the second non-empty comment line.
                     if (runnameNotYetFound && commentLineCounter >= 2 && cleanLineTrimmed.indexOf("Instrument:") < 0 && cleanLineTrimmed.indexOf("Manufacturer:") < 0) {
                         // This line contains the run name.
-                        this.runName = cleanLineTrimmed;
+                        runName = cleanLineTrimmed;
                         runnameNotYetFound = false;
                     }
                     // Every non-empty comment line is added to the tempComments
@@ -156,8 +156,8 @@ public class MascotGenericFileReader extends InputFileReader {
                     tempComments.append(line + "\n");
                 } else {
                     // Spectrum comment. Start a new Spectrum!
-                    fireProgressMade(oldPos, newPos);
-                    this.spectrumPositions.add(oldPos);
+                    this.fireProgressMade(oldPos, newPos);
+                    spectrumPositions.add(oldPos);
                     inSpectrum = true;
                     spectrum.append(line + "\n");
                 }
@@ -178,40 +178,40 @@ public class MascotGenericFileReader extends InputFileReader {
                     spectrumCounter++;
                     // Create a filename for the spectrum, based on the filename of the mergefile, with
                     // an '_[spectrumCounter]' before the extension (e.g. myParent.mgf --> myParent_1.mgf).
-                    String spectrumFilename = this.createSpectrumFilename(spectrumCounter);
+                    String spectrumFilename = createSpectrumFilename(spectrumCounter);
                     // Parse the contents of the spectrum StringBuffer into a MascotGenericFile.
                     MascotGenericFile mgf = new MascotGenericFile(spectrumFilename, spectrum.toString());
                     // Add it to the collection of SpectrumFiles.
-                    this.spectrumFiles.add(mgf);
+                    spectrumFiles.add(mgf);
                     // Reset the spectrum StringBuffer.
                     spectrum = new StringBuffer();
                 }
             } else if (line.startsWith("BEGIN")) {
                 // If we're not in a spectrum, see if the line is 'BEGIN IONS', which marks the begin of a spectrum!
-                fireProgressMade(oldPos, newPos);
-                this.spectrumPositions.add(oldPos);
+                this.fireProgressMade(oldPos, newPos);
+                spectrumPositions.add(oldPos);
                 inSpectrum = true;
                 spectrum.append(line + "\n");
             }
             oldPos = newPos;
         }
         // Initialize the comments.
-        this.comments = tempComments.toString();
+        comments = tempComments.toString();
 
         // If we do not have a run name by now, we just take the filename, minus the extension.
-        if (this.runName == null) {
+        if (runName == null) {
             // See if there is an extension,
             // and if there isn't, just take the filename as-is.
-            int location = getFilename().lastIndexOf(".");
+            int location = this.getFilename().lastIndexOf(".");
             if (location > 0) {
-                runName = getFilename().substring(0, location);
+                this.runName = this.getFilename().substring(0, location);
             } else {
-                runName = getFilename();
+                this.runName = this.getFilename();
             }
         }
 
         // Fire final progress event
-        fireProgressMade(-1L, newPos);
+        this.fireProgressMade(-1L, newPos);
     }
     
     /**
@@ -222,7 +222,7 @@ public class MascotGenericFileReader extends InputFileReader {
     private int determineNewlineCharCount() {
     	int res = 0;
     	try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
+            BufferedReader br = new BufferedReader(new FileReader(this.file));
             int character;
             boolean eol = false;
             while ((character = br.read()) != -1) {
@@ -244,18 +244,18 @@ public class MascotGenericFileReader extends InputFileReader {
     /**
      * This method browses the specified file and stores the positions of any spectrum blocks it encounters.
      * 
-     * @throws java.io.IOException when the loading operation failed.
+     * @throws IOException when the loading operation failed.
      */
     public void survey() throws IOException {
-    	spectrumPositions = new ArrayList<Long>();
+        this.spectrumPositions = new ArrayList<Long>();
 
         String line = null;
         int lineCounter = 0;
         long oldPos = 0L;
         long newPos = 0L;
         
-        if (newlineCharCount == 0) {
-        	newlineCharCount = determineNewlineCharCount();
+        if (this.newlineCharCount == 0) {
+            this.newlineCharCount = this.determineNewlineCharCount();
         }
 
         boolean inSpectrum = false;
@@ -298,13 +298,13 @@ public class MascotGenericFileReader extends InputFileReader {
         
 		// Instantiate forward-only buffered reader for lightning-fast parsing
 		// to determine spectrum positions
-        BufferedReader br = new BufferedReader(new FileReader(file));
+        BufferedReader br = new BufferedReader(new FileReader(this.file));
         // Read file line by line
         while ((line = br.readLine()) != null) {
         	// Keep track of line number and byte position
         	lineCounter++;
         	oldPos = newPos;
-        	newPos += line.getBytes().length + newlineCharCount;
+        	newPos += line.getBytes().length + this.newlineCharCount;
         	
         	line = line.trim();
 
@@ -312,7 +312,7 @@ public class MascotGenericFileReader extends InputFileReader {
         	if (line.isEmpty() || (lineCounter == 1 && line.startsWith("CHARGE"))) {
         		continue;
         	} else if (line.startsWith("#") && !inSpectrum) {            	
-        		String cleanLine = this.cleanCommentMarks(line);
+        		String cleanLine = cleanCommentMarks(line);
         		String cleanLineTrimmed = cleanLine.trim();
         		if (cleanLineTrimmed.isEmpty()) {
         			// Empty comment
@@ -322,8 +322,8 @@ public class MascotGenericFileReader extends InputFileReader {
         			continue;
         		} else {
         			// Spectrum comment detected, start a new Spectrum
-        			fireProgressMade(oldPos, newPos);
-        			this.spectrumPositions.add(oldPos);
+                    this.fireProgressMade(oldPos, newPos);
+                    spectrumPositions.add(oldPos);
         			inSpectrum = true;
         		}
         	} else if (inSpectrum) {
@@ -333,23 +333,23 @@ public class MascotGenericFileReader extends InputFileReader {
         		}
         	} else if (line.startsWith("BEGIN")) {
         		// New spectrum found, store byte position of start of line
-        		fireProgressMade(oldPos, newPos);
-        		this.spectrumPositions.add(oldPos);
+                this.fireProgressMade(oldPos, newPos);
+                spectrumPositions.add(oldPos);
         	}
 		}
         
         br.close();
         // Fire final progress event
-        fireProgressMade(oldPos, newPos);
+        this.fireProgressMade(oldPos, newPos);
 	}
     
     /**
      * This method closes the reader's file stream.
      * 
-     * @throws java.io.IOException when the closing operation failed.
+     * @throws IOException when the closing operation failed.
      */
     public void close() throws IOException {
-    	raf.close();
+        this.raf.close();
     }
 
     /**
@@ -374,22 +374,22 @@ public class MascotGenericFileReader extends InputFileReader {
      * @return String with a filename for this spectrum file.
      */
     protected String createSpectrumFilename(int number) {
-    	String filename = getFilename();
+    	String filename = this.getFilename();
         int extensionStart = filename.lastIndexOf(".");
         return filename.substring(0, extensionStart) + "_" + number + filename.substring(extensionStart);
     }
 
 	@Override
 	public MascotGenericFile loadSpectrum(int index) throws IOException {
-		long pos1 = spectrumPositions.get(index);
+		long pos1 = this.spectrumPositions.get(index);
 		long pos2;
 		index++;
-		if (index < spectrumPositions.size()) {
-			pos2 = spectrumPositions.get(index);
+		if (index < this.spectrumPositions.size()) {
+			pos2 = this.spectrumPositions.get(index);
 		} else {
-			pos2 = file.length();
+			pos2 = this.file.length();
 		}
-		return loadSpectrum(index, pos1, pos2);
+		return this.loadSpectrum(index, pos1, pos2);
 	}
 
 	@Override
@@ -397,14 +397,14 @@ public class MascotGenericFileReader extends InputFileReader {
 			throws IOException {
 
     	// Skip to specified line
-    	raf.seek(pos1);
+        this.raf.seek(pos1);
     	
     	// Prepare byte buffer
     	int len = (int) (pos2 - pos1);
     	byte[] bytes = new byte[len];
     	
     	// Store file contents into buffer
-    	int res = raf.read(bytes);
+    	int res = this.raf.read(bytes);
     	
     	// Throw exceptions when number of bytes read do not match
     	if (res != len) {
@@ -417,7 +417,7 @@ public class MascotGenericFileReader extends InputFileReader {
     	
     	// Generate MGF from buffered bytes (interpreted as String)
     	MascotGenericFile mgf = new MascotGenericFile(
-    			createSpectrumFilename(index), new String(bytes));
+                this.createSpectrumFilename(index), new String(bytes));
     	
 		return mgf;
 	}

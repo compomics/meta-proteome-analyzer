@@ -32,8 +32,8 @@ public class SpectrumPeak implements IPeak {
 	 * 
 	 */
 	public SpectrumPeak(double aMz, double aIntensity) {
-		iMz = aMz;
-		iIntensity = aIntensity;
+        this.iMz = aMz;
+        this.iIntensity = aIntensity;
 	}
 	
 	/**
@@ -45,9 +45,9 @@ public class SpectrumPeak implements IPeak {
 	 * 
 	 */
 	public SpectrumPeak(int aId, double aMz, double aIntensity) {
-		iId = aId;
-		iMz = aMz;
-		iIntensity = aIntensity;
+        this.iId = aId;
+        this.iMz = aMz;
+        this.iIntensity = aIntensity;
 	}
 
 	/**
@@ -58,14 +58,14 @@ public class SpectrumPeak implements IPeak {
 	 * @param aCharge
 	 */
 	public SpectrumPeak(double aMz, double aIntensity, int aCharge) {
-		iMz = aMz;
-		iIntensity = aIntensity;
-		iCharge = aCharge;
+        this.iMz = aMz;
+        this.iIntensity = aIntensity;
+        this.iCharge = aCharge;
 	}
 
 	
 	public int getId() {
-		return iId;
+		return this.iId;
 	}
 
 	public void setId(int iId) {
@@ -78,7 +78,7 @@ public class SpectrumPeak implements IPeak {
 	 * @param aCharge
 	 */
 	public void setCharge(int aCharge) {
-		iCharge = aCharge;
+        this.iCharge = aCharge;
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class SpectrumPeak implements IPeak {
 	 * @return the charge
 	 */
 	public int getCharge() {
-		return iCharge;
+		return this.iCharge;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class SpectrumPeak implements IPeak {
 	 * @param aIntensity
 	 */
 	public void setIntensity(double aIntensity) {
-		iIntensity = aIntensity;
+        this.iIntensity = aIntensity;
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class SpectrumPeak implements IPeak {
 	 * @return the intensity
 	 */
 	public double getIntensity() {
-		return iIntensity;
+		return this.iIntensity;
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class SpectrumPeak implements IPeak {
 	 * @param aMz
 	 */
 	public void setMz(double aMz) {
-		iMz = aMz;
+        this.iMz = aMz;
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class SpectrumPeak implements IPeak {
 	 * @return the m/z
 	 */
 	public double getMZ() {
-		return iMz;
+		return this.iMz;
 	}
 
 }

@@ -13,8 +13,8 @@ import de.mpa.client.model.dbsearch.SearchEngineType;
 public class Omssahit extends OmssahitTableAccessor implements SearchHit {
 	
 	private static final long serialVersionUID = 1L;
-	private String sequence;
-	private String accession;
+	private final String sequence;
+	private final String accession;
 	
     /**
      * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
@@ -25,8 +25,8 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
      */
     public Omssahit(ResultSet aRS) throws SQLException {
         super(aRS);
-        this.sequence = (String) aRS.getObject("sequence");
-        this.accession = (String) aRS.getObject("accession");
+        sequence = (String) aRS.getObject("sequence");
+        accession = (String) aRS.getObject("accession");
     }
     
     /**
@@ -38,23 +38,23 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
      */
     public Omssahit(ResultSet aRS, boolean not_view) throws SQLException {
     	if (not_view) {
-    		this.iOmssahitid = (Long) aRS.getLong("omssahit.omssahitid");
-    		this.iFk_searchspectrumid = (Long) aRS.getLong("omssahit.fk_searchspectrumid");
-    		this.iFk_peptideid = (Long) aRS.getLong("omssahit.fk_peptideid");
-    		this.iFk_proteinid = (Long) aRS.getLong("omssahit.fk_proteinid");
-    		this.iCharge = (Long) aRS.getLong("omssahit.charge");
-    		this.sequence = (String) aRS.getObject("peptide.sequence");
-        	this.accession = (String) aRS.getObject("protein.accession");
-        	this.iQvalue = (Number ) aRS.getObject("omssahit.qvalue");
+            iOmssahitid = aRS.getLong("omssahit.omssahitid");
+            iFk_searchspectrumid = aRS.getLong("omssahit.fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("omssahit.fk_peptideid");
+            iFk_proteinid = aRS.getLong("omssahit.fk_proteinid");
+            iCharge = aRS.getLong("omssahit.charge");
+            sequence = (String) aRS.getObject("peptide.sequence");
+            accession = (String) aRS.getObject("protein.accession");
+            iQvalue = (Number ) aRS.getObject("omssahit.qvalue");
     	} else {
-    		this.iOmssahitid = (Long) aRS.getLong("omssahitid");
-    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
-    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
-    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
-    		this.iCharge = (Long) aRS.getLong("charge");
-    		this.sequence = (String) aRS.getObject("pepseq");
-        	this.accession = (String) aRS.getObject("accession");
-        	this.iQvalue = (Number ) aRS.getObject("qvalue");
+            iOmssahitid = aRS.getLong("omssahitid");
+            iFk_searchspectrumid = aRS.getLong("fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("fk_peptideid");
+            iFk_proteinid = aRS.getLong("fk_proteinid");
+            iCharge = aRS.getLong("charge");
+            sequence = (String) aRS.getObject("pepseq");
+            accession = (String) aRS.getObject("accession");
+            iQvalue = (Number ) aRS.getObject("qvalue");
     	}
     }
     
@@ -155,11 +155,11 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
     }
 
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 
 	public String getAccession() {
-		return accession;
+		return this.accession;
 	}
 	
 	@Override
@@ -171,9 +171,9 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
 	public boolean equals(Object obj) {
 		if (obj instanceof SearchHit) {
 			SearchHit hit = ((SearchHit) obj);
-			if (hit.getType() == this.getType()) {
-				if (hit.getFk_searchspectrumid() == this.getFk_searchspectrumid()) {
-					if (hit.getFk_peptideid() == this.getFk_peptideid()) {
+			if (hit.getType() == getType()) {
+				if (hit.getFk_searchspectrumid() == getFk_searchspectrumid()) {
+					if (hit.getFk_peptideid() == getFk_peptideid()) {
 						return true;
 					}
 				}
@@ -184,6 +184,6 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
 	
 	@Override
 	public double getScore() {		
-		return iEvalue.doubleValue();
+		return this.iEvalue.doubleValue();
 	}
 }

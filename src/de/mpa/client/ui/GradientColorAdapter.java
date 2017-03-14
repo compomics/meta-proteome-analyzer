@@ -25,18 +25,18 @@ public class GradientColorAdapter extends Color {
 	/**
 	 * The start color of the gradient.
 	 */
-	private Color startColor;
+	private final Color startColor;
 	
 	/**
 	 * The end color of the gradient.
 	 */
-	private Color endColor;
+	private final Color endColor;
 
 	/**
 	 * Flag denoting whether the device bounds or the user bounds should be used
 	 * when creating the painting context.
 	 */
-	private boolean useDeviceBounds;
+	private final boolean useDeviceBounds;
 
 	/**
 	 * Constructs a gradient color adapter from the specified start and end
@@ -69,10 +69,10 @@ public class GradientColorAdapter extends Color {
 	@Override
 	public synchronized PaintContext createContext(ColorModel cm, Rectangle r,
 			Rectangle2D r2d, AffineTransform xform, RenderingHints hints) {
-		Rectangle r2 = (this.useDeviceBounds) ? r : r2d.getBounds();
+		Rectangle r2 = (useDeviceBounds) ? r : r2d.getBounds();
 		GradientPaint gp = new GradientPaint(
-				r2.x, r2.y, this.startColor,
-				r2.x + r2.width, r2.y + r2.height, this.endColor);
+				r2.x, r2.y, startColor,
+				r2.x + r2.width, r2.y + r2.height, endColor);
 		return gp.createContext(cm, r, r2d, xform, hints);
 	}
 	

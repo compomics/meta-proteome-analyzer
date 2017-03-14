@@ -12,7 +12,7 @@ public class CruxFile {
     private List<CruxHit> hits;
     
     public List<CruxHit> getHits() {
-		return hits;
+		return this.hits;
 	}
 
 	public void setHits(List<CruxHit> hits) {
@@ -20,7 +20,7 @@ public class CruxFile {
 	}
 
 	public String getFilename() {
-        return filename;
+        return this.filename;
     }
 
     public void setFilename(String filename) {

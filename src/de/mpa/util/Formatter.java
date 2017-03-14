@@ -33,7 +33,7 @@ public class Formatter {
 	/**
 	 * CSV FIELD SEPARATOR
 	 */
-	public final static String CSVFIELDSEPARATOR = ";";
+    public static final String CSVFIELDSEPARATOR = ";";
 	
 	/**
 	 * Check whether an input string is numeric.
@@ -74,9 +74,9 @@ public class Formatter {
 				tFracs=0;
 			}
 			if (aPrecision > 0) {
-				appendToString(tFomatString, '#', tFracs);
+                Formatter.appendToString(tFomatString, '#', tFracs);
 			} else {
-				appendToString(tFomatString, '0', tFracs);
+                Formatter.appendToString(tFomatString, '0', tFracs);
 			}
 			tFormat = new DecimalFormat(tFomatString.toString());
 			tFactor = Math.pow(10.0, tAbsPrec+1);
@@ -201,7 +201,7 @@ public class Formatter {
 			StringTokenizer tTokenizer = new StringTokenizer(aStr, ".", false);
 			while (tTokenizer.hasMoreTokens()) {
 				String tStr = tTokenizer.nextToken();
-				tElements.add(new Integer(stringToInteger(tStr)));
+				tElements.add(new Integer(Formatter.stringToInteger(tStr)));
 			}
 			tBack = new int[tElements.size()];
 			for(i=0; i<tBack.length; i++) {
@@ -223,8 +223,8 @@ public class Formatter {
 		int[] tVersion1, tVersion2;
 		int i;
 		int tBack = 0;
-		tVersion1 = stringToVersionArray(aStr1);
-		tVersion2 = stringToVersionArray(aStr2);
+		tVersion1 = Formatter.stringToVersionArray(aStr1);
+		tVersion2 = Formatter.stringToVersionArray(aStr2);
 		for(i=0; ; i++) {
 			if (i<tVersion1.length && i<tVersion2.length) {
 				if (tVersion1[i] > tVersion2[i]) {
@@ -262,7 +262,7 @@ public class Formatter {
 	 * @return
 	 */
 	public static boolean isOdd(int aValue) {
-		return !isEven(aValue);
+		return !Formatter.isEven(aValue);
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class Formatter {
 	 */
 	public static String makeCsvCompatibleString(String aString) {
 		aString = aString.replaceAll("\"", "");
-		aString = aString.replaceAll(CSVFIELDSEPARATOR, "");
+		aString = aString.replaceAll(Formatter.CSVFIELDSEPARATOR, "");
 		return aString;
 	}
 
@@ -521,7 +521,7 @@ public class Formatter {
 	 */
 	public static String joinStringArray(String[] aStrs, String aSep)
 	{
-		return joinStringArray(aStrs, aSep, -1, -1);
+		return Formatter.joinStringArray(aStrs, aSep, -1, -1);
 	}
 
 	/**
@@ -541,7 +541,7 @@ public class Formatter {
 				{
 					tStr.append(aSep);
 				}
-				tStr.append((String) aList.get(i));
+				tStr.append(aList.get(i));
 			}
 		}
 		return tStr.toString();
@@ -572,15 +572,15 @@ public class Formatter {
 		{
 			String tPattern;
 			String tParts[];
-			tPattern = escapeForRegex(File.separator);
-			tParts = makeNoPath(aFilePath).split(tPattern);
+			tPattern = Formatter.escapeForRegex(File.separator);
+			tParts = Formatter.makeNoPath(aFilePath).split(tPattern);
 			if (tParts!=null && tParts.length>0)
 			{
 				tBack = tParts[tParts.length-1];
 				if (aWithExt == false) {
-					tParts = tBack.split(escapeForRegex("."));
+					tParts = tBack.split(Formatter.escapeForRegex("."));
 					if (tParts.length>1) {
-						tBack = joinStringArray(tParts, ".", 0, tParts.length-2);
+						tBack = Formatter.joinStringArray(tParts, ".", 0, tParts.length-2);
 					} else {
 						tBack = tParts[0];
 					}
@@ -603,7 +603,7 @@ public class Formatter {
 		String tBack = null;
 		if (aFilePath!=null)
 		{
-			final String tFileExtSeparator = ".";
+			String tFileExtSeparator = ".";
 			int tPos;
 
 			tPos = aFilePath.lastIndexOf(tFileExtSeparator);
@@ -631,12 +631,12 @@ public class Formatter {
 		{
 			String tPattern;
 			String tParts[];
-			tPattern = escapeForRegex(File.separator);
-			aFilePath=replaceAllOccurencesOfSubstring(aFilePath, File.separator + File.separator, File.separator);
-			tParts = makeNoPath(aFilePath).split(tPattern);
+			tPattern = Formatter.escapeForRegex(File.separator);
+			aFilePath= Formatter.replaceAllOccurencesOfSubstring(aFilePath, File.separator + File.separator, File.separator);
+			tParts = Formatter.makeNoPath(aFilePath).split(tPattern);
 			if (tParts!=null && tParts.length>1)
 			{
-				tBack = joinStringArray(tParts, File.separator, 0, tParts.length-2);
+				tBack = Formatter.joinStringArray(tParts, File.separator, 0, tParts.length-2);
 			}
 			else
 			{
@@ -669,7 +669,7 @@ public class Formatter {
 	 */
 	public static String makePath(String aPath)
 	{
-		aPath = makeNoPath(aPath);
+		aPath = Formatter.makeNoPath(aPath);
 		if (aPath!=null)
 		{
 			aPath += File.separator;
@@ -789,7 +789,7 @@ public class Formatter {
 			if (aPropertyFileLine.charAt(0)!='#') {
 				if (aPropertyFileLine.contains("=")) {
 					int tPos;
-					String[] tResults = new String[] {"",""};
+					String[] tResults = {"",""};
 					for(tPos=0; tPos < aPropertyFileLine.length() && aPropertyFileLine.charAt(tPos) != '='; tPos++) {
 						tResults[0] += aPropertyFileLine.charAt(tPos);
 					}

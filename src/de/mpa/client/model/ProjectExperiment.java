@@ -13,25 +13,25 @@ public interface ProjectExperiment {
 	 * Returns the experiment ID.
 	 * @return the experiment ID
 	 */
-	public Long getID();
+    Long getID();
 	
 	/**
 	 * Returns the experiment title.
 	 * @return the experiment title
 	 */
-	public String getTitle();
+    String getTitle();
 
 	/**
 	 * Returns the experiment's creation date.
 	 * @return the creation date
 	 */
-	public Date getCreationDate();
+    Date getCreationDate();
 
 	/**
 	 * Returns the experiment properties.
 	 * @return the experiment properties
 	 */
-	public Map<String, String> getProperties();
+    Map<String, String> getProperties();
 	
 	/**
 	 * Creates a new content object using the specified title, properties and optional additional parameters.
@@ -39,7 +39,7 @@ public interface ProjectExperiment {
 	 * @param properties the content properties
 	 * @param params optional additional parameters
 	 */
-	public abstract void persist(String title, Map<String, String> properties, Object... params);
+    void persist(String title, Map<String, String> properties, Object... params);
 	
 	/**
 	 * Modifies the content object using the specified title, properties and optional additional parameters.
@@ -47,11 +47,11 @@ public interface ProjectExperiment {
 	 * @param properties the new properties
 	 * @param params optional additional parameters
 	 */
-	public abstract void update(String title, Map<String, String> properties, Object... params);
+    void update(String title, Map<String, String> properties, Object... params);
 	
 	/**
 	 * Deletes the content object from persistent storage.
 	 */
-	public abstract void delete();
+    void delete();
 	
 }

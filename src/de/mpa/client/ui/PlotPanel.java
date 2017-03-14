@@ -3,7 +3,7 @@ package de.mpa.client.ui;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JPanel;
@@ -19,35 +19,35 @@ public class PlotPanel extends JPanel {
 
 
 	public MascotGenericFile getSpectrum() {
-		return spectrum;
+		return this.spectrum;
 	}
 	public void setSpectrum(MascotGenericFile spectrum) {
 		this.spectrum = spectrum;
 	}
 	
 	public int getPadX() {
-		return padX;
+		return this.padX;
 	}
 	public void setPadX(int padX) {
 		this.padX = padX;
 	}
 
 	public int getPadY() {
-		return padY;
+		return this.padY;
 	}
 	public void setPadY(int padY) {
 		this.padY = padY;
 	}
 
 	public Color getLineColor() {
-		return lineColor;
+		return this.lineColor;
 	}
 	public void setLineColor(Color lineColor) {
 		this.lineColor = lineColor;
 	}
 
 	public Color getBackgroundColor() {
-		return bgColor;
+		return this.bgColor;
 	}
 	public void setBackgroundColor(Color bgColor) {
 		this.bgColor = bgColor;
@@ -61,34 +61,34 @@ public class PlotPanel extends JPanel {
 		
 		FontMetrics fm = g.getFontMetrics();
 		
-		g.setColor(bgColor);
-		g.fillRect(0, 0, this.getWidth(), this.getHeight());
+		g.setColor(this.bgColor);
+		g.fillRect(0, 0, getWidth(), getHeight());
 		
 		g.setColor(Color.BLACK);
-		g.drawLine(10*padX, this.getHeight()-2*padY, 10*padX, padY);
-		g.drawLine(10*padX, this.getHeight()-2*padY, this.getWidth()-padX, this.getHeight()-2*padY);
+		g.drawLine(10* this.padX, getHeight()-2* this.padY, 10* this.padX, this.padY);
+		g.drawLine(10* this.padX, getHeight()-2* this.padY, getWidth()- this.padX, getHeight()-2* this.padY);
 				
-		if (this.spectrum != null) {
+		if (spectrum != null) {
 			// grab peaks and draw stuff
-			TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(this.spectrum.getPeaks());
+			TreeMap<Double, Double> peaks = new TreeMap<Double, Double>(spectrum.getPeaks());
 			double minX = peaks.firstKey();
 			double maxX = peaks.lastKey();
-			double maxY = this.spectrum.getHighestIntensity();
+			double maxY = spectrum.getHighestIntensity();
 			
 			double pow  = Math.floor(Math.log10(maxY));
 			for (int i = 0; i < maxY; i += Math.pow(10, pow)) {
-				int posY = (int)(getHeight()-3*padY-i/maxY*(getHeight()-4*padY));
-				String s = Integer.toString((int)i);
-				g.drawLine( 9*padX, posY, 10*padX, posY);
-				g.drawString(s, 8*padX-fm.stringWidth(s), posY+fm.getAscent()/2);
+				int posY = (int)(this.getHeight()-3* this.padY -i/maxY*(this.getHeight()-4* this.padY));
+				String s = Integer.toString(i);
+				g.drawLine( 9* this.padX, posY, 10* this.padX, posY);
+				g.drawString(s, 8* this.padX -fm.stringWidth(s), posY+fm.getAscent()/2);
 			}
 			
-			g.setColor(lineColor);
-			for (Entry<Double, Double> peak : peaks.entrySet()) {
-				g.drawLine((int)((peak.getKey()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
-						   		(getHeight()-3*padY),
-						   (int)((peak.getKey()-minX)/(maxX-minX)*(getWidth()-12*padX)+11*padX),
-						   (int)(getHeight()-3*padY-peak.getValue()/maxY*(getHeight()-4*padY)));
+			g.setColor(this.lineColor);
+			for (Map.Entry<Double, Double> peak : peaks.entrySet()) {
+				g.drawLine((int)((peak.getKey()-minX)/(maxX-minX)*(this.getWidth()-12* this.padX)+11* this.padX),
+						   		(this.getHeight()-3* this.padY),
+						   (int)((peak.getKey()-minX)/(maxX-minX)*(this.getWidth()-12* this.padX)+11* this.padX),
+						   (int)(this.getHeight()-3* this.padY -peak.getValue()/maxY*(this.getHeight()-4* this.padY)));
 //				String s = Double.toString(Math.round(peak.getValue()*100.0)/100.0);
 //				g.drawString(s,
 //							 (int)((peak.getMz()-minX)/(maxX-minX)*(getWidth()-4*padX)+3*padX-g.getFontMetrics().stringWidth(s)/2),

@@ -13,8 +13,7 @@ public class ProjectAccessor extends ProjectTableAccessor {
 	 * Calls the super class.
 	 */
 	public ProjectAccessor(){
-		super();
-	}
+    }
 
 	/**
 	 * Calls the super class.
@@ -45,7 +44,7 @@ public class ProjectAccessor extends ProjectTableAccessor {
 	 */
 	public static ProjectAccessor findFromTitle(String title, Connection aConn) throws SQLException {
 		ProjectAccessor temp = null;
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
+		PreparedStatement ps = aConn.prepareStatement(ProjectTableAccessor.getBasicSelect() + " where title = ?");
 		ps.setString(1, title);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -65,7 +64,7 @@ public class ProjectAccessor extends ProjectTableAccessor {
 	 */
 	public static List<ProjectAccessor> findAllProjects(Connection conn) throws SQLException {
 		List<ProjectAccessor> projects = new ArrayList<ProjectAccessor>();
-		PreparedStatement ps = conn.prepareStatement(getBasicSelect());
+		PreparedStatement ps = conn.prepareStatement(ProjectTableAccessor.getBasicSelect());
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			projects.add(new ProjectAccessor(rs));
@@ -77,7 +76,7 @@ public class ProjectAccessor extends ProjectTableAccessor {
 
 	public static ProjectAccessor findFromProjectID(long projectid, Connection aConn) throws SQLException {
 		ProjectAccessor temp = null;
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where projectid = ?");
+		PreparedStatement ps = aConn.prepareStatement(ProjectTableAccessor.getBasicSelect() + " where projectid = ?");
 		ps.setLong(1, projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {

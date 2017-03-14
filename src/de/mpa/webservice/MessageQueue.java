@@ -23,18 +23,17 @@ public class MessageQueue extends ArrayDeque<String> {
 	 * Constructs a message queue.
 	 */
 	private MessageQueue() {
-		super();
-	}
+    }
 	
 	/**
 	 * Returns the message queue singleton instance.
 	 * @return The message queue singleton instance.
 	 */
 	public static MessageQueue getInstance() {
-		if (instance == null) {
-			instance = new MessageQueue();
+		if (MessageQueue.instance == null) {
+            MessageQueue.instance = new MessageQueue();
 		}
-		return instance; 
+		return MessageQueue.instance;
 	}
 	
 	/**
@@ -46,12 +45,12 @@ public class MessageQueue extends ArrayDeque<String> {
 	public boolean add(Message msg, Logger log) {
 		String composedMessage;
 		if (msg.getStatus() == JobStatus.ERROR) {
-			composedMessage = JobStatus.ERROR.toString() + ": " + msg.getDescription() + " " + msg.getError();
+			composedMessage = JobStatus.ERROR + ": " + msg.getDescription() + " " + msg.getError();
 		} else {
-			composedMessage = msg.getDescription() + " " + msg.getStatus().toString();
+			composedMessage = msg.getDescription() + " " + msg.getStatus();
 		}
 		log.info(composedMessage);
-		return super.add(composedMessage);
+		return add(composedMessage);
 	}
 	
 }

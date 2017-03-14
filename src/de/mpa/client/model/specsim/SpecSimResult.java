@@ -12,7 +12,7 @@ public class SpecSimResult {
 	/**
 	 * The number of retrieved protein hits from the searches.
 	 */
-	private Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
+	private final Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 	private BufferedImage scoreMatrixImage;
 
 	/**
@@ -22,7 +22,7 @@ public class SpecSimResult {
 	 */
 	public void addProtein(ProteinHit newProteinHit) {
 		String accession = newProteinHit.getAccession();
-		ProteinHit currentProteinHit = proteinHits.get(accession);
+		ProteinHit currentProteinHit = this.proteinHits.get(accession);
 		if (currentProteinHit == null) {
 			// protein hit does not exist yet in map, therefore append it
 			currentProteinHit = newProteinHit;
@@ -39,7 +39,7 @@ public class SpecSimResult {
 			}
 			currentProteinHit.addPeptideHit(currentPeptideHit);
 		}
-		proteinHits.put(accession, currentProteinHit);
+        this.proteinHits.put(accession, currentProteinHit);
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class SpecSimResult {
 	 * @return
 	 */
 	public ProteinHit getProteinHit(String accession) {
-		return proteinHits.get(accession);
+		return this.proteinHits.get(accession);
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class SpecSimResult {
 	 * @return <code>true</code> if this result object contains no protein hits.
 	 */
 	public boolean isEmpty() {
-		return proteinHits.isEmpty();
+		return this.proteinHits.isEmpty();
 	}
 
 	/**
@@ -67,14 +67,14 @@ public class SpecSimResult {
 	 * @return The protein hits.
 	 */
 	public Map<String, ProteinHit> getProteinHits() {
-		return proteinHits;
+		return this.proteinHits;
 	}
 
 	/**
 	 * @return the scoreMatrixImage
 	 */
 	public BufferedImage getScoreMatrixImage() {
-		return scoreMatrixImage;
+		return this.scoreMatrixImage;
 	}
 
 	public void setScoreMatrixImage(BufferedImage scoreMatrixImage) {

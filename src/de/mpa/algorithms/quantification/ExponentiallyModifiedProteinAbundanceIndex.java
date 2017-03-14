@@ -13,7 +13,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
  */
 public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 
-	private double emPAI = 0.0;
+	private double emPAI;
 
 	@Override
 	public void calculate(Object... obj) {
@@ -49,15 +49,15 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 			pAI = peptideObserved / peptideObservable;
 
 			// Calculates the emPAI
-			emPAI = Math.pow(10, pAI) - 1;
+            this.emPAI = Math.pow(10, pAI) - 1;
 		} else {
-			emPAI = 0.0;
+            this.emPAI = 0.0;
 		}
 		
 	}
 
 	@Override
 	public double getResult() {
-		return emPAI;
+		return this.emPAI;
 	}
 }

@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +38,12 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'searchspectrumid' column.
@@ -65,13 +66,13 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -115,22 +116,22 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SearchspectrumTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(SEARCHSPECTRUMID)) {
-			this.iSearchspectrumid = ((Long)aParams.get(SEARCHSPECTRUMID)).longValue();
+		if(aParams.containsKey(SearchspectrumTableAccessor.SEARCHSPECTRUMID)) {
+            iSearchspectrumid = ((Long)aParams.get(SearchspectrumTableAccessor.SEARCHSPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(FK_SPECTRUMID)) {
-			this.iFk_spectrumid = ((Long)aParams.get(FK_SPECTRUMID)).longValue();
+		if(aParams.containsKey(SearchspectrumTableAccessor.FK_SPECTRUMID)) {
+            iFk_spectrumid = ((Long)aParams.get(SearchspectrumTableAccessor.FK_SPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(FK_EXPERIMENTID)) {
-			this.iFk_experimentid = ((Long)aParams.get(FK_EXPERIMENTID)).longValue();
+		if(aParams.containsKey(SearchspectrumTableAccessor.FK_EXPERIMENTID)) {
+            iFk_experimentid = ((Long)aParams.get(SearchspectrumTableAccessor.FK_EXPERIMENTID)).longValue();
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(SearchspectrumTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(SearchspectrumTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(SearchspectrumTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(SearchspectrumTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -142,13 +143,13 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SearchspectrumTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSearchspectrumid = aResultSet.getLong("searchspectrumid");
-		this.iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
-		this.iFk_experimentid = aResultSet.getLong("fk_experimentid");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+        iSearchspectrumid = aResultSet.getLong("searchspectrumid");
+        iFk_spectrumid = aResultSet.getLong("fk_spectrumid");
+        iFk_experimentid = aResultSet.getLong("fk_experimentid");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -158,7 +159,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @return	long	with the value for the Searchspectrumid column.
 	 */
 	public long getSearchspectrumid() {
-		return this.iSearchspectrumid;
+		return iSearchspectrumid;
 	}
 
 	/**
@@ -167,7 +168,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @return	long	with the value for the Fk_spectrumid column.
 	 */
 	public long getFk_spectrumid() {
-		return this.iFk_spectrumid;
+		return iFk_spectrumid;
 	}
 
 	/**
@@ -176,7 +177,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @return	long	with the value for the Fk_experimentid column.
 	 */
 	public long getFk_experimentid() {
-		return this.iFk_experimentid;
+		return iFk_experimentid;
 	}
 
 	/**
@@ -184,8 +185,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -193,8 +194,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -203,8 +204,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param	aSearchspectrumid	long with the value for the Searchspectrumid column.
 	 */
 	public void setSearchspectrumid(long aSearchspectrumid) {
-		this.iSearchspectrumid = aSearchspectrumid;
-		this.iUpdated = true;
+        iSearchspectrumid = aSearchspectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -213,8 +214,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param	aFk_spectrumid	long with the value for the Fk_spectrumid column.
 	 */
 	public void setFk_spectrumid(long aFk_spectrumid) {
-		this.iFk_spectrumid = aFk_spectrumid;
-		this.iUpdated = true;
+        iFk_spectrumid = aFk_spectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -223,8 +224,8 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param	aFk_experimentid	long with the value for the Fk_experimentid column.
 	 */
 	public void setFk_experimentid(long aFk_experimentid) {
-		this.iFk_experimentid = aFk_experimentid;
-		this.iUpdated = true;
+        iFk_experimentid = aFk_experimentid;
+        iUpdated = true;
 	}
 
 	/**
@@ -232,9 +233,9 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -242,9 +243,9 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -257,7 +258,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM searchspectrum WHERE searchspectrumid = ?");
-		lStat.setLong(1, iSearchspectrumid);
+		lStat.setLong(1, this.iSearchspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -272,23 +273,23 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SEARCHSPECTRUMID)) {
+		if(!aKeys.containsKey(SearchspectrumTableAccessor.SEARCHSPECTRUMID)) {
 			throw new IllegalArgumentException("Primary key field 'SEARCHSPECTRUMID' is missing in HashMap!");
 		} else {
-			iSearchspectrumid = ((Long)aKeys.get(SEARCHSPECTRUMID)).longValue();
+            this.iSearchspectrumid = ((Long)aKeys.get(SearchspectrumTableAccessor.SEARCHSPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM searchspectrum WHERE searchspectrumid = ?");
-		lStat.setLong(1, iSearchspectrumid);
+		lStat.setLong(1, this.iSearchspectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSearchspectrumid = lRS.getLong("searchspectrumid");
-			iFk_spectrumid = lRS.getLong("fk_spectrumid");
-			iFk_experimentid = lRS.getLong("fk_experimentid");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iSearchspectrumid = lRS.getLong("searchspectrumid");
+            this.iFk_spectrumid = lRS.getLong("fk_spectrumid");
+            this.iFk_experimentid = lRS.getLong("fk_experimentid");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -317,7 +318,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	public static ArrayList<SearchspectrumTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<SearchspectrumTableAccessor>  entities = new ArrayList<SearchspectrumTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(SearchspectrumTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new SearchspectrumTableAccessor(rs));
 		}
@@ -335,18 +336,18 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE searchspectrum SET searchspectrumid = ?, fk_spectrumid = ?, fk_experimentid = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE searchspectrumid = ?");
-		lStat.setLong(1, iSearchspectrumid);
-		lStat.setLong(2, iFk_spectrumid);
-		lStat.setLong(3, iFk_experimentid);
-		lStat.setObject(4, iCreationdate);
-		lStat.setLong(5, iSearchspectrumid);
+		lStat.setLong(1, this.iSearchspectrumid);
+		lStat.setLong(2, this.iFk_spectrumid);
+		lStat.setLong(3, this.iFk_experimentid);
+		lStat.setObject(4, this.iCreationdate);
+		lStat.setLong(5, this.iSearchspectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -359,20 +360,20 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO searchspectrum (searchspectrumid, fk_spectrumid, fk_experimentid, creationdate, modificationdate) values(?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iSearchspectrumid == Long.MIN_VALUE) {
+		if(this.iSearchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSearchspectrumid);
+			lStat.setLong(1, this.iSearchspectrumid);
 		}
-		if(iFk_spectrumid == Long.MIN_VALUE) {
+		if(this.iFk_spectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_spectrumid);
+			lStat.setLong(2, this.iFk_spectrumid);
 		}
-		if(iFk_experimentid == Long.MIN_VALUE) {
+		if(this.iFk_experimentid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_experimentid);
+			lStat.setLong(3, this.iFk_experimentid);
 		}
 		
 		int result = lStat.executeUpdate();
@@ -383,22 +384,22 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 		
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSearchspectrumid = ((Number) iKeys[0]).longValue();
+            this.iSearchspectrumid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;		
+        iUpdated = false;
 		return result;
 	}
 
@@ -409,7 +410,7 @@ public class SearchspectrumTableAccessor implements Deleteable, Retrievable, Upd
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

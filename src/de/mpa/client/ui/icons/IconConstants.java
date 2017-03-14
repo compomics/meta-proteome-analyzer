@@ -26,7 +26,7 @@ public class IconConstants {
 
 	/** <img src="../../../resources/icons/mpa01.png"> */
 	public static final ImageIcon MPA_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/mpa01.png"));
-	public static final ImageIcon MPA_SMALL_ICON = createRescaledIcon(MPA_ICON, 16, 16);
+	public static final ImageIcon MPA_SMALL_ICON = IconConstants.createRescaledIcon(IconConstants.MPA_ICON, 16, 16);
 	
 	/** <img src="../../../resources/icons/project48.png"> */
 	public static final ImageIcon PROJECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project48.png"));
@@ -58,89 +58,89 @@ public class IconConstants {
 	
 	/** <img src="../../../resources/icons/project_add32.png"> */
 	public static final ImageIcon PROJECT_ADD_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project_add32.png"));
-	public static final ImageIcon PROJECT_ADD_ROLLOVER_ICON = createColorRescaledIcon(PROJECT_ADD_ICON, 1.1f);
-	public static final ImageIcon PROJECT_ADD_PRESSED_ICON = createColorRescaledIcon(PROJECT_ADD_ICON, 0.8f);
+	public static final ImageIcon PROJECT_ADD_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_ADD_ICON, 1.1f);
+	public static final ImageIcon PROJECT_ADD_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_ADD_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/project_view32.png"> */
 	public static final ImageIcon PROJECT_VIEW_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project_view32.png"));
-	public static final ImageIcon PROJECT_VIEW_ROLLOVER_ICON = createColorRescaledIcon(PROJECT_VIEW_ICON, 1.1f);
-	public static final ImageIcon PROJECT_VIEW_PRESSED_ICON = createColorRescaledIcon(PROJECT_VIEW_ICON, 0.8f);
+	public static final ImageIcon PROJECT_VIEW_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_VIEW_ICON, 1.1f);
+	public static final ImageIcon PROJECT_VIEW_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_VIEW_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/project_delete32.png"> */
 	public static final ImageIcon PROJECT_DELETE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project_delete32.png"));
-	public static final ImageIcon PROJECT_DELETE_ROLLOVER_ICON = createColorRescaledIcon(PROJECT_DELETE_ICON, 1.1f);
-	public static final ImageIcon PROJECT_DELETE_PRESSED_ICON = createColorRescaledIcon(PROJECT_DELETE_ICON, 0.8f);
+	public static final ImageIcon PROJECT_DELETE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_DELETE_ICON, 1.1f);
+	public static final ImageIcon PROJECT_DELETE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PROJECT_DELETE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/experiment_add32.png"> */
 	public static final ImageIcon EXPERIMENT_ADD_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/experiment_add32.png"));
-	public static final ImageIcon EXPERIMENT_ADD_ROLLOVER_ICON = createColorRescaledIcon(EXPERIMENT_ADD_ICON, 1.1f);
-	public static final ImageIcon EXPERIMENT_ADD_PRESSED_ICON = createColorRescaledIcon(EXPERIMENT_ADD_ICON, 0.8f);
+	public static final ImageIcon EXPERIMENT_ADD_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_ADD_ICON, 1.1f);
+	public static final ImageIcon EXPERIMENT_ADD_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_ADD_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/experiment_view32.png"> */
 	public static final ImageIcon EXPERIMENT_VIEW_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/experiment_view32.png"));
-	public static final ImageIcon EXPERIMENT_VIEW_ROLLOVER_ICON = createColorRescaledIcon(EXPERIMENT_VIEW_ICON, 1.1f);
-	public static final ImageIcon EXPERIMENT_VIEW_PRESSED_ICON = createColorRescaledIcon(EXPERIMENT_VIEW_ICON, 0.8f);
+	public static final ImageIcon EXPERIMENT_VIEW_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_VIEW_ICON, 1.1f);
+	public static final ImageIcon EXPERIMENT_VIEW_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_VIEW_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/experiment_delete32.png"> */
 	public static final ImageIcon EXPERIMENT_DELETE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/experiment_delete32.png"));
-	public static final ImageIcon EXPERIMENT_DELETE_ROLLOVER_ICON = createColorRescaledIcon(EXPERIMENT_DELETE_ICON, 1.1f);
-	public static final ImageIcon EXPERIMENT_DELETE_PRESSED_ICON = createColorRescaledIcon(EXPERIMENT_DELETE_ICON, 0.8f);
+	public static final ImageIcon EXPERIMENT_DELETE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_DELETE_ICON, 1.1f);
+	public static final ImageIcon EXPERIMENT_DELETE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPERIMENT_DELETE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/zoom16.png"> */
 	public static final ImageIcon ZOOM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/zoom16.png"));
-	public static final ImageIcon ZOOM_ROLLOVER_ICON = createColorRescaledIcon(ZOOM_ICON, 1.1f);
-	public static final ImageIcon ZOOM_PRESSED_ICON = createColorRescaledIcon(ZOOM_ICON, 0.8f);
+	public static final ImageIcon ZOOM_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.ZOOM_ICON, 1.1f);
+	public static final ImageIcon ZOOM_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.ZOOM_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/results_fetch32.png"> */
 	public static final ImageIcon RESULTS_FETCH_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/results_fetch32.png"));
-	public static final ImageIcon RESULTS_FETCH_ROLLOVER_ICON = createColorRescaledIcon(RESULTS_FETCH_ICON, 1.1f);
-	public static final ImageIcon RESULTS_FETCH_PRESSED_ICON = createColorRescaledIcon(RESULTS_FETCH_ICON, 0.8f);
+	public static final ImageIcon RESULTS_FETCH_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.RESULTS_FETCH_ICON, 1.1f);
+	public static final ImageIcon RESULTS_FETCH_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.RESULTS_FETCH_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/results_process32.png"> */
 	public static final ImageIcon RESULTS_PROCESS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/results_process32.png"));
-	public static final ImageIcon RESULTS_PROCESS_ROLLOVER_ICON = createColorRescaledIcon(RESULTS_PROCESS_ICON, 1.1f);
-	public static final ImageIcon RESULTS_PROCESS_PRESSED_ICON = createColorRescaledIcon(RESULTS_PROCESS_ICON, 0.8f);
+	public static final ImageIcon RESULTS_PROCESS_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.RESULTS_PROCESS_ICON, 1.1f);
+	public static final ImageIcon RESULTS_PROCESS_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.RESULTS_PROCESS_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/settings16.png"> */
 	public static final ImageIcon SETTINGS_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/settings16.png"));
-	public static final ImageIcon SETTINGS_SMALL_ROLLOVER_ICON = createColorRescaledIcon(SETTINGS_SMALL_ICON, 1.1f);
-	public static final ImageIcon SETTINGS_SMALL_PRESSED_ICON = createColorRescaledIcon(SETTINGS_SMALL_ICON, 0.8f);
+	public static final ImageIcon SETTINGS_SMALL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SETTINGS_SMALL_ICON, 1.1f);
+	public static final ImageIcon SETTINGS_SMALL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SETTINGS_SMALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/disconnect32.png"> */
 	public static final ImageIcon DISCONNECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/disconnect32.png"));
-	public static final ImageIcon DISCONNECT_ROLLOVER_ICON = createColorRescaledIcon(DISCONNECT_ICON, 1.2f);
-	public static final ImageIcon DISCONNECT_PRESSED_ICON = createColorRescaledIcon(DISCONNECT_ICON, 0.8f);
+	public static final ImageIcon DISCONNECT_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.DISCONNECT_ICON, 1.2f);
+	public static final ImageIcon DISCONNECT_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.DISCONNECT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/connect32.png"> */
 	public static final ImageIcon CONNECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/connect32.png"));
-	public static final ImageIcon CONNECT_ROLLOVER_ICON = createColorRescaledIcon(CONNECT_ICON, 1.2f);
-	public static final ImageIcon CONNECT_PRESSED_ICON = createColorRescaledIcon(CONNECT_ICON, 0.8f);
+	public static final ImageIcon CONNECT_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CONNECT_ICON, 1.2f);
+	public static final ImageIcon CONNECT_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CONNECT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/lightning32.png"> */
 	public static final ImageIcon LIGHTNING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/lightning32.png"));
-	public static final ImageIcon LIGHTNING_ROLLOVER_ICON = createColorRescaledIcon(LIGHTNING_ICON, 1.2f);
-	public static final ImageIcon LIGHTNING_PRESSED_ICON = createColorRescaledIcon(LIGHTNING_ICON, 0.8f);
+	public static final ImageIcon LIGHTNING_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.LIGHTNING_ICON, 1.2f);
+	public static final ImageIcon LIGHTNING_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.LIGHTNING_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/search32.png"> */
 	public static final ImageIcon SEARCH_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/search32.png"));
-	public static final ImageIcon SEARCH_ROLLOVER_ICON = createColorRescaledIcon(SEARCH_ICON, 1.2f);
-	public static final ImageIcon SEARCH_PRESSED_ICON = createColorRescaledIcon(SEARCH_ICON, 0.8f);
+	public static final ImageIcon SEARCH_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SEARCH_ICON, 1.2f);
+	public static final ImageIcon SEARCH_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SEARCH_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/bug32.png"> */
 	public static final ImageIcon BUG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bug32.png"));
-	public static final ImageIcon BUG_ROLLOVER_ICON = createColorRescaledIcon(BUG_ICON, 1.1f);
-	public static final ImageIcon BUG_PRESSED_ICON = createColorRescaledIcon(BUG_ICON, 0.8f);
+	public static final ImageIcon BUG_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.BUG_ICON, 1.1f);
+	public static final ImageIcon BUG_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.BUG_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/bug16.png"> */
 	public static final ImageIcon BUG_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bug16.png"));
-	public static final ImageIcon BUG_SMALL_ROLLOVER_ICON = createColorRescaledIcon(BUG_SMALL_ICON, 1.1f);
-	public static final ImageIcon BUG_SMALL_PRESSED_ICON = createColorRescaledIcon(BUG_SMALL_ICON, 0.8f);
+	public static final ImageIcon BUG_SMALL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.BUG_SMALL_ICON, 1.1f);
+	public static final ImageIcon BUG_SMALL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.BUG_SMALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/www13.png"> */
 	@SuppressWarnings("serial")
 	public static final ImageIcon WWW_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/www13.png")) {
-		public String toString() { return "www"; };
-	};
+		public String toString() { return "www"; }
+    };
 	
 	/** <img src="../../../resources/icons/sort16.png"> */
 	public static final ImageIcon SORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/sort16.png"));
@@ -149,8 +149,8 @@ public class IconConstants {
 	
 	/** <img src="../../../resources/icons/filter16.png"> */
 	public static final ImageIcon FILTER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/filter16.png"));
-	public static final ImageIcon FILTER_ROLLOVER_ICON = createColorRescaledIcon(FILTER_ICON, 1.1f);
-	public static final ImageIcon FILTER_PRESSED_ICON = createColorRescaledIcon(FILTER_ICON, 0.8f);
+	public static final ImageIcon FILTER_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.FILTER_ICON, 1.1f);
+	public static final ImageIcon FILTER_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.FILTER_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/calculator16.png"> */
 	public static final ImageIcon CALCULATOR_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/calculator16.png"));
@@ -159,43 +159,43 @@ public class IconConstants {
 	
 	/** <img src="../../../resources/icons/expand_all16.png"> */
 	public static final ImageIcon EXPAND_ALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/expand_all16.png"));
-	public static final ImageIcon EXPAND_ALL_ROLLOVER_ICON = createColorRescaledIcon(EXPAND_ALL_ICON, 1.1f);
-	public static final ImageIcon EXPAND_ALL_PRESSED_ICON = createColorRescaledIcon(EXPAND_ALL_ICON, 0.8f);
+	public static final ImageIcon EXPAND_ALL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPAND_ALL_ICON, 1.1f);
+	public static final ImageIcon EXPAND_ALL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXPAND_ALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/collapse_all16.png"> */
 	public static final ImageIcon COLLAPSE_ALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/collapse_all16.png"));
-	public static final ImageIcon COLLAPSE_ALL_ROLLOVER_ICON = createColorRescaledIcon(COLLAPSE_ALL_ICON, 1.1f);
-	public static final ImageIcon COLLAPSE_ALL_PRESSED_ICON = createColorRescaledIcon(COLLAPSE_ALL_ICON, 0.8f);
+	public static final ImageIcon COLLAPSE_ALL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.COLLAPSE_ALL_ICON, 1.1f);
+	public static final ImageIcon COLLAPSE_ALL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.COLLAPSE_ALL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/checkbox_table16.png"> */
 	public static final ImageIcon CHECKBOX_TABLE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/checkbox_table16.png"));
-	public static final ImageIcon CHECKBOX_TABLE_ROLLOVER_ICON = createColorRescaledIcon(CHECKBOX_TABLE_ICON, 1.1f);
-	public static final ImageIcon CHECKBOX_TABLE_PRESSED_ICON = createColorRescaledIcon(CHECKBOX_TABLE_ICON, 0.8f);
+	public static final ImageIcon CHECKBOX_TABLE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CHECKBOX_TABLE_ICON, 1.1f);
+	public static final ImageIcon CHECKBOX_TABLE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CHECKBOX_TABLE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/coverage16.png"> */
 	public static final ImageIcon COVERAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/coverage16.png"));
-	public static final ImageIcon COVERAGE_ROLLOVER_ICON = createColorRescaledIcon(COVERAGE_ICON, 1.1f);
-	public static final ImageIcon COVERAGE_PRESSED_ICON = createColorRescaledIcon(COVERAGE_ICON, 0.8f);
+	public static final ImageIcon COVERAGE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.COVERAGE_ICON, 1.1f);
+	public static final ImageIcon COVERAGE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.COVERAGE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/spectrum16.png"> */
 	public static final ImageIcon SPECTRUM_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/spectrum16.png"));
-	public static final ImageIcon SPECTRUM_ROLLOVER_ICON = createColorRescaledIcon(SPECTRUM_ICON, 1.1f);
-	public static final ImageIcon SPECTRUM_PRESSED_ICON = createColorRescaledIcon(SPECTRUM_ICON, 0.8f);
+	public static final ImageIcon SPECTRUM_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SPECTRUM_ICON, 1.1f);
+	public static final ImageIcon SPECTRUM_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SPECTRUM_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/check16.png"> */
 	public static final ImageIcon CHECK_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/check16.png"));
-	public static final ImageIcon CHECK_ROLLOVER_ICON = createColorRescaledIcon(CHECK_ICON, 1.1f);
-	public static final ImageIcon CHECK_PRESSED_ICON = createColorRescaledIcon(CHECK_ICON, 0.8f);
+	public static final ImageIcon CHECK_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CHECK_ICON, 1.1f);
+	public static final ImageIcon CHECK_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CHECK_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/cross16.png"> */
 	public static final ImageIcon CROSS_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/cross16.png"));
-	public static final ImageIcon CROSS_ROLLOVER_ICON = createColorRescaledIcon(CROSS_ICON, 1.1f);
-	public static final ImageIcon CROSS_PRESSED_ICON = createColorRescaledIcon(CROSS_ICON, 0.8f);
+	public static final ImageIcon CROSS_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CROSS_ICON, 1.1f);
+	public static final ImageIcon CROSS_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CROSS_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/cross_small.png"> */
 	public static final ImageIcon CROSS_SMALL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/cross_small.png"));
-	public static final ImageIcon CROSS_SMALL_ROLLOVER_ICON = createColorRescaledIcon(CROSS_SMALL_ICON, 1.1f);
-	public static final ImageIcon CROSS_SMALL_PRESSED_ICON = createColorRescaledIcon(CROSS_SMALL_ICON, 0.8f);
+	public static final ImageIcon CROSS_SMALL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CROSS_SMALL_ICON, 1.1f);
+	public static final ImageIcon CROSS_SMALL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CROSS_SMALL_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/bulb_off16.png"> */
 	public static final ImageIcon HELP_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bulb_off16.png"));
@@ -203,18 +203,18 @@ public class IconConstants {
 
 	/** <img src="../../../resources/icons/add16.png"> */
 	public static final ImageIcon ADD_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/add16.png"));
-	public static final ImageIcon ADD_ROLLOVER_ICON = createColorRescaledIcon(ADD_ICON, 1.1f);
-	public static final ImageIcon ADD_PRESSED_ICON = createColorRescaledIcon(ADD_ICON, 0.8f);
+	public static final ImageIcon ADD_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_ICON, 1.1f);
+	public static final ImageIcon ADD_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/delete16.png"> */
 	public static final ImageIcon DELETE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/delete16.png"));
-	public static final ImageIcon DELETE_ROLLOVER_ICON = createColorRescaledIcon(DELETE_ICON, 1.1f);
-	public static final ImageIcon DELETE_PRESSED_ICON = createColorRescaledIcon(DELETE_ICON, 0.8f);
+	public static final ImageIcon DELETE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_ICON, 1.1f);
+	public static final ImageIcon DELETE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/plugin16.png"> */
 	public static final ImageIcon PLUGIN_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/plugin16.png"));
-	public static final ImageIcon PLUGIN_ROLLOVER_ICON = createColorRescaledIcon(PLUGIN_ICON, 1.1f);
-	public static final ImageIcon PLUGIN_PRESSED_ICON = createColorRescaledIcon(PLUGIN_ICON, 0.8f);
+	public static final ImageIcon PLUGIN_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PLUGIN_ICON, 1.1f);
+	public static final ImageIcon PLUGIN_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PLUGIN_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/plugin_red16.png"> */
 	public static final ImageIcon PLUGIN_RED_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/plugin_red16.png"));
@@ -225,133 +225,133 @@ public class IconConstants {
 
 	/** <img src="../../../resources/icons/textfield16.png"> */
 	public static final ImageIcon TEXTFIELD_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/textfield16.png"));
-	public static final ImageIcon TEXTFIELD_ROLLOVER_ICON = createColorRescaledIcon(TEXTFIELD_ICON, 1.1f);
-	public static final ImageIcon TEXTFIELD_PRESSED_ICON = createColorRescaledIcon(TEXTFIELD_ICON, 0.8f);
+	public static final ImageIcon TEXTFIELD_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.TEXTFIELD_ICON, 1.1f);
+	public static final ImageIcon TEXTFIELD_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.TEXTFIELD_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/update16.png"> */
 	public static final ImageIcon UPDATE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/update16.png"));
-	public static final ImageIcon UPDATE_ROLLOVER_ICON = createColorRescaledIcon(UPDATE_ICON, 1.1f);
-	public static final ImageIcon UPDATE_PRESSED_ICON = createColorRescaledIcon(UPDATE_ICON, 0.8f);
+	public static final ImageIcon UPDATE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.UPDATE_ICON, 1.1f);
+	public static final ImageIcon UPDATE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.UPDATE_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/cancel16.png"> */
 	public static final ImageIcon CANCEL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/cancel16.png"));
-	public static final ImageIcon CANCEL_ROLLOVER_ICON = createColorRescaledIcon(CANCEL_ICON, 1.2f);
-	public static final ImageIcon CANCEL_PRESSED_ICON = createColorRescaledIcon(CANCEL_ICON, 0.8f);
+	public static final ImageIcon CANCEL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.CANCEL_ICON, 1.2f);
+	public static final ImageIcon CANCEL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.CANCEL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/save16.png"> */
 	public static final ImageIcon SAVE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/save16.png"));
-	public static final ImageIcon SAVE_ROLLOVER_ICON = createColorRescaledIcon(SAVE_ICON, 1.2f);
-	public static final ImageIcon SAVE_PRESSED_ICON = createColorRescaledIcon(SAVE_ICON, 0.8f);
+	public static final ImageIcon SAVE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_ICON, 1.2f);
+	public static final ImageIcon SAVE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/database_save.png"> */
 	public static final ImageIcon SAVE_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_save.png"));
-	public static final ImageIcon SAVE_DB_ROLLOVER_ICON = createColorRescaledIcon(SAVE_DB_ICON, 1.1f);
-	public static final ImageIcon SAVE_DB_PRESSED_ICON = createColorRescaledIcon(SAVE_DB_ICON, 0.8f);
+	public static final ImageIcon SAVE_DB_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_DB_ICON, 1.1f);
+	public static final ImageIcon SAVE_DB_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_DB_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/database_search32.png"> */
 	public static final ImageIcon SEARCH_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_search32.png"));
-	public static final ImageIcon SEARCH_DB_ROLLOVER_ICON = createColorRescaledIcon(SEARCH_DB_ICON, 1.1f);
-	public static final ImageIcon SEARCH_DB_PRESSED_ICON = createColorRescaledIcon(SEARCH_DB_ICON, 0.8f);
+	public static final ImageIcon SEARCH_DB_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SEARCH_DB_ICON, 1.1f);
+	public static final ImageIcon SEARCH_DB_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SEARCH_DB_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/database_go16.png"> */
 	public static final ImageIcon GO_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_go16.png"));
-	public static final ImageIcon GO_DB_ROLLOVER_ICON = createColorRescaledIcon(GO_DB_ICON, 1.1f);
-	public static final ImageIcon GO_DB_PRESSED_ICON = createColorRescaledIcon(GO_DB_ICON, 0.8f);
+	public static final ImageIcon GO_DB_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_DB_ICON, 1.1f);
+	public static final ImageIcon GO_DB_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_DB_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/database_set16.png"> */
 	public static final ImageIcon SET_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_set16.png"));
-	public static final ImageIcon SET_DB_ROLLOVER_ICON = createColorRescaledIcon(GO_DB_ICON, 1.1f);
-	public static final ImageIcon SET_DB_PRESSED_ICON = createColorRescaledIcon(GO_DB_ICON, 0.8f);
+	public static final ImageIcon SET_DB_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_DB_ICON, 1.1f);
+	public static final ImageIcon SET_DB_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_DB_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/database_delete.png"> */
 	public static final ImageIcon DELETE_DB_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/database_delete.png"));
-	public static final ImageIcon DELETE_DB_ROLLOVER_ICON = createColorRescaledIcon(DELETE_DB_ICON, 1.1f);
-	public static final ImageIcon DELETE_DB_PRESSED_ICON = createColorRescaledIcon(DELETE_DB_ICON, 0.8f);
+	public static final ImageIcon DELETE_DB_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_DB_ICON, 1.1f);
+	public static final ImageIcon DELETE_DB_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_DB_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/add_folder16.png"> */
 	public static final ImageIcon ADD_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/add_folder16.png"));
-	public static final ImageIcon ADD_FOLDER_ROLLOVER_ICON = createColorRescaledIcon(ADD_FOLDER_ICON, 1.1f);
-	public static final ImageIcon ADD_FOLDER_PRESSED_ICON = createColorRescaledIcon(ADD_FOLDER_ICON, 0.8f);
+	public static final ImageIcon ADD_FOLDER_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_FOLDER_ICON, 1.1f);
+	public static final ImageIcon ADD_FOLDER_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_FOLDER_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/view_folder16.png"> */
 	public static final ImageIcon VIEW_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/view_folder16.png"));
-	public static final ImageIcon VIEW_FOLDER_ROLLOVER_ICON = createColorRescaledIcon(VIEW_FOLDER_ICON, 1.1f);
-	public static final ImageIcon VIEW_FOLDER_PRESSED_ICON = createColorRescaledIcon(VIEW_FOLDER_ICON, 0.8f);
+	public static final ImageIcon VIEW_FOLDER_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.VIEW_FOLDER_ICON, 1.1f);
+	public static final ImageIcon VIEW_FOLDER_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.VIEW_FOLDER_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/delete_folder16.png"> */
 	public static final ImageIcon DELETE_FOLDER_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/delete_folder16.png"));
-	public static final ImageIcon DELETE_FOLDER_ROLLOVER_ICON = createColorRescaledIcon(DELETE_FOLDER_ICON, 1.1f);
-	public static final ImageIcon DELETE_FOLDER_PRESSED_ICON = createColorRescaledIcon(DELETE_FOLDER_ICON, 0.8f);
+	public static final ImageIcon DELETE_FOLDER_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_FOLDER_ICON, 1.1f);
+	public static final ImageIcon DELETE_FOLDER_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_FOLDER_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/add_page16.png"> */
 	public static final ImageIcon ADD_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/add_page16.png"));
-	public static final ImageIcon ADD_PAGE_ROLLOVER_ICON = createColorRescaledIcon(ADD_PAGE_ICON, 1.1f);
-	public static final ImageIcon ADD_PAGE_PRESSED_ICON = createColorRescaledIcon(ADD_PAGE_ICON, 0.8f);
+	public static final ImageIcon ADD_PAGE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_PAGE_ICON, 1.1f);
+	public static final ImageIcon ADD_PAGE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.ADD_PAGE_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/view_page16.png"> */
 	public static final ImageIcon VIEW_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/view_page16.png"));
-	public static final ImageIcon VIEW_PAGE_ROLLOVER_ICON = createColorRescaledIcon(VIEW_PAGE_ICON, 1.1f);
-	public static final ImageIcon VIEW_PAGE_PRESSED_ICON = createColorRescaledIcon(VIEW_PAGE_ICON, 0.8f);
+	public static final ImageIcon VIEW_PAGE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.VIEW_PAGE_ICON, 1.1f);
+	public static final ImageIcon VIEW_PAGE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.VIEW_PAGE_ICON, 0.8f);
 
 	/** <img src="../../../resources/icons/database_refresh.png"> */
 	public static final ImageIcon GO_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/page_go16.png"));
-	public static final ImageIcon GO_PAGE_ROLLOVER_ICON = createColorRescaledIcon(GO_PAGE_ICON, 1.1f);
-	public static final ImageIcon GO_PAGE_PRESSED_ICON = createColorRescaledIcon(GO_PAGE_ICON, 0.8f);
+	public static final ImageIcon GO_PAGE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_PAGE_ICON, 1.1f);
+	public static final ImageIcon GO_PAGE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.GO_PAGE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/delete_page16.png"> */
 	public static final ImageIcon DELETE_PAGE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/delete_page16.png"));
-	public static final ImageIcon DELETE_PAGE_ROLLOVER_ICON = createColorRescaledIcon(DELETE_PAGE_ICON, 1.1f);
-	public static final ImageIcon DELETE_PAGE_PRESSED_ICON = createColorRescaledIcon(DELETE_PAGE_ICON, 0.8f);
+	public static final ImageIcon DELETE_PAGE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_PAGE_ICON, 1.1f);
+	public static final ImageIcon DELETE_PAGE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.DELETE_PAGE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/next.png"> */
 	public static final ImageIcon NEXT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/next.png"));
-	public static final ImageIcon NEXT_ROLLOVER_ICON = createColorRescaledIcon(NEXT_ICON, 1.2f);
-	public static final ImageIcon NEXT_PRESSED_ICON = createColorRescaledIcon(NEXT_ICON, 0.8f);
+	public static final ImageIcon NEXT_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.NEXT_ICON, 1.2f);
+	public static final ImageIcon NEXT_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.NEXT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/next.png"> (flipped horizontally)*/
-	public static final ImageIcon PREV_ICON = createFlippedIcon(NEXT_ICON, SwingConstants.HORIZONTAL);
-	public static final ImageIcon PREV_ROLLOVER_ICON = createColorRescaledIcon(PREV_ICON, 1.2f);
-	public static final ImageIcon PREV_PRESSED_ICON = createColorRescaledIcon(PREV_ICON, 0.8f);
+	public static final ImageIcon PREV_ICON = IconConstants.createFlippedIcon(IconConstants.NEXT_ICON, SwingConstants.HORIZONTAL);
+	public static final ImageIcon PREV_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PREV_ICON, 1.2f);
+	public static final ImageIcon PREV_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PREV_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/skip32.png"> */
-	public static final ImageIcon SKIP_ICON = createRotatedIcon(NEXT_ICON, Math.PI / 2.0);
-	public static final ImageIcon SKIP_ROLLOVER_ICON = createColorRescaledIcon(SKIP_ICON, 1.2f);
-	public static final ImageIcon SKIP_PRESSED_ICON = createColorRescaledIcon(SKIP_ICON, 0.8f);
+	public static final ImageIcon SKIP_ICON = IconConstants.createRotatedIcon(IconConstants.NEXT_ICON, Math.PI / 2.0);
+	public static final ImageIcon SKIP_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SKIP_ICON, 1.2f);
+	public static final ImageIcon SKIP_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SKIP_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/size_vertical_32.png"> */
 	public static final ImageIcon SIZE_VERT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/size_vertical_32.png"));
-	public static final ImageIcon SIZE_VERT_ROLLOVER_ICON = createColorRescaledIcon(SIZE_VERT_ICON, 1.2f);
-	public static final ImageIcon SIZE_VERT_PRESSED_ICON = createColorRescaledIcon(SIZE_VERT_ICON, 0.8f);
+	public static final ImageIcon SIZE_VERT_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SIZE_VERT_ICON, 1.2f);
+	public static final ImageIcon SIZE_VERT_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SIZE_VERT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/hierarchy16.png"> */
 	public static final ImageIcon HIERARCHY_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/hierarchy16.png"));
-	public static final ImageIcon HIERARCHY_ROLLOVER_ICON = createColorRescaledIcon(HIERARCHY_ICON, 1.2f);
-	public static final ImageIcon HIERARCHY_PRESSED_ICON = createColorRescaledIcon(HIERARCHY_ICON, 0.8f);
+	public static final ImageIcon HIERARCHY_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.HIERARCHY_ICON, 1.2f);
+	public static final ImageIcon HIERARCHY_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.HIERARCHY_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/pie_chart16.png"> */
 	public static final ImageIcon PIE_CHART_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/pie_chart16.png"));
-	public static final ImageIcon PIE_CHART_ROLLOVER_ICON = createColorRescaledIcon(PIE_CHART_ICON, 1.2f);
-	public static final ImageIcon PIE_CHART_PRESSED_ICON = createColorRescaledIcon(PIE_CHART_ICON, 0.8f);
+	public static final ImageIcon PIE_CHART_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.PIE_CHART_ICON, 1.2f);
+	public static final ImageIcon PIE_CHART_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.PIE_CHART_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/bar_chart16.png"> */
 	public static final ImageIcon BAR_CHART_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/bar_chart16.png"));
-	public static final ImageIcon BAR_CHART_ROLLOVER_ICON = createColorRescaledIcon(BAR_CHART_ICON, 1.2f);
-	public static final ImageIcon BAR_CHART_PRESSED_ICON = createColorRescaledIcon(BAR_CHART_ICON, 0.8f);
+	public static final ImageIcon BAR_CHART_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.BAR_CHART_ICON, 1.2f);
+	public static final ImageIcon BAR_CHART_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.BAR_CHART_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/frame_full16.png"> */
 	public static final ImageIcon FRAME_FULL_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_full16.png"));
-	public static final ImageIcon FRAME_FULL_ROLLOVER_ICON = createColorRescaledIcon(FRAME_FULL_ICON, 1.2f);
-	public static final ImageIcon FRAME_FULL_PRESSED_ICON = createColorRescaledIcon(FRAME_FULL_ICON, 0.8f);
+	public static final ImageIcon FRAME_FULL_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.FRAME_FULL_ICON, 1.2f);
+	public static final ImageIcon FRAME_FULL_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.FRAME_FULL_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/frame_tiled16.png"> */
 	public static final ImageIcon FRAME_TILED_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/frame_tiled16.png"));
-	public static final ImageIcon FRAME_TILED_ROLLOVER_ICON = createColorRescaledIcon(FRAME_TILED_ICON, 1.2f);
-	public static final ImageIcon FRAME_TILED_PRESSED_ICON = createColorRescaledIcon(FRAME_TILED_ICON, 0.8f);
+	public static final ImageIcon FRAME_TILED_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.FRAME_TILED_ICON, 1.2f);
+	public static final ImageIcon FRAME_TILED_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.FRAME_TILED_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/page_save32.png"> */
 	public static final ImageIcon SAVE_FILE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/page_save32.png"));
-	public static final ImageIcon SAVE_FILE_ROLLOVER_ICON = createColorRescaledIcon(SAVE_FILE_ICON, 1.2f);
-	public static final ImageIcon SAVE_FILE_PRESSED_ICON = createColorRescaledIcon(SAVE_FILE_ICON, 0.8f);
+	public static final ImageIcon SAVE_FILE_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_FILE_ICON, 1.2f);
+	public static final ImageIcon SAVE_FILE_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.SAVE_FILE_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/file_csv16.png"> */
 	public static final ImageIcon FILE_CSV = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/file_csv16.png"));
@@ -367,8 +367,8 @@ public class IconConstants {
 
 	/** <img src="../../../resources/icons/excel_export16.png"> */
 	public static final ImageIcon EXCEL_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/excel_export16.png"));
-	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = createColorRescaledIcon(EXCEL_EXPORT_ICON, 1.1f);
-	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = createColorRescaledIcon(EXCEL_EXPORT_ICON, 0.8f);
+	public static final ImageIcon EXCEL_EXPORT_ROLLOVER_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXCEL_EXPORT_ICON, 1.1f);
+	public static final ImageIcon EXCEL_EXPORT_PRESSED_ICON = IconConstants.createColorRescaledIcon(IconConstants.EXCEL_EXPORT_ICON, 0.8f);
 	
 	/** <img src="../../../resources/icons/webresource16.png"> */
 	public static final ImageIcon WEB_RESOURCE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/webresource16.png"));
@@ -389,19 +389,19 @@ public class IconConstants {
 	/** <img src="../../../resources/icons/kegg16.png"> */
 	public static final ImageIcon WEB_KEGG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/kegg16.png"));
 	/** <img src="../../../resources/icons/blast16.png"> */
-	public static final Icon WEB_BLAST_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/blast16.png"));;
-	/** <img src="../../../resources/icons/quickgo16.png"> */
-	public static final Icon WEB_QUICKGO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/quickgo16.png"));;
-	/** <img src="../../../resources/icons/eggnog16.png"> */
-	public static final Icon WEB_EGGNOG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/eggnog16.png"));;
-	
-	/**
+	public static final Icon WEB_BLAST_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/blast16.png"));
+    /** <img src="../../../resources/icons/quickgo16.png"> */
+	public static final Icon WEB_QUICKGO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/quickgo16.png"));
+    /** <img src="../../../resources/icons/eggnog16.png"> */
+	public static final Icon WEB_EGGNOG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/eggnog16.png"));
+
+    /**
 	 * Creates an empty item of the specified width and height.
 	 * @param width the pixel width of the icon
 	 * @param height the pixel height of the icon
 	 * @return an empty icon
 	 */
-	public static Icon createEmptyIcon(final int width, final int height) {
+	public static Icon createEmptyIcon(int width, int height) {
 		return new Icon() {
 			@Override
 			public void paintIcon(Component c, Graphics g, int x, int y) {
@@ -432,8 +432,8 @@ public class IconConstants {
 		g.dispose();
 		
 		// re-scale pixel intensities
-		float[] factors = new float[] { scale, scale, scale, 1.0f };
-		float[] offsets = new float[] { 0.0f, 0.0f, 0.0f, 0.0f };
+		float[] factors = { scale, scale, scale, 1.0f };
+		float[] offsets = { 0.0f, 0.0f, 0.0f, 0.0f };
 		RescaleOp op = new RescaleOp(factors, offsets, null);
 		
 		return new ImageIcon(op.filter(bi, null));
@@ -446,7 +446,7 @@ public class IconConstants {
 	 * @return a rescaled icon
 	 */
 	public static ImageIcon createRescaledIcon(ImageIcon icon, float scale) {
-		return createRescaledIcon(icon, scale, scale);
+		return IconConstants.createRescaledIcon(icon, scale, scale);
 	}
 	
 	/**
@@ -458,7 +458,7 @@ public class IconConstants {
 	 * @return a rescaled icon
 	 */
 	public static ImageIcon createRescaledIcon(ImageIcon icon, float xScale, float yScale) {
-		return createRescaledIcon(icon, icon.getIconWidth() * xScale, icon.getIconHeight() * yScale);
+		return IconConstants.createRescaledIcon(icon, icon.getIconWidth() * xScale, icon.getIconHeight() * yScale);
 	}
 	
 	/**
@@ -537,7 +537,7 @@ public class IconConstants {
 	 * @return an icon with additional arrow
 	 */
 	public static Icon createArrowedIcon(Icon icon) {
-		return createArrowedIcon(icon, SwingConstants.EAST);
+		return IconConstants.createArrowedIcon(icon, SwingConstants.EAST);
 	}
 
 	/**
@@ -549,7 +549,7 @@ public class IconConstants {
 	 * @return an icon with additional arrow
 	 */
 	public static Icon createArrowedIcon(Icon icon, int location) {
-		return createArrowedIcon(icon, location, SwingConstants.SOUTH);
+		return IconConstants.createArrowedIcon(icon, location, SwingConstants.SOUTH);
 	}
 
 	/**
@@ -561,9 +561,9 @@ public class IconConstants {
 	 * @param direction the direction the arrow is pointing in
 	 * @return an icon with additional arrow
 	 */
-	public static Icon createArrowedIcon(final Icon icon, final int location, final int direction) {
-		final int xPadding, yPadding;
-		final int xMargin = 2, yMargin = 2;
+	public static Icon createArrowedIcon(Icon icon, int location, int direction) {
+		int xPadding, yPadding;
+		int xMargin = 2, yMargin = 2;
 		if (location == SwingConstants.WEST || location == SwingConstants.EAST) {
 			// to the left or right of the icon
 			yPadding = 0;

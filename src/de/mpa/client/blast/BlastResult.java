@@ -1,12 +1,12 @@
 package de.mpa.client.blast;
 
+import de.mpa.client.ui.dialogs.BlastDialog;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import de.mpa.client.ui.dialogs.BlastDialog.BlastResultOption;
 
 /**
  * This class holds a BLAST query.
@@ -38,7 +38,7 @@ public class BlastResult {
 	 * Default constructor.
 	 */
 	public BlastResult() {
-	blastHitsMap = new HashMap<String, BlastHit>();
+        this.blastHitsMap = new HashMap<String, BlastHit>();
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class BlastResult {
 	 * @return The BLAST hits map.
 	 */
 	public Map<String, BlastHit> getBlastHitsMap() {
-		return blastHitsMap;
+		return this.blastHitsMap;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class BlastResult {
 	 * @param blastHitsMap
 	 */
 	public void putBlastHitsMap(BlastHit blastHit) {
-		this.blastHitsMap.put(blastHit.getAccession(), blastHit);
+        blastHitsMap.put(blastHit.getAccession(), blastHit);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class BlastResult {
 	 * @return. The name of the BLAST query.
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class BlastResult {
 	 * @return The length of the query sequence.
 	 */
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class BlastResult {
 	 * @return The name of the database.
 	 */
 	public String getDatabase() {
-		return database;
+		return this.database;
 	}
 
 	/**
@@ -113,8 +113,8 @@ public class BlastResult {
 	
 		BlastHit bestBlastHit = null;
 		
-		if (this.blastHitsMap != null & this.blastHitsMap.size() > 0 ) {
-			Collection<BlastHit> blastHitColl = this.blastHitsMap.values();
+		if (blastHitsMap != null & blastHitsMap.size() > 0 ) {
+			Collection<BlastHit> blastHitColl = blastHitsMap.values();
 			bestBlastHit = blastHitColl.iterator().next();
 			for (BlastHit blastHit : blastHitColl) {
 				if (bestBlastHit.geteValue() > blastHit.geteValue()) {
@@ -133,8 +133,8 @@ public class BlastResult {
 	
 		BlastHit bestBlastHit = null;
 		
-		if (this.blastHitsMap != null & this.blastHitsMap.size() > 0 ) {
-			Collection<BlastHit> blastHitColl = this.blastHitsMap.values();
+		if (blastHitsMap != null & blastHitsMap.size() > 0 ) {
+			Collection<BlastHit> blastHitColl = blastHitsMap.values();
 			bestBlastHit = blastHitColl.iterator().next();
 			for (BlastHit blastHit : blastHitColl) {
 				if (bestBlastHit.getScore() < blastHit.getScore()) {
@@ -155,8 +155,8 @@ public class BlastResult {
 		List<BlastHit> bestBlastHits = new ArrayList<BlastHit>();
 						
 		// collect hits
-		if (this.blastHitsMap != null & this.blastHitsMap.size() > 0 ) {
-			Collection<BlastHit> blastHitColl = this.blastHitsMap.values();
+		if (blastHitsMap != null & blastHitsMap.size() > 0 ) {
+			Collection<BlastHit> blastHitColl = blastHitsMap.values();
 			// find lowest evalue
 			double evalue_new = evalue;
 			for (BlastHit blastHit : blastHitColl) {
@@ -174,7 +174,7 @@ public class BlastResult {
 		return bestBlastHits ; 
 	}
 //	String[] items = new String[] {"Best E-value","Best Identity", "Best BitScore", "First E-value", "First Identity", "First BitScore", "All Hits"};
-	public List<BlastHit> getSelectedBLASTHits(BlastResultOption resultOption) {
+	public List<BlastHit> getSelectedBLASTHits(BlastDialog.BlastResultOption resultOption) {
 		// init list
 		List<BlastHit> bestBlastHits = new ArrayList<BlastHit>();
 		// collect hits
@@ -194,13 +194,13 @@ public class BlastResult {
 					for (BlastHit blastHit_2 : blastHitColl) {
 						if (blastHit_2.getScore() == bitscore) {
 							bestBlastHits.add(blastHit_2);
-							if (resultOption == BlastResultOption.FIRST_BITSCORE) {
+							if (resultOption == BlastDialog.BlastResultOption.FIRST_BITSCORE) {
 								return bestBlastHits;
 							}
 						}
 					}
 					return bestBlastHits;
-				case BEST_EVALUES: 
+				case BEST_EVALUES:
 				case FIRST_EVALUE:
 					// evalue of 1 for initial comparison
 					double evalue_new = 1;
@@ -213,7 +213,7 @@ public class BlastResult {
 					for (BlastHit blastHit_2 : blastHitColl) {
 						if (blastHit_2.geteValue() == evalue_new) {
 							bestBlastHits.add(blastHit_2);
-							if (resultOption == BlastResultOption.FIRST_EVALUE) {
+							if (resultOption == BlastDialog.BlastResultOption.FIRST_EVALUE) {
 								return bestBlastHits;
 							}
 						}
@@ -228,11 +228,11 @@ public class BlastResult {
 							identities = blastHit.getIdentities();
 						}
 					}
-					// take all hits with the highest identity (max == 100%) 
+					// take all hits with the highest identity (max == 100%)
 					for (BlastHit blastHit_2 : blastHitColl) {
 						if (blastHit_2.getIdentities() == identities) {
 							bestBlastHits.add(blastHit_2);
-							if (resultOption == BlastResultOption.FIRST_IDENTITY) {
+							if (resultOption == BlastDialog.BlastResultOption.FIRST_IDENTITY) {
 								return bestBlastHits;
 							}
 						}

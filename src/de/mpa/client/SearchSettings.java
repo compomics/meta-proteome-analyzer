@@ -72,7 +72,7 @@ public class SearchSettings {
      *     
      */
     public DbSearchSettings getDbss() {
-        return dbss;
+        return this.dbss;
     }
 
     /**
@@ -84,7 +84,7 @@ public class SearchSettings {
      *     
      */
     public void setDbss(DbSearchSettings value) {
-        this.dbss = value;
+        dbss = value;
     }
 
     /**
@@ -92,7 +92,7 @@ public class SearchSettings {
      * 
      */
     public long getExpID() {
-        return expID;
+        return this.expID;
     }
 
     /**
@@ -100,7 +100,7 @@ public class SearchSettings {
      * 
      */
     public void setExpID(long value) {
-        this.expID = value;
+        expID = value;
     }
     
     /**
@@ -112,7 +112,7 @@ public class SearchSettings {
      *     
      */
     public SpecSimSettings getSss() {
-        return sss;
+        return this.sss;
     }
 
     /**
@@ -124,7 +124,7 @@ public class SearchSettings {
      *     
      */
     public void setSss(SpecSimSettings value) {
-        this.sss = value;
+        sss = value;
     }
     
     /**
@@ -132,7 +132,7 @@ public class SearchSettings {
      * @return
      */
     public boolean isDatabase() {
-            return (dbss != null);
+            return (this.dbss != null);
     }
 
     /**
@@ -140,7 +140,7 @@ public class SearchSettings {
      * @return
      */
     public boolean isSpecSim() {
-            return (sss != null);
+            return (this.sss != null);
     }
 
     /**
@@ -166,10 +166,10 @@ public class SearchSettings {
      * 
      */
     public List<String> getFilenames() {
-        if (filenames == null) {
-            filenames = new ArrayList<String>();
+        if (this.filenames == null) {
+            this.filenames = new ArrayList<String>();
         }
-        return this.filenames;
+        return filenames;
     }
 
     /**

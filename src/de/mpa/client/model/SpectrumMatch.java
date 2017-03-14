@@ -12,7 +12,7 @@ import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.Hit;
 import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.ui.chart.ChartType;
-import de.mpa.client.ui.panels.ComparePanel.CompareData;
+import de.mpa.client.ui.panels.ComparePanel;
 import de.mpa.db.accessor.SearchHit;
 
 /**
@@ -53,7 +53,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * The list of peptide hits this spectrum is associated with.
 	 */
-	private Collection<PeptideHit> peptideHits;
+	private final Collection<PeptideHit> peptideHits;
 
 	/**
 	 * The taxonomy node reference.
@@ -63,15 +63,15 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	/**
 	 * The database IDs of the experiments which contain the protein hit.
 	 */
-	private Set<Long> experimentIDs;
+	private final Set<Long> experimentIDs;
 	
 	/**
 	 * Default empty constructor.
 	 */
 	public SpectrumMatch() {
 //		this.peptideHits = new ArrayList<PeptideHit>();
-		this.peptideHits = new HashSet<PeptideHit>();
-		this.experimentIDs = new HashSet<Long>();
+        peptideHits = new HashSet<PeptideHit>();
+        experimentIDs = new HashSet<Long>();
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return the search spectrum ID
 	 */
 	public long getSearchSpectrumID() {
-		return searchSpectrumID;
+		return this.searchSpectrumID;
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return The spectrum title.
 	 */
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return the start index byte position
 	 */
 	public long getStartIndex() {
-		return startIndex;
+		return this.startIndex;
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return the end index byte position
 	 */
 	public long getEndIndex() {
-		return endIndex;
+		return this.endIndex;
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return the peptide hits
 	 */
 	public Collection<PeptideHit> getPeptideHits() {
-		return this.peptideHits;
+		return peptideHits;
 	}
 	
 	/**
@@ -175,8 +175,8 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	public void addPeptideHit(PeptideHit peptideHit) {
 		// to replace a peptide hit we need to remove it first,
 		// does nothing if provided hit is new anyway
-		this.peptideHits.remove(peptideHit);
-		this.peptideHits.add(peptideHit);
+        peptideHits.remove(peptideHit);
+        peptideHits.add(peptideHit);
 	}
 	
 	/**
@@ -184,7 +184,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * @return experiment IDs.
 	 */
 	public Set<Long> getExperimentIDs() {
-		return experimentIDs;
+		return this.experimentIDs;
 	}
 	
 	/**
@@ -198,12 +198,12 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 * Adds a single ID of the experiment which contains this spectrum.
 	 */
 	public void addExperimentID(Long experimentID) {
-		this.experimentIDs.add(experimentID);
+        experimentIDs.add(experimentID);
 	}
 
 	@Override
 	public boolean isSelected() {
-		return selected;
+		return this.selected;
 	}
 	
 	@Override
@@ -222,7 +222,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	 */
 	@Override
 	public boolean isVisible() {
-		for (PeptideHit pep : peptideHits) {
+		for (PeptideHit pep : this.peptideHits) {
 			if (pep.isVisible()) {
 				return true;
 			}
@@ -232,7 +232,7 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
-		return this.taxonNode;
+		return taxonNode;
 	}
 
 	@Override
@@ -248,21 +248,21 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 	@Override
 	public String toString() {
 //		return "[ssID = " + this.searchSpectrumID + "]";
-		return "" + this.searchSpectrumID;
+		return "" + searchSpectrumID;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SpectrumMatch) {
 			SpectrumMatch that = (SpectrumMatch) obj;
-			return (this.getSearchSpectrumID() == that.getSearchSpectrumID());
+			return (getSearchSpectrumID() == that.getSearchSpectrumID());
 		}
 		return false;
 	}
 
 	@Override
 	public int compareTo(SpectrumMatch that) {
-		long delta = this.getSearchSpectrumID() - that.getSearchSpectrumID();
+		long delta = getSearchSpectrumID() - that.getSearchSpectrumID();
 		return (delta < 0L) ? -1 : (delta > 0L) ? 1 : 0;
 	}
 
@@ -272,14 +272,14 @@ public class SpectrumMatch implements Serializable, Comparable<SpectrumMatch>, T
 			
 			
 			// Only for experiments takes the experimentIDs of the spectrum
-			if (type != CompareData.EXPERIMENT) {
+			if (type != ComparePanel.CompareData.EXPERIMENT) {
 				// Gets properties from the protein hit.
-				for (PeptideHit pepHit : this.peptideHits) {
+				for (PeptideHit pepHit : peptideHits) {
 					res.addAll(pepHit.getProperties(type));
 				}
 			}else {
 				// Gets experimentIDs from itself
-				res.addAll(this.getExperimentIDs());
+				res.addAll(getExperimentIDs());
 			}
 			
 			return res;

@@ -25,7 +25,7 @@ public class ServerProperties {
 	 * @throws IOException 
 	 */
     private ServerProperties() throws IOException  {
-    	loadResourcesSettings();
+        this.loadResourcesSettings();
 	}
     
     /**
@@ -34,14 +34,14 @@ public class ServerProperties {
      * @throws IOException 
      */
     public static ServerProperties getInstance() {
-    	if (instance == null) {
+    	if (ServerProperties.instance == null) {
     		try {
-				instance = new ServerProperties();
+                ServerProperties.instance = new ServerProperties();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
     	}
-		return instance;
+		return ServerProperties.instance;
     } 
     
     /**
@@ -49,11 +49,11 @@ public class ServerProperties {
      * @throws IOException
      */
 	private void loadResourcesSettings() throws IOException {
-		prop = new Properties();
+        this.prop = new Properties();
 		
 		// Load the resources settings via input stream.
 		InputStream input = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "server-settings.txt");
-		prop.load(input);
+        this.prop.load(input);
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class ServerProperties {
 	 * @return
 	 */
 	public String getProperty(String key) {
-		return prop.getProperty(key);
+		return this.prop.getProperty(key);
 	}
 
 }

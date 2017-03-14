@@ -5,7 +5,7 @@ public enum PathwayProperty implements ElementProperty {
 	DESCRIPTION("Description"),
 	PATHWAYID("PathwayID");
 	
-	PathwayProperty(final String propertyName){
+	PathwayProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -13,7 +13,7 @@ public enum PathwayProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }
 

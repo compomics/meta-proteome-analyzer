@@ -33,12 +33,12 @@ public class SelectExperimentDialog extends JDialog{
 	 * The ClientFrame
 	 */
 	@SuppressWarnings("unused")
-	private ClientFrame owner;
+	private final ClientFrame owner;
 
 	/**
 	 * List of the names of the selected experiments
 	 */
-	private static LinkedList<Long> expList = new LinkedList<Long>();
+	private static final LinkedList<Long> expList = new LinkedList<Long>();
 
 	/**
 	 * @param owner. The owner of the dialog.
@@ -47,16 +47,16 @@ public class SelectExperimentDialog extends JDialog{
 	public SelectExperimentDialog(ClientFrame owner, String title) {
 		super(owner, title, true);
 		this.owner = owner;
-		initComponents();
+        this.initComponents();
 		// Configure size and position
-		this.pack();
-		Dimension size = this.getSize();
-		this.setSize(new Dimension(size.width, size.height + 7));
-		this.setResizable(false);
+        pack();
+		Dimension size = getSize();
+        setSize(new Dimension(size.width, size.height + 7));
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class SelectExperimentDialog extends JDialog{
 		// Create BLAST dialog
 		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JPanel selectExpDlg 			= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu"));
-		final JTable expTbl 					= new JTable(createExpTable());
+		JTable expTbl 					= new JTable(this.createExpTable());
 		JScrollPane expTblSp			= new JScrollPane(expTbl);		
 		selectExpDlg.add(expTblSp, CC.xy(2,  2));
 		// Configure 'OK' button
@@ -80,9 +80,9 @@ public class SelectExperimentDialog extends JDialog{
 				int[] selectedRows = expTbl.getSelectedRows();
 				for (int i : selectedRows) {
 					Long expName = (Long)expTbl.getValueAt(i, 0);
-					expList.add(expName);
+                    SelectExperimentDialog.expList.add(expName);
 				}
-				close();
+                SelectExperimentDialog.this.close();
 			}
 		});
 
@@ -94,14 +94,14 @@ public class SelectExperimentDialog extends JDialog{
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				expList.clear();
-				close();
+                SelectExperimentDialog.expList.clear();
+                SelectExperimentDialog.this.close();
 			}
 		});
 		selectExperimentsDlgPnl.add(selectExpDlg, CC.xyw(2, 2,3));
 		selectExperimentsDlgPnl.add(okBtn,CC.xy(2, 4) );
 		selectExperimentsDlgPnl.add(cancelBtn,CC.xy(4, 4) );
-		Container cp = this.getContentPane();		
+		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
 		cp.add(selectExperimentsDlgPnl, CC.xy(2,  2));		
 	}
@@ -117,7 +117,7 @@ public class SelectExperimentDialog extends JDialog{
 	 * Close method for the dialog.
 	 */
 	private void close() {
-		dispose();
+        this.dispose();
 	}
 
 	/**
@@ -138,6 +138,6 @@ public class SelectExperimentDialog extends JDialog{
 	 * @return expList. The list of selected experiments.
 	 */
 	public LinkedList<Long> getExpList() {
-		return expList;
+		return SelectExperimentDialog.expList;
 	}
 }

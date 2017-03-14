@@ -47,12 +47,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 	/**
 	 * The client frame instance.
 	 */
-	private ClientFrame clientFrame;
+	private final ClientFrame clientFrame;
 	
 	/**
 	 * Class containing all values for the export checkboxes.
 	 */
-	private ExportFields exportFields;
+	private final ExportFields exportFields;
 
 	/**
 	 * The 'Export' menu.
@@ -61,20 +61,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
-	 * @param clientFrame The client frame. 
 	 */
 	public ClientFrameMenuBar() {
-		this.clientFrame = ClientFrame.getInstance();
+		clientFrame = ClientFrame.getInstance();
 		Client.getInstance();
-		exportFields = ExportFields.getInstance();
-		initComponents();
+		this.exportFields = ExportFields.getInstance();
+		this.initComponents();
 	}
 	
 	/**
 	 * Initializes the components.
 	 */
 	private void initComponents() {
-		this.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+		putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
 
 		/* create File Menu */
 		JMenu fileMenu = new JMenu();
@@ -102,25 +101,21 @@ public class ClientFrameMenuBar extends JMenuBar {
 					@Override
 					protected Object doInBackground() {
 						JFileChooser chooser = new ConfirmFileChooser();
-						chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+						chooser.setCurrentDirectory(new File(ClientFrameMenuBar.this.clientFrame.getLastSelectedFolder()));
 						chooser.setFileFilter(new ExtensionFileFilter(".sql", false,
 								"MYSQL Script File (*.sql)"));
 						chooser.setAcceptAllFileFilterUsed(false);
-						int returnVal = chooser.showSaveDialog(clientFrame);
+						int returnVal = chooser.showSaveDialog(ClientFrameMenuBar.this.clientFrame);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							File selFile = chooser.getSelectedFile();
 							if (selFile != null) {
 								String filePath = selFile.getPath();
-								clientFrame.setLastSelectedFolder(selFile.getParent());
+								ClientFrameMenuBar.this.clientFrame.setLastSelectedFolder(selFile.getParent());
 								if (!filePath.toLowerCase().endsWith(".sql")) {
 									filePath += ".sql";
 								}
-								try {
-//									DBDumper.upgradeDatabase(); 
-									DBDumper.dumpDatabase(filePath);
-								} catch (SQLException | IOException e) {
-									e.printStackTrace();
-								}
+								//									DBDumper.upgradeDatabase();
+								DBDumper.dumpDatabase(filePath);
 							}
 						}
 					return null;
@@ -140,15 +135,15 @@ public class ClientFrameMenuBar extends JMenuBar {
 					@Override
 					protected Object doInBackground() {
 						JFileChooser chooser = new ConfirmFileChooser();
-						chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+						chooser.setCurrentDirectory(new File(ClientFrameMenuBar.this.clientFrame.getLastSelectedFolder()));
 						chooser.setFileFilter(new ExtensionFileFilter(".sql", false,
 								"MYSQL Script File (*.sql)"));
 						chooser.setAcceptAllFileFilterUsed(false);
-						int returnVal = chooser.showOpenDialog(clientFrame);
+						int returnVal = chooser.showOpenDialog(ClientFrameMenuBar.this.clientFrame);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							File selFile = chooser.getSelectedFile();
 							if (selFile != null) {
-								clientFrame.setLastSelectedFolder(selFile.getParent());
+								ClientFrameMenuBar.this.clientFrame.setLastSelectedFolder(selFile.getParent());
 								}
 								try {
 									String confirmCode = JOptionPane.showInputDialog(
@@ -192,7 +187,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		connItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				AdvancedSettingsDialog.showDialog(clientFrame, "Connection Settings", true, Client.getInstance().getConnectionParameters());
+				AdvancedSettingsDialog.showDialog(ClientFrameMenuBar.this.clientFrame, "Connection Settings", true, Client.getInstance().getConnectionParameters());
 			}
 		});
 
@@ -201,13 +196,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		settingsMenu.add(connItem);
 
 		/* create Export menu */
-		exportMenu = new JMenu("Export");
+		this.exportMenu = new JMenu("Export");
 		
 		JMenuItem mpaItem = new JMenuItem("MPA File...", IconConstants.MPA_SMALL_ICON);
 		mpaItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportMPA();
+				ClientFrameMenuBar.this.exportMPA();
 			}
 		});
 		
@@ -216,7 +211,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		csvItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportCSV();
+				ClientFrameMenuBar.this.exportCSV();
 			}
 		});
 		
@@ -226,14 +221,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 		MCRItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				try {
-					if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
-						exportMultipleCombined();
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
+                    ClientFrameMenuBar.this.exportMultipleCombined();
+                }
 			}
 		});
 		
@@ -243,14 +233,9 @@ public class ClientFrameMenuBar extends JMenuBar {
 		MSRItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				try {
-					if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
-						exportMultipleSeparate();
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				if (ClientFrame.getInstance().getProjectPanel().getSelectedProject() != null) {
+                    ClientFrameMenuBar.this.exportMultipleSeparate();
+                }
 			}
 		});
 
@@ -259,19 +244,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 		graphmlItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportGraphML();
+				ClientFrameMenuBar.this.exportGraphML();
 			}
 		});
 
-		exportMenu.add(mpaItem);
-		exportMenu.addSeparator();
-		exportMenu.add(csvItem);
-		exportMenu.add(MCRItem);
-		exportMenu.add(MSRItem);
-		exportMenu.addSeparator();
-		exportMenu.add(graphmlItem);
-		
-		this.setExportMenuEnabled(false);
+		this.exportMenu.add(mpaItem);
+		this.exportMenu.addSeparator();
+		this.exportMenu.add(csvItem);
+		this.exportMenu.add(MCRItem);
+		this.exportMenu.add(MSRItem);
+		this.exportMenu.addSeparator();
+		this.exportMenu.add(graphmlItem);
+
+		setExportMenuEnabled(false);
 
 		// Update Menu
 		JMenu updateMenu = new JMenu();		
@@ -280,7 +265,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Find unreferenced UniProt entries in the database and try to fill them
 		JMenuItem updateEmptyUniProtItem = new JMenuItem();
 		updateEmptyUniProtItem.setText("Update empty UniProt Entries");
-		updateEmptyUniProtItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
+		updateEmptyUniProtItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
 		updateEmptyUniProtItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new SwingWorker<Object, Object>() {
@@ -306,17 +291,17 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Find unreferenced UniProt entries in the database and try to BLAST them if necessary
 		JMenuItem blastItem = new JMenuItem();
 		blastItem.setText("BLAST unknown Hits");
-		blastItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast16.png")));
+		blastItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/blast16.png")));
 		blastItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new BlastDialog(clientFrame, "Blast_Dialog");
+				new BlastDialog(ClientFrameMenuBar.this.clientFrame, "Blast_Dialog");
 			}
 		});
 
 		// Delete all blast Hits
 		JMenuItem blastDeleteItem = new JMenuItem();
 		blastDeleteItem.setText("Delete Blast Hits");
-		blastDeleteItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/blast16.png")));
+		blastDeleteItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/blast16.png")));
 		blastDeleteItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String confirmCode = JOptionPane.showInputDialog(
@@ -324,7 +309,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				        "Continuing this process will DELETE all BLAST results. \n Type \"DELETE\" to proceed.", 
 				        "Warning", 
 				        JOptionPane.WARNING_MESSAGE);
-				if ((confirmCode != null) && (confirmCode.equals("DELETE"))) {										
+				if ("DELETE".equals(confirmCode)) {
 					try {						
 						UniProtUtilities.deleteblasthits();						
 					} catch (SQLException e1) {
@@ -340,22 +325,22 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Help Menu
 		JMenuItem updateNcbiTaxItem = new JMenuItem();		
 		updateNcbiTaxItem.setText("Update NCBI Taxonomy");
-		updateNcbiTaxItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/ncbi16.png")));
+		updateNcbiTaxItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/ncbi16.png")));
 		updateNcbiTaxItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new UpdateNcbiTaxDialog(clientFrame, "Update NCBI-Taxonomy Dialog");
+				new UpdateNcbiTaxDialog(ClientFrameMenuBar.this.clientFrame, "Update NCBI-Taxonomy Dialog");
 			}
 		});
 		
 		// Add further FASTA Menu
 		JMenuItem addFastaDbItem = new JMenuItem();
 		addFastaDbItem.setText("Add Fasta Database");
-		addFastaDbItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/database_go16.png")));
+		addFastaDbItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/database_go16.png")));
 		addFastaDbItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			new AddFastaDialog(clientFrame, "Add further FASTA-Database");
+			new AddFastaDialog(ClientFrameMenuBar.this.clientFrame, "Add further FASTA-Database");
 			}
 		});
 		
@@ -376,11 +361,11 @@ public class ClientFrameMenuBar extends JMenuBar {
 		JMenuItem helpContentsItem = new JMenuItem();
 		helpContentsItem.setText("Help Contents");
 
-		helpContentsItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/help.gif")));
+		helpContentsItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/help.gif")));
 		helpMenu.add(helpContentsItem);
 		helpContentsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				showHelp();
+				ClientFrameMenuBar.this.showHelp();
 			}
 		});
 		helpMenu.addSeparator();
@@ -388,22 +373,22 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// aboutItem
 		JMenuItem aboutItem = new JMenuItem();
 		aboutItem.setText("About");		
-		aboutItem.setIcon(new ImageIcon(getClass().getResource("/de/mpa/resources/icons/about.gif")));
+		aboutItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/about.gif")));
 		aboutItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				showAbout();
+				ClientFrameMenuBar.this.showAbout();
 			}
 		});
 		helpMenu.add(aboutItem);
-		
-		this.add(fileMenu);
-		this.add(settingsMenu);
-		this.add(exportMenu);
+
+		add(fileMenu);
+		add(settingsMenu);
+		add(this.exportMenu);
 		// Add only for the client and not for the viewer
 		if (!Client.isViewer()) {
-			this.add(updateMenu);
+			add(updateMenu);
 		}
-		this.add(helpMenu);
+		add(helpMenu);
 	}
 	
 	/**
@@ -411,21 +396,21 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * @throws SQLException 
 	 */
 	protected void openMetaproteinExportDialog() throws SQLException {
-		new MetaproteinExportDialog(clientFrame, "User Export Dialog");
+		new MetaproteinExportDialog(this.clientFrame, "User Export Dialog");
 	}
 	
 	/**
 	 * This method opens the export dialog.
 	 */
-    private void exportMultipleCombined() throws SQLException {    	
-    	new ExportCombinedExpMetaproteins(clientFrame, "User Export Dialog");
+    private void exportMultipleCombined() {
+    	new ExportCombinedExpMetaproteins(this.clientFrame, "User Export Dialog");
     }
     
 	/**
 	 * This method opens the export dialog.
 	 */
-    private void exportMultipleSeparate()  throws SQLException {
-    	new ExportSeparateExpMetaproteins(clientFrame, "User Export Dialog");    	
+    private void exportMultipleSeparate() {
+    	new ExportSeparateExpMetaproteins(this.clientFrame, "User Export Dialog");
     }
 
 	/**
@@ -436,15 +421,15 @@ public class ClientFrameMenuBar extends JMenuBar {
 			@Override
 			protected Void doInBackground() throws Exception {
 				JFileChooser chooser = new ConfirmFileChooser();
-				chooser.setCurrentDirectory(new File(clientFrame.getLastSelectedFolder()));
+				chooser.setCurrentDirectory(new File(ClientFrameMenuBar.this.clientFrame.getLastSelectedFolder()));
 				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
-				int returnVal = chooser.showSaveDialog(clientFrame);
+				int returnVal = chooser.showSaveDialog(ClientFrameMenuBar.this.clientFrame);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File selFile = chooser.getSelectedFile();
 					if (selFile != null) {
 						String filePath = selFile.getPath();
-						clientFrame.setLastSelectedFolder(selFile.getParent());
+						ClientFrameMenuBar.this.clientFrame.setLastSelectedFolder(selFile.getParent());
 						if (!filePath.toLowerCase().endsWith(".mpa")) {
 							filePath += ".mpa";
 						}
@@ -460,7 +445,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * This method opens the export dialog.
 	 */
     private void exportCSV() {
-    	new ExportDialog(clientFrame, "Results Export", true, exportFields);
+    	new ExportDialog(this.clientFrame, "Results Export", true, this.exportFields);
 //    	AdvancedSettingsDialog.showDialog(clientFrame, "Export Results to CSV", true, new ResultExportParameters());
     }
     
@@ -474,7 +459,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				JFileChooser chooser = new ConfirmFileChooser();
 				chooser.setFileFilter(Constants.GRAPHML_FILE_FILTER);
 				chooser.setAcceptAllFileFilterUsed(false);
-				int returnVal = chooser.showSaveDialog(clientFrame);
+				int returnVal = chooser.showSaveDialog(ClientFrameMenuBar.this.clientFrame);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File selFile = chooser.getSelectedFile();
 					if (selFile != null) {
@@ -494,7 +479,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * This method is being executed when the help menu item is selected.
 	 */
 	private void showHelp() {
-		new HtmlFrame(clientFrame, getClass().getResource("/de/mpa/resources/html/help.html"), "Help");
+		new HtmlFrame(this.clientFrame, this.getClass().getResource("/de/mpa/resources/html/help.html"), "Help");
 	}
 
 	/**
@@ -521,7 +506,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
 	 */
 	public void setExportMenuEnabled(boolean enabled) {
-		for (Component comp : exportMenu.getMenuComponents()) {
+		for (Component comp : this.exportMenu.getMenuComponents()) {
 			comp.setEnabled(enabled);
 			// export is always enabled
 			if (comp.getName() == "MSR") {comp.setEnabled(true);}

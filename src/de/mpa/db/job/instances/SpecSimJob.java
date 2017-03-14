@@ -34,12 +34,12 @@ public class SpecSimJob extends Job {
 	/**
 	 * The list of spectrum files.
 	 */
-	private List<MascotGenericFile> mgfList;
+	private final List<MascotGenericFile> mgfList;
 	
 	/**
 	 * The spectral similarity search settings reference.
 	 */
-	private SpecSimSettings settings;
+	private final SpecSimSettings settings;
 	
 	/**
 	 * The list of spectrum-spectrum matches.
@@ -55,24 +55,24 @@ public class SpecSimJob extends Job {
 	public SpecSimJob(List<MascotGenericFile> mgfList, SpecSimSettings settings) {
 		this.mgfList = mgfList;
 		this.settings = settings;
-		setDescription("SPECTRAL SIMILARITY SEARCH");
+        this.setDescription("SPECTRAL SIMILARITY SEARCH");
 	}
 
 	@Override
 	public void run() {
-		setStatus(JobStatus.RUNNING);
+        this.setStatus(JobStatus.RUNNING);
 		
 		// store list of results in HashMap (with spectrum title as key)
-		ssmList = new ArrayList<SpectrumSpectrumMatch>();
+        this.ssmList = new ArrayList<SpectrumSpectrumMatch>();
 		
-		List<Interval> intervals = this.buildMzIntervals();
+		List<Interval> intervals = buildMzIntervals();
 
 		try {
 			// extract list of candidates
 			DBManager manager = DBManager.getInstance();
 			SpectrumExtractor specEx = new SpectrumExtractor(manager.getConnection());
 			List<SpectralSearchCandidate> candidates = 
-					specEx.getCandidatesFromExperiment(intervals, settings.getExperimentID());
+					specEx.getCandidatesFromExperiment(intervals, this.settings.getExperimentID());
 //			System.out.flush();
 //			System.out.print("Fetching candidates... ");
 //			List<SpectralSearchCandidate> candidates = 
@@ -84,28 +84,28 @@ public class SpecSimJob extends Job {
 //			int i = 0;
 			
 			// iterate query spectra to determine similarity scores
-			for (MascotGenericFile mgfQuery : mgfList) {
+			for (MascotGenericFile mgfQuery : this.mgfList) {
 				String title = mgfQuery.getTitle().trim();
 				long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(title);
 				
 				// Spectrum comparator method
-				SpectrumComparator specComp = getComparatorMethod(settings);
+				SpectrumComparator specComp = this.getComparatorMethod(this.settings);
 				
 				// Comparison preparation
-				specComp.prepare(mgfQuery.getHighestPeaks(settings.getPickCount()));
+				specComp.prepare(mgfQuery.getHighestPeaks(this.settings.getPickCount()));
 				
 				// iterate candidates
 				for (SpectralSearchCandidate candidate : candidates) {
 					// (re-)check precursor tolerance criterion to determine proper candidates
-					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < settings.getTolMz()) {
+					if (Math.abs(mgfQuery.getPrecursorMZ() - candidate.getPrecursorMz()) < this.settings.getTolMz()) {
 						// TODO: redundancy check in candidates (e.g. same spectrum from multiple peptide associations)
 						// Score query and library spectra
 						specComp.compareTo(candidate.getPeaks());
 						double score = specComp.getSimilarity();
 						
 						// store result if score is above specified threshold
-						if (score >= settings.getThreshScore()) {
-							ssmList.add(new SpectrumSpectrumMatch(searchspectrumID, candidate.getLibpectrumID(), score));
+						if (score >= this.settings.getThreshScore()) {
+                            this.ssmList.add(new SpectrumSpectrumMatch(searchspectrumID, candidate.getLibpectrumID(), score));
 						}
 					}
 				}
@@ -120,9 +120,9 @@ public class SpecSimJob extends Job {
 //				pSupport.firePropertyChange("progressmade", 0, 1);
 			}
 			System.out.println("... done.");
-			done();
+            this.done();
 		} catch (SQLException e) {
-			setError(e);
+            this.setError(e);
 		}
 	}
 	
@@ -132,8 +132,8 @@ public class SpecSimJob extends Job {
 	 */
 	private List<Interval> buildMzIntervals() {
 		// iterate query spectra to gather precursor m/z values
-		ArrayList<Double> precursorMZs = new ArrayList<Double>(mgfList.size());
-		for (MascotGenericFile mgf : mgfList) {
+		ArrayList<Double> precursorMZs = new ArrayList<Double>(this.mgfList.size());
+		for (MascotGenericFile mgf : this.mgfList) {
 			precursorMZs.add(mgf.getPrecursorMZ());
 		}
 		Collections.sort(precursorMZs);
@@ -142,15 +142,15 @@ public class SpecSimJob extends Job {
 		Interval current = null;
 		for (double precursorMz : precursorMZs) {
 			if (current == null) {	// first interval
-				current = new Interval(((precursorMz - settings.getTolMz()) < 0.0) ?
-						0.0 : precursorMz - settings.getTolMz(), precursorMz + settings.getTolMz());
+				current = new Interval(((precursorMz - this.settings.getTolMz()) < 0.0) ?
+						0.0 : precursorMz - this.settings.getTolMz(), precursorMz + this.settings.getTolMz());
 				intervals.add(current);
 			} else {
 				// if left border of new interval intersects current interval extend the latter
-				if ((precursorMz - settings.getTolMz()) < current.getRightBorder()) {
-					current.setRightBorder(precursorMz + settings.getTolMz());
+				if ((precursorMz - this.settings.getTolMz()) < current.getRightBorder()) {
+					current.setRightBorder(precursorMz + this.settings.getTolMz());
 				} else {	// generate new interval
-					current = new Interval(precursorMz - settings.getTolMz(), precursorMz + settings.getTolMz());
+					current = new Interval(precursorMz - this.settings.getTolMz(), precursorMz + this.settings.getTolMz());
 					intervals.add(current);
 				}
 			}
@@ -216,8 +216,8 @@ public class SpecSimJob extends Job {
 	 */
 	private SpectrumComparator getComparatorMethod(SpecSimSettings settings) { //int index, Vectorization vect, Transformation trafo, int xCorrOffset) {
 		SpectrumComparator specComp = null;
-		Vectorization vect = getVectorizationMethod(settings);
-		Transformation trafo = getTransformationMethod(settings);
+		Vectorization vect = this.getVectorizationMethod(settings);
+		Transformation trafo = this.getTransformationMethod(settings);
 		switch (settings.getCompIndex()) {
 		case 0:
 			specComp = new EuclideanDistance(vect, trafo);
@@ -241,7 +241,7 @@ public class SpecSimJob extends Job {
 	 * @return the SSM list
 	 */
 	public List<SpectrumSpectrumMatch> getResults() {
-		return ssmList;
+		return this.ssmList;
 	}
 	
 }

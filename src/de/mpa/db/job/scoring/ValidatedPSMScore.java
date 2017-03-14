@@ -10,17 +10,17 @@ public class ValidatedPSMScore {
 	/**
 	 * The original search engine score;
 	 */
-	private double score;
+	private final double score;
 	
 	/**
 	 * The posterior error probability.
 	 */
-	private double pep;
+	private final double pep;
 	
 	/**
 	 * The q-value (FDR threshold) value.
 	 */
-	private double qvalue;
+	private final double qvalue;
 	
 	/**
 	 * Constructor for a validated PSM score.
@@ -39,7 +39,7 @@ public class ValidatedPSMScore {
 	 * @return The search engine score.
 	 */
 	public double getScore() {
-		return score;
+		return this.score;
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class ValidatedPSMScore {
 	 * @return The posterior error probability.
 	 */
 	public double getPep() {
-		return pep;
+		return this.pep;
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class ValidatedPSMScore {
 	 * @return The q-value (FDR threshold) value.
 	 */
 	public double getQvalue() {
-		return qvalue;
+		return this.qvalue;
 	}
 
 }

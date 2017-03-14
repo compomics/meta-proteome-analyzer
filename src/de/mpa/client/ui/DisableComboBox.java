@@ -24,9 +24,9 @@ public class DisableComboBox extends JComboBox {
 	public DisableComboBox(Object[] objects) {
 		super(objects);
 		for (int i = 0; i < objects.length; i++) {
-			enableStates.add(true);
+            this.enableStates.add(true);
 		}
-		setRenderer(new ListCellRenderer() {
+        this.setRenderer(new ListCellRenderer() {
 			public Component getListCellRendererComponent(JList list,
 					Object value, int index, boolean isSelected,
 					boolean cellHasFocus) {
@@ -34,7 +34,7 @@ public class DisableComboBox extends JComboBox {
 				label.setOpaque(true);
 				label.setText(value.toString());
 				if (index >= 0) {
-					if (!enableStates.get(index)) {
+					if (!DisableComboBox.this.enableStates.get(index)) {
 						label.setEnabled(false);
 						label.setFocusable(false);
 					} else {
@@ -49,12 +49,12 @@ public class DisableComboBox extends JComboBox {
 	
 	@Override
 	public void setSelectedIndex(int index) {
-		if (enableStates.get(index))
+		if (this.enableStates.get(index))
 			super.setSelectedIndex(index);
 	}
 
 	public void setItemEnabledAt(int index, boolean enabled) {
-		enableStates.set(index, enabled);
+        this.enableStates.set(index, enabled);
 	}
 	
 	// TODO: properly handle item addition, insertion, removal, etc.

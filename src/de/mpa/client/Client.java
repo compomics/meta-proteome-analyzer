@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOMFeature;
 
+import de.mpa.client.settings.SpectrumFetchParameters;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
@@ -47,7 +49,6 @@ import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
@@ -67,7 +68,6 @@ import de.mpa.graphdb.insert.GraphDatabaseHandler;
 import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.main.Starter;
 
 public class Client {
@@ -75,7 +75,7 @@ public class Client {
 	/** 
 	 * Client instance.
 	 */
-	private static Client instance = null;
+	private static Client instance;
 
 	/**
 	 * Server implementation service.
@@ -95,7 +95,7 @@ public class Client {
 	/**
 	 * Parameter map containing result processing-related settings.
 	 */
-	private ResultParameters resultParams = new ResultParameters();
+	private final ResultParameters resultParams = new ResultParameters();
 	
 	/**
 	 * Parameter map containing connection settings.
@@ -105,7 +105,7 @@ public class Client {
 	/**
 	 * Property change support for notifying the GUI about new messages.
 	 */
-	private PropertyChangeSupport pSupport;
+	private final PropertyChangeSupport pSupport;
 	
 	/**
 	 * Database search result.
@@ -120,32 +120,32 @@ public class Client {
 	/**
 	 * Flag denoting whether client is in viewer mode.
 	 */
-	private boolean viewer;
+	private final boolean viewer;
 	
 	/**
 	 * Flag for debugging options.
 	 */
-	private boolean debug;
+	private final boolean debug;
 	
 	/**
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
 
-	private RequestThread requestThread;
-	
+	private Client.RequestThread requestThread;
+
 	/**
 	 *  if flag is set false, calculations of empai/nsaf/coverage are omitted during FetchResults
 	 */
 	private boolean fast_results = true;
-	
+
 
 	public boolean isfast_results() {
-		return fast_results;
+		return this.fast_results;
 	}
 
 	public void setfast_results(boolean nsaf_empai_coverage_flag) {
-		this.fast_results = nsaf_empai_coverage_flag;
+		fast_results = nsaf_empai_coverage_flag;
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class Client {
 	private Client() {
 		this(false, false, false);
 	}
-	
+
 	/**
 	 * Creates the singleton client instance using the specified viewer and debug mode flags.
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
@@ -163,26 +163,26 @@ public class Client {
 	private Client(boolean viewer, boolean debug, boolean fast) {
 		this.viewer = viewer;
 		this.debug = debug;
-		this.fast_results = fast;
-		this.pSupport = new PropertyChangeSupport(this);
+		fast_results = fast;
+		pSupport = new PropertyChangeSupport(this);
 	}
-	
+
 	/**
 	 * Returns the client singleton instance.
 	 * @return the client singleton instance
 	 */
 	public static Client getInstance() {
-		return instance;
+		return Client.instance;
 	}
-	
+
 	/**
 	 * Returns the client singleton instance using the specified viewer and debug mode flags.
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
 	public static void init(boolean viewer, boolean debug, boolean fast_results) {
-		if (instance == null) {
-			instance = new Client(viewer, debug, fast_results);
+		if (Client.instance == null) {
+			Client.instance = new Client(viewer, debug, fast_results);
 		}
 	}
 
@@ -193,26 +193,26 @@ public class Client {
 	 */
 	public Connection getConnection() throws SQLException {
 		// check whether connection is valid
-		if (conn == null || !conn.isValid(0)) {
+		if (this.conn == null || !this.conn.isValid(0)) {
 			// connect to database
-			if (connectionParams == null) {
-				connectionParams = new ConnectionParameters();
+			if (this.connectionParams == null) {
+				this.connectionParams = new ConnectionParameters();
 			}
-			
-			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
-			this.conn = dbconfig.getConnection();
+
+			DBConfiguration dbconfig = new DBConfiguration(this.connectionParams);
+			conn = dbconfig.getConnection();
 		}
-		return conn;
+		return this.conn;
 	}
 
 	/**
 	 * Closes the database connection.
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	public void closeDBConnection() throws SQLException {
-		if (conn != null) {
-			conn.close();
-			conn = null;
+		if (this.conn != null) {
+			this.conn.close();
+			this.conn = null;
 		}
 	}
 
@@ -220,17 +220,17 @@ public class Client {
 	 * Connects the client to the web service.
 	 */
 	public boolean connectToServer() throws WebServiceException {
-		if (!this.hasConnectionToServer()) {
-			service = new ServerImplService();
-			
+		if (!hasConnectionToServer()) {
+			this.service = new ServerImplService();
+
 			// Enable MTOM
-			server = service.getServerImplPort(new MTOMFeature());
-			
+			this.server = this.service.getServerImplPort(new MTOMFeature());
+
 			// Try to send client to server.
-			sendMessage("Client connected.");
-			
+			this.sendMessage("Client connected.");
+
 			// enable MTOM in client
-			BindingProvider bp = (BindingProvider) server;
+			BindingProvider bp = (BindingProvider) this.server;
 
 			// Connection timeout: 12 hours
 			bp.getRequestContext().put("com.sun.xml.ws.connect.timeout", 12 * 60 * 1000);
@@ -239,8 +239,8 @@ public class Client {
 			bp.getRequestContext().put("com.sun.xml.ws.request.timeout", 24 * 60 * 60 * 1000);
 
 			// Start new request thread.
-			requestThread = new RequestThread();
-			requestThread.start();
+			this.requestThread = new Client.RequestThread();
+			this.requestThread.start();
 			return true;
 		}
 		return false;
@@ -250,18 +250,18 @@ public class Client {
 	 * Disconnects manually from the server.
 	 */
 	public void disconnectFromServer() {
-		service = null;
-		server = null;
+		this.service = null;
+		this.server = null;
 		
-		if (requestThread != null){
+		if (this.requestThread != null){
 			try {
-				requestThread.join();
+				this.requestThread.join();
 				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		requestThread = null;
+		this.requestThread = null;
 
 	}
 	
@@ -271,11 +271,11 @@ public class Client {
 	 */
 	public boolean hasConnectionToServer() {
 		// enable MTOM in client
-		if (server == null) {
+		if (this.server == null) {
 			return false;
 		}
 		else {
-			BindingProvider bp = (BindingProvider) server;
+			BindingProvider bp = (BindingProvider) this.server;
 			if (bp != null) {
 				return true;
 			}
@@ -287,9 +287,9 @@ public class Client {
 	private class RequestThread extends Thread {
 		@Override
 		public void run() {
-			while (hasConnectionToServer()) {
+			while (Client.this.hasConnectionToServer()) {
 				try {
-					request();
+					Client.this.request();
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -302,11 +302,11 @@ public class Client {
 	 * Requests the server for response.
 	 */
 	public void request() {
-		final String message = receiveMessage();
+		String message = this.receiveMessage();
 		if (message != null && !message.isEmpty()) {
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
-					firePropertyChange("New Message", null, message);
+					Client.this.firePropertyChange("New Message", null, message);
 				}
 			});
 		}
@@ -317,7 +317,7 @@ public class Client {
 	 * @return String Received Message
 	 */
 	public String receiveMessage() {
-		return server.sendMessage();
+		return this.server.sendMessage();
 	}
 	
 	/**
@@ -325,7 +325,7 @@ public class Client {
 	 * @param message Server message
 	 */
 	public void sendMessage(String message) {
-		server.receiveMessage(message);
+		this.server.receiveMessage(message);
 	}
 
 	/**
@@ -381,7 +381,7 @@ public class Client {
 				settings.getFilenames().add(filenames.get(i));
 			}
 			try {
-				server.runSearches(settings);
+				this.server.runSearches(settings);
 				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -389,9 +389,9 @@ public class Client {
 		}
 		
 		// reestablish all connections
-		this.closeDBConnection();
-		this.connectToServer();
-		this.getConnection();
+		closeDBConnection();
+		connectToServer();
+		getConnection();
 		
 		// restart the client frame
 		ClientFrame.getInstance().restart();
@@ -403,10 +403,10 @@ public class Client {
 	 * @return The current spectral similarity search result.
 	 */
 	public SpecSimResult getSpecSimResult(AbstractExperiment expContent) {
-		if (specSimResult == null) {
-			retrieveSpecSimResult(expContent.getID());
+		if (this.specSimResult == null) {
+			this.retrieveSpecSimResult(expContent.getID());
 		}
-		return specSimResult;
+		return this.specSimResult;
 	}
 
 	/**
@@ -415,11 +415,11 @@ public class Client {
 	 */
 	private void retrieveSpecSimResult(Long experimentID) {
 		try {
-			getConnection();
-			specSimResult = SpecSearchHit.getAnnotations(experimentID, conn, pSupport);
+			this.getConnection();
+			this.specSimResult = SpecSearchHit.getAnnotations(experimentID, this.conn, this.pSupport);
 		} catch (Exception e) {
-			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
-			pSupport.firePropertyChange("indeterminate", true, false);
+			this.pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
+			this.pSupport.firePropertyChange("indeterminate", true, false);
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 		}
 	}
@@ -428,18 +428,18 @@ public class Client {
 	 * Resets the current spectral similarity search result reference.
 	 */
 	public void clearSpecSimResult() {
-		specSimResult = null;
+		this.specSimResult = null;
 	}
 
 	/**
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
-	synchronized public void setupGraphDatabase(boolean singleDataResult) {
+	public synchronized void setupGraphDatabase(boolean singleDataResult) {
 		// If graph database is already in use.
-		if (graphDatabaseHandler != null) {
+		if (this.graphDatabaseHandler != null) {
 			// Shut down old graph database.
-			graphDatabaseHandler.shutDown();
+			this.graphDatabaseHandler.shutDown();
 		}
 		
 		// Create a new graph database.
@@ -453,10 +453,10 @@ public class Client {
 		}
 		
 		// Setup the graph database handler. 
-		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
+		this.graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
 
 		if (singleDataResult) {
-			graphDatabaseHandler.setData(dbSearchResult);
+			this.graphDatabaseHandler.setData(this.dbSearchResult);
 		}
 	}
 	
@@ -468,8 +468,8 @@ public class Client {
 	 */
 	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
 		// TODO: delegate to experiment implementation
-		getConnection();
-		return new SpectrumExtractor(conn).getSpectrumBySearchSpectrumID(searchspectrumID);
+		this.getConnection();
+		return new SpectrumExtractor(this.conn).getSpectrumBySearchSpectrumID(searchspectrumID);
 	}
 
 	/**
@@ -485,7 +485,7 @@ public class Client {
 		MascotGenericFile mgf = null;
 		try {
 			// TODO: maybe use only one single reader instance for all MGF parsing needs (file panel, results panel, etc.)
-			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), LoadMode.NONE);
+			MascotGenericFileReader reader = new MascotGenericFileReader(new File(pathname), MascotGenericFileReader.LoadMode.NONE);
 			mgf = reader.loadSpectrum(0, startPos, endPos);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -514,7 +514,7 @@ public class Client {
 			long maxSpectra = selectionModel.getSelectionCount();
 			CheckBoxTreeTableNode spectrumNode = fileRoot.getFirstLeaf();
 			if (spectrumNode != fileRoot) {
-				this.firePropertyChange("resetall", 0L, maxSpectra);
+				firePropertyChange("resetall", 0L, maxSpectra);
 				// iterate over all leaves
 				while (spectrumNode != null) {
 					// generate tree path and consult selection model whether path is explicitly or implicitly selected
@@ -523,7 +523,7 @@ public class Client {
 						if ((numSpectra % packageSize) == 0) {			// create a new package every x files
 							if (fos != null) {
 								fos.close();
-								this.uploadFile(file.getName(), this.getBytesFromFile(file));
+								uploadFile(file.getName(), getBytesFromFile(file));
 								file.delete();
 							}
 
@@ -531,18 +531,18 @@ public class Client {
 							filenames.add(file.getName());
 							fos = new FileOutputStream(file);
 							long remaining = maxSpectra - numSpectra;
-							this.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+							firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 						}
 						MascotGenericFile mgf = ClientFrame.getInstance().getFilePanel().getSpectrumForNode(spectrumNode);
 						mgf.writeToStream(fos);
 						fos.flush();
-						this.firePropertyChange("progressmade", 0L, ++numSpectra);
+						firePropertyChange("progressmade", 0L, ++numSpectra);
 					}
 					spectrumNode = spectrumNode.getNextLeaf();
 				}
 				if (fos != null) {
 					fos.close();
-					this.uploadFile(file.getName(), this.getBytesFromFile(file));
+					uploadFile(file.getName(), getBytesFromFile(file));
 					file.delete();
 				}
 			} else {
@@ -563,7 +563,7 @@ public class Client {
 	 * @return The path of the new file instance on the server
 	 */
 	public String uploadFile(String filename, byte[] data) {
-		return server.uploadFile(filename, data);
+		return this.server.uploadFile(filename, data);
 	}
 
 	/**
@@ -577,8 +577,8 @@ public class Client {
 	 * @return A list of spectrum files.
 	 * @throws Exception if an error occurs
 	 */
-	public List<MascotGenericFile> downloadSpectra(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
-		return new SpectrumExtractor(conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
+	public List<MascotGenericFile> downloadSpectra(long experimentID, SpectrumFetchParameters.AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
+		return new SpectrumExtractor(this.conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
 	} 
 	
 	/**
@@ -598,13 +598,13 @@ public class Client {
 
 		// gather all spectra for the experiment
 		Set<Long> allSearchspectrumIds = new HashSet<Long>();
-		for (Searchspectrum searchspectrum : Searchspectrum.findFromExperimentID(expID, conn)) {
+		for (Searchspectrum searchspectrum : Searchspectrum.findFromExperimentID(expID, this.conn)) {
 			allSearchspectrumIds.add(searchspectrum.getSearchspectrumid());	
 		}
 		
 		// gather all identified spectra for the experiment
-		List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, conn);
-		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, conn);
+		List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, this.conn);
+		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, this.conn);
 		List<SearchHit> hits = new ArrayList<SearchHit>();
 		hits.addAll(xtandemHits);
 		hits.addAll(omssaHits);
@@ -623,9 +623,9 @@ public class Client {
 		}
 		
 		// set up the file stream
-		this.firePropertyChange("new message", null, "WRITING FETCHED DATABASE SPECTRA");
-		this.firePropertyChange("resetall", -1L, (long) allSearchspectrumIds.size());
-		this.firePropertyChange("resetcur", -1L, (long) allSearchspectrumIds.size());
+		firePropertyChange("new message", null, "WRITING FETCHED DATABASE SPECTRA");
+		firePropertyChange("resetall", -1L, (long) allSearchspectrumIds.size());
+		firePropertyChange("resetcur", -1L, (long) allSearchspectrumIds.size());
 		String status = "FINISHED";
 
 		try {
@@ -634,12 +634,12 @@ public class Client {
 			FileOutputStream fos = new FileOutputStream(mgfFile);
 			// write all relevant MGFs
 			for (Long searchSpectrumId : allSearchspectrumIds) {
-				long spectrumId = Searchspectrum.findFromSearchSpectrumID(searchSpectrumId, conn).getFk_spectrumid();
-				MascotGenericFile mgf = Spectrum.getSpectrumFileFromIdAndTitle(spectrumId, filter, conn);
+				long spectrumId = Searchspectrum.findFromSearchSpectrumID(searchSpectrumId, this.conn).getFk_spectrumid();
+				MascotGenericFile mgf = Spectrum.getSpectrumFileFromIdAndTitle(spectrumId, filter, this.conn);
 				if (mgf != null) {
 					mgf.writeToStream(fos);
 				}
-				this.firePropertyChange("progressmade", false, true);	
+				firePropertyChange("progressmade", false, true);
 			}
 			fos.flush();
 			fos.close();
@@ -648,7 +648,7 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		this.firePropertyChange("new message", null, "WRITING SPECTRA " + status);
+		firePropertyChange("new message", null, "WRITING SPECTRA " + status);
 		
 	}
 
@@ -659,14 +659,14 @@ public class Client {
 	 * @param pathname the string representing the desired file path and name for the result object
 	 */
 	public void exportDatabaseSearchResult(String pathname) {
-		DbSearchResult dbSearchResult = restoreBackupDatabaseSearchResult();
+		DbSearchResult dbSearchResult = this.restoreBackupDatabaseSearchResult();
 		
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
 	
 		// Dump referenced spectra to separate MGF
-		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		this.firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		this.firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
 		String status = "FINISHED";
 		// TODO: clean up mix of Java IO and NIO APIs
 		try {
@@ -676,13 +676,13 @@ public class Client {
 			long index = 0L;
 			for (SpectrumMatch spectrumMatch : spectrumMatches) {
 				spectrumMatch.setStartIndex(index);
-				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(
+				MascotGenericFile mgf = getInstance().getSpectrumBySearchSpectrumID(
 						spectrumMatch.getSearchSpectrumID());
 				mgf.writeToStream(fos);
 				index = mgfFile.length();
 				spectrumMatch.setEndIndex(index);
 				spectrumMatch.setTitle(mgf.getTitle());
-				this.firePropertyChange("progressmade", false, true);
+				firePropertyChange("progressmade", false, true);
 			}
 			fos.flush();
 			fos.close();
@@ -691,18 +691,18 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
 	
 		// Dump results object to file
-		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
 		status = "FINISHED";
-		this.firePropertyChange("indeterminate", false, true);
+		firePropertyChange("indeterminate", false, true);
 		try {
 //			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
 //			if (!backupFile.exists()) {
 //				// technically this should never happen
 //				System.err.println("No result file backup detected, creating new one...");
-				this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+			dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
 //			}
 			// Copy backup file to target location
 			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
@@ -711,8 +711,8 @@ public class Client {
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
 		}
-		this.firePropertyChange("indeterminate", true, false);
-		this.firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
+		firePropertyChange("indeterminate", true, false);
+		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 	
 	/**
@@ -736,7 +736,7 @@ public class Client {
 	 */
 	public void dumpBackupDatabaseSearchResult() {
 		try {
-			this.dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+			dumpDatabaseSearchResult(this.dbSearchResult, Constants.BACKUP_RESULT_PATH);
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
@@ -755,14 +755,14 @@ public class Client {
 			DbSearchResult restoredDbSearchResult = (DbSearchResult) ois.readObject();
 //			currentExperiment.setSearchResult(restoredDbSearchResult);
 			// Has to update the dbSearchResult object in the client, too
-			dbSearchResult = restoredDbSearchResult;
-			ClientFrame.getInstance().getResultsPanel().setDBSearchResultObj(dbSearchResult);
+			this.dbSearchResult = restoredDbSearchResult;
+			ClientFrame.getInstance().getResultsPanel().setDBSearchResultObj(this.dbSearchResult);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			currentExperiment.clearSearchResult();
 		} 
-		return dbSearchResult;
+		return this.dbSearchResult;
 	}
 
 	/**
@@ -770,15 +770,15 @@ public class Client {
 	 * @param pcl the property change listener to add
 	 */
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
-		pSupport.addPropertyChangeListener(pcl); 
+		this.pSupport.addPropertyChangeListener(pcl);
 	}
 
 	/**
 	 * Removes a property change listener.
 	 * @param pcl the property change listener to remove
 	 */
-	public void removePropertyChangeListener(PropertyChangeListener pcl) { 
-		pSupport.removePropertyChangeListener(pcl);
+	public void removePropertyChangeListener(PropertyChangeListener pcl) {
+		this.pSupport.removePropertyChangeListener(pcl);
 	}
 
 	/**
@@ -789,7 +789,7 @@ public class Client {
 	 * @param newValue The new value of the property.
 	 */
 	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		pSupport.firePropertyChange(propertyName, oldValue, newValue);
+		this.pSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 
 	/**
@@ -798,10 +798,10 @@ public class Client {
 	 * @throws SQLException 
 	 */
 	public Connection getDatabaseConnection() throws SQLException {
-		if ((conn == null) && !isViewer()) {
-			this.getConnection();
+		if ((this.conn == null) && !Client.isViewer()) {
+			getConnection();
 		}
-		return conn;
+		return this.conn;
 	}
 
 	/**
@@ -809,7 +809,7 @@ public class Client {
 	 * @return the connection settings
 	 */
 	public ParameterMap getConnectionParameters() {
-		return this.connectionParams;
+		return connectionParams;
 	}
 	
 	/**
@@ -825,7 +825,7 @@ public class Client {
 	 * @return the result parameters
 	 */
 	public ResultParameters getResultParameters() {
-		return this.resultParams;
+		return resultParams;
 	}
 
 	/**
@@ -833,7 +833,7 @@ public class Client {
 	 * @return {@link GraphDatabaseHandler}
 	 */
 	public GraphDatabaseHandler getGraphDatabaseHandler() {
-		return graphDatabaseHandler;
+		return this.graphDatabaseHandler;
 	}
 	
 	/**
@@ -841,7 +841,7 @@ public class Client {
 	 * @return dbSearchResult The current database search result.
 	 */
 	public DbSearchResult getDatabaseSearchResult() {
-		return dbSearchResult;
+		return this.dbSearchResult;
 	}
 	
 	/**
@@ -853,10 +853,10 @@ public class Client {
 		LinkedList<Long> experimentList = new LinkedList<Long>();
 		AbstractExperiment selexp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
 		experimentList.add(selexp.getID());
-		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, selexp.getTitle(), new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, selexp.getTitle(), new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
-		this.dbSearchResult = searchResult;
-		return dbSearchResult;
+		dbSearchResult = searchResult;
+		return this.dbSearchResult;
 	}
 	
 	/**
@@ -864,10 +864,10 @@ public class Client {
 	 * @return dbSearchResult The database search result of all listet experiments.
 	 */
 	public DbSearchResult getMultipleSearchResults(LinkedList<Long> experimentList) {
-		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
-		this.dbSearchResult = searchResult;
-		return dbSearchResult;
+		dbSearchResult = searchResult;
+		return this.dbSearchResult;
 	}
 	
 	/**
@@ -875,7 +875,7 @@ public class Client {
 	 * @return dbSearchResult The database search result of single or all listed experiments.
 	 */
 	public DbSearchResult fetchResults() {
-		return dbSearchResult;
+		return this.dbSearchResult;
 	}
 	
 	/**
@@ -883,7 +883,7 @@ public class Client {
 	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
 	 */
 	public static boolean isViewer() {
-		return instance.viewer;
+		return Client.instance.viewer;
 	}
 	
 	/**
@@ -891,7 +891,7 @@ public class Client {
 	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
 	 */
 	public static boolean isDebug() {
-		return instance.debug;
+		return Client.instance.debug;
 	}
 
 	/**
@@ -899,13 +899,13 @@ public class Client {
 	 */
 	public static void exit() {
 		// Shutdown the graph database
-		if (instance.graphDatabaseHandler != null) {
-			instance.graphDatabaseHandler.shutDown();
+		if (Client.instance.graphDatabaseHandler != null) {
+			Client.instance.graphDatabaseHandler.shutDown();
 		}
 	
 		try {
 			// Close SQL DB connection
-			instance.closeDBConnection();
+			Client.instance.closeDBConnection();
 			// Delete backup result object
 			Files.deleteIfExists(Paths.get(Constants.BACKUP_RESULT_PATH));
 		} catch (Exception e) {

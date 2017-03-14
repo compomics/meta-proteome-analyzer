@@ -38,20 +38,20 @@ public class MapContainer {
     private static HashMap<String, Long> proteinIdMap;
     
     public static HashMap<String, Long> getProteinIdMap() {
-    	if (proteinIdMap == null) {
-    		proteinIdMap = new HashMap<String, Long>();
+    	if (MapContainer.proteinIdMap == null) {
+            MapContainer.proteinIdMap = new HashMap<String, Long>();
     		Connection conn;
 			try {
 				conn = DBManager.getInstance().getConnection();
-		 		List<ProteinTableAccessor> retrieveAllEntries = ProteinAccessor.retrieveAllEntries(conn);
+		 		List<ProteinTableAccessor> retrieveAllEntries = ProteinTableAccessor.retrieveAllEntries(conn);
 	    		for (ProteinTableAccessor protein : retrieveAllEntries) {
-					proteinIdMap.put(protein.getAccession(), protein.getProteinid());
+                    MapContainer.proteinIdMap.put(protein.getAccession(), protein.getProteinid());
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
     	}
-		return proteinIdMap;
+		return MapContainer.proteinIdMap;
 	}
 }
 

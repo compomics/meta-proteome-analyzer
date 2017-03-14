@@ -38,7 +38,7 @@ public class Taxonomy extends TaxonomyTableAccessor {
 	*/
    public static Taxonomy findFromTaxID(long taxID, Connection conn) throws SQLException {
 	   Taxonomy temp = null;
-       PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + TAXONOMYID + " = ?");
+       PreparedStatement ps = conn.prepareStatement(TaxonomyTableAccessor.getBasicSelect() + " WHERE " + TaxonomyTableAccessor.TAXONOMYID + " = ?");
        ps.setLong(1, taxID);
        ResultSet rs = ps.executeQuery();
        while (rs.next()) {
@@ -58,7 +58,7 @@ public class Taxonomy extends TaxonomyTableAccessor {
 	public static Map<Long, Taxonomy> retrieveTaxonomyMap(Connection conn) throws SQLException {
 		Map<Long, Taxonomy>  taxonomies = new HashMap<Long, Taxonomy>();
 		Statement stat = conn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());
 		while (rs.next()) {
 			taxonomies.put(rs.getLong("taxonomyid"), new Taxonomy(rs));
 		}
@@ -78,7 +78,7 @@ public class Taxonomy extends TaxonomyTableAccessor {
     * @throws SQLException
     */
 	public static Taxonomy addTaxonomy(Long taxID, Long parentID, String description, String rank, Connection conn) throws SQLException {
-		Taxonomy taxonomy = Taxonomy.findFromTaxID(taxID, conn);
+		Taxonomy taxonomy = findFromTaxID(taxID, conn);
 		if (taxonomy == null) {
 			HashMap<Object, Object> data = new HashMap<Object, Object>(6);
 			data.put(Taxonomy.TAXONOMYID, taxID);

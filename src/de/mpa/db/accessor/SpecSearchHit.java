@@ -28,9 +28,9 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @param ssm
 	 */
 	public SpecSearchHit(SpectrumSpectrumMatch ssm) {
-		iFk_searchspectrumid = ssm.getSearchSpectrumID();
-		iFk_libspectrumid = ssm.getLibSpectrumID();
-		iSimilarity = ssm.getSimilarity();
+        this.iFk_searchspectrumid = ssm.getSearchSpectrumID();
+        this.iFk_libspectrumid = ssm.getLibSpectrumID();
+        this.iSimilarity = ssm.getSimilarity();
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 	 * @throws Exception 
 	 */
 	public static SpecSimResult getAnnotations(long experimentId, Connection conn) throws Exception {
-		return getAnnotations(experimentId, conn, new PropertyChangeSupport(null));
+		return SpecSearchHit.getAnnotations(experimentId, conn, new PropertyChangeSupport(null));
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class SpecSearchHit extends SpecsearchhitTableAccessor {
 		// Abort prematurely if result set was empty
 		if (rowCount == 0L) {
 			pSupport.firePropertyChange("indeterminate", true, false);
-			pSupport.firePropertyChange("progress", 0L, rowCount);
+			pSupport.firePropertyChange("progress", 0L, 0L);
 			pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED (EMPTY RESULTSET)");
 			return null;
 		}

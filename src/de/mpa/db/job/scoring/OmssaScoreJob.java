@@ -14,12 +14,12 @@ import de.mpa.db.job.instances.QvalityJob;
 public class OmssaScoreJob extends Job{
 	
 	// The Omssa target result file.
-	private String targetFile;
+	private final String targetFile;
 	
 	// The Omssa decoy result file.
-	private String decoyFile;
+	private final String decoyFile;
 	
-	private String filename;
+	private final String filename;
 
 	/**
 	 * Constructs the Omssa score job.
@@ -31,9 +31,9 @@ public class OmssaScoreJob extends Job{
 		this.decoyFile = decoyFile;
 		
 		// Set the description
-		filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
-		setFilename(filename);
-		setDescription("OMSSA QVALUES");
+        this.filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
+        this.setFilename(this.filename);
+        this.setDescription("OMSSA QVALUES");
 	}
 	
 	/**
@@ -42,7 +42,7 @@ public class OmssaScoreJob extends Job{
 	public void run() {
 		
 		// Extract the scores for OMSSA target and decoy search
-		OmssaScoreExtractor omssaExtractor = new OmssaScoreExtractor(new File(targetFile), new File(decoyFile));
+		OmssaScoreExtractor omssaExtractor = new OmssaScoreExtractor(new File(this.targetFile), new File(this.decoyFile));
 		
 		// Executes QVality
 		QvalityJob omssaQVality = new QvalityJob(omssaExtractor.getTargetOutput(), omssaExtractor.getDecoyOutput(), true);

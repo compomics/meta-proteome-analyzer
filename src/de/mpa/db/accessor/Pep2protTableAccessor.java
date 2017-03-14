@@ -37,12 +37,12 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'pep2protid' column.
@@ -93,16 +93,16 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public Pep2protTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(PEP2PROTID)) {
-			this.iPep2protid = ((Long)aParams.get(PEP2PROTID)).longValue();
+		if(aParams.containsKey(Pep2protTableAccessor.PEP2PROTID)) {
+            iPep2protid = ((Long)aParams.get(Pep2protTableAccessor.PEP2PROTID)).longValue();
 		}
-		if(aParams.containsKey(FK_PEPTIDEID)) {
-			this.iFk_peptideid = ((Long)aParams.get(FK_PEPTIDEID)).longValue();
+		if(aParams.containsKey(Pep2protTableAccessor.FK_PEPTIDEID)) {
+            iFk_peptideid = ((Long)aParams.get(Pep2protTableAccessor.FK_PEPTIDEID)).longValue();
 		}
-		if(aParams.containsKey(FK_PROTEINID)) {
-			this.iFk_proteinid = ((Long)aParams.get(FK_PROTEINID)).longValue();
+		if(aParams.containsKey(Pep2protTableAccessor.FK_PROTEINID)) {
+            iFk_proteinid = ((Long)aParams.get(Pep2protTableAccessor.FK_PROTEINID)).longValue();
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -114,11 +114,11 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public Pep2protTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iPep2protid = aResultSet.getLong("pep2protid");
-		this.iFk_peptideid = aResultSet.getLong("fk_peptideid");
-		this.iFk_proteinid = aResultSet.getLong("fk_proteinid");
+        iPep2protid = aResultSet.getLong("pep2protid");
+        iFk_peptideid = aResultSet.getLong("fk_peptideid");
+        iFk_proteinid = aResultSet.getLong("fk_proteinid");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -128,7 +128,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Pep2protid column.
 	 */
 	public long getPep2protid() {
-		return this.iPep2protid;
+		return iPep2protid;
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_peptideid column.
 	 */
 	public long getFk_peptideid() {
-		return this.iFk_peptideid;
+		return iFk_peptideid;
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_proteinid column.
 	 */
 	public long getFk_proteinid() {
-		return this.iFk_proteinid;
+		return iFk_proteinid;
 	}
 
 	/**
@@ -155,8 +155,8 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPep2protid	long with the value for the Pep2protid column.
 	 */
 	public void setPep2protid(long aPep2protid) {
-		this.iPep2protid = aPep2protid;
-		this.iUpdated = true;
+        iPep2protid = aPep2protid;
+        iUpdated = true;
 	}
 
 	/**
@@ -165,8 +165,8 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_peptideid	long with the value for the Fk_peptideid column.
 	 */
 	public void setFk_peptideid(long aFk_peptideid) {
-		this.iFk_peptideid = aFk_peptideid;
-		this.iUpdated = true;
+        iFk_peptideid = aFk_peptideid;
+        iUpdated = true;
 	}
 
 	/**
@@ -175,8 +175,8 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_proteinid	long with the value for the Fk_proteinid column.
 	 */
 	public void setFk_proteinid(long aFk_proteinid) {
-		this.iFk_proteinid = aFk_proteinid;
-		this.iUpdated = true;
+        iFk_proteinid = aFk_proteinid;
+        iUpdated = true;
 	}
 
 
@@ -189,7 +189,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM pep2prot WHERE pep2protid = ?");
-		lStat.setLong(1, iPep2protid);
+		lStat.setLong(1, this.iPep2protid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -204,21 +204,21 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(PEP2PROTID)) {
+		if(!aKeys.containsKey(Pep2protTableAccessor.PEP2PROTID)) {
 			throw new IllegalArgumentException("Primary key field 'PEP2PROTID' is missing in HashMap!");
 		} else {
-			iPep2protid = ((Long)aKeys.get(PEP2PROTID)).longValue();
+            this.iPep2protid = ((Long)aKeys.get(Pep2protTableAccessor.PEP2PROTID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM pep2prot WHERE pep2protid = ?");
-		lStat.setLong(1, iPep2protid);
+		lStat.setLong(1, this.iPep2protid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iPep2protid = lRS.getLong("pep2protid");
-			iFk_peptideid = lRS.getLong("fk_peptideid");
-			iFk_proteinid = lRS.getLong("fk_proteinid");
+            this.iPep2protid = lRS.getLong("pep2protid");
+            this.iFk_peptideid = lRS.getLong("fk_peptideid");
+            this.iFk_proteinid = lRS.getLong("fk_proteinid");
 		}
 		lRS.close();
 		lStat.close();
@@ -247,7 +247,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<Pep2protTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<Pep2protTableAccessor>  entities = new ArrayList<Pep2protTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(Pep2protTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new Pep2protTableAccessor(rs));
 		}
@@ -265,17 +265,17 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE pep2prot SET pep2protid = ?, fk_peptideid = ?, fk_proteinid = ? WHERE pep2protid = ?");
-		lStat.setLong(1, iPep2protid);
-		lStat.setLong(2, iFk_peptideid);
-		lStat.setLong(3, iFk_proteinid);
-		lStat.setLong(4, iPep2protid);
+		lStat.setLong(1, this.iPep2protid);
+		lStat.setLong(2, this.iFk_peptideid);
+		lStat.setLong(3, this.iFk_proteinid);
+		lStat.setLong(4, this.iPep2protid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -288,20 +288,20 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO pep2prot (pep2protid, fk_peptideid, fk_proteinid) values(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		if(iPep2protid == Long.MIN_VALUE) {
+		if(this.iPep2protid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iPep2protid);
+			lStat.setLong(1, this.iPep2protid);
 		}
-		if(iFk_peptideid == Long.MIN_VALUE) {
+		if(this.iFk_peptideid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_peptideid);
+			lStat.setLong(2, this.iFk_peptideid);
 		}
-		if(iFk_proteinid == Long.MIN_VALUE) {
+		if(this.iFk_proteinid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_proteinid);
+			lStat.setLong(3, this.iFk_proteinid);
 		}
 		int result = lStat.executeUpdate();
 
@@ -309,22 +309,22 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iPep2protid = ((Number) iKeys[0]).longValue();
+            this.iPep2protid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -335,7 +335,7 @@ public class Pep2protTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

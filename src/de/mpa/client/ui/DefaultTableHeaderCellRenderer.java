@@ -3,11 +3,7 @@ package de.mpa.client.ui;
 import java.awt.Component;
 import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
@@ -33,10 +29,10 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 	 * table header cell, and the opaque property is set to false.
 	 */
 	public DefaultTableHeaderCellRenderer() {
-		setHorizontalAlignment(CENTER);
-		setHorizontalTextPosition(LEFT);
-		setVerticalAlignment(BOTTOM);
-		setOpaque(true);
+        this.setHorizontalAlignment(SwingConstants.CENTER);
+        this.setHorizontalTextPosition(SwingConstants.LEFT);
+        this.setVerticalAlignment(SwingConstants.BOTTOM);
+        this.setOpaque(true);
 	}
 
 	/**
@@ -64,11 +60,11 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 				isSelected, hasFocus, row, column);
 		JTableHeader tableHeader = table.getTableHeader();
 		if (tableHeader != null) {
-			setForeground(tableHeader.getForeground());
-			setBackground(tableHeader.getBackground());
+            this.setForeground(tableHeader.getForeground());
+            this.setBackground(tableHeader.getBackground());
 		}
-		setIcon(getIcon(table, column));
-		setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        this.setIcon(this.getIcon(table, column));
+        this.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		return this;
 	}
 
@@ -81,7 +77,7 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 	 * @return the sort icon, or null if the column is unsorted.
 	 */
 	protected Icon getIcon(JTable table, int column) {
-		SortKey sortKey = getSortKey(table, column);
+		RowSorter.SortKey sortKey = getSortKey(table, column);
 		if (sortKey != null
 				&& table.convertColumnIndexToView(sortKey.getColumn()) == column) {
 			switch (sortKey.getSortOrder()) {
@@ -105,7 +101,7 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 	 * @param column the column index
 	 * @return the SortKey, or null if the column is unsorted
 	 */
-	protected SortKey getSortKey(JTable table, int column) {
+	protected RowSorter.SortKey getSortKey(JTable table, int column) {
 		@SuppressWarnings("rawtypes")
 		RowSorter rowSorter = table.getRowSorter();
 		if (rowSorter == null) {
@@ -115,7 +111,7 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
 		@SuppressWarnings("rawtypes")
 		List sortedColumns = rowSorter.getSortKeys();
 		if (sortedColumns.size() > 0) {
-			return (SortKey) sortedColumns.get(0);
+			return (RowSorter.SortKey) sortedColumns.get(0);
 		}
 		return null;
 	}

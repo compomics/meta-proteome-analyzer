@@ -23,6 +23,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
 
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -33,8 +34,6 @@ import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
 
 import de.mpa.client.Constants;
-import de.mpa.client.Constants.UIColor;
-import de.mpa.client.Constants.UITheme;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.DelegateColor;
 import de.mpa.client.ui.ThinBevelBorder;
@@ -50,23 +49,23 @@ public class Starter {
 	 * Flag denoting whether the application is in jar export mode.
 	 */
 	@Deprecated
-	private static boolean jarExport = true;
+	private static final boolean jarExport = true;
 
 	/**
 	 * Flag denoting whether results should be loaded including nsaf and empai calculation.
 	 * This greatly improves loading times
 	 */
-	private static boolean fast_results = false;
+	private static boolean fast_results;
 	
 	/**
 	 * The logger instance.
 	 */
-	private static Logger log = Logger.getLogger(Starter.class);
+	private static final Logger log = Logger.getLogger(Starter.class);
 																										
 	/**
 	 * Flag denoting whether an application lock is in effect. 
 	 */
-	private final static boolean LOCK_ACTIVE = true;
+	private static final boolean LOCK_ACTIVE = true;
 	
 	/**
 	 * This method sets the look&feel for the application.
@@ -77,11 +76,11 @@ public class Starter {
 			File themesFolder;
 			themesFolder = new File(Constants.THEME_FOLDER_JAR);
 			
-			List<UITheme> themes = new ArrayList<UITheme>();
-			UITheme defaultTheme = null;
+			List<Constants.UITheme> themes = new ArrayList<Constants.UITheme>();
+			Constants.UITheme defaultTheme = null;
 			for (File themeFile : themesFolder.listFiles()) {
 				if (themeFile.getName().endsWith(".theme")) {
-					UITheme theme = new UITheme(themeFile);
+					Constants.UITheme theme = new Constants.UITheme(themeFile);
 					if (Constants.DEFAULT_THEME_NAME.equals(theme.getTitle())) {
 						defaultTheme = theme;
 					}
@@ -99,55 +98,55 @@ public class Starter {
 			Constants.THEMES = Collections.unmodifiableList(themes);
 			
 			// Set Plastic3DLook&Feel as default for all operating systems
-			Plastic3DLookAndFeel.setPlasticTheme(new SkyBlue() {
+			PlasticLookAndFeel.setPlasticTheme(new SkyBlue() {
 				// replace theme-based color defaults with dynamic delegate colors
 				@Override
 				public ColorUIResource getFocusColor() {
-					return UIColor.BUTTON_FOCUS_COLOR.getDelegateColor();
+					return Constants.UIColor.BUTTON_FOCUS_COLOR.getDelegateColor();
 				}
 			});
 			UIManager.setLookAndFeel(Plastic3DLookAndFeel.class.getName());
-			
+
 			Options.setUseSystemFonts(true);
 			Options.setPopupDropShadowEnabled(false);
-			
+
 			UIManager.put(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
 			UIManager.put("OptionPane.buttonOrientation", SwingConstants.RIGHT);
-			
-			// replace UI manager-based color defaults with dynamic delegate colors
-			UIManager.put("Focus.color", UIColor.BUTTON_FOCUS_COLOR.getDelegateColor());
-			
-			UIManager.put("ScrollBar.thumb", UIColor.SCROLLBAR_THUMB_COLOR.getDelegateColor());
 
-			DelegateColor textFontCol = UIColor.TEXT_SELECTION_FONT_COLOR.getDelegateColor();
+			// replace UI manager-based color defaults with dynamic delegate colors
+			UIManager.put("Focus.color", Constants.UIColor.BUTTON_FOCUS_COLOR.getDelegateColor());
+
+			UIManager.put("ScrollBar.thumb", Constants.UIColor.SCROLLBAR_THUMB_COLOR.getDelegateColor());
+
+			DelegateColor textFontCol = Constants.UIColor.TEXT_SELECTION_FONT_COLOR.getDelegateColor();
 			UIManager.put("TextArea.selectionForeground", textFontCol);
 			UIManager.put("TextField.selectionForeground", textFontCol);
 			UIManager.put("PasswordField.selectionForeground", textFontCol);
 			UIManager.put("FormattedTextField.selectionForeground", textFontCol);
-			DelegateColor textBackCol = UIColor.TEXT_SELECTION_BACKGROUND_COLOR.getDelegateColor();
+			DelegateColor textBackCol = Constants.UIColor.TEXT_SELECTION_BACKGROUND_COLOR.getDelegateColor();
 			UIManager.put("TextArea.selectionBackground", textBackCol);
 			UIManager.put("TextField.selectionBackground", textBackCol);
 			UIManager.put("PasswordField.selectionBackground", textBackCol);
 			UIManager.put("FormattedTextField.selectionBackground", textBackCol);
-			
-			UIManager.put("Table.selectionBackground", UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
-			UIManager.put("List.selectionBackground", UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
-			Border fchb = BorderFactory.createLineBorder(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR.getDelegateColor());
+
+			UIManager.put("Table.selectionBackground", Constants.UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
+			UIManager.put("List.selectionBackground", Constants.UIColor.TABLE_SELECTION_COLOR.getDelegateColor());
+			Border fchb = BorderFactory.createLineBorder(Constants.UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR.getDelegateColor());
 			UIManager.put("Table.focusCellHighlightBorder", fchb);
 			UIManager.put("List.focusCellHighlightBorder", fchb);
-			
-			UIManager.put("ProgressBar.foreground", UIColor.PROGRESS_BAR_FOREGROUND_COLOR.getDelegateColor());
+
+			UIManager.put("ProgressBar.foreground", Constants.UIColor.PROGRESS_BAR_FOREGROUND_COLOR.getDelegateColor());
 
 			UIManager.put("TaskPaneContainer.background",
-					UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());
+					Constants.UIColor.TASK_PANE_BACKGROUND_COLOR.getDelegateColor());
 			UIManager.put("TaskPaneContainer.border", BorderFactory.createCompoundBorder(
 					new ThinBevelBorder(BevelBorder.LOWERED),
 					BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-			UIManager.put("TaskPane.titleForeground", UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor());
-			UIManager.put("TaskPane.titleBackgroundGradientStart", UIColor.TITLED_PANEL_START_COLOR.getDelegateColor());
-			UIManager.put("TaskPane.titleBackgroundGradientEnd", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
-			UIManager.put("TaskPane.titleOver", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor().darker().darker());
-			UIManager.put("TaskPane.borderColor", UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleForeground", Constants.UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleBackgroundGradientStart", Constants.UIColor.TITLED_PANEL_START_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleBackgroundGradientEnd", Constants.UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
+			UIManager.put("TaskPane.titleOver", Constants.UIColor.TITLED_PANEL_END_COLOR.getDelegateColor().darker().darker());
+			UIManager.put("TaskPane.borderColor", Constants.UIColor.TITLED_PANEL_END_COLOR.getDelegateColor());
 			
 			Locale.setDefault(Locale.US);
 			
@@ -165,20 +164,20 @@ public class Starter {
 		
 		// Lock file instance.
 		boolean unlocked = false;
-		if (LOCK_ACTIVE) {
-			unlocked = lockInstance("filelock");
+		if (Starter.LOCK_ACTIVE) {
+			unlocked = Starter.lockInstance("filelock");
 		}
 		
 		if (unlocked) {
 		// Display splash screen
-			new Thread(new SplashRunnable()).start();
+			new Thread(new Starter.SplashRunnable()).start();
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						// Set the look&feel
-						setLookAndFeel();
+						Starter.setLookAndFeel();
 						
 						boolean viewerMode = false;
 						boolean debugMode = false;
@@ -191,7 +190,7 @@ public class Starter {
 								}  
 							}
 						}
-						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode, fast_results);
+						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode, Starter.fast_results);
 						clientFrame.toFront();
 						
 					} catch (Exception e) {
@@ -233,7 +232,7 @@ public class Starter {
 	 */
 	@Deprecated
 	public static boolean isJarExport() {
-		return jarExport;
+		return Starter.jarExport;
 	}
 	
 	/**
@@ -241,11 +240,11 @@ public class Starter {
 	 * @param lockFile Lock file string.
 	 * @return <code>true</code> if the instance has been locked.
 	 */
-	private static boolean lockInstance(final String lockFile) {
+	private static boolean lockInstance(String lockFile) {
 	    try {
-	        final File file = new File(lockFile);
-	        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-	        final FileLock fileLock = randomAccessFile.getChannel().tryLock();
+	        File file = new File(lockFile);
+	        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+	        FileLock fileLock = randomAccessFile.getChannel().tryLock();
 	        if (fileLock != null) {
 	            Runtime.getRuntime().addShutdownHook(new Thread() {
 	                public void run() {
@@ -254,14 +253,14 @@ public class Starter {
 	                        randomAccessFile.close();
 	                        file.delete();
 	                    } catch (Exception e) {
-	                        log.error("Unable to remove lock file: " + lockFile, e);
+							Starter.log.error("Unable to remove lock file: " + lockFile, e);
 	                    }
 	                }
 	            });
 	            return true;
 	        }
 	    } catch (Exception e) {
-	        log.error("Unable to create and/or lock file: " + lockFile, e);
+			Starter.log.error("Unable to create and/or lock file: " + lockFile, e);
 	    }
 	    return false;
 	}

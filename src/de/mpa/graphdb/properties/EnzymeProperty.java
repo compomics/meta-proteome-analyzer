@@ -4,7 +4,7 @@ public enum EnzymeProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),
 	DESCRIPTION("Description");
 	
-	EnzymeProperty(final String propertyName){
+	EnzymeProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -12,6 +12,6 @@ public enum EnzymeProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

@@ -16,7 +16,7 @@ public interface Ion {
 	 * Enumeration holding ion types and their corresponding symbols.
 	 * @author A. Behne
 	 */
-	public enum IonType {
+    enum IonType {
 		A_ION("a"),
 		ANH3_ION("a*"),
 		AH2O_ION("a\u00B0"),
@@ -36,82 +36,82 @@ public interface Ion {
 		/**
 		 * The ion symbol string.
 		 */
-		private String symbol;
+		private final String symbol;
 		
 		/**
 		 * Constructs an ion type enum member from the specified symbol string.
 		 * @param symbol the symbol string
 		 */
-		private IonType(String symbol) {
+        IonType(String symbol) {
 			this.symbol = symbol;
 		}
 		
 		@Override
 		public String toString() {
-			return symbol;
+			return this.symbol;
 		}
 	}
 
     /**
      * This int is the identifier for an a ion.
      */
-    public final static int A_ION = 0;
+    int A_ION = 0;
     /**
      * This int is the identifier for an a* ion.
      */
-    public final static int ANH3_ION = 1;
+    int ANH3_ION = 1;
     /**
      * This int is the identifier for an a� ion.
      */
-    public final static int AH2O_ION = 2;
+    int AH2O_ION = 2;
     /**
      * This int is the identifier for a b ion.
      */
-    public final static int B_ION = 3;
+    int B_ION = 3;
     /**
      * This int is the identifier for a b* ion.
      */
-    public final static int BNH3_ION = 4;
+    int BNH3_ION = 4;
     /**
      * This int is the identifier for a b� ion.
      */
-    public final static int BH2O_ION = 5;
+    int BH2O_ION = 5;
     /**
      * This int is the identifier for a c ion.
      */
-    public final static int C_ION = 6;
+    int C_ION = 6;
     /**
      * This int is the identifier for a x ion.
      */
-    public final static int X_ION = 7;
+    int X_ION = 7;
     /**
      * This int is the identifier for a y ion.
      */
-    public final static int Y_ION = 8;
+    int Y_ION = 8;
     /**
      * This int is the identifier for a y* ion.
      */
-    public final static int YNH3_ION = 9;
+    int YNH3_ION = 9;
     /**
      * This int is the identifier for a y� ion.
      */
-    public final static int YH2O_ION = 10;
+    int YH2O_ION = 10;
     /**
      * This int is the identifier for a z ion.
      */
-    public final static int Z_ION = 11;
+    int Z_ION = 11;
      /**
      * This int is the identifier for an MH ion.
      */
-    public final static int MH_ION = 12;
+     int MH_ION = 12;
      /**
      * This int is the identifier for an MH-NH3 ion.
      */
-    public final static int MHNH3_ION = 13;
+     int MHNH3_ION = 13;
      /**
      * This int is the identifier for an MH-H2O ion.
      */
-    public final static int MHH2O_ION = 14;
+     int MHH2O_ION = 14;
 
     /**
      * This method checks whether the ion matched with a given set of peaks
@@ -120,40 +120,40 @@ public interface Ion {
      * @param aMassError
      * @return boolean
      */
-    public boolean isMatch(List<SpectrumPeak> peaks, double aMassError, double threshold);
+    boolean isMatch(List<SpectrumPeak> peaks, double aMassError, double threshold);
 
     /**
      * Returns the m/z.
      *
      * @return double
      */
-    public double getMZ();
+    double getMZ();
 
     /**
      * Returns the intensity.
      *
      * @return double
      */
-    public double getIntensity();
+    double getIntensity();
 
     /**
      * Returns the type of ion.
      *
      * @return int
      */
-    public IonType getType();
+    Ion.IonType getType();
 
     /**
      * Returns the ion number.
      *
      * @return int
      */
-    public int getNumber();
+    int getNumber();
 
     /**
      * Returns the score.
      *
      * @return double
      */
-    public double getScore();
+    double getScore();
 }

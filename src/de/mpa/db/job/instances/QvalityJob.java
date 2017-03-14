@@ -16,10 +16,10 @@ import de.mpa.util.PropertyLoader;
  *
  */
 public class QvalityJob extends Job {
-	private File targetFile;
-	private File decoyFile;
-	private String qvaluedOutput;
-	private boolean reverseScoring;
+	private final File targetFile;
+	private final File decoyFile;
+	private final String qvaluedOutput;
+	private final boolean reverseScoring;
 
 	/**
 	 * Constructor for the QValityJob
@@ -29,12 +29,12 @@ public class QvalityJob extends Job {
 	 * @param reverseScoring
 	 */
 	public QvalityJob(String targetFilename, String decoyFilename, boolean reverseScoring) {
-		this.targetFile = new File(targetFilename);
-		this.decoyFile = new File(decoyFilename);
+        targetFile = new File(targetFilename);
+        decoyFile = new File(decoyFilename);
 		this.reverseScoring = reverseScoring;
-		qvaluedOutput = targetFile.getAbsolutePath().substring(0, targetFile.getAbsolutePath().lastIndexOf("_target"))
+        this.qvaluedOutput = this.targetFile.getAbsolutePath().substring(0, this.targetFile.getAbsolutePath().lastIndexOf("_target"))
 				+ "_qvalued.out";
-		initJob();
+        this.initJob();
 	}
 
 	/**
@@ -42,38 +42,38 @@ public class QvalityJob extends Job {
 	 */
 	private void initJob() {
 		// set the description
-		setDescription("QVALITY JOB");
+        this.setDescription("QVALITY JOB");
 
 		String pathQvality = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_QVALITY);
 		String appQvality = pathQvality + PropertyLoader.getProperty(PropertyLoader.APP_QVALITY);
 
 		// full path to executable
-		procCommands.add(appQvality);
+        this.procCommands.add(appQvality);
 
 		// Reverse scoring mechanism: Low score are better than high scores
-		if (reverseScoring) {
-			procCommands.add("-r");
+		if (this.reverseScoring) {
+            this.procCommands.add("-r");
 		}
 
 		// Link to the input files
-		procCommands.add(targetFile.getPath());
-		procCommands.add(decoyFile.getPath());
+        this.procCommands.add(this.targetFile.getPath());
+        this.procCommands.add(this.decoyFile.getPath());
 
 		// Link to output file
-		procCommands.add("-o");
-		procCommands.add(qvaluedOutput);
-		procCommands.trimToSize();
+        this.procCommands.add("-o");
+        this.procCommands.add(this.qvaluedOutput);
+        this.procCommands.trimToSize();
 
-		log.info("qvality commands: " + procCommands.toString());
-		procBuilder = new ProcessBuilder(procCommands);
+        Job.log.info("qvality commands: " + this.procCommands);
+        this.procBuilder = new ProcessBuilder(this.procCommands);
 
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 
 	public String getQValuedOutput() {
-		return qvaluedOutput;
+		return this.qvaluedOutput;
 	}
 
 }

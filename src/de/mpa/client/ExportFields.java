@@ -24,9 +24,9 @@ public class ExportFields {
 	public boolean proteinPi = true;
 	public boolean proteinPepCount = true;
 	public boolean proteinSpecCount = true;
-	public boolean proteinEmPAI = false;
+	public boolean proteinEmPAI;
 	public boolean proteinNSAF = true;
-	public boolean proteinSequence = false;
+	public boolean proteinSequence;
 	public boolean proteinPeptides = true;
 	
 	/**
@@ -112,53 +112,53 @@ public class ExportFields {
 	 * Constructor to create default export fields.
 	 */
 	private ExportFields(){
-		peptideNumber = true;
-		peptideProteinAccessions = true;
-		peptideSequence = true;
-		peptideTaxGroup = true;
-		uniquePeptidesOnly = true;
-		sharedPeptidesOnly = true;
-		peptideProtCount = false;
-		peptideSpecCount = true;
-		peptideTaxRank = true;
-		peptideTaxId = true;
-		
-		psmNumber = true;
-		psmProteinAccession = true;
-		psmPeptideSequence = true;
-		psmSpectrumTitle = true;
-		psmCharge = true;
-		psmSearchEngine = true;
-		psmQValue = true;
-		psmScore = true;
-		
-		metaproteinNumber = true;
-		metaproteinAccessions = true;
-		metaproteinDescription = true;
-		metaproteinTaxonomy = true;
-		metaprotUniRef100 =true;
-		metaprotUniRef90 =true;
-		metaprotUniRef50 =true;
-		metaprotKO =true;
-		metaprotEC =true;
-		metaproteinSpecCount = true;
-		metaproteinPepCount = true;
-		metaproteinProteins = true;
-		metaproteinPeptides = true;
+        this.peptideNumber = true;
+        this.peptideProteinAccessions = true;
+        this.peptideSequence = true;
+        this.peptideTaxGroup = true;
+        this.uniquePeptidesOnly = true;
+        this.sharedPeptidesOnly = true;
+        this.peptideProtCount = false;
+        this.peptideSpecCount = true;
+        this.peptideTaxRank = true;
+        this.peptideTaxId = true;
 
-		taxonomyUnclassified = true;
-		taxonomySuperKingdom = true;
-		taxonomyKingdom = true;
-		taxonomyPhylum = true;
-		taxonomyOrder = true;
-		taxonomyClass = true;
-		taxonomyFamily = true;
-		taxonomyGenus = true;
-		taxonomySpecies = true;
-		taxonomySubspecies = true;
-		taxonomySpecificPeptides = true;
-		taxonomySpecificSpecCount = true;
-		taxonomyKronaSpecCount= true;
+        this.psmNumber = true;
+        this.psmProteinAccession = true;
+        this.psmPeptideSequence = true;
+        this.psmSpectrumTitle = true;
+        this.psmCharge = true;
+        this.psmSearchEngine = true;
+        this.psmQValue = true;
+        this.psmScore = true;
+
+        this.metaproteinNumber = true;
+        this.metaproteinAccessions = true;
+        this.metaproteinDescription = true;
+        this.metaproteinTaxonomy = true;
+        this.metaprotUniRef100 =true;
+        this.metaprotUniRef90 =true;
+        this.metaprotUniRef50 =true;
+        this.metaprotKO =true;
+        this.metaprotEC =true;
+        this.metaproteinSpecCount = true;
+        this.metaproteinPepCount = true;
+        this.metaproteinProteins = true;
+        this.metaproteinPeptides = true;
+
+        this.taxonomyUnclassified = true;
+        this.taxonomySuperKingdom = true;
+        this.taxonomyKingdom = true;
+        this.taxonomyPhylum = true;
+        this.taxonomyOrder = true;
+        this.taxonomyClass = true;
+        this.taxonomyFamily = true;
+        this.taxonomyGenus = true;
+        this.taxonomySpecies = true;
+        this.taxonomySubspecies = true;
+        this.taxonomySpecificPeptides = true;
+        this.taxonomySpecificSpecCount = true;
+        this.taxonomyKronaSpecCount = true;
 	}
 
 
@@ -167,9 +167,9 @@ public class ExportFields {
 	 * @return The exportFields.
 	 */
 	public static ExportFields getInstance() {
-		if (exportFields == null) {
-			exportFields = new ExportFields();
+		if (ExportFields.exportFields == null) {
+            ExportFields.exportFields = new ExportFields();
 		}
-			return exportFields;
+			return ExportFields.exportFields;
 	}
 }

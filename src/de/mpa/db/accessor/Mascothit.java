@@ -41,9 +41,9 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
      * @throws SQLException when reading the ResultSet failed.
      */
     public Mascothit(ResultSet aRS) throws SQLException {
-        super(aRS); 
-        this.sequence = (String) aRS.getObject("sequence");
-        this.accession = (String) aRS.getObject("accession");
+        super(aRS);
+        sequence = (String) aRS.getObject("sequence");
+        accession = (String) aRS.getObject("accession");
     }
     
     /**
@@ -55,23 +55,23 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
      */
     public Mascothit(ResultSet aRS, boolean not_view) throws SQLException {
     	if (not_view) {
-    		this.iMascothitid = (Long) aRS.getLong("mascothit.mascothitid");
-    		this.iFk_searchspectrumid = (Long) aRS.getLong("mascothit.fk_searchspectrumid");
-    		this.iFk_peptideid = (Long) aRS.getLong("mascothit.fk_peptideid");
-    		this.iFk_proteinid = (Long) aRS.getLong("mascothit.fk_proteinid");
-    		this.iCharge = (Long) aRS.getLong("mascothit.charge");
-    		this.iIonscore = (Number) aRS.getObject("mascothit.ionscore");
-    		this.sequence = (String) aRS.getObject("peptide.sequence");
-        	this.accession = (String) aRS.getObject("protein.accession");
+            iMascothitid = aRS.getLong("mascothit.mascothitid");
+            iFk_searchspectrumid = aRS.getLong("mascothit.fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("mascothit.fk_peptideid");
+            iFk_proteinid = aRS.getLong("mascothit.fk_proteinid");
+            iCharge = aRS.getLong("mascothit.charge");
+            iIonscore = (Number) aRS.getObject("mascothit.ionscore");
+            sequence = (String) aRS.getObject("peptide.sequence");
+            accession = (String) aRS.getObject("protein.accession");
     	} else {
-    		this.iMascothitid = (Long) aRS.getLong("mascothitid");
-    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
-    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
-    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
-    		this.iCharge = (Long) aRS.getLong("charge");
-    		this.iIonscore = (Number) aRS.getObject("ionscore");
-    		this.sequence = (String) aRS.getObject("pepseq");
-    		this.accession = (String) aRS.getObject("accession");
+            iMascothitid = aRS.getLong("mascothitid");
+            iFk_searchspectrumid = aRS.getLong("fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("fk_peptideid");
+            iFk_proteinid = aRS.getLong("fk_proteinid");
+            iCharge = aRS.getLong("charge");
+            iIonscore = (Number) aRS.getObject("ionscore");
+            sequence = (String) aRS.getObject("pepseq");
+            accession = (String) aRS.getObject("accession");
     	}
     }
 
@@ -182,21 +182,21 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
 
 	@Override
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 
 	@Override
 	public String getAccession() {
-		return accession;
+		return this.accession;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SearchHit) {
 			SearchHit hit = ((SearchHit) obj);
-			if (hit.getType() == this.getType()) {
-				if (hit.getFk_searchspectrumid() == this.getFk_searchspectrumid()) {
-					if (hit.getFk_peptideid() == this.getFk_peptideid()) {
+			if (hit.getType() == getType()) {
+				if (hit.getFk_searchspectrumid() == getFk_searchspectrumid()) {
+					if (hit.getFk_peptideid() == getFk_peptideid()) {
 						return true;
 					}
 				}
@@ -210,7 +210,7 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
 	 * @return The title of the Mascot query
 	 */
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	/**
@@ -229,6 +229,6 @@ public class Mascothit extends MascothitTableAccessor implements SearchHit {
 	
 	@Override
 	public double getScore() {		
-		return iIonscore.doubleValue();
+		return this.iIonscore.doubleValue();
 	}
 }

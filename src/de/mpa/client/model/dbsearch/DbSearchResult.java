@@ -32,17 +32,17 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * The project title.
 	 */
-	private String projectTitle;
+	private final String projectTitle;
 
 	/**
 	 * The experiment title.
 	 */
-	private String experimentTitle;
+	private final String experimentTitle;
 
 	/**
 	 * The fastaDB.
 	 */
-	private String fastaDB;
+	private final String fastaDB;
 
 	/**
 	 * The search date.
@@ -52,7 +52,7 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * The list of meta-proteins.
 	 */
-	private ProteinHitList metaProteins = new ProteinHitList();
+	private final ProteinHitList metaProteins = new ProteinHitList();
 
 	/**
 	 * The list of visible meta-proteins.
@@ -76,7 +76,7 @@ public class DbSearchResult implements Serializable {
 		this.experimentTitle = experimentTitle;
 		this.fastaDB = fastaDB;
 		// TODO: infer search date from database
-		this.searchDate = new Date();
+        searchDate = new Date();
 	}
 
 	/**
@@ -95,20 +95,20 @@ public class DbSearchResult implements Serializable {
 		Set<Long> experimentIDs = proteinHit.getExperimentIDs();
 		
 		// check for existing elements
-		SpectrumMatch currentSpectrumMatch = this.getSpectrumMatch(peptideHit.getSequence() + spectrumMatch.getSearchSpectrumID());
+		SpectrumMatch currentSpectrumMatch = getSpectrumMatch(peptideHit.getSequence() + spectrumMatch.getSearchSpectrumID());
 		if (currentSpectrumMatch != null) {
 			currentSpectrumMatch.addExperimentIDs(experimentIDs);
 			spectrumMatch = currentSpectrumMatch;
 		}
 		
-		PeptideHit currentPeptideHit =	this.getPeptideHit(peptideHit.getSequence());
+		PeptideHit currentPeptideHit = getPeptideHit(peptideHit.getSequence());
 		if (currentPeptideHit != null) {
 			currentPeptideHit.addExperimentIDs(experimentIDs);
 			peptideHit = currentPeptideHit;
 		}
 		
 		ProteinHit currentProteinHit =
-				this.getProteinHit(proteinHit.getAccession());
+                getProteinHit(proteinHit.getAccession());
 		if (currentProteinHit != null) {
 			currentProteinHit.addExperimentIDs(experimentIDs);
 			proteinHit = currentProteinHit;
@@ -116,7 +116,7 @@ public class DbSearchResult implements Serializable {
 			// wrap new protein in meta-protein
 			MetaProteinHit mph = new MetaProteinHit("Meta-Protein " + proteinHit.getAccession(), proteinHit, proteinHit.getUniProtEntry());
 			proteinHit.setMetaProteinHit(mph);
-			this.metaProteins.add(mph);
+            metaProteins.add(mph);
 		}
 		
 		// add elements, possibly replacing them with existing ones
@@ -127,12 +127,12 @@ public class DbSearchResult implements Serializable {
 	
 	// add entire proteinhitlist
 	public void addProteinHitList(ProteinHitList protlist) {
-		visMetaProteins = protlist;
+        this.visMetaProteins = protlist;
 	}
 	
 	// add metaprotein
 	public void addMetaProtein(MetaProteinHit mph) {
-		this.metaProteins.add(mph);
+        metaProteins.add(mph);
 	}	
 	
 
@@ -141,7 +141,7 @@ public class DbSearchResult implements Serializable {
 	 * @return <code>true</code> if this is an unprocessed result, <code>false</code> otherwise
 	 */
 	public boolean isRaw() {
-		return raw;
+		return this.raw;
 	}
 
 	/**
@@ -158,10 +158,10 @@ public class DbSearchResult implements Serializable {
 	 * @return <code>true</code> if empty, <code>false</code> otherwise.
 	 */
 	public boolean isEmpty() {
-		if (visMetaProteins == null) {
-			return this.metaProteins.isEmpty();
+		if (this.visMetaProteins == null) {
+			return metaProteins.isEmpty();
 		} else {
-			return this.visMetaProteins.isEmpty();
+			return visMetaProteins.isEmpty();
 		}
 	}
 
@@ -170,10 +170,10 @@ public class DbSearchResult implements Serializable {
 	 * @return the list of metaproteins.
 	 */
 	public ProteinHitList getMetaProteins() {
-		if (this.visMetaProteins == null) {
-			return this.metaProteins;
+		if (visMetaProteins == null) {
+			return metaProteins;
 		} else {
-			return this.visMetaProteins; 
+			return visMetaProteins;
 		}
 	}
 	
@@ -181,7 +181,7 @@ public class DbSearchResult implements Serializable {
 	 * Resets the mapping of visible meta-proteins.
 	 */
 	public void clearVisibleMetaProteins() {
-		this.visMetaProteins = null;
+        visMetaProteins = null;
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public List<ProteinHit> getProteinHitList() {
 		ProteinHitList metaProteins =
-				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
 		ProteinHitList proteinHits = new ProteinHitList();
 		for (ProteinHit mph : metaProteins) {
 			proteinHits.addAll(((MetaProteinHit) mph).getProteinHitList());
@@ -205,7 +205,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public Map<String, ProteinHit> getProteinHits() {
 		ProteinHitList metaProteins =
-				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
 		Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
 		for (ProteinHit mph : metaProteins) {
 			proteinHits.putAll(((MetaProteinHit) mph).getProteinHits());
@@ -220,7 +220,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public ProteinHit getProteinHit(String accession) {
 		ProteinHitList metaProteins =
-				(visMetaProteins == null) ? this.metaProteins : this.visMetaProteins;
+				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
 		for (ProteinHit mph : metaProteins) {
 			ProteinHit ph = ((MetaProteinHit) mph).getProteinHit(accession);
 			if (ph != null) {
@@ -236,7 +236,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the peptide hit or <code>null</code> if no such hit exists
 	 */
 	public PeptideHit getPeptideHit(String sequence) {
-		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+		for (ProteinHit proteinHit : getProteinHits().values()) {
 			PeptideHit peptideHit = proteinHit.getPeptideHit(sequence);
 			if (peptideHit != null) {
 				return peptideHit;
@@ -251,7 +251,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the spectrum match or <code>null</code> if no such match exists
 	 */
 	public SpectrumMatch getSpectrumMatch(String key) {
-		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+		for (ProteinHit proteinHit : getProteinHits().values()) {
 			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
 				SpectrumMatch spectrumMatch = peptideHit.getSpectrumMatch(key);
 				if (spectrumMatch != null) {
@@ -267,7 +267,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the project title
 	 */
 	public String getProjectTitle() {
-		return projectTitle;
+		return this.projectTitle;
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the experiment title
 	 */
 	public String getExperimentTitle() {
-		return experimentTitle;
+		return this.experimentTitle;
 	}
 
 	/**
@@ -283,7 +283,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the FASTA database identifier.
 	 */
 	public String getFastaDB() {
-		return fastaDB;
+		return this.fastaDB;
 	}
 
 	/**
@@ -291,7 +291,7 @@ public class DbSearchResult implements Serializable {
 	 * @return the search date
 	 */
 	public Date getSearchDate() {
-		return searchDate;
+		return this.searchDate;
 	}
 
 	/**
@@ -307,7 +307,7 @@ public class DbSearchResult implements Serializable {
 	 * @return The total spectral count.
 	 */
 	public int getTotalSpectrumCount() {
-		return totalSpectra;
+		return this.totalSpectra;
 	}
 	
 	/**
@@ -323,14 +323,14 @@ public class DbSearchResult implements Serializable {
 	 * @return the amount of identified spectra.
 	 */
 	public int getIdentifiedSpectrumCount() {
-		return this.getMetaProteins().getMatchSet().size();
+		return getMetaProteins().getMatchSet().size();
 	}
 	
 	/**
 	 * @return the totalPeptides
 	 */
 	public int getDistinctPeptideCount() {
-		return this.getMetaProteins().getPeptideSet().size();
+		return getMetaProteins().getPeptideSet().size();
 	}
 
 	/**
@@ -339,7 +339,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public int getModifiedPeptideCount() {
 		int modifiedPeptides = 0;
-		for (PeptideHit peptideHit : this.getMetaProteins().getPeptideSet()) {
+		for (PeptideHit peptideHit : getMetaProteins().getPeptideSet()) {
 			if (!peptideHit.getSequence().matches("^[A-Z]*$")) {
 				modifiedPeptides++;
 			}
@@ -353,7 +353,7 @@ public class DbSearchResult implements Serializable {
 	 */
 	public int getUniquePeptideCount() {
 		int uniquePeptides = 0;
-		for (PeptideHit peptideHit : this.getMetaProteins().getPeptideSet()) {
+		for (PeptideHit peptideHit : getMetaProteins().getPeptideSet()) {
 			// == 2 --> one protein and one metaprotein
 			if (peptideHit.getProteinCount() == 2) {
 				uniquePeptides++;
@@ -367,11 +367,11 @@ public class DbSearchResult implements Serializable {
 	 * @param fdr the FDR threshold.
 	 */
 	public void setFDR(double fdr) {
-		this.visMetaProteins = new ProteinHitList();
-		for (ProteinHit mph : metaProteins) {
+        visMetaProteins = new ProteinHitList();
+		for (ProteinHit mph : this.metaProteins) {
 			mph.setFDR(fdr);
 			if (mph.isVisible()) {
-				this.visMetaProteins.add(mph);
+                visMetaProteins.add(mph);
 			}
 		}
 	}
@@ -381,8 +381,8 @@ public class DbSearchResult implements Serializable {
 		boolean result = (obj instanceof DbSearchResult);
 		if (result) {
 			DbSearchResult that = (DbSearchResult) obj;
-			result = this.getProjectTitle().equals(that.getProjectTitle())
-					&& this.getExperimentTitle().equals(that.getExperimentTitle());
+			result = getProjectTitle().equals(that.getProjectTitle())
+					&& getExperimentTitle().equals(that.getExperimentTitle());
 		}
 		return result;
 	}

@@ -36,7 +36,7 @@ public class DBDumper {
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public static void dumpDatabase(String filePath) throws SQLException, IOException {
+	public static void dumpDatabase(String filePath) {
 		// get connection settings + database parameters
 		ParameterMap para = Client.getInstance().getConnectionParameters();
 		String dbUser = (String) para.get("dbUsername").getValue();

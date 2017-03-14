@@ -19,37 +19,37 @@ public class ReducedUniProtEntry implements Serializable {
 	/**
 	 * Taxonomy (NCBI) ID.
 	 */
-	private long taxID;
+	private final long taxID;
 	
 	/**
 	 * List of ontology keywords.
 	 */
-	private List<String> keywords;
+	private final List<String> keywords;
 	
 	/**
 	 * List of E.C. numbers.
 	 */
-	private List<String> ecNumbers;
+	private final List<String> ecNumbers;
 	
 	/**
 	 * List of KEGG ontology numbers.
 	 */
-	private List<String> koNumbers;
+	private final List<String> koNumbers;
 	
 	/**
 	 * UniRef100 Cluster ID.
 	 */
-	private String uniRef100id;
+	private final String uniRef100id;
 	
 	/**
 	 * UniRef90 Cluster ID.
 	 */
-	private String uniRef90id;
+	private final String uniRef90id;
 	
 	/**
 	 * UniRef50 Cluster ID.
 	 */
-	private String uniRef50id;
+	private final String uniRef50id;
 	
 	/**
 	 * Default constructor for an UniprotEntry hit.
@@ -63,9 +63,9 @@ public class ReducedUniProtEntry implements Serializable {
 	 */
 	public ReducedUniProtEntry(long taxID, String keywords, String ecNumbers, String koNumbers, String uniRef100id, String uniRef90id, String uniRef50id) {
 		this.taxID = taxID;
-		this.keywords = formatToList(keywords);
-		this.ecNumbers = formatToList(ecNumbers);
-		this.koNumbers = formatToList(koNumbers);
+		this.keywords = this.formatToList(keywords);
+		this.ecNumbers = this.formatToList(ecNumbers);
+		this.koNumbers = this.formatToList(koNumbers);
 		this.uniRef100id = uniRef100id;
 		this.uniRef90id = uniRef90id;
 		this.uniRef50id = uniRef50id;
@@ -90,7 +90,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return The taxonomy ID.
 	 */
 	public long getTaxID() {
-		return taxID;
+		return this.taxID;
 	}
 		
 	/**
@@ -98,7 +98,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return Keyword list.
 	 */
 	public List<String> getKeywords() {
-		return keywords;
+		return this.keywords;
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return EC number list.
 	 */
 	public List<String> getEcNumbers() {
-		return ecNumbers;
+		return this.ecNumbers;
 	}
 	
 	/**
@@ -114,7 +114,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return KO number list.
 	 */
 	public List<String> getKNumbers() {
-		return koNumbers;
+		return this.koNumbers;
 	}
 	
 	/**
@@ -122,7 +122,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return UniRef100 cluster ID.
 	 */
 	public String getUniRef100id() {
-		return uniRef100id;
+		return this.uniRef100id;
 	}
 	
 	/**
@@ -130,7 +130,7 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return UniRef90 cluster ID.
 	 */
 	public String getUniRef90id() {
-		return uniRef90id;
+		return this.uniRef90id;
 	}
 	
 	/**
@@ -138,6 +138,6 @@ public class ReducedUniProtEntry implements Serializable {
 	 * @return UniRef50 cluster ID.
 	 */
 	public String getUniRef50id() {
-		return uniRef50id;
+		return this.uniRef50id;
 	}
 }

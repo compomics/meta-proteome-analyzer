@@ -1,8 +1,8 @@
 package de.mpa.client.ui;
 
-import javax.swing.plaf.ColorUIResource;
+import de.mpa.client.Constants;
 
-import de.mpa.client.Constants.UIColor;
+import javax.swing.plaf.ColorUIResource;
 
 /**
  * Convenience class to delegate color lookups.
@@ -14,21 +14,21 @@ public class DelegateColor extends ColorUIResource {
 	/**
 	 * The delegate color.
 	 */
-	private UIColor delegate;
-	
+	private Constants.UIColor delegate;
+
 	/**
 	 * Constructs a color getting its value from the specified delegate
 	 * color.
 	 * @param delegate the delegate color
 	 */
-	public DelegateColor(UIColor delegate) {
+	public DelegateColor(Constants.UIColor delegate) {
 		super(0);
 		this.delegate = delegate;
 	}
 	
 	@Override
 	public int getRGB() {
-		return delegate.getColor().getRGB();
+		return this.delegate.getColor().getRGB();
 	}
 	
 	/* Hack to circumvent buffering strategies of certain UI components */

@@ -12,8 +12,6 @@ import static de.mpa.db.job.blast.BlastQuery.BlastHitHeaderEnum.TSTART;
 
 import java.util.Map;
 
-import de.mpa.db.job.blast.BlastQuery.BlastHitHeaderEnum;
-
 /**
  * This class represents a single BlastHit.
  * 
@@ -23,12 +21,12 @@ public class BlastHit {
 	/**
 	 * Identity of alignment
 	 */
-	private double identity = 0;
+	private double identity;
 
 	/**
 	 * Length of alignment
 	 */
-	private int length = 0;
+	private int length;
 
 	/**
 	 * Expect value.
@@ -38,12 +36,12 @@ public class BlastHit {
 	/**
 	 * Target start.
 	 */
-	private int targetStart = 0;
+	private int targetStart;
 
 	/**
 	 * Target end.
 	 */
-	private int targetEnd = 0;
+	private int targetEnd;
 
 	/**
 	 * Number of mismatches.
@@ -53,12 +51,12 @@ public class BlastHit {
 	/**
 	 * Value strings.
 	 */
-	private String[] values;
+	private final String[] values;
 	
 	/**
 	 * Header map containing the BLAST header values.
 	 */
-	private Map<BlastHitHeaderEnum, Integer> headerMap;
+	private Map<BlastQuery.BlastHitHeaderEnum, Integer> headerMap;
 	
 	/**
 	 * Query identifier.
@@ -88,26 +86,26 @@ public class BlastHit {
 	 * @param parentQuery
 	 */
 	public BlastHit(String values) {
-		if(headerMap == null) {
-			headerMap = BlastQuery.getHeaderMap();
+		if(this.headerMap == null) {
+            this.headerMap = BlastQuery.getHeaderMap();
 		}
 		this.values = values.split("\t");
-		init();
+        this.init();
 	}
 
 	/**
 	 * This method will set frequently used values as instance vars.
 	 */
 	private void init() {
-		this.queryId = values[headerMap.get(QUERY)];
-		this.targetId = values[headerMap.get(TARGET)];
-		this.targetStart = Integer.parseInt(values[headerMap.get(TSTART)]);
-		this.targetEnd = Integer.parseInt(values[headerMap.get(TEND)]);
-		this.length = Integer.parseInt(values[headerMap.get(LENGTH)]);
-		this.identity = Double.parseDouble(values[headerMap.get(IDENTITY)]);
-		this.nMismatches = Integer.parseInt(values[headerMap.get(MISMATCH)]);
-		this.eValue = Double.parseDouble(values[headerMap.get(EVALUE)]);
-		this.bitScore = Double.parseDouble(values[headerMap.get(BIT)]);
+        queryId = this.values[this.headerMap.get(QUERY)];
+        targetId = this.values[this.headerMap.get(TARGET)];
+        targetStart = Integer.parseInt(this.values[this.headerMap.get(TSTART)]);
+        targetEnd = Integer.parseInt(this.values[this.headerMap.get(TEND)]);
+        length = Integer.parseInt(this.values[this.headerMap.get(LENGTH)]);
+        identity = Double.parseDouble(this.values[this.headerMap.get(IDENTITY)]);
+        nMismatches = Integer.parseInt(this.values[this.headerMap.get(MISMATCH)]);
+        eValue = Double.parseDouble(this.values[this.headerMap.get(EVALUE)]);
+        bitScore = Double.parseDouble(this.values[this.headerMap.get(BIT)]);
 	}
 
 	/**
@@ -115,7 +113,7 @@ public class BlastHit {
 	 * @return QueryId
 	 */
 	public String getQueryId() {
-		return queryId;
+		return this.queryId;
 	}
 
 	/**
@@ -123,7 +121,7 @@ public class BlastHit {
 	 * @return Identity value.
 	 */
 	public double getIdentity() {
-		return identity;
+		return this.identity;
 	}
 
 	/**
@@ -131,7 +129,7 @@ public class BlastHit {
 	 * @return Blast hit length.
 	 */
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 	
 	/**
@@ -139,7 +137,7 @@ public class BlastHit {
 	 * @return Parent BLAST query.
 	 */
 	public BlastQuery getParentQuery() {
-		return parentQuery;
+		return this.parentQuery;
 	}
 	
 	/**
@@ -147,7 +145,7 @@ public class BlastHit {
 	 * @return Target start value.
 	 */
 	public int getTargetStart() {
-		return targetStart;
+		return this.targetStart;
 	}
 	
 	/**
@@ -155,7 +153,7 @@ public class BlastHit {
 	 * @return Target end value.
 	 */
 	public int getTargetEnd() {
-		return targetEnd;
+		return this.targetEnd;
 	}
 
 	/**
@@ -163,7 +161,7 @@ public class BlastHit {
 	 * @return Target ID.
 	 */
 	public String getTargetID() {
-		return targetId;
+		return this.targetId;
 	}
 
 	/**
@@ -171,7 +169,7 @@ public class BlastHit {
 	 * @return Number of mismatches.
 	 */
 	public int getNumberOfMismatches() {
-		return nMismatches;
+		return this.nMismatches;
 	}
 
 	/**
@@ -179,7 +177,7 @@ public class BlastHit {
 	 * @return The e-value.
 	 */
 	public double getEValue() {
-		return eValue;
+		return this.eValue;
 	}
 
 	/**
@@ -187,6 +185,6 @@ public class BlastHit {
 	 * @return
 	 */
 	public double getBitScore() {
-		return bitScore;
+		return this.bitScore;
 	}
 }
