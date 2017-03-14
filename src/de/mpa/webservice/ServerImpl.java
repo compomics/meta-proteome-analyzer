@@ -275,6 +275,7 @@ public class ServerImpl implements Server {
                     this.jobManager.run();
 
                     this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
+                    i++;
                     this.runOptions.setRunCount(i);
 				}
                 this.jobManager.run();
