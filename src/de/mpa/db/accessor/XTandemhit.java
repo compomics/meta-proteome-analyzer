@@ -19,12 +19,12 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	/**
 	 * The peptide sequence.
 	 */
-	private String sequence = null;
+	private String sequence;
 	
 	/**
 	 * The protein accession.
 	 */
-	private String accession = null;
+	private String accession;
 	
     /**
      * This constructor reads the spectrum file from a resultset. The ResultSet should be positioned such that a single
@@ -35,8 +35,8 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
      */
     public XTandemhit(ResultSet aRS) throws SQLException {
         super(aRS);
-        this.sequence = (String) aRS.getObject("sequence");
-        this.accession = (String) aRS.getObject("accession");
+        sequence = (String) aRS.getObject("sequence");
+        accession = (String) aRS.getObject("accession");
     }
     
     /**
@@ -48,21 +48,21 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
      */
     public XTandemhit(ResultSet aRS, boolean now_view) throws SQLException {    	
     	if (now_view) {
-			this.iXtandemhitid = (Long) aRS.getLong("xtandemhit.xtandemhitid");
-			this.iFk_searchspectrumid = (Long) aRS.getLong("xtandemhit.fk_searchspectrumid");
-			this.iFk_peptideid = (Long) aRS.getLong("xtandemhit.fk_peptideid");
-			this.iFk_proteinid = (Long) aRS.getLong("xtandemhit.fk_proteinid");
-			this.sequence = (String) aRS.getObject("peptide.sequence");
-	    	this.accession = (String) aRS.getObject("protein.accession");
-	    	this.iQvalue = (Number) aRS.getObject("xtandemhit.qvalue");
+            iXtandemhitid = aRS.getLong("xtandemhit.xtandemhitid");
+            iFk_searchspectrumid = aRS.getLong("xtandemhit.fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("xtandemhit.fk_peptideid");
+            iFk_proteinid = aRS.getLong("xtandemhit.fk_proteinid");
+            sequence = (String) aRS.getObject("peptide.sequence");
+            accession = (String) aRS.getObject("protein.accession");
+            iQvalue = (Number) aRS.getObject("xtandemhit.qvalue");
     	} else {
-    		this.iXtandemhitid = (Long) aRS.getLong("xtandemhitid");
-    		this.iFk_searchspectrumid = (Long) aRS.getLong("fk_searchspectrumid");
-    		this.iFk_peptideid = (Long) aRS.getLong("fk_peptideid");
-    		this.iFk_proteinid = (Long) aRS.getLong("fk_proteinid");
-    		this.sequence = (String) aRS.getObject("pepseq");
-        	this.accession = (String) aRS.getObject("accession");
-        	this.iQvalue = (Number ) aRS.getObject("qvalue");
+            iXtandemhitid = aRS.getLong("xtandemhitid");
+            iFk_searchspectrumid = aRS.getLong("fk_searchspectrumid");
+            iFk_peptideid = aRS.getLong("fk_peptideid");
+            iFk_proteinid = aRS.getLong("fk_proteinid");
+            sequence = (String) aRS.getObject("pepseq");
+            accession = (String) aRS.getObject("accession");
+            iQvalue = (Number ) aRS.getObject("qvalue");
     	}
 	}
 
@@ -168,7 +168,7 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
      * @return the peptide sequence
      */
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 	
 	/**
@@ -176,7 +176,7 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	 * @return the protein accession
 	 */
 	public String getAccession() {
-		return accession;
+		return this.accession;
 	}
 	
 	/**
@@ -184,7 +184,7 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	 * @return the search spectrum id
 	 */
 	public long getFk_searchspectrumid() {
-		return iFk_searchspectrumid;
+		return this.iFk_searchspectrumid;
 	}
 	
 	/**
@@ -205,9 +205,9 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	public boolean equals(Object obj) {
 		if (obj instanceof SearchHit) {
 			SearchHit hit = ((SearchHit) obj);
-			if (hit.getType() == this.getType()) {
-				if (hit.getFk_searchspectrumid() == this.getFk_searchspectrumid()) {
-					if (hit.getFk_peptideid() == this.getFk_peptideid()) {
+			if (hit.getType() == getType()) {
+				if (hit.getFk_searchspectrumid() == getFk_searchspectrumid()) {
+					if (hit.getFk_peptideid() == getFk_peptideid()) {
 						return true;
 					}
 				}
@@ -218,6 +218,6 @@ public class XTandemhit extends XtandemhitTableAccessor implements SearchHit {
 	
 	@Override
 	public double getScore() {		
-		return iHyperscore.doubleValue();
+		return this.iHyperscore.doubleValue();
 	}
 }

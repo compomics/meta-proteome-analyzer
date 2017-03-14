@@ -2,6 +2,7 @@ package de.mpa.client.ui.chart;
 
 import java.text.DecimalFormat;
 
+import de.mpa.analysis.UniProtUtilities;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
@@ -9,8 +10,6 @@ import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.chart.plot.Plot;
 import org.jfree.data.general.PieDataset;
 import org.jfree.ui.RectangleInsets;
-
-import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 
 /**
  * Chart implementation to create pie or bar charts of protein ontology data.
@@ -29,19 +28,19 @@ public class OntologyChart extends Chart {
 	 * Enumeration holding chart sub-types pertaining to keyword ontologies.
 	 */
 	public enum OntologyChartType implements ChartType {
-		BIOLOGICAL_PROCESS(KeywordCategory.BIOLOGICAL_PROCESS), CELLULAR_COMPONENT(
-				KeywordCategory.CELLULAR_COMPONENT), MOLECULAR_FUNCTION(
-				KeywordCategory.MOLECULAR_FUNCTION), CODING_SEQUNCE_DIVERSITY(
-				KeywordCategory.CODING_SEQUNCE_DIVERSITY), DEVELOPMENTAL_STAGE(
-				KeywordCategory.DEVELOPMENTAL_STAGE), DISEASE(
-				KeywordCategory.DISEASE), DOMAIN(KeywordCategory.DOMAIN), LIGAND(
-				KeywordCategory.LIGAND), PTM(KeywordCategory.PTM), TECHNICAL_TERM(
-				KeywordCategory.TECHNICAL_TERM);
+		BIOLOGICAL_PROCESS(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS), CELLULAR_COMPONENT(
+				UniProtUtilities.KeywordCategory.CELLULAR_COMPONENT), MOLECULAR_FUNCTION(
+				UniProtUtilities.KeywordCategory.MOLECULAR_FUNCTION), CODING_SEQUNCE_DIVERSITY(
+				UniProtUtilities.KeywordCategory.CODING_SEQUNCE_DIVERSITY), DEVELOPMENTAL_STAGE(
+				UniProtUtilities.KeywordCategory.DEVELOPMENTAL_STAGE), DISEASE(
+				UniProtUtilities.KeywordCategory.DISEASE), DOMAIN(UniProtUtilities.KeywordCategory.DOMAIN), LIGAND(
+				UniProtUtilities.KeywordCategory.LIGAND), PTM(UniProtUtilities.KeywordCategory.PTM), TECHNICAL_TERM(
+				UniProtUtilities.KeywordCategory.TECHNICAL_TERM);
 
 		private String title;
-		private KeywordCategory ontology;
+		private UniProtUtilities.KeywordCategory ontology;
 
-		private OntologyChartType(KeywordCategory ontology) {
+		OntologyChartType(UniProtUtilities.KeywordCategory ontology) {
 			this.title = ontology.toString();
 			this.ontology = ontology;
 		}
@@ -56,8 +55,8 @@ public class OntologyChart extends Chart {
 			return this.title;
 		}
 
-		public KeywordCategory getOntology() {
-			return this.ontology;
+		public UniProtUtilities.KeywordCategory getOntology() {
+			return ontology;
 		}
 	}
 
@@ -78,9 +77,9 @@ public class OntologyChart extends Chart {
 	protected void process(ChartData data) {
 		if (data instanceof OntologyData) {
 			OntologyData ontologyData = (OntologyData) data;
-			ontologyData.setChartType(chartType);
+			ontologyData.setChartType(this.chartType);
 			try {
-				pieDataset = ontologyData.getDataset();
+                this.pieDataset = ontologyData.getDataset();
 			} catch (NullPointerException e) {
 				// ignore this error (user clicks too fast)
 			}
@@ -89,10 +88,10 @@ public class OntologyChart extends Chart {
 
 	@Override
 	protected void setChart(ChartData data) {
-		OntologyChartType pieChartType = (OntologyChartType) chartType;
-		chartTitle = pieChartType.toString() + " Ontology";
+		OntologyChart.OntologyChartType pieChartType = (OntologyChart.OntologyChartType) this.chartType;
+        this.chartTitle = pieChartType + " Ontology";
 
-		final PiePlot3D piePlot = new PiePlot3DExt(pieDataset, 0.2);
+		PiePlot3D piePlot = new PiePlot3DExt(this.pieDataset, 0.2);
 		piePlot.setInsets(new RectangleInsets(0.0, 5.0, 5.0, 5.0));
 		piePlot.setCircular(true);
 		piePlot.setForegroundAlpha(0.75f);
@@ -106,15 +105,15 @@ public class OntologyChart extends Chart {
 		if (!((OntologyData) data).getShowAsPie()) {
 			PieToCategoryPlot categoryPlot = new PieToCategoryPlot(piePlot);
 			categoryPlot.setForegroundAlpha(0.75f);
-			categoryPlot.getRangeAxis().setLabel(pieDataset.getGroup().getID());
+			categoryPlot.getRangeAxis().setLabel(this.pieDataset.getGroup().getID());
 			plot = categoryPlot;
 		}
 
 		// create and configure chart
-		chart = new JFreeChart(chartTitle, JFreeChart.DEFAULT_TITLE_FONT, plot,
+        this.chart = new JFreeChart(this.chartTitle, JFreeChart.DEFAULT_TITLE_FONT, plot,
 				false);
-		ChartFactory.getChartTheme().apply(chart);
-		chart.setBackgroundPaint(null);
+		ChartFactory.getChartTheme().apply(this.chart);
+        this.chart.setBackgroundPaint(null);
 	}
 
 }

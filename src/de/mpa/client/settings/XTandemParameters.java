@@ -4,12 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map.Entry;
+import java.util.Map;
 
-import de.mpa.client.settings.Parameter.BooleanMatrixParameter;
 import de.mpa.client.settings.Parameter.BooleanParameter;
-import de.mpa.client.settings.Parameter.NumberParameter;
-import de.mpa.client.settings.Parameter.OptionParameter;
 
 /**
  * Class for storing X!Tandem search engine-specific settings.
@@ -48,19 +45,19 @@ public class XTandemParameters extends ParameterMap {
 		/**
 		 * The name of the rule.
 		 */
-		private String name;
+		private final String name;
 		
 		/**
 		 * The rule string.
 		 */
-		private String rule;
+		private final String rule;
 
 		/**
 		 * Constructs a cleavage rule from the specified name and rule strings.
 		 * @param name the name of the rule
 		 * @param rule the rule string
 		 */
-		private CleavageRule(String name, String rule) {
+        CleavageRule(String name, String rule) {
 			this.name = name;
 			this.rule = rule;
 		}
@@ -70,12 +67,12 @@ public class XTandemParameters extends ParameterMap {
 		 * @return the rule string
 		 */
 		public String getRule() {
-			return this.rule;
+			return rule;
 		}
 		
 		@Override
 		public String toString() {
-			return this.name;
+			return name;
 		}
 	}
 
@@ -83,32 +80,32 @@ public class XTandemParameters extends ParameterMap {
 	 * Constructs a parameter map initialized with default values.
 	 */
 	public XTandemParameters() {
-		this.initDefaults();
+        initDefaults();
 	}
 
 	@Override
 	public void initDefaults() {
 		/* Configurable settings */
 		// Protein section
-		this.put("protein, cleavage site", new OptionParameter(CleavageRule.values(), 0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
+        put("protein, cleavage site", new Parameter.OptionParameter(CleavageRule.values(), 0, "Cleavage enzyme", "Cleavage enzyme to be used by the search engine.", "Protein"));
 		this.put("protein, cleavage semi", new BooleanParameter(false, "Semi-tryptic cleavage", "Use semi-tryptic cleavage as enzyme parameter.", "Protein"));
 
 		// Spectrum section
-		this.put("spectrum, fragment mass type", new OptionParameter(new Object[] { "monoisotopic", "average" }, 0, "Fragment mass type", "Use chemical average or monoisotopic mass for fragment ions.", "Spectrum"));
-		this.put("spectrum, total peaks", new NumberParameter(50, 1, null, "Total peaks", "Maximum number of peaks to be used from a spectrum.", "Spectrum"));
-		this.put("spectrum, minimum peaks", new NumberParameter(15, 1, null, "Minimum peaks", "The minimum number of peaks required for a spectrum to be considered.", "Spectrum"));
-		this.put("spectrum, minimum parent m+h", new NumberParameter(500.0, 0.0, null, "Minimum precursor mass", "The minimum parent mass required for a spectrum to be considered.", "Spectrum"));
-		this.put("spectrum, minimum fragment mz", new NumberParameter(150.0, 0.0, null, "Minimum fragment m/z", "The minimum fragment m/z to be considered.", "Spectrum"));
-		this.put("spectrum, threads", new NumberParameter(8, 1, null, "Worker threads", "The number of worker threads to be used for calculation.", "Spectrum"));
-		this.put("spectrum, sequence batch size", new NumberParameter(1000, 1, null, "<html>Fasta sequence<br>batch size</html>", "The number of FASTA sequences that are processed per batch.", "Spectrum"));
+		this.put("spectrum, fragment mass type", new Parameter.OptionParameter(new Object[] { "monoisotopic", "average" }, 0, "Fragment mass type", "Use chemical average or monoisotopic mass for fragment ions.", "Spectrum"));
+        put("spectrum, total peaks", new Parameter.NumberParameter(50, 1, null, "Total peaks", "Maximum number of peaks to be used from a spectrum.", "Spectrum"));
+		this.put("spectrum, minimum peaks", new Parameter.NumberParameter(15, 1, null, "Minimum peaks", "The minimum number of peaks required for a spectrum to be considered.", "Spectrum"));
+		this.put("spectrum, minimum parent m+h", new Parameter.NumberParameter(500.0, 0.0, null, "Minimum precursor mass", "The minimum parent mass required for a spectrum to be considered.", "Spectrum"));
+		this.put("spectrum, minimum fragment mz", new Parameter.NumberParameter(150.0, 0.0, null, "Minimum fragment m/z", "The minimum fragment m/z to be considered.", "Spectrum"));
+		this.put("spectrum, threads", new Parameter.NumberParameter(8, 1, null, "Worker threads", "The number of worker threads to be used for calculation.", "Spectrum"));
+		this.put("spectrum, sequence batch size", new Parameter.NumberParameter(1000, 1, null, "<html>Fasta sequence<br>batch size</html>", "The number of FASTA sequences that are processed per batch.", "Spectrum"));
 		// Refinement section
 		this.put("refine", new BooleanParameter(true, "Use first-pass search (refinement)", "Enable first-pass search (refinement)", "Refinement"));
 		this.put("refine, spectrum synthesis", new BooleanParameter(true, "Use spectrum synthesis scoring", "Predict a synthetic spectrum and reward ions that agree with the prediction.", "Refinement"));
-		this.put("refine, maximum valid expectation value", new NumberParameter(0.1, 0.0, null, "E-value cut-off for refinement", "Only hits below this threshold are considered for a second-pass search.", "Refinement"));
+		this.put("refine, maximum valid expectation value", new Parameter.NumberParameter(0.1, 0.0, null, "E-value cut-off for refinement", "Only hits below this threshold are considered for a second-pass search.", "Refinement"));
 		this.put("refine, point mutations", new BooleanParameter(false, "Allow point mutations", "Enables the use of amino acid single point mutations (using PAM matrix).", "Refinement"));
 		// Scoring section
-		this.put("scoring, minimum ion count", new NumberParameter(4, 1, null, "Minimum number of ions required", "The minimum number of ions required for a peptide to be scored.", "Scoring"));
-		this.put("scoring, ions", new BooleanMatrixParameter(3, 2, new Boolean[] { false, true, false, false, true, false },
+		this.put("scoring, minimum ion count", new Parameter.NumberParameter(4, 1, null, "Minimum number of ions required", "The minimum number of ions required for a peptide to be scored.", "Scoring"));
+        put("scoring, ions", new Parameter.BooleanMatrixParameter(3, 2, new Boolean[] { false, true, false, false, true, false },
 				new String[] { "use a ions", "use b ions", "use c ions", "use x ions", "use y ions", "use z ions" },
 				new String[] { "Allows the use of a ions in scoring.", "Allows the use of b ions in scoring.", "Allows the use of c ions in scoring.",
 							   "Allows the use of x ions in scoring.", "Allows the use of y ions in scoring.", "Allows the use of z ions in scoring." }, "Scoring"));
@@ -125,7 +122,7 @@ public class XTandemParameters extends ParameterMap {
 		StringBuffer sb = new StringBuffer();
 
 		// Iterate stored parameter values and compare them to the defaults
-		for (Entry<String, Parameter> entry : this.entrySet()) {
+		for (Map.Entry<String, Parameter> entry : this.entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			// Compare values, if they differ add a line to the configuration file
@@ -164,14 +161,14 @@ public class XTandemParameters extends ParameterMap {
 	@Override
 	public File toFile(String path) throws IOException {
 		// Append extension if it's missing
-		
+
 		if (!path.endsWith(".xml")) {
 			path += ".xml";
 		}
-		
+
 		// Create new file at specified path
 		File file = new File(path);
-		
+
 		// Check for whether path does point to a file (and not a directory)
 		if (!file.isFile()) {
 			throw new IOException();
@@ -180,11 +177,11 @@ public class XTandemParameters extends ParameterMap {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 		bw.append("<bioml>");
 		bw.newLine();
-		
+
 		// Grab a set of default parameters for comparison purposes
 		XTandemParameters defaults = new XTandemParameters();
 		// Iterate stored parameter values and compare them to the defaults
-		for (Entry<String, Parameter> entry : this.entrySet()) {
+		for (Map.Entry<String, Parameter> entry : entrySet()) {
 			String key = entry.getKey();
 			Object value = entry.getValue().getValue();
 			Object defaultValue = defaults.get(key).getValue();
@@ -198,7 +195,7 @@ public class XTandemParameters extends ParameterMap {
 						String label = "scoring, " + ionOptions[i]	+ " ions";
 						// Turn true/false into yes/no
 						value = (selections[i]) ? "yes" : "no";
-						bw.append("\t<note type=\"input\" label=\"" + label + "\">" + value.toString() + "</note>");
+						bw.append("\t<note type=\"input\" label=\"" + label + "\">" + value + "</note>");
 						bw.newLine();
 					}
 				}
@@ -210,7 +207,7 @@ public class XTandemParameters extends ParameterMap {
 				}
 				if (!value.equals(defaultValue)) {
 					// Write BIOML <note> tag containing non-default value
-					bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value.toString() + "</note>");
+					bw.append("\t<note type=\"input\" label=\"" + key + "\">" + value + "</note>");
 					bw.newLine();
 				}
 			}

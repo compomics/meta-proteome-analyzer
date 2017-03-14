@@ -16,7 +16,6 @@ import org.jfree.util.SortOrder;
 
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.Keyword;
-import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.MetaProteinHit;
@@ -24,7 +23,6 @@ import de.mpa.client.model.dbsearch.PeptideHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
 
 /**
  * Container class for protein keyword ontology data.
@@ -42,7 +40,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * The collection of keyword-specific occurrence maps.
 	 */
-	private Map<KeywordCategory, Map<String, ProteinHitList>> occMaps;
+	private Map<UniProtUtilities.KeywordCategory, Map<String, ProteinHitList>> occMaps;
 
 	/**
 	 * The chart type.
@@ -82,7 +80,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Constructs ontology data from a database search result object using the
 	 * default protein hierarchy level.
-	 * 
+	 *
 	 * @param dbSearchResult
 	 *            the database search result object
 	 */
@@ -93,7 +91,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Constructs ontology data from a database search result object and the
 	 * specified hierarchy level.
-	 * 
+	 *
 	 * @param dbSearchResult
 	 *            the database search result object
 	 * @param hierarchyLevel
@@ -109,7 +107,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Sets the data link to the meta-protein list of the specified search
 	 * result object and refreshes the underlying dataset.
-	 * 
+	 *
 	 * @param dbSearchResult
 	 *            the database search result object
 	 */
@@ -120,7 +118,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Sets the data link to the provided protein hit list and refreshes the
 	 * underlying dataset.
-	 * 
+	 *
 	 * @param data
 	 *            the protein hit list that will back this data object
 	 */
@@ -135,13 +133,13 @@ public class OntologyData implements ChartData {
 	public void init() {
 		// Get the ontology map
 		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
-		this.occMaps = new HashMap<KeywordCategory, Map<String, ProteinHitList>>();
-		OntologyChartType[] chartTypes = OntologyChartType.values();
-		List<KeywordCategory> ontologyTypes = new ArrayList<KeywordCategory>();
-		for (OntologyChartType chartType : chartTypes) {
+		this.occMaps = new HashMap<UniProtUtilities.KeywordCategory, Map<String, ProteinHitList>>();
+		OntologyChart.OntologyChartType[] chartTypes = OntologyChart.OntologyChartType.values();
+		List<UniProtUtilities.KeywordCategory> ontologyTypes = new ArrayList<UniProtUtilities.KeywordCategory>();
+		for (OntologyChart.OntologyChartType chartType : chartTypes) {
 			ontologyTypes.add(chartType.getOntology());
 		}
-		for (OntologyChartType type : chartTypes) {
+		for (OntologyChart.OntologyChartType type : chartTypes) {
 			this.occMaps.put(type.getOntology(),
 					new HashMap<String, ProteinHitList>());
 		}
@@ -162,7 +160,7 @@ public class OntologyData implements ChartData {
 						List<String> keywords = rupe.getKeywords();
 						for (String keyword : keywords) {
 							if (ontologyMap.containsKey(keyword)) {
-								KeywordCategory ontology = KeywordCategory
+								UniProtUtilities.KeywordCategory ontology = UniProtUtilities.KeywordCategory
 										.valueOf(ontologyMap.get(keyword)
 												.getCategory());
 								found[ontologyTypes.indexOf(ontology)] = true;
@@ -171,7 +169,7 @@ public class OntologyData implements ChartData {
 						}
 					}
 					for (int i = 0; i < ontologyTypes.size(); i++) {
-						KeywordCategory ontology = ontologyTypes.get(i);
+						UniProtUtilities.KeywordCategory ontology = ontologyTypes.get(i);
 						if (!found[i]) {
 							this.appendHit("Unknown",
 									this.occMaps.get(ontology), metaProtein);
@@ -187,7 +185,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Utility method to append a protein hit list (a.k.a. a meta-protein) to
 	 * the specified occurrence map.
-	 * 
+	 *
 	 * @param keyword
 	 *            the occurrence map key
 	 * @param occMap
@@ -209,7 +207,7 @@ public class OntologyData implements ChartData {
 
 	/**
 	 * Returns the pie dataset.
-	 * 
+	 *
 	 * @return the pie dataset.
 	 */
 	@Override
@@ -230,7 +228,7 @@ public class OntologyData implements ChartData {
 
 		// retrieve occurrence map
 		Map<String, ProteinHitList> occMap = this.occMaps
-				.get(((OntologyChartType) this.chartType).getOntology());
+				.get(((OntologyChart.OntologyChartType) this.chartType).getOntology());
 
 		// remove cached 'Others' category
 		occMap.remove(othersKey);
@@ -292,7 +290,7 @@ public class OntologyData implements ChartData {
 	/**
 	 * Utility method to return size of hierarchically grouped data in a protein
 	 * hit list.
-	 * 
+	 *
 	 * @param mphl
 	 *            the meta-protein hit list
 	 * @param hl
@@ -357,11 +355,11 @@ public class OntologyData implements ChartData {
 	@Override
 	public ProteinHitList getProteinHits(String key) {
 		Map<String, ProteinHitList> occMap = this.occMaps
-				.get(((OntologyChartType) this.chartType).getOntology());
+				.get(((OntologyChart.OntologyChartType) chartType).getOntology());
 		if (occMap != null) {
 			ProteinHitList phl = occMap.get(key);
 			if (phl != null) {
-				if (hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
+				if (this.hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
 					return phl;
 				} else {
 					return new ProteinHitList(phl.getProteinSet());
@@ -422,7 +420,7 @@ public class OntologyData implements ChartData {
 	}
 
 	public boolean getShowAsPie() {
-		return this.showAsPie;
+		return showAsPie;
 	}
 
 }

@@ -8,15 +8,15 @@ import com.tinkerpop.frames.VertexFrame;
 public interface Enzyme extends VertexFrame {
 	
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("DESCRIPTION")
-	public String getDescription();
+    String getDescription();
 	
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.IN)
-	public Iterable<Protein> getProteins();
+    Iterable<Protein> getProteins();
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 
 }

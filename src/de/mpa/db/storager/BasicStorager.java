@@ -23,7 +23,7 @@ public class BasicStorager implements Storager {
 	/**
 	 * Logger object for the storage classes.
 	 */
-	protected Logger log = Logger.getLogger(getClass());
+	protected Logger log = Logger.getLogger(this.getClass());
 	
 	/**
 	 * Connection instance.
@@ -42,20 +42,20 @@ public class BasicStorager implements Storager {
     
 	@Override
 	public void run() {
-		this.load();
+        load();
 		try {
-			this.store();
+            store();
 		} catch (Exception e) {
 			try {
-				conn.rollback();
+                this.conn.rollback();
 			} catch (SQLException e1) {
-				log.error("Could not perform rollback. Error message: " + e.getMessage());
+                this.log.error("Could not perform rollback. Error message: " + e.getMessage());
 				e1.printStackTrace();
 			}
-			log.error(searchEngineType.name() + " storing error message: " + e.getMessage());
+            this.log.error(this.searchEngineType.name() + " storing error message: " + e.getMessage());
 			e.printStackTrace();
 		}
-		log.info(searchEngineType.name() + " results stored to the DB.");
+        this.log.info(this.searchEngineType.name() + " results stored to the DB.");
 	}
 
 	@Override
@@ -74,13 +74,13 @@ public class BasicStorager implements Storager {
 	 */
 	protected long storePeptide(String sequence) throws SQLException {
 		// retrieve peptide from database
-		PeptideAccessor peptide = PeptideAccessor.findFromSequence(sequence, conn);
+		PeptideAccessor peptide = PeptideAccessor.findFromSequence(sequence, this.conn);
 		if (peptide == null) {
 			// peptide does not yet exist, store a new one
 			HashMap<Object, Object> data = new HashMap<Object, Object>(2);
 			data.put(PeptideAccessor.SEQUENCE, sequence);
 			peptide = new PeptideAccessor(data);
-			peptide.persist(conn);
+			peptide.persist(this.conn);
 			// return generated peptide identifier
 			return (Long) peptide.getGeneratedKeys()[0];
 		} else {
@@ -104,19 +104,19 @@ public class BasicStorager implements Storager {
 		}
 		// retrieve searchspectrum from id, guaranteed to always work if searchspectrumID > 0
 		Searchspectrum searchspectrum =
-				Searchspectrum.findFromSearchSpectrumID(searchspectrumID, conn);
+				Searchspectrum.findFromSearchSpectrumID(searchspectrumID, this.conn);
 		// extract spectrum id
 		long spectrumID = searchspectrum.getFk_spectrumid();
 		
 		// check whether spec2pep link already exists in database
-		Spec2pep spec2pep = Spec2pep.findLink(spectrumID, peptideID, conn);
+		Spec2pep spec2pep = Spec2pep.findLink(spectrumID, peptideID, this.conn);
 		if (spec2pep == null) {
 			// link does not yet exist, therefore store a new one
 			HashMap<Object, Object> data = new HashMap<Object, Object>();
 			data.put(Spec2pep.FK_SPECTRUMID, spectrumID);
 			data.put(Spec2pep.FK_PEPTIDEID, peptideID);
 			spec2pep = new Spec2pep(data);
-			spec2pep.persist(conn);
+			spec2pep.persist(this.conn);
 			return (Long) spec2pep.getGeneratedKeys()[0];
 		}
 		return spec2pep.getSpec2pepid();

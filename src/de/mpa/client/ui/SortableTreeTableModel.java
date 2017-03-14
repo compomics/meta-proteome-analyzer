@@ -5,7 +5,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
+import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
@@ -28,8 +28,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * The list of sort keys containing column indices and their corresponding 
 	 * sort orders
 	 */
-	private List<SortKey> sortKeys = new ArrayList<SortKey>();
-	
+	private List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+
 	/**
 	 * The row filter object specifying whether certain children of a node shall
 	 * be hidden.
@@ -48,27 +48,27 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	public SortableTreeTableModel(TreeTableNode root) {
 		super(root);
 	}
-	
+
 	/**
 	 * Returns the sort keys.
 	 * @return The sort keys.
 	 */
-	public List<? extends SortKey> getSortKeys() {
+	public List<? extends RowSorter.SortKey> getSortKeys() {
 		return sortKeys;
 	}
 
 	/**
-	 * Sets the sort keys. Causes the model to re-sort if the provided keys 
+	 * Sets the sort keys. Causes the model to re-sort if the provided keys
 	 * differ from the stored state.
 	 * @param sortKeys The new sort keys to set.
 	 */
-	public void setSortKeys(List<? extends SortKey> sortKeys) {
+	public void setSortKeys(List<? extends RowSorter.SortKey> sortKeys) {
 //		if (!sortKeys.equals(this.sortKeys)) {
-			this.sortKeys = new ArrayList<SortKey>(sortKeys);
+			this.sortKeys = new ArrayList<RowSorter.SortKey>(sortKeys);
 			this.sort();
 //		}
 	}
-	
+
 	/**
 	 * Returns the row filter.
 	 * @return The row filter.
@@ -80,7 +80,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	/**
 	 * Sets the row filter. Causes the model to re-sort if the provided filter
 	 * differs from the stored state.
-	 * 
+	 *
 	 * @param rowFilter The new row filter to set.
 	 */
 	public void setRowFilter(RowFilter<? super TableModel,? super Integer> rowFilter) {
@@ -89,7 +89,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 			this.sort();
 //		}
 	}
-	
+
 	/**
 	 * Sets the flag denoting whether non-leaf nodes with no visible children
 	 * shall be hidden.
@@ -99,32 +99,32 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	public void setHideEmpty(boolean hideEmpty) {
 		this.hideEmpty = hideEmpty;
 	}
-	
+
 	/**
 	 * Returns whether the current sort keys necessitate re-sorting the model.
-	 * @return <code>true</code> if sorting is necessary, <code>false</code> 
-	 * otherwise 
+	 * @return <code>true</code> if sorting is necessary, <code>false</code>
+	 * otherwise
 	 */
 	private boolean shouldSort() {
-		for (SortKey sortKey : getSortKeys()) {
+		for (RowSorter.SortKey sortKey : getSortKeys()) {
 			if (sortKey.getSortOrder() != SortOrder.UNSORTED) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
-	 * Returns whether the current sort keys indicate that the model's sort 
+	 * Returns whether the current sort keys indicate that the model's sort
 	 * order should be reset.
-	 * @return <code>true</code> if resetting is in order, <code>false</code> 
-	 * otherwise 
+	 * @return <code>true</code> if resetting is in order, <code>false</code>
+	 * otherwise
 	 */
 	private boolean shouldReset() {
 		if (rowFilter != null) {
 			return false;
 		}
-		for (SortKey sortKey : getSortKeys()) {
+		for (RowSorter.SortKey sortKey : this.getSortKeys()) {
 			if (sortKey.getSortOrder() != SortOrder.UNSORTED) {
 				return false;
 			}
@@ -136,7 +136,7 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * Sorts the whole model w.r.t. the stored sort keys.
 	 */
 	public void sort() {
-		this.sort(this.getRoot());
+        sort(getRoot());
 	}
 	
 	/**
@@ -144,9 +144,9 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	 * @param parent The node below which the model will be sorted.
 	 */
 	public void sort(TreeTableNode parent) {
-		this.doSort(parent, shouldReset());
-		
-		this.modelSupport.fireTreeStructureChanged(new TreePath(getPathToRoot(parent)));
+        doSort(parent, this.shouldReset());
+
+        modelSupport.fireTreeStructureChanged(new TreePath(this.getPathToRoot(parent)));
 		
 //		// hackily notify select listeners that the tree structure changed -
 //		// certain listeners will cause the whole table to be reset (including
@@ -173,8 +173,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 			// depth-first sorting, start with leaves by recursing downwards
 			Enumeration<? extends TreeTableNode> childEnum = parent.children();
 			while (childEnum.hasMoreElements()) {
-				TreeTableNode child = (TreeTableNode) childEnum.nextElement();
-				this.doSort(child, reset);
+				TreeTableNode child = childEnum.nextElement();
+                doSort(child, reset);
 			}
 			
 			// sort node itself, if possible
@@ -185,8 +185,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 						node.reset();
 					}
 				} else {
-					if (node.canSort(this.getSortKeys())) {
-						node.sort(this.getSortKeys(), this.getRowFilter(), this.hideEmpty);
+					if (node.canSort(getSortKeys())) {
+						node.sort(getSortKeys(), getRowFilter(), hideEmpty);
 					}
 				}
 			}
@@ -203,8 +203,8 @@ public class SortableTreeTableModel extends DefaultTreeTableModel {
 	public void insertNodeInto(MutableTreeTableNode newChild, MutableTreeTableNode parent, int index) {
 		super.insertNodeInto(newChild, parent, index);
 		
-		if (shouldSort()) {
-			sort(parent);
+		if (this.shouldSort()) {
+            this.sort(parent);
 		}
 	}
 	

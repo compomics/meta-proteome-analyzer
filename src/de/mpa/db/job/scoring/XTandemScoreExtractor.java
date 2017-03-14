@@ -43,8 +43,8 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 	 */
 	protected void load() {
 		try {
-			xTandemFileTarget = new XTandemFile(targetFile.getAbsolutePath());
-			if (decoyFile != null) xTandemFileDecoy = new XTandemFile(decoyFile.getAbsolutePath());
+            this.xTandemFileTarget = new XTandemFile(this.targetFile.getAbsolutePath());
+			if (this.decoyFile != null) this.xTandemFileDecoy = new XTandemFile(this.decoyFile.getAbsolutePath());
 		} catch (SAXException saxException) {
 			saxException.getMessage();
 		} catch (ParserConfigurationException e) {
@@ -61,16 +61,16 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 	 */
 	protected void extract() {
 		// Initialize the score lists
-		targetScores = new ArrayList<Double>();
-		decoyScores = new ArrayList<Double>();
+        this.targetScores = new ArrayList<Double>();
+        this.decoyScores = new ArrayList<Double>();
 		
 		// Prepare everything for the peptides.		
-		PeptideMap targetPepMap = xTandemFileTarget.getPeptideMap();
-		PeptideMap decoyPepMap = xTandemFileDecoy.getPeptideMap();
+		PeptideMap targetPepMap = this.xTandemFileTarget.getPeptideMap();
+		PeptideMap decoyPepMap = this.xTandemFileDecoy.getPeptideMap();
 		
 		// Get the peptide hits for the spectra
 		String spectrumTitle = "";
-		for (Spectrum targetSpectrum : xTandemFileTarget.getSpectraList()) {
+		for (Spectrum targetSpectrum : this.xTandemFileTarget.getSpectraList()) {
 			int targetSpectrumNumber = targetSpectrum.getSpectrumNumber();
 			ArrayList<Peptide> allPeptides = targetPepMap.getAllPeptides(targetSpectrumNumber);
 			double bestScore = 0.0;
@@ -82,19 +82,19 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 					
 					if (psm.getDomainHyperScore() > bestScore) {
 						bestScore = psm.getDomainHyperScore();
-						spectrumTitle = xTandemFileTarget.getSupportData(targetSpectrumNumber).getFragIonSpectrumDescription();
-			            spectrumTitle = formatSpectrumTitle(spectrumTitle);
+						spectrumTitle = this.xTandemFileTarget.getSupportData(targetSpectrumNumber).getFragIonSpectrumDescription();
+			            spectrumTitle = this.formatSpectrumTitle(spectrumTitle);
 //			            peptideSequence = psm.getDomainSequence();
 					}
 				}
 			}
 			if (bestScore > 0.0) {
-				targetScores.add(bestScore);
+                this.targetScores.add(bestScore);
 //				searchHits.add(new CustomSearchHit(bestScore, peptideSequence, spectrumTitle));
 			}
 		}
 		
-		for (Spectrum decoySpectrum : xTandemFileDecoy.getSpectraList()) {				
+		for (Spectrum decoySpectrum : this.xTandemFileDecoy.getSpectraList()) {
 			int decoySpectrumNumber = decoySpectrum.getSpectrumNumber();
 			ArrayList<Peptide> allPeptides = decoyPepMap.getAllPeptides(decoySpectrumNumber);
 			double bestScore = 0.0;
@@ -106,25 +106,25 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 					}
 				}
 			}
-			if (bestScore > 0.0) decoyScores.add(bestScore);
+			if (bestScore > 0.0) this.decoyScores.add(bestScore);
 		}
 		
     	// Sort the targets descending.
-    	Collections.sort(targetScores, Collections.reverseOrder());
+    	Collections.sort(this.targetScores, Collections.reverseOrder());
     	// Sort the decoys descending.
-    	Collections.sort(decoyScores, Collections.reverseOrder());
+    	Collections.sort(this.decoyScores, Collections.reverseOrder());
 	}
 
 	@Override
 	protected void extractTargetOnly() {
 		// Initialize the score lists
-		targetScores = new ArrayList<Double>();
+        this.targetScores = new ArrayList<Double>();
 		
 		// Prepare everything for the peptides.		
-		PeptideMap targetPepMap = xTandemFileTarget.getPeptideMap();
+		PeptideMap targetPepMap = this.xTandemFileTarget.getPeptideMap();
 		
 		// Get the peptide hits for the spectra
-		for (Spectrum targetSpectrum : xTandemFileTarget.getSpectraList()) {
+		for (Spectrum targetSpectrum : this.xTandemFileTarget.getSpectraList()) {
 			int targetSpectrumNumber = targetSpectrum.getSpectrumNumber();
 			ArrayList<Peptide> allPeptides = targetPepMap.getAllPeptides(targetSpectrumNumber);
 			double bestScore = 0.0;
@@ -137,10 +137,10 @@ public class XTandemScoreExtractor extends ScoreExtractor {
 					}
 				}
 			}
-			targetScores.add(bestScore);
+            this.targetScores.add(bestScore);
 		}
     	// Sort the targets descending.
-    	Collections.sort(targetScores, Collections.reverseOrder());
+    	Collections.sort(this.targetScores, Collections.reverseOrder());
 	}
 	
     /**

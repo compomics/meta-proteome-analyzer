@@ -19,23 +19,23 @@ public class RenameJob extends Job {
 	public RenameJob(String oldname, String newname) {
 		this.oldname = oldname;
 		this.newname = newname;
-		initJob();
+        this.initJob();
 	}	
 
 	/**
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
-	protected void initJob() {	
-		setDescription("RENAME JOB: " + oldname + " TO " +newname);
+	protected void initJob() {
+        this.setDescription("RENAME JOB: " + this.oldname + " TO " + this.newname);
 		// Java commands
-		procCommands.add("mv");
-		procCommands.add(oldname);	
-		procCommands.add(newname);	
-		procCommands.trimToSize();
-		procBuilder = new ProcessBuilder(procCommands);
+        this.procCommands.add("mv");
+        this.procCommands.add(this.oldname);
+        this.procCommands.add(this.newname);
+        this.procCommands.trimToSize();
+        this.procBuilder = new ProcessBuilder(this.procCommands);
 
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 
 }

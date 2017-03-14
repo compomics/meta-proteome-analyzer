@@ -14,19 +14,19 @@ public class IdentificationChart extends Chart {
 		PEPTIDE_LEVEL("Peptide"),
 		PSM_LEVEL("PSM");
 
-		private String title;
+		private final String title;
 		
-		private BarChartType(String title) {
+		BarChartType(String title) {
 			this.title = title;
 		}
 		@Override
 		public String toString() {
-			return title;
+			return this.title;
 		}
 		
 		@Override
 		public String getTitle() {
-			return title;
+			return this.title;
 		}
 	}
 	
@@ -34,13 +34,13 @@ public class IdentificationChart extends Chart {
      * Constructs an IdentificationChart.
      * @param data
      */
-    public IdentificationChart(ChartData data, BarChartType barPlotType) {
+    public IdentificationChart(ChartData data, IdentificationChart.BarChartType barPlotType) {
         super(data, barPlotType);
     }
-	
+
 	@Override
 	protected void process(ChartData data) {
-		
+
 		if(data instanceof IdentificationData) {
 			IdentificationData iData = (IdentificationData) data;
 			categoryDataset = iData.getDataset();
@@ -49,10 +49,10 @@ public class IdentificationChart extends Chart {
 
 	@Override
 	protected void setChart(ChartData data) {
-		BarChartType barPlotType = (BarChartType) chartType;
+		IdentificationChart.BarChartType barPlotType = (IdentificationChart.BarChartType) this.chartType;
 		String title = barPlotType.toString();
-		chartTitle = title + " Bar Chart";
-		chart = ChartFactory.createBarChart(chartTitle, "Search Engines", "No. " + title + "s", categoryDataset, PlotOrientation.VERTICAL, true, true, false);
-		chart.setBackgroundPaint(null);
+        this.chartTitle = title + " Bar Chart";
+        this.chart = ChartFactory.createBarChart(this.chartTitle, "Search Engines", "No. " + title + "s", this.categoryDataset, PlotOrientation.VERTICAL, true, true, false);
+        this.chart.setBackgroundPaint(null);
 	}
 }

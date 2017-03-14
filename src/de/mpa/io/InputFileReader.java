@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.parser.mascot.dat.MascotDatFileReader;
 
 /**
@@ -22,27 +21,27 @@ public abstract class InputFileReader {
     /**
      * The file descriptor of the mergefile.
      */
-	protected File file = null;
+	protected File file;
 
     /**
      * This Vector will hold all the spectrum files in the mergefile.
      */
-    protected List<MascotGenericFile> spectrumFiles = null;
+    protected List<MascotGenericFile> spectrumFiles;
     
     /**
      * This Vector will hold all the line numbers of spectrum blocks in the mergefile.
      */
-    protected List<Long> spectrumPositions = null;
+    protected List<Long> spectrumPositions;
 
     /**
      * Amount of characters that indicate line breaks.
      */
-	protected int newlineCharCount = 0;
+	protected int newlineCharCount;
 	
 	/**
 	 * List of registered property change listeners.
 	 */
-	private List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+	private final List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
 	/**
 	 * 
@@ -54,7 +53,7 @@ public abstract class InputFileReader {
             throw new IOException("Mergefile '" + file.getCanonicalPath() + "' could not be found!");
     	}
 		this.file = file;
-		newlineCharCount = determineNewlineCharCount();
+        this.newlineCharCount = this.determineNewlineCharCount();
 	}
 	
 	/**
@@ -66,7 +65,7 @@ public abstract class InputFileReader {
 	public static InputFileReader createInputFileReader(File file) throws IOException {
 		String fileName = file.getName().toLowerCase();
 		if (fileName.endsWith(".mgf")) {
-			return new MascotGenericFileReader(file, LoadMode.NONE);
+			return new MascotGenericFileReader(file, MascotGenericFileReader.LoadMode.NONE);
 		} else if (fileName.endsWith(".dat")) {
 			return new MascotDatFileReader(file);
 		}
@@ -82,7 +81,7 @@ public abstract class InputFileReader {
     	int res = 0;
     	try {
             @SuppressWarnings("resource")
-			BufferedReader br = new BufferedReader(new FileReader(file));
+			BufferedReader br = new BufferedReader(new FileReader(this.file));
             int character;
             boolean eol = false;
             while ((character = br.read()) != -1) {
@@ -105,7 +104,7 @@ public abstract class InputFileReader {
      * @return Vector with the currently held spectrumFiles.
      */
     public List<MascotGenericFile> getSpectrumFiles() {
-        return this.getSpectrumFiles(true);
+        return getSpectrumFiles(true);
     }
 
     /**
@@ -117,12 +116,12 @@ public abstract class InputFileReader {
     public List<MascotGenericFile> getSpectrumFiles(boolean doClose) {
 		if (doClose) {
 			try {
-				this.close();
+                close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return this.spectrumFiles;
+		return spectrumFiles;
 	}
 
     /**
@@ -131,7 +130,7 @@ public abstract class InputFileReader {
      * @return Vector with the currently held spectrumPositions.
      */
     public List<Long> getSpectrumPositions() {
-		return getSpectrumPositions(true);
+		return this.getSpectrumPositions(true);
 	}
 
     /**
@@ -142,12 +141,12 @@ public abstract class InputFileReader {
 	public List<Long> getSpectrumPositions(boolean doClose) {
 		if (doClose) {
 			try {
-				this.close();
+                close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return this.spectrumPositions;
+		return spectrumPositions;
 	}
 
 	/**
@@ -155,7 +154,7 @@ public abstract class InputFileReader {
 	 * @param listener
 	 */
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		listeners.add(listener);
+        this.listeners.add(listener);
 	}
 	
 	/**
@@ -163,7 +162,7 @@ public abstract class InputFileReader {
 	 * @param listener
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		listeners.remove(listener);
+        this.listeners.remove(listener);
 	}
 	
 	/**
@@ -173,7 +172,7 @@ public abstract class InputFileReader {
 	 */
 	@SuppressWarnings("unused")
 	private void fireProgressMade(long oldProgress, long newProgress) {
-		for (PropertyChangeListener listener : listeners) {
+		for (PropertyChangeListener listener : this.listeners) {
 			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));
 		}
 	}
@@ -184,7 +183,7 @@ public abstract class InputFileReader {
      * @return String with the filename.
      */
     public String getFilename() {
-        return file.getName();
+        return this.file.getName();
     }
 	
 	/**

@@ -37,8 +37,8 @@ public class SearchHitExtractor {
 		searchHits.addAll(Omssahit.getHitsFromExperimentID(experimentID, conn));
 		searchHits.addAll(Mascothit.getHitsFromExperimentID(experimentID, conn));
 		
-		for (SearchHit searchHit : searchHits) {			
-			MAP.put(searchHit.getFk_searchspectrumid(), true);
+		for (SearchHit searchHit : searchHits) {
+            SearchHitExtractor.MAP.put(searchHit.getFk_searchspectrumid(), true);
 		}
 		return searchHits;
 		

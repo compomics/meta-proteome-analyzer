@@ -26,9 +26,9 @@ public class ServerImplService
     extends Service
 {
 
-    private final static URL SERVERIMPLSERVICE_WSDL_LOCATION;
-    private final static WebServiceException SERVERIMPLSERVICE_EXCEPTION;
-    private final static QName SERVERIMPLSERVICE_QNAME = new QName("http://webservice.mpa.de/", "ServerImplService");
+    private static final URL SERVERIMPLSERVICE_WSDL_LOCATION;
+    private static final WebServiceException SERVERIMPLSERVICE_EXCEPTION;
+    private static final QName SERVERIMPLSERVICE_QNAME = new QName("http://webservice.mpa.de/", "ServerImplService");
 
     static {
         URL url = null;
@@ -46,19 +46,19 @@ public class ServerImplService
     }
 
     public ServerImplService() throws WebServiceException {
-        super(__getWsdlLocation(), SERVERIMPLSERVICE_QNAME);
+        super(ServerImplService.__getWsdlLocation(), ServerImplService.SERVERIMPLSERVICE_QNAME);
     }
 
     public ServerImplService(WebServiceFeature... features) {
-        super(__getWsdlLocation(), SERVERIMPLSERVICE_QNAME, features);
+        super(ServerImplService.__getWsdlLocation(), ServerImplService.SERVERIMPLSERVICE_QNAME, features);
     }
 
     public ServerImplService(URL wsdlLocation) {
-        super(wsdlLocation, SERVERIMPLSERVICE_QNAME);
+        super(wsdlLocation, ServerImplService.SERVERIMPLSERVICE_QNAME);
     }
 
     public ServerImplService(URL wsdlLocation, WebServiceFeature... features) {
-        super(wsdlLocation, SERVERIMPLSERVICE_QNAME, features);
+        super(wsdlLocation, ServerImplService.SERVERIMPLSERVICE_QNAME, features);
     }
 
     public ServerImplService(URL wsdlLocation, QName serviceName) {
@@ -76,26 +76,26 @@ public class ServerImplService
      */
     @WebEndpoint(name = "ServerImplPort")
     public Server getServerImplPort() {
-        return super.getPort(new QName("http://webservice.mpa.de/", "ServerImplPort"), Server.class);
+        return getPort(new QName("http://webservice.mpa.de/", "ServerImplPort"), Server.class);
     }
 
     /**
      * 
      * @param features
-     *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
+     *     A list of {@link WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
      * @return
      *     returns Server
      */
     @WebEndpoint(name = "ServerImplPort")
     public Server getServerImplPort(WebServiceFeature... features) {
-        return super.getPort(new QName("http://webservice.mpa.de/", "ServerImplPort"), Server.class, features);
+        return getPort(new QName("http://webservice.mpa.de/", "ServerImplPort"), Server.class, features);
     }
 
     private static URL __getWsdlLocation() {
-        if (SERVERIMPLSERVICE_EXCEPTION!= null) {
-            throw SERVERIMPLSERVICE_EXCEPTION;
+        if (ServerImplService.SERVERIMPLSERVICE_EXCEPTION != null) {
+            throw ServerImplService.SERVERIMPLSERVICE_EXCEPTION;
         }
-        return SERVERIMPLSERVICE_WSDL_LOCATION;
+        return ServerImplService.SERVERIMPLSERVICE_WSDL_LOCATION;
     }
 
 }

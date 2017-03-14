@@ -74,7 +74,7 @@ public class SpecSimSettings {
      * 
      */
     public double getTolMz() {
-        return tolMz;
+        return this.tolMz;
     }
 
     /**
@@ -82,7 +82,7 @@ public class SpecSimSettings {
      * 
      */
     public void setTolMz(double value) {
-        this.tolMz = value;
+        tolMz = value;
     }
 
     /**
@@ -90,7 +90,7 @@ public class SpecSimSettings {
      * 
      */
     public boolean isAnnotatedOnly() {
-        return annotatedOnly;
+        return this.annotatedOnly;
     }
 
     /**
@@ -98,7 +98,7 @@ public class SpecSimSettings {
      * 
      */
     public void setAnnotatedOnly(boolean value) {
-        this.annotatedOnly = value;
+        annotatedOnly = value;
     }
 
     /**
@@ -106,7 +106,7 @@ public class SpecSimSettings {
      * 
      */
     public long getExperimentID() {
-        return experimentID;
+        return this.experimentID;
     }
 
     /**
@@ -114,7 +114,7 @@ public class SpecSimSettings {
      * 
      */
     public void setExperimentID(long value) {
-        this.experimentID = value;
+        experimentID = value;
     }
 
     /**
@@ -122,7 +122,7 @@ public class SpecSimSettings {
      * 
      */
     public int getPickCount() {
-        return pickCount;
+        return this.pickCount;
     }
 
     /**
@@ -130,7 +130,7 @@ public class SpecSimSettings {
      * 
      */
     public void setPickCount(int value) {
-        this.pickCount = value;
+        pickCount = value;
     }
 
     /**
@@ -138,7 +138,7 @@ public class SpecSimSettings {
      * 
      */
     public double getThreshScore() {
-        return threshScore;
+        return this.threshScore;
     }
 
     /**
@@ -146,7 +146,7 @@ public class SpecSimSettings {
      * 
      */
     public void setThreshScore(double value) {
-        this.threshScore = value;
+        threshScore = value;
     }
 
     /**
@@ -154,7 +154,7 @@ public class SpecSimSettings {
      * 
      */
     public int getTrafoIndex() {
-        return trafoIndex;
+        return this.trafoIndex;
     }
 
     /**
@@ -162,7 +162,7 @@ public class SpecSimSettings {
      * 
      */
     public void setTrafoIndex(int value) {
-        this.trafoIndex = value;
+        trafoIndex = value;
     }
 
     /**
@@ -170,7 +170,7 @@ public class SpecSimSettings {
      * 
      */
     public int getVectIndex() {
-        return vectIndex;
+        return this.vectIndex;
     }
 
     /**
@@ -178,7 +178,7 @@ public class SpecSimSettings {
      * 
      */
     public void setVectIndex(int value) {
-        this.vectIndex = value;
+        vectIndex = value;
     }
 
     /**
@@ -186,7 +186,7 @@ public class SpecSimSettings {
      * 
      */
     public int getCompIndex() {
-        return compIndex;
+        return this.compIndex;
     }
 
     /**
@@ -194,7 +194,7 @@ public class SpecSimSettings {
      * 
      */
     public void setCompIndex(int value) {
-        this.compIndex = value;
+        compIndex = value;
     }
 
     /**
@@ -202,7 +202,7 @@ public class SpecSimSettings {
      * 
      */
     public double getBinWidth() {
-        return binWidth;
+        return this.binWidth;
     }
 
     /**
@@ -210,7 +210,7 @@ public class SpecSimSettings {
      * 
      */
     public void setBinWidth(double value) {
-        this.binWidth = value;
+        binWidth = value;
     }
 
     /**
@@ -218,7 +218,7 @@ public class SpecSimSettings {
      * 
      */
     public double getBinShift() {
-        return binShift;
+        return this.binShift;
     }
 
     /**
@@ -226,7 +226,7 @@ public class SpecSimSettings {
      * 
      */
     public void setBinShift(double value) {
-        this.binShift = value;
+        binShift = value;
     }
 
     /**
@@ -234,7 +234,7 @@ public class SpecSimSettings {
      * 
      */
     public int getProfileIndex() {
-        return profileIndex;
+        return this.profileIndex;
     }
 
     /**
@@ -242,7 +242,7 @@ public class SpecSimSettings {
      * 
      */
     public void setProfileIndex(int value) {
-        this.profileIndex = value;
+        profileIndex = value;
     }
 
     /**
@@ -250,7 +250,7 @@ public class SpecSimSettings {
      * 
      */
     public double getBaseWidth() {
-        return baseWidth;
+        return this.baseWidth;
     }
 
     /**
@@ -258,7 +258,7 @@ public class SpecSimSettings {
      * 
      */
     public void setBaseWidth(double value) {
-        this.baseWidth = value;
+        baseWidth = value;
     }
 
     /**
@@ -266,7 +266,7 @@ public class SpecSimSettings {
      * 
      */
     public int getXCorrOffset() {
-        return xCorrOffset;
+        return this.xCorrOffset;
     }
 
     /**
@@ -274,7 +274,7 @@ public class SpecSimSettings {
      * 
      */
     public void setXCorrOffset(int value) {
-        this.xCorrOffset = value;
+        xCorrOffset = value;
     }
 
 }

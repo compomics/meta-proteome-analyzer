@@ -19,8 +19,8 @@ import org.jdesktop.swingx.JXTableHeader;
 public class ComponentTableHeader extends JXTableHeader {
 
 	private ComponentHeaderRenderer chr;
-	private String[] columnToolTips;
-	private boolean[] reorderingAllowedColumns;
+	private final String[] columnToolTips;
+	private final boolean[] reorderingAllowedColumns;
 	
     /**
      * Constructs a <code>JTableHeader</code> which is initialized with
@@ -42,14 +42,14 @@ public class ComponentTableHeader extends JXTableHeader {
 	public ComponentTableHeader(TableColumnModel columnModel, String[] columnToolTips) {
 		super(columnModel);
 		this.columnToolTips = columnToolTips;
-		reorderingAllowedColumns = new boolean[columnModel.getColumnCount()];
+        this.reorderingAllowedColumns = new boolean[columnModel.getColumnCount()];
 	}
 	
 	@Override
 	public String getToolTipText(MouseEvent me) {
-		if (columnToolTips != null) {
-			return columnToolTips[table.convertColumnIndexToModel(
-					columnModel.getColumnIndexAtX(me.getX()))];
+		if (this.columnToolTips != null) {
+			return this.columnToolTips[this.table.convertColumnIndexToModel(
+                    this.columnModel.getColumnIndexAtX(me.getX()))];
 		}
 		return super.getToolTipText(me);
 	}
@@ -59,20 +59,20 @@ public class ComponentTableHeader extends JXTableHeader {
 	protected void processMouseEvent(MouseEvent me) {
 		if (me.getID() == MouseEvent.MOUSE_PRESSED ||
 				me.getID() == MouseEvent.MOUSE_CLICKED) {
-			int col = columnModel.getColumnIndexAtX(me.getX());
+			int col = this.columnModel.getColumnIndexAtX(me.getX());
 			if (col != -1) {
-				if (columnModel.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
-					chr = (ComponentHeaderRenderer) columnModel.getColumn(col).getHeaderRenderer();
-					Rectangle headerRect = this.getHeaderRect(col);
-					Rectangle compRect = chr.getComponent().getBounds();
+				if (this.columnModel.getColumn(col).getHeaderRenderer() instanceof ComponentHeaderRenderer) {
+                    this.chr = (ComponentHeaderRenderer) this.columnModel.getColumn(col).getHeaderRenderer();
+					Rectangle headerRect = getHeaderRect(col);
+					Rectangle compRect = this.chr.getComponent().getBounds();
 					compRect.x += headerRect.x;
 					if ((compRect.contains(me.getPoint()))) {
-						
-						chr.dispatchEvent(new MouseEvent(
+
+                        this.chr.dispatchEvent(new MouseEvent(
 								me.getComponent(), me.getID(), me.getWhen(), me.getModifiers(),
 								me.getX()-headerRect.x, me.getY(), me.getXOnScreen(), me.getYOnScreen(),
 								me.getClickCount(), me.isPopupTrigger(), me.getButton()));
-						this.repaint(headerRect);
+                        repaint(headerRect);
 						// fool other listeners by changing click-type events into release-type ones
 						if (me.getID() == MouseEvent.MOUSE_CLICKED) {
 							me = new MouseEvent(
@@ -84,10 +84,10 @@ public class ComponentTableHeader extends JXTableHeader {
 				}
 			}
 		} else if (me.getID() == MouseEvent.MOUSE_RELEASED) {
-			if (chr != null) {
-				chr.dispatchEvent(me);
-				chr = null;
-				this.repaint();
+			if (this.chr != null) {
+                this.chr.dispatchEvent(me);
+                this.chr = null;
+                repaint();
 			}
 		}
 		super.processMouseEvent(me);
@@ -100,7 +100,7 @@ public class ComponentTableHeader extends JXTableHeader {
 	 * @param column the column to be affected.
 	 */
 	public void setReorderingAllowed(boolean reorderingAllowed, int column) {
-		reorderingAllowedColumns[column] = reorderingAllowed;
+        this.reorderingAllowedColumns[column] = reorderingAllowed;
 	}
 	
 }

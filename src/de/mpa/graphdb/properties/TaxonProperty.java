@@ -6,7 +6,7 @@ public enum TaxonProperty implements ElementProperty {
 	TAXID("NCBI TaxId"),
 	RANK("Rank");	
 	
-	TaxonProperty(final String propertyName){
+	TaxonProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -14,6 +14,6 @@ public enum TaxonProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

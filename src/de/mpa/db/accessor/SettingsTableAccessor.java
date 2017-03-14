@@ -37,12 +37,12 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'settingsid' column.
@@ -104,19 +104,19 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SettingsTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(SETTINGSID)) {
-			this.iSettingsid = ((Long)aParams.get(SETTINGSID)).longValue();
+		if(aParams.containsKey(SettingsTableAccessor.SETTINGSID)) {
+            iSettingsid = ((Long)aParams.get(SettingsTableAccessor.SETTINGSID)).longValue();
 		}
-		if(aParams.containsKey(FK_SSCFGID)) {
-			this.iFk_sscfgid = ((Long)aParams.get(FK_SSCFGID)).longValue();
+		if(aParams.containsKey(SettingsTableAccessor.FK_SSCFGID)) {
+            iFk_sscfgid = ((Long)aParams.get(SettingsTableAccessor.FK_SSCFGID)).longValue();
 		}
-		if(aParams.containsKey(FK_DBCFGID)) {
-			this.iFk_dbcfgid = ((Long)aParams.get(FK_DBCFGID)).longValue();
+		if(aParams.containsKey(SettingsTableAccessor.FK_DBCFGID)) {
+            iFk_dbcfgid = ((Long)aParams.get(SettingsTableAccessor.FK_DBCFGID)).longValue();
 		}
-		if(aParams.containsKey(FK_DNCFGID)) {
-			this.iFk_dncfgid = ((Long)aParams.get(FK_DNCFGID)).longValue();
+		if(aParams.containsKey(SettingsTableAccessor.FK_DNCFGID)) {
+            iFk_dncfgid = ((Long)aParams.get(SettingsTableAccessor.FK_DNCFGID)).longValue();
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -128,12 +128,12 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SettingsTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSettingsid = aResultSet.getLong("settingsid");
-		this.iFk_sscfgid = aResultSet.getLong("fk_sscfgid");
-		this.iFk_dbcfgid = aResultSet.getLong("fk_dbcfgid");
-		this.iFk_dncfgid = aResultSet.getLong("fk_dncfgid");
+        iSettingsid = aResultSet.getLong("settingsid");
+        iFk_sscfgid = aResultSet.getLong("fk_sscfgid");
+        iFk_dbcfgid = aResultSet.getLong("fk_dbcfgid");
+        iFk_dncfgid = aResultSet.getLong("fk_dncfgid");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -143,7 +143,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Settingsid column.
 	 */
 	public long getSettingsid() {
-		return this.iSettingsid;
+		return iSettingsid;
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_sscfgid column.
 	 */
 	public long getFk_sscfgid() {
-		return this.iFk_sscfgid;
+		return iFk_sscfgid;
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_dbcfgid column.
 	 */
 	public long getFk_dbcfgid() {
-		return this.iFk_dbcfgid;
+		return iFk_dbcfgid;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Fk_dncfgid column.
 	 */
 	public long getFk_dncfgid() {
-		return this.iFk_dncfgid;
+		return iFk_dncfgid;
 	}
 
 	/**
@@ -179,8 +179,8 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aSettingsid	long with the value for the Settingsid column.
 	 */
 	public void setSettingsid(long aSettingsid) {
-		this.iSettingsid = aSettingsid;
-		this.iUpdated = true;
+        iSettingsid = aSettingsid;
+        iUpdated = true;
 	}
 
 	/**
@@ -189,8 +189,8 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_sscfgid	long with the value for the Fk_sscfgid column.
 	 */
 	public void setFk_sscfgid(long aFk_sscfgid) {
-		this.iFk_sscfgid = aFk_sscfgid;
-		this.iUpdated = true;
+        iFk_sscfgid = aFk_sscfgid;
+        iUpdated = true;
 	}
 
 	/**
@@ -199,8 +199,8 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_dbcfgid	long with the value for the Fk_dbcfgid column.
 	 */
 	public void setFk_dbcfgid(long aFk_dbcfgid) {
-		this.iFk_dbcfgid = aFk_dbcfgid;
-		this.iUpdated = true;
+        iFk_dbcfgid = aFk_dbcfgid;
+        iUpdated = true;
 	}
 
 	/**
@@ -209,8 +209,8 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aFk_dncfgid	long with the value for the Fk_dncfgid column.
 	 */
 	public void setFk_dncfgid(long aFk_dncfgid) {
-		this.iFk_dncfgid = aFk_dncfgid;
-		this.iUpdated = true;
+        iFk_dncfgid = aFk_dncfgid;
+        iUpdated = true;
 	}
 
 
@@ -223,7 +223,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM settings WHERE settingsid = ?");
-		lStat.setLong(1, iSettingsid);
+		lStat.setLong(1, this.iSettingsid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -238,22 +238,22 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SETTINGSID)) {
+		if(!aKeys.containsKey(SettingsTableAccessor.SETTINGSID)) {
 			throw new IllegalArgumentException("Primary key field 'SETTINGSID' is missing in HashMap!");
 		} else {
-			iSettingsid = ((Long)aKeys.get(SETTINGSID)).longValue();
+            this.iSettingsid = ((Long)aKeys.get(SettingsTableAccessor.SETTINGSID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM settings WHERE settingsid = ?");
-		lStat.setLong(1, iSettingsid);
+		lStat.setLong(1, this.iSettingsid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSettingsid = lRS.getLong("settingsid");
-			iFk_sscfgid = lRS.getLong("fk_sscfgid");
-			iFk_dbcfgid = lRS.getLong("fk_dbcfgid");
-			iFk_dncfgid = lRS.getLong("fk_dncfgid");
+            this.iSettingsid = lRS.getLong("settingsid");
+            this.iFk_sscfgid = lRS.getLong("fk_sscfgid");
+            this.iFk_dbcfgid = lRS.getLong("fk_dbcfgid");
+            this.iFk_dncfgid = lRS.getLong("fk_dncfgid");
 		}
 		lRS.close();
 		lStat.close();
@@ -282,7 +282,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<SettingsTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<SettingsTableAccessor>  entities = new ArrayList<SettingsTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(SettingsTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new SettingsTableAccessor(rs));
 		}
@@ -300,18 +300,18 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE settings SET settingsid = ?, fk_sscfgid = ?, fk_dbcfgid = ?, fk_dncfgid = ? WHERE settingsid = ?");
-		lStat.setLong(1, iSettingsid);
-		lStat.setLong(2, iFk_sscfgid);
-		lStat.setLong(3, iFk_dbcfgid);
-		lStat.setLong(4, iFk_dncfgid);
-		lStat.setLong(5, iSettingsid);
+		lStat.setLong(1, this.iSettingsid);
+		lStat.setLong(2, this.iFk_sscfgid);
+		lStat.setLong(3, this.iFk_dbcfgid);
+		lStat.setLong(4, this.iFk_dncfgid);
+		lStat.setLong(5, this.iSettingsid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -324,25 +324,25 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO settings (settingsid, fk_sscfgid, fk_dbcfgid, fk_dncfgid) values(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		if(iSettingsid == Long.MIN_VALUE) {
+		if(this.iSettingsid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSettingsid);
+			lStat.setLong(1, this.iSettingsid);
 		}
-		if(iFk_sscfgid == Long.MIN_VALUE) {
+		if(this.iFk_sscfgid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_sscfgid);
+			lStat.setLong(2, this.iFk_sscfgid);
 		}
-		if(iFk_dbcfgid == Long.MIN_VALUE) {
+		if(this.iFk_dbcfgid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_dbcfgid);
+			lStat.setLong(3, this.iFk_dbcfgid);
 		}
-		if(iFk_dncfgid == Long.MIN_VALUE) {
+		if(this.iFk_dncfgid == Long.MIN_VALUE) {
 			lStat.setNull(4, 4);
 		} else {
-			lStat.setLong(4, iFk_dncfgid);
+			lStat.setLong(4, this.iFk_dncfgid);
 		}
 		int result = lStat.executeUpdate();
 
@@ -350,22 +350,22 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSettingsid = ((Number) iKeys[0]).longValue();
+            this.iSettingsid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -376,7 +376,7 @@ public class SettingsTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

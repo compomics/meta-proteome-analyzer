@@ -30,7 +30,7 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	/**
 	 * The experiment properties.
 	 */
-	private Map<String, String> properties;
+	private final Map<String, String> properties;
 	
 	/**
 	 * The parent project.
@@ -72,12 +72,12 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	 * @param value the property value
 	 */
 	public void addProperty(String name, String value) {
-		properties.put(name, value);
+        this.properties.put(name, value);
 	}
 
 	@Override
 	public Long getID() {
-		return id;
+		return this.id;
 	}
 	
 	/**
@@ -90,7 +90,7 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	
 	@Override
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	
 	@Override
 	public Date getCreationDate() {
-		return creationDate;
+		return this.creationDate;
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 
 	@Override
 	public Map<String, String> getProperties() {
-		return properties;
+		return this.properties;
 	}
 	
 	/**
@@ -124,7 +124,7 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	 * @return the parent project
 	 */
 	public AbstractProject getProject() {
-		return project;
+		return this.project;
 	}
 	
 	/**
@@ -160,18 +160,18 @@ public abstract class AbstractExperiment implements ProjectExperiment {
 	 * Clears the search result object.
 	 */
 	public void clearSearchResult() {
-		this.setSearchResult(null);
+        setSearchResult(null);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ProjectExperiment) {
 			ProjectExperiment that = (ProjectExperiment) obj;
-			if (this.getClass().equals(that.getClass())) {
-				if ((this.getID() != null) && (that.getID() != null)) {
-					return this.getID().equals(that.getID());
+			if (getClass().equals(that.getClass())) {
+				if ((getID() != null) && (that.getID() != null)) {
+					return getID().equals(that.getID());
 				} else {
-					return this.getCreationDate().equals(that.getCreationDate());
+					return getCreationDate().equals(that.getCreationDate());
 				}
 			}
 		}

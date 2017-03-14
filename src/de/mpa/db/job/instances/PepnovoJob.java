@@ -11,37 +11,37 @@ import de.mpa.db.job.Job;
 public class PepnovoJob extends Job {	
 	
 	// Modifications
-	private final static String MODS = "C+57:M+16";
+    private static final String MODS = "C+57:M+16";
 	
 	/**
 	 * The pepnovo file.
 	 */
-	private File pepnovoFile;
+	private final File pepnovoFile;
 	
 	/**
 	 * The MGF file.
 	 */
-	private File mgfFile;
+	private final File mgfFile;
 	
 	/**
 	 * This variable holds the model, e.g. CID_IT_TRYP.
 	 */
-	private String model;
+	private final String model;
     
 	/**
 	 * The precursor mass tolerance.
 	 */
-	private double precursorTol;
+	private final double precursorTol;
 	
     /**
      * The fragment ion tolerance.
      */
-	private double fragmentTol;    
+	private final double fragmentTol;
 	
 	/**
 	 * Number of solutions, default = 20.
 	 */
-	private int nSolutions;
+	private final int nSolutions;
 	
     /**
      * The output file if specified.
@@ -70,8 +70,8 @@ public class PepnovoJob extends Job {
 		this.precursorTol = precursorTol;
 		this.fragmentTol = fragmentTol;
 		this.nSolutions = nSolutions;
-		this.pepnovoFile = new File(JobConstants.PEPNOVO_PATH);		
-		initJob();
+        pepnovoFile = new File(JobConstants.PEPNOVO_PATH);
+        this.initJob();
 	}
 
 	/**
@@ -79,51 +79,51 @@ public class PepnovoJob extends Job {
 	 */
 	private void initJob() {
 		// Full path to executable.
-		procCommands.add(pepnovoFile.getAbsolutePath() + "/" + JobConstants.PEPNOVO_EXE);
-		procCommands.trimToSize();
+        this.procCommands.add(this.pepnovoFile.getAbsolutePath() + "/" + JobConstants.PEPNOVO_EXE);
+        this.procCommands.trimToSize();
 		
 		// Link to the MGF file.
-		procCommands.add("-file");
-		procCommands.add(mgfFile.getAbsolutePath());
+        this.procCommands.add("-file");
+        this.procCommands.add(this.mgfFile.getAbsolutePath());
 		
 		// Generate blast queries
-		procCommands.add("-msb_generate_query");
+        this.procCommands.add("-msb_generate_query");
 		
 		// Blast query name
-		procCommands.add("-msb_query_name");
-		procCommands.add(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName());
+        this.procCommands.add("-msb_query_name");
+        this.procCommands.add(JobConstants.PEPNOVO_OUTPUT_PATH + this.mgfFile.getName());
 		
 		// Model name.
-		procCommands.add("-model");
-		procCommands.add(model);
+        this.procCommands.add("-model");
+        this.procCommands.add(this.model);
 		
 		// Add modifications
-		procCommands.add("-PTMs");
-		procCommands.add(MODS);
+        this.procCommands.add("-PTMs");
+        this.procCommands.add(PepnovoJob.MODS);
 		
 		// Fragment mass tolerance (each model has a default setting).
-		procCommands.add("-fragment_tolerance");
-		procCommands.add(String.valueOf(fragmentTol));
+        this.procCommands.add("-fragment_tolerance");
+        this.procCommands.add(String.valueOf(this.fragmentTol));
 		
 		// Precursor mass tolerance (each model has a default setting).
-		procCommands.add("-pm_tolerance");
-		procCommands.add(String.valueOf(precursorTol));
+        this.procCommands.add("-pm_tolerance");
+        this.procCommands.add(String.valueOf(this.precursorTol));
 		
 		// Number of possible solutions, default == 20
-		procCommands.add("-num_solutions");
-		procCommands.add(String.valueOf(nSolutions));
+        this.procCommands.add("-num_solutions");
+        this.procCommands.add(String.valueOf(this.nSolutions));
 		
 		// Add output path.
-		outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + mgfFile.getName() + ".out");
-		procCommands.trimToSize();
+        this.outputFile = new File(JobConstants.PEPNOVO_OUTPUT_PATH + this.mgfFile.getName() + ".out");
+        this.procCommands.trimToSize();
 		
 		// Set the description for the job.
-		setDescription("PEPNOVO");
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(pepnovoFile);
+        this.setDescription("PEPNOVO");
+        this.procBuilder = new ProcessBuilder(this.procCommands);
+        this.procBuilder.directory(this.pepnovoFile);
 		
 		// Set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 	
 	/**
@@ -131,16 +131,16 @@ public class PepnovoJob extends Job {
 	 * Overriding the run method is necessary due to the file writer ability!
 	 */
 	public void run() {
-		proc = null;
+        this.proc = null;
 		try {
-			proc = procBuilder.start();
+            this.proc = this.procBuilder.start();
 		} catch (IOException ioe) {
-			log.error(ioe.getMessage());
+            Job.log.error(ioe.getMessage());
 			ioe.printStackTrace();
 		}
 
 		// Retrieve inputstream from process
-		Scanner scan = new Scanner(proc.getInputStream());
+		Scanner scan = new Scanner(this.proc.getInputStream());
 		scan.useDelimiter(System.getProperty("line.separator"));
 		
 		// Temporary string variable
@@ -148,7 +148,7 @@ public class PepnovoJob extends Job {
 		
 		BufferedWriter writer = null;
 		try {
-			writer = new BufferedWriter(new FileWriter(outputFile));
+			writer = new BufferedWriter(new FileWriter(this.outputFile));
 			// Get input from scanner and send to stdout
 			while (scan.hasNext()) {
 				temp = scan.next();		
@@ -164,11 +164,11 @@ public class PepnovoJob extends Job {
 		scan.close();
 
 		try {
-			proc.waitFor();
+            this.proc.waitFor();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			if (proc != null) {
-				proc.destroy();
+			if (this.proc != null) {
+                this.proc.destroy();
 			}
 		}
 	}
@@ -178,7 +178,7 @@ public class PepnovoJob extends Job {
 	 * @return
 	 */
 	public String getFilename(){
-		return outputFile.getAbsolutePath();		
+		return this.outputFile.getAbsolutePath();
 	}
 }
 

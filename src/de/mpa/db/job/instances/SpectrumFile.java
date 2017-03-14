@@ -30,17 +30,17 @@ public class SpectrumFile{
     /**
      * This variable holds the filename for the spectrum file.
      */
-    protected String iFilename = null;
+    protected String iFilename;
     
     /**
      * This variable holds the comments for this MascotGenericFile.
      */
-    private String iComments = null;
+    private String iComments;
 
     /**
      * The title of the MascotGenericFile.
      */
-    private String iTitle = null;
+    private String iTitle;
 
     /**
      * This HashMap holds all the peaks in the spectrum file.
@@ -55,7 +55,7 @@ public class SpectrumFile{
     /**
      * This variable holds the charge state.
      */
-    protected int iCharge = 0;
+    protected int iCharge;
 
     /**
      * The precursor intensity.
@@ -65,7 +65,7 @@ public class SpectrumFile{
     /**
      * This HashMap will hold the charges for those ions for which a charge is known.
      */
-    private HashMap<Double, Integer> iCharges = new HashMap<Double, Integer>();
+    private final HashMap<Double, Integer> iCharges = new HashMap<Double, Integer>();
 
     /**
      * This constant defines the key in the spectrum header for the title.
@@ -112,8 +112,8 @@ public class SpectrumFile{
      * @param aContents String with the contents of the MGF File.
      */
     public SpectrumFile(String aFilename, String aContents) {
-        this.parseFromString(aContents);
-        this.iFilename = aFilename;
+        parseFromString(aContents);
+        iFilename = aFilename;
     }
 
     /**
@@ -133,8 +133,8 @@ public class SpectrumFile{
                 lsb.append(line + "\n");
             }
             br.close();
-            this.parseFromString(lsb.toString());
-            this.iFilename = aFilename.getName();
+            parseFromString(lsb.toString());
+            iFilename = aFilename.getName();
         }
     }
 
@@ -145,7 +145,7 @@ public class SpectrumFile{
      * @return String with the comments for this MascotGenericFile.
      */
     public String getComments() {
-        return iComments;
+        return this.iComments;
     }
 
     /**
@@ -154,7 +154,7 @@ public class SpectrumFile{
      * @param aComments String with the comments for this MAscotGenericFile.
      */
     public void setComments(String aComments) {
-        iComments = aComments;
+        this.iComments = aComments;
     }
 
     /**
@@ -163,7 +163,7 @@ public class SpectrumFile{
      * @return String with the title for the MascotGenericFile.
      */
     public String getTitle() {
-        return iTitle;
+        return this.iTitle;
     }
 
     /**
@@ -172,7 +172,7 @@ public class SpectrumFile{
      * @param aTitle String with the title for the MascotGenericFile.
      */
     public void setTitle(String aTitle) {
-        iTitle = aTitle;
+        this.iTitle = aTitle;
     }
 
 
@@ -184,9 +184,9 @@ public class SpectrumFile{
      */
     public String getExtraEmbeddedProperty(String aKey) {
         String lReturn = "NoSuchKey";
-        if (iExtraEmbeddedParameters != null) {
-            if (iExtraEmbeddedParameters.containsKey(aKey)) {
-                lReturn = (String) iExtraEmbeddedParameters.get(aKey);
+        if (this.iExtraEmbeddedParameters != null) {
+            if (this.iExtraEmbeddedParameters.containsKey(aKey)) {
+                lReturn = (String) this.iExtraEmbeddedParameters.get(aKey);
             }
         }
         return lReturn;
@@ -200,10 +200,10 @@ public class SpectrumFile{
      * @param aValue Embedded Property Value.
      */
     private void addExtraEmbeddedParameter(String aKey, String aValue) {
-        if (iExtraEmbeddedParameters == null) {
-            iExtraEmbeddedParameters = new Properties();
+        if (this.iExtraEmbeddedParameters == null) {
+            this.iExtraEmbeddedParameters = new Properties();
         }
-        iExtraEmbeddedParameters.put(aKey, aValue);
+        this.iExtraEmbeddedParameters.put(aKey, aValue);
     }
 
     /**
@@ -221,7 +221,7 @@ public class SpectrumFile{
         // the mass, since (many) MGF spectra do not include charge information.
         SpectrumFile other = (SpectrumFile) anObject;
 
-        double intermediate_result = (this.getPrecursorMZ() - other.getPrecursorMZ());
+        double intermediate_result = (getPrecursorMZ() - other.getPrecursorMZ());
 
         if (intermediate_result > 0) {
             result = 1;
@@ -245,9 +245,9 @@ public class SpectrumFile{
 
         if (anObject != null && anObject instanceof SpectrumFile) {
             SpectrumFile other = (SpectrumFile) anObject;
-            if (this.iFilename.equals(other.iFilename) && this.iCharge == other.iCharge &&
-                    this.iTitle.equals(other.iTitle) && this.iPeaks.equals(other.iPeaks) &&
-                    this.iCharges.equals(other.iCharges)) {
+            if (iFilename.equals(other.iFilename) && iCharge == other.iCharge &&
+                    iTitle.equals(other.iTitle) && iPeaks.equals(other.iPeaks) &&
+                    iCharges.equals(other.iCharges)) {
                 result = true;
             }
         }
@@ -321,7 +321,7 @@ public class SpectrumFile{
                     continue;
                 }
                 // First line can be 'CHARGE'.
-                if (lineCount == 1 && line.startsWith(CHARGE)) {
+                if (lineCount == 1 && line.startsWith(SpectrumFile.CHARGE)) {
                     continue;
                 }
                 // Read all starting comments.
@@ -329,11 +329,11 @@ public class SpectrumFile{
                     comments.append(line + "\n");
                 }
                 // BEGIN IONS marks the start of the real file.
-                else if (line.equals(IONS_START)) {
+                else if (line.equals(SpectrumFile.IONS_START)) {
                     inSpectrum = true;
                 }
                 // END IONS marks the end.
-                else if (line.equals(IONS_END)) {
+                else if (line.equals(SpectrumFile.IONS_END)) {
                     inSpectrum = false;
                 }
                 // Read embedded parameters. The most important parameters (such as TITLE, PEPMASS and optional CHARGE fields )
@@ -344,30 +344,30 @@ public class SpectrumFile{
                     int equalSignIndex = line.indexOf("=");
 
                     // See which header line is encountered.
-                    if (line.startsWith(TITLE)) {
+                    if (line.startsWith(SpectrumFile.TITLE)) {
                         // TITLE line found.
-                        this.setTitle(line.substring(equalSignIndex + 1));
-                    } else if (line.startsWith(PEPMASS)) {
+                        setTitle(line.substring(equalSignIndex + 1));
+                    } else if (line.startsWith(SpectrumFile.PEPMASS)) {
                         // PEPMASS line found.
                         String value = line.substring(equalSignIndex + 1).trim();
                         StringTokenizer st = new StringTokenizer(value, " \t");
-                        this.setPrecursorMZ(Double.parseDouble(st.nextToken().trim()));
+                        setPrecursorMZ(Double.parseDouble(st.nextToken().trim()));
                         // It is possible that parent intensity is not mentioned. We then set it to '0'.
                         if (st.hasMoreTokens()) {
-                            this.setIntensity(Double.parseDouble(st.nextToken().trim()));
+                            setIntensity(Double.parseDouble(st.nextToken().trim()));
                         } else {
-                            this.setIntensity(0.0);
+                            setIntensity(0.0);
                         }
-                    } else if (line.startsWith(CHARGE)) {
+                    } else if (line.startsWith(SpectrumFile.CHARGE)) {
                         // CHARGE line found.
                         // Note the extra parsing to read a Mascot Generic File charge (eg., 1+).
-                        this.setCharge(this.extractCharge(line.substring(equalSignIndex + 1)));
+                        setCharge(extractCharge(line.substring(equalSignIndex + 1)));
                     } else {
                         // This is an extra embedded parameter!
                         String aKey = line.substring(0, equalSignIndex);
                         String aValue = line.substring(equalSignIndex + 1);
                         // Save the extra embedded parameter in iEmbeddedParameter
-                        addExtraEmbeddedParameter(aKey, aValue);
+                        this.addExtraEmbeddedParameter(aKey, aValue);
                     }
                 }
                 // Read peaks, minding the possibility of charge present!
@@ -386,10 +386,10 @@ public class SpectrumFile{
                         temp = st.nextToken().trim();
                         Double intensity = new Double(temp);
                         Peak peak = new Peak(mass, intensity);
-                        iPeaks.add(peak);
+                        this.iPeaks.add(peak);
                         if (st.hasMoreTokens()) {
-                            int charge = this.extractCharge(st.nextToken());
-                            iCharges.put(mass, new Integer(charge));
+                            int charge = extractCharge(st.nextToken());
+                            this.iCharges.put(mass, new Integer(charge));
                         }
                     } else {
                         System.out.println("\n\nUnrecognized line at line number " + lineCount + ": '" + line + "'!\n");
@@ -397,7 +397,7 @@ public class SpectrumFile{
                 }
             }
             // Last but not least: add the comments.
-            this.iComments = comments.toString();
+            iComments = comments.toString();
             // That's it.
             br.close();
         } catch (IOException ioe) {
@@ -413,12 +413,12 @@ public class SpectrumFile{
      * @return Intensity total rounded.
      */
     public double getTotalIntensity() {
-        List<Peak> peaks = this.iPeaks;
+        List<Peak> peaks = iPeaks;
         double totalIntensity = 0.0;
         for (Peak peak : peaks) {
         	totalIntensity += peak.getIntensity();
 		}        
-        return round(totalIntensity);
+        return this.round(totalIntensity);
     }
 
     
@@ -427,7 +427,7 @@ public class SpectrumFile{
      * @param aTotalIntensity
      * @return Rounded value
      */
-    private double round(final double aTotalIntensity) {
+    private double round(double aTotalIntensity) {
         BigDecimal bd = new BigDecimal(aTotalIntensity).setScale(2, RoundingMode.UP);
         return bd.doubleValue();
     }
@@ -439,7 +439,7 @@ public class SpectrumFile{
      * @return int with the charge of the precursor, or '0' if no charge state is known.
      */
     public int getCharge() {
-        return iCharge;
+        return this.iCharge;
     }
 
     /**
@@ -448,7 +448,7 @@ public class SpectrumFile{
      * @return String with the filename for the file.
      */
     public String getFilename() {
-        return iFilename;
+        return this.iFilename;
     }
 
     /**
@@ -457,7 +457,7 @@ public class SpectrumFile{
      * @return double with the intensity of the precursor ion.
      */
     public double getIntensity() {
-        return iIntensity;
+        return this.iIntensity;
     }
 
     /**
@@ -467,23 +467,23 @@ public class SpectrumFile{
      * @return HashMap with Doubles as keys (the masses) and Doubles as values (the intensities).
      */
     public List<Peak> getPeaks() {
-        return iPeaks;
+        return this.iPeaks;
     }
     
     public double getPrecursorMZ() {
-        return iPrecursorMz;
+        return this.iPrecursorMz;
     }
     
      public void setCharge(int aCharge) {
-        this.iCharge = aCharge;
+         iCharge = aCharge;
     }
 
     public void setIntensity(double aIntensity) {
-        this.iIntensity = aIntensity;
+        iIntensity = aIntensity;
     }
 
     public void setPrecursorMZ(double aPrecursorMz) {
-        this.iPrecursorMz = aPrecursorMz;
+        iPrecursorMz = aPrecursorMz;
     }
 
 }

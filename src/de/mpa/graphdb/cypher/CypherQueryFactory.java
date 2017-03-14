@@ -122,7 +122,7 @@ public class CypherQueryFactory {
 	 * @return
 	 */
 	public static CypherQuery getProteinsByDescriptionPattern(String pattern) {
-		return getProteinsByDescriptionPattern(pattern, false);
+		return CypherQueryFactory.getProteinsByDescriptionPattern(pattern, false);
 	}
 	
 	/**

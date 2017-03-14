@@ -12,7 +12,7 @@ public class NSAFAlgorithm implements QuantMethod {
 
 	@Override
 	public double getResult() {
-		return nSAF;
+		return this.nSAF;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -39,9 +39,9 @@ public class NSAFAlgorithm implements QuantMethod {
 		protOfInterestSum /= proteinHitOfInterest.getSequence().length();
 
 		// Calculate  NSAF
-		nSAF = protOfInterestSum / protSum;
+        this.nSAF = protOfInterestSum / protSum;
 		
 		// Set NSAF, x 100 because of JSparklines
-		proteinHitOfInterest.setNSAF(nSAF*100);
+		proteinHitOfInterest.setNSAF(this.nSAF *100);
 	}
 }

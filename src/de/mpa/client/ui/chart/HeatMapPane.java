@@ -119,8 +119,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ConfirmFileChooser;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.client.ui.icons.IconConstants;
 
 /**
@@ -143,7 +141,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	/**
 	 * The heat map data container object reference.
 	 */
-	private HeatMapData data;
+	private final HeatMapData data;
 	
 	/**
 	 * The amount of data rows in the dataset.
@@ -168,17 +166,17 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	/**
 	 * The button for choosing the type of x axis.
 	 */
-	private AxisPopupButton xBtn;
+	private HeatMapPane.AxisPopupButton xBtn;
 
 	/**
 	 * The button for choosing the type of y axis.
 	 */
-	private AxisPopupButton yBtn;
+	private HeatMapPane.AxisPopupButton yBtn;
 
 	/**
 	 * The button for choosing the type of z axis.
 	 */
-	private AxisPopupButton zBtn;
+	private HeatMapPane.AxisPopupButton zBtn;
 
 	/**
 	 * The button widget for changing the number of visible rows/columns.
@@ -189,12 +187,12 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * The button widget providing export options.
 	 */
 	private JButton saveBtn;
-	
+
 	/**
 	 * Busy label for showing that updating the heat map is currently in process.
 	 */
 	private JXBusyLabel busyLbl;
-	
+
 	/**
 	 * Creates a scrollable heat map chart from the specified data container.
 	 * @param data the data container object
@@ -203,49 +201,49 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		// Invoke super constructor to create basic scrollpane with 2 primary scrollbars
 		super(null, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		
+
 		// Store heat map data container reference
 		this.data = data;
 
 		// Create plot
 		String[] xLabels = data.getXLabels();
 		String[] yLabels = data.getYLabels();
-		XYPlot plot = this.createPlot("x axis", "y axis",
+		XYPlot plot = createPlot("x axis", "y axis",
 				xLabels, yLabels,
 				0.0, data.getMaximum(), data.getMatrix());
 		// Create z axis color bar legend
-		PaintScaleLegend psl = this.createLegend("z axis", plot);
+		PaintScaleLegend psl = createLegend("z axis", plot);
 		// Create chart from plot and legend
-		ChartPanel chartPnl = this.createChart("Heat Map", psl, plot);
-		
+		ChartPanel chartPnl = createChart("Heat Map", psl, plot);
+
 		// Insert chart into pane
-		this.setViewportView(chartPnl);
-		
+        setViewportView(chartPnl);
+
 		// Cache data dimensions
-		this.rowCount = yLabels.length;
-		this.colCount = xLabels.length;
-		
+        rowCount = yLabels.length;
+        colCount = xLabels.length;
+
 		// modify scroll pane's scrolling behavior by removing default listeners
 		// and installing new ones
-		for (ChangeListener cl : this.getViewport().getChangeListeners()) {
-			this.getViewport().removeChangeListener(cl);
+		for (ChangeListener cl : getViewport().getChangeListeners()) {
+            getViewport().removeChangeListener(cl);
 		}
-		this.configureScrollBars();
-		
+        configureScrollBars();
+
 	}
-	
+
 	/**
 	 * Refreshes the heat map data container and chart.
 	 */
 	public void updateData() {
-		this.updateData(null);
+        updateData(null);
 	}
 
 	/**
 	 * Refreshes the heat map data container and chart using the specified result object.
 	 * @param result the result object
 	 */
-	public void updateData(final DbSearchResult result) {
+	public void updateData(DbSearchResult result) {
 		// Process refresh operation in separate worker thread
 		new UpdateWorker(result).execute();
 	}
@@ -257,34 +255,34 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * @param chart the chart
 	 */
 	private void updateChartLayout() {
-		ChartPanel chartPnl = (ChartPanel) this.getViewport().getView();
+		ChartPanel chartPnl = (ChartPanel) getViewport().getView();
 		JFreeChart chart = chartPnl.getChart();
-		
+
 		// Draw chart to image to get at rendering info object
 		BufferedImage img = new BufferedImage(chartPnl.getWidth(), chartPnl.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Rectangle bounds = chartPnl.getBounds();
 		chart.draw(img.createGraphics(), bounds, null, chartPnl.getChartRenderingInfo());
 		Rectangle2D dataBounds = chartPnl.getChartRenderingInfo().getPlotInfo().getDataArea().getBounds2D();
-	
+
 		// Adjust layout of chart panel
 		FormLayout layout = (FormLayout) chartPnl.getLayout();
 		layout.setColumnSpec(3, ColumnSpec.decode(
 				"l:" + ((int) dataBounds.getX() - 26) + "px"));
 		layout.setColumnSpec(5, ColumnSpec.decode(
-				"r:" + (int) (bounds.getWidth() - dataBounds.getWidth() - dataBounds.getX() - 25.0) + "px")); 
+				"r:" + (int) (bounds.getWidth() - dataBounds.getWidth() - dataBounds.getX() - 25.0) + "px"));
 		layout.setRowSpec(5, RowSpec.decode(
 				"b:" + (int) (bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 25.0) + "px"));
-		
+
 		// Adjust z axis color bar size
 		PaintScaleLegend legend = (PaintScaleLegend) chart.getSubtitle(0);
 		double btm = bounds.getHeight() - dataBounds.getHeight() - dataBounds.getY() - 1.0;
 		legend.setMargin(4.0, 8.0, btm, 9.0);
-		
+
 		// Re-paint panel
 		chartPnl.revalidate();
 		chartPnl.setRefreshBuffer(true);
 		chartPnl.repaint();
-		
+
 	}
 
 	/**
@@ -293,40 +291,40 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 */
 	private void configureScrollBars() {
 		// Configure z axis scrollbar
-		JScrollBar vertBar = this.getPrimaryVerticalScrollbar();
+		JScrollBar vertBar = getPrimaryVerticalScrollbar();
 		vertBar.setValues(0, 1, 0, 100);
 		vertBar.setBlockIncrement(25);
 		DefaultBoundedRangeModel vertBarMdl = (DefaultBoundedRangeModel) vertBar.getModel();
 		ChangeListener[] vcl = vertBarMdl.getChangeListeners();
 		vertBarMdl.removeChangeListener(vcl[0]);
-		
+
 		vertBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
 				JScrollBar src = (JScrollBar) e.getSource();
 				int val = src.getMaximum() - e.getValue();
-				ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+				ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
 				PaintScaleLegend psl = (PaintScaleLegend) chartPnl.getChart().getSubtitle(0);
-				((RainbowPaintScale) psl.getScale()).setUpperBound(val);
+				((HeatMapPane.RainbowPaintScale) psl.getScale()).setUpperBound(val);
 				psl.getAxis().setRange(-0.5, val + 0.5);
 			}
 		});
 		vertBar.putClientProperty("JScrollBar.isFreeStanding", false);
-		
+
 		// Configure x axis scrollbar
-		final JScrollBar horzBar = this.getHorizontalScrollBar();
-		horzBar.setValues(0, colCount, 0, colCount);
-		horzBar.setBlockIncrement(colCount / 4);
+		JScrollBar horzBar = getHorizontalScrollBar();
+		horzBar.setValues(0, this.colCount, 0, this.colCount);
+		horzBar.setBlockIncrement(this.colCount / 4);
 		DefaultBoundedRangeModel horzBarMdl = (DefaultBoundedRangeModel) horzBar.getModel();
 		ChangeListener[] hcl = horzBarMdl.getChangeListeners();
 		horzBarMdl.removeChangeListener(hcl[0]);
-		
+
 		horzBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (HeatMapPane.this.isEnabled()) {
+				if (isEnabled()) {
 					int val = e.getValue();
-					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
 					XYPlot plot = chartPnl.getChart().getXYPlot();
 					ValueAxis xAxis = plot.getDomainAxis();
 					xAxis.setRange(val - 0.5, val + horzBar.getModel().getExtent() - 0.5);
@@ -334,37 +332,37 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			}
 		});
 		horzBar.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, UIManager.getColor("ScrollBar.thumbDarkShadow")));
-		
+
 		// Create y axis scrollbar
-		final JScrollBar secVertBar = new JScrollBar(JScrollBar.VERTICAL, 0, rowCount, 0, rowCount);
+		JScrollBar secVertBar = new JScrollBar(JScrollBar.VERTICAL, 0, this.rowCount, 0, this.rowCount);
 		secVertBar.putClientProperty("JScrollBar.isFreeStanding", false);
 		secVertBar.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		secVertBar.getComponent(0).setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		secVertBar.getComponent(1).setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		
+
 		secVertBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, -1));
 		Dimension tmp = secVertBar.getPreferredSize();
 		tmp.width = 15;
 		secVertBar.setPreferredSize(tmp);
 
-		secVertBar.setBlockIncrement(rowCount / 4);
-		
+		secVertBar.setBlockIncrement(this.rowCount / 4);
+
 		secVertBar.addAdjustmentListener(new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(AdjustmentEvent e) {
-				if (HeatMapPane.this.isEnabled()) {
+				if (isEnabled()) {
 					int val = e.getValue();
-					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
 					XYPlot plot = chartPnl.getChart().getXYPlot();
 					ValueAxis yAxis = plot.getRangeAxis();
 					yAxis.setRange(val - 0.5, val + secVertBar.getModel().getExtent() - 0.5);
 				}
 			}
 		});
-		
+
 		// Install property change listener for when the visible column/row counts are modified
-		this.addPropertyChangeListener(new PropertyChangeListener() {
-			
+        addPropertyChangeListener(new PropertyChangeListener() {
+
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				String propName = evt.getPropertyName();
@@ -381,7 +379,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					secVertBar.setValues(row, visRowCount, 0, rowCount);
 					secVertBar.setBlockIncrement(rowCount / 4);
 					// Update chart y axis value range
-					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
 					XYPlot plot = chartPnl.getChart().getXYPlot();
 					ValueAxis yAxis = plot.getRangeAxis();
 					yAxis.setRange(-0.5, visRowCount - 0.5);
@@ -397,41 +395,41 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					horzBar.setValues(col, visColCount, 0, colCount);
 					horzBar.setBlockIncrement(colCount / 4);
 					// Update chart x axis value range
-					ChartPanel chartPnl = (ChartPanel) getViewport().getView();
+					ChartPanel chartPnl = (ChartPanel) HeatMapPane.this.getViewport().getView();
 					XYPlot plot = chartPnl.getChart().getXYPlot();
 					ValueAxis xAxis = plot.getDomainAxis();
 					xAxis.setRange(-0.5, visColCount - 0.5);
 				}
 			}
 		});
-		
+
 		// Attach secondary vertical scroll bar to left-hand edge of pane
-		this.setRowHeaderView(secVertBar);
-		this.putClientProperty("secVertBar", secVertBar);
+        setRowHeaderView(secVertBar);
+        putClientProperty("secVertBar", secVertBar);
 	}
 
 	/**
 	 * Creates a chart panel from the specified plot and title.
 	 * @param title the title to be displayed above the plot
-	 * @param subtitle 
+	 * @param subtitle
 	 * @param plot the plot to be displayed in the heat map view
 	 * @return the chart panel
 	 */
 	private ChartPanel createChart(String title, Title subtitle, XYPlot plot) {
-		
+
 		// create chart, add color bar next to it
 		JFreeChart chart = new JFreeChart(title, plot);
 		chart.removeLegend();
 		chart.addSubtitle(subtitle);
 		chart.setBackgroundPaint(Color.WHITE);
-		
+
 		// wrap chart in panel
 		ChartPanel chartPnl = new ChartPanel(chart) {
 			/**
 			 * The decimal formatter.
 			 */
 			Format formatter = new DecimalFormat("0");
-			
+
 			/**
 			 * {@inheritDoc}<p>
 			 * Overridden to show axis labels or matrix values below the mouse cursor.
@@ -439,8 +437,8 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			@Override
 			public String getToolTipText(MouseEvent evt) {
 				Point2D p = evt.getPoint();
-				Rectangle2D plotArea = getScreenDataArea();
-				XYPlot plot = (XYPlot) getChart().getPlot();
+				Rectangle2D plotArea = this.getScreenDataArea();
+				XYPlot plot = (XYPlot) this.getChart().getPlot();
 				int chartX = (int) Math.round(plot.getDomainAxis().java2DToValue(
 						p.getX(), plotArea, plot.getDomainAxisEdge()));
 				int chartY = (int) Math.round(plot.getRangeAxis().java2DToValue(
@@ -450,7 +448,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				if (rangeX.contains(chartX) && rangeY.contains(chartY)) {
 					MatrixSeriesCollection dataset = (MatrixSeriesCollection) plot.getDataset();
 					double chartZ = dataset.getSeries(0).get(chartY, chartX);
-					return formatter.format(chartZ);
+					return this.formatter.format(chartZ);
 //					return Double.toString(chartZ);
 				} else {
 					if (rangeY.contains(chartY) && (chartX < rangeX.getLowerBound())) {
@@ -461,34 +459,34 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				}
 				return null;
 			}
-			
+
 			@Override
 			public Point getToolTipLocation(MouseEvent evt) {
-				if (getToolTipText(evt) != null) {
+				if (this.getToolTipText(evt) != null) {
 					Point point = evt.getPoint();
 					point.translate(0, 20);
 					return point;
 				}
 				return null;
 			}
-			
+
 			@Override
 			protected void paintChildren(Graphics g) {
 				// Fade chart if disabled
 				if (!HeatMapPane.this.isEnabled()) {
 					g.setColor(new Color(255, 255, 255, 192));
-					g.fillRect(0, 0, this.getWidth(), this.getHeight());
-					
+					g.fillRect(0, 0, getWidth(), getHeight());
+
 					// Paint notification string if no data has been loaded yet
-					if (!HeatMapPane.this.isBusy()) {
+					if (!isBusy()) {
 						Graphics2D g2d = (Graphics2D) g;
 						String str = "no results loaded";
 						int strWidth = g2d.getFontMetrics().stringWidth(str);
 						int strHeight = g2d.getFontMetrics().getHeight();
-						float xOffset = this.getWidth() / 2.125f - strWidth / 2.0f;
-						float yOffset = this.getHeight() / 2.05f;
+						float xOffset = getWidth() / 2.125f - strWidth / 2.0f;
+						float yOffset = getHeight() / 2.05f;
 						g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
-						
+
 						g2d.setColor(Color.BLACK);
 						g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
 		                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -497,49 +495,49 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				}
 				super.paintChildren(g);
 			}
-			
+
 		};
 		chartPnl.setPreferredSize(new Dimension());
 		chartPnl.setMinimumDrawHeight(0);
 		chartPnl.setMaximumDrawHeight(1440);
 		chartPnl.setMinimumDrawWidth(0);
 		chartPnl.setMaximumDrawWidth(2560);
-		
+
 		// remove default context menu
 		chartPnl.removeMouseListener(chartPnl.getMouseListeners()[1]);
-		
+
 		// Set up default layout
 		FormLayout layout = new FormLayout(
 				"3px, 23px, 20px, c:0px:g, 51px, 23px, 2px",
 				"3px, t:23px, 1px, c:0px:g, 24px, f:23px, 2px");
 		chartPnl.setLayout(layout);
-		
-		Object[][] xyValues = new Object[][] { 
-				TaxonomyChartType.values(), 
-				OntologyChartType.values(), 
+
+		Object[][] xyValues = new Object[][] {
+				TaxonomyChart.TaxonomyChartType.values(),
+				OntologyChart.OntologyChartType.values(),
 				HierarchyLevel.values() };
-		Object[][] zValues = new Object[][] { HierarchyLevel.values() };
+		Object[][] zValues = { HierarchyLevel.values() };
 
 		// Create axis buttons using default values
-		this.xBtn = new AxisPopupButton(Axis.X_AXIS, xyValues, OntologyChartType.BIOLOGICAL_PROCESS);
-		this.yBtn = new AxisPopupButton(Axis.Y_AXIS, xyValues, TaxonomyChartType.SPECIES);
-		this.zBtn = new AxisPopupButton(Axis.Z_AXIS, zValues, HierarchyLevel.PROTEIN_LEVEL);
-		
+        xBtn = new HeatMapPane.AxisPopupButton(HeatMapPane.Axis.X_AXIS, xyValues, OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS);
+		this.yBtn = new HeatMapPane.AxisPopupButton(HeatMapPane.Axis.Y_AXIS, xyValues, TaxonomyChart.TaxonomyChartType.SPECIES);
+		this.zBtn = new HeatMapPane.AxisPopupButton(HeatMapPane.Axis.Z_AXIS, zValues, HierarchyLevel.PROTEIN_LEVEL);
+
 		this.zoomBtn = this.createZoomButton();
 		this.saveBtn = this.createSaveButton();
-		
+
 		// Create busy label to visualize heat map updating being in progress
 		busyLbl = new JXBusyLabel(new Dimension(100, 100));
 		busyLbl.setHorizontalAlignment(SwingConstants.CENTER);
 		busyLbl.setVisible(false);
-		
+
 		chartPnl.add(xBtn, CC.xy(4, 6));
 		chartPnl.add(yBtn, CC.xy(2, 4));
 		chartPnl.add(zBtn, CC.xy(6, 4));
 		chartPnl.add(zoomBtn, CC.xy(2, 6));
 		chartPnl.add(saveBtn, CC.xy(6, 2));
 		chartPnl.add(busyLbl, CC.xy(4, 4));
-		
+
 		return chartPnl;
 	}
 
@@ -549,29 +547,29 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * @return a zoom button widget
 	 */
 	private JToggleButton createZoomButton() {
-		
+
 		final JToggleButton zoomBtn = new JToggleButton(IconConstants.ZOOM_ICON);
 		zoomBtn.setRolloverIcon(IconConstants.ZOOM_ROLLOVER_ICON);
 		zoomBtn.setPressedIcon(IconConstants.ZOOM_PRESSED_ICON);
 		zoomBtn.setMargin(new Insets(2, 1, 1, 1));
 		zoomBtn.setPreferredSize(new Dimension(23, 23));
-		
+
 		// Create popup menu containing zoom controls, remove its background and border
 		final JPopupMenu zoomPop = new JPopupMenu();
 		zoomPop.setBorderPainted(false);
 		zoomPop.setOpaque(false);
 		zoomPop.setBackground(new Color(0, true));
-		
+
 		final JPanel zoomPnl = new JPanel(new FormLayout("21px, 1px, p:g", "f:p:g, 1px, f:21px"));
 		zoomPnl.setOpaque(false);
 
 		// Create sub-panel containing vertical zoom slider and label
 		final JPanel zoomVertPnl = new JPanel(new FormLayout("p", "2dlu, p, 2dlu, p"));
 		zoomVertPnl.setBorder(zoomPop.getBorder());
-		
+
 		final JSlider zoomVertSld = new JSlider(JSlider.VERTICAL, 1, 26, 13);
 		zoomVertSld.setSnapToTicks(true);
-		
+
 		JLabel zoomVertLbl = new JLabel("" + zoomVertSld.getValue(), SwingConstants.RIGHT) {
 			@Override
 			public Dimension getPreferredSize() {
@@ -584,21 +582,21 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		};
 		zoomVertLbl.setUI(new VerticalLabelUI(false));
 		zoomVertLbl.setFocusable(false);
-		
+
 		// Link label to slider via client property
 		zoomVertSld.putClientProperty("label", zoomVertLbl);
 		zoomVertLbl.putClientProperty("slider", zoomVertSld);
 
 		zoomVertPnl.add(zoomVertLbl, CC.xy(1, 2));
 		zoomVertPnl.add(zoomVertSld, CC.xy(1, 4));
-		
+
 		// Create sub-panel containing horizontal zoom slider and label
 		JPanel zoomHorzPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu", "p"));
 		zoomHorzPnl.setBorder(zoomPop.getBorder());
-		
+
 		final JSlider zoomHorzSld = new JSlider(JSlider.HORIZONTAL, 1, 26, 13);
 		zoomHorzSld.setSnapToTicks(true);
-		
+
 		JLabel zoomHorzLbl = new JLabel("" + zoomHorzSld.getValue(), SwingConstants.RIGHT) {
 			@Override
 			public Dimension getPreferredSize() {
@@ -614,10 +612,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		// Link label to slider via client property
 		zoomHorzSld.putClientProperty("label", zoomHorzLbl);
 		zoomHorzLbl.putClientProperty("slider", zoomHorzSld);
-		
+
 		zoomHorzPnl.add(zoomHorzSld, CC.xy(1, 1));
 		zoomHorzPnl.add(zoomHorzLbl, CC.xy(3, 1));
-		
+
 		// Create change listener for sliders
 		ChangeListener cl = new ChangeListener() {
 			@Override
@@ -635,7 +633,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		};
 		zoomVertSld.addChangeListener(cl);
 		zoomHorzSld.addChangeListener(cl);
-		
+
 		// create mouse listener for sliders
 		MouseAdapter ma;
 		ma = new MouseAdapter() {
@@ -663,10 +661,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 //		zoomVertSld.addMouseListener(ma);
 		zoomHorzSld.addMouseWheelListener(ma);
 //		zoomHorzSld.addMouseListener(ma);
-		
+
 		zoomPnl.add(zoomVertPnl, CC.xywh(1, 1, 2, 2));
 		zoomPnl.add(zoomHorzPnl, CC.xywh(2, 2, 2, 2));
-		
+
 		// Make focus cycle between both sliders
 		FocusTraversalPolicy policy = new ContainerOrderFocusTraversalPolicy() {
 			@Override
@@ -690,7 +688,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		};
 		zoomPnl.setFocusCycleRoot(true);
 		zoomPnl.setFocusTraversalPolicy(policy);
-		
+
 		// Add mouse listener to dismiss popup when clicking on invisible panel background
 		zoomPnl.addMouseListener(new MouseAdapter() {
 			@Override
@@ -701,9 +699,9 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				}
 			}
 		});
-		
+
 		zoomPop.add(zoomPnl);
-		
+
 		// Add popup listener to synchronize popup visibility with button selection state
 		zoomPop.addPopupMenuListener(new PopupMenuListener() {
 			@Override
@@ -715,7 +713,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				zoomBtn.setSelected(false);
 			}
 		});
-		
+
 		// Add item listener to button to display popup above button on click
 		zoomBtn.addItemListener(new ItemListener() {
 			@Override
@@ -745,7 +743,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				}
 			}
 		});
-		
+
 		return zoomBtn;
 	}
 
@@ -755,34 +753,34 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * @return a save button widget
 	 */
 	private JButton createSaveButton() {
-		
+
 			// Init button
 			JButton saveBtn = new JButton(IconConstants.SAVE_ICON);
 			saveBtn.setRolloverIcon(IconConstants.SAVE_ROLLOVER_ICON);
 			saveBtn.setPressedIcon(IconConstants.SAVE_PRESSED_ICON);
-			
+
 			// Add action listener showing a save dialog
 			saveBtn.addActionListener(new ActionListener() {
-				
+
 				/**
 				 * The inner margin of the chart panel around the central plot.
 				 */
 				private Insets margin = new Insets(27, 46, 48, 87);
-				
+
 				/**
 				 * The height of a data row in pixels.
 				 */
 				private int rowHeight = 30;
-				
+
 				/**
 				 * The width of a data column in pixels.
 				 */
 				private int colWidth = 30;
-	
+
 				@Override
 				public void actionPerformed(ActionEvent evt) {
 					HeatMapPane heatMap = HeatMapPane.this;
-					
+
 					// Calculate margins from plot area
 					ChartPanel chartPnl = (ChartPanel) heatMap.getViewport().getView();
 					XYPlot plot = (XYPlot) chartPnl.getChart().getPlot();
@@ -817,11 +815,11 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					matDimPnl.add(matRowLbl, CC.xy(1, 1));
 					matDimPnl.add(new JLabel("x"), CC.xy(3, 1));
 					matDimPnl.add(matColLbl, CC.xy(5, 1));
-					
+
 					// Init spinners for manipulating row/column pixel size
 					JSpinner rowSpn = new JSpinner(new SpinnerNumberModel(this.rowHeight, 15, null, 5));
 					JSpinner colSpn = new JSpinner(new SpinnerNumberModel(this.colWidth, 15, null, 5));
-	
+
 					// Init and Lay out labels for previewing component size
 					JPanel imgDimPnl = new JPanel(new FormLayout("p, 2dlu, p, 2dlu, p, 1dlu, p", "p")) {
 						@Override
@@ -839,12 +837,12 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					imgDimPnl.add(new JLabel("x"), CC.xy(3, 1));
 					imgDimPnl.add(imgColLbl, CC.xy(5, 1));
 					imgDimPnl.add(new JLabel("px"), CC.xy(7, 1));
-					
+
 					// Link labels to spinners
 					rowSpn.putClientProperty("label", imgRowLbl);
 					rowSpn.putClientProperty("dimension", "height");
 					colSpn.putClientProperty("label", imgColLbl);
-	
+
 					// Create change listener for updating spinner labels on value change
 					ChangeListener cl = new ChangeListener() {
 						@Override
@@ -868,21 +866,21 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					};
 					rowSpn.addChangeListener(cl);
 					colSpn.addChangeListener(cl);
-					
+
 					// Lay out accessory components
 					accessoryPnl.add(new JLabel("Matrix dimensions:"), CC.xyw(2, 1, 5));
 					accessoryPnl.add(matDimPnl, CC.xyw(2, 3, 5));
-					
+
 					accessoryPnl.add(new JLabel("Row height"), CC.xy(2, 5));
 					accessoryPnl.add(rowSpn, CC.xy(4, 5));
 					accessoryPnl.add(new JLabel("px"), CC.xy(6, 5));
 					accessoryPnl.add(new JLabel("Col. height"), CC.xy(2, 7));
 					accessoryPnl.add(colSpn, CC.xy(4, 7));
 					accessoryPnl.add(new JLabel("px"), CC.xy(6, 7));
-					
+
 					accessoryPnl.add(new JLabel("Image dimensions:"), CC.xyw(2, 9, 5));
 					accessoryPnl.add(imgDimPnl, CC.xyw(2, 11, 5));
-					
+
 					// Attach accessory panel to file chooser
 					chooser.setAccessory(accessoryPnl);
 					chooser.addChoosableFileFilter(Constants.PNG_FILE_FILTER);
@@ -890,7 +888,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					chooser.addChoosableFileFilter(Constants.EXCEL_XML_FILE_FILTER);
 					chooser.setAcceptAllFileFilterUsed(false);
 					chooser.setFileFilter(Constants.PNG_FILE_FILTER);
-					
+
 					// Install listener to track file filter selection changes
 					chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY,
 							new PropertyChangeListener() {
@@ -904,16 +902,16 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 									}
 								}
 							});
-					
+
 					// Show dialog
 					int res = chooser.showSaveDialog(heatMap);
 					if (res == JFileChooser.APPROVE_OPTION) {
 						// Get single selected file
 						File file = chooser.getSelectedFile();
-						
+
 						// Determine file type
 						FileFilter filter = chooser.getFileFilter();
-						
+
 						if (filter == Constants.PNG_FILE_FILTER) {
 							this.exportPNG(file, bi);
 						} else if (filter == Constants.CSV_FILE_FILTER) {
@@ -921,17 +919,17 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 						} else if (filter == Constants.EXCEL_XML_FILE_FILTER) {
 							this.exportXML(file);
 						}
-						
+
 					}
 					// Restore tick label truncation
 					xAxis.setMaximumTickLabelSize(oldXLabelSize);
 					yAxis.setMaximumTickLabelSize(oldYLabelSize);
 				}
-				
+
 				private void exportXML(File file) {
 					// Get data container
 					HeatMapData data = HeatMapPane.this.data;
-					
+
 					// Extract values and labels
 					MatrixSeries matrix = data.getMatrix();
 					String[] xLabels = data.getXLabels();
@@ -945,9 +943,9 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 								// automatically append newline
 								this.newLine();
 								return writer;
-							};
-						};
-						
+							}
+                        };
+
 						// write header
 						bw.append("<?xml version=\"1.0\"?>\n"
 								+ "<?mso-application progid=\"Excel.Sheet\"?>");
@@ -1046,7 +1044,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 						bw.append("  </Table>");
 						bw.append(" </Worksheet>");
 						bw.append("</Workbook>");
-						
+
 						// Clean up
 						bw.flush();
 						bw.close();
@@ -1055,7 +1053,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 					}
 				}
-				
+
 				/**
 				 * Exports the heat map data as a tab-separated CSV file.
 				 * @param file the file to save
@@ -1063,7 +1061,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				private void exportCSV(File file) {
 					// Get data container
 					HeatMapData data = HeatMapPane.this.data;
-					
+
 					// Extract values and labels
 					MatrixSeries matrix = data.getMatrix();
 					String[] xLabels = data.getXLabels();
@@ -1119,10 +1117,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					XYPlot plot = (XYPlot) chartPnl.getChart().getPlot();
 					SymbolAxisExt xAxis = (SymbolAxisExt) plot.getDomainAxis();
 					SymbolAxisExt yAxis = (SymbolAxisExt) plot.getRangeAxis();
-					
+
 					int width = this.calculateWidth(this.colWidth);
 					int height = this.calculateHeight(this.rowHeight);
-					
+
 					// Modify chart panel size to fit all rows/columns, hide GUI controls
 					for (Component comp : chartPnl.getComponents()) {
 						comp.setVisible(false);
@@ -1142,17 +1140,17 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					// FIXME: (low priority) bottom margin does not appear to be correct in some cases
 					legend.setMargin(4.0, 8.0, this.margin.bottom, 9.0);
 					legend.getAxis().setLabelPaint(Color.BLACK);
-					
+
 					// Cache old visible row/column counts, set to maximum row/column counts
 					int oldRowCount = heatMap.getVisibleRowCount();
 					int oldColCount = heatMap.getVisibleColumnCount();
 					heatMap.setVisibleRowCount(heatMap.rowCount);
 					heatMap.setVisibleColumnCount(heatMap.colCount);
-					
+
 					// Paint adjusted component into buffered image
 					bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 					chartPnl.paint(bi.createGraphics());
-					
+
 					// Write image to disk using loss-less PNG compression
 					try {
 						ImageIO.write(bi, "png", file);
@@ -1160,7 +1158,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 						JXErrorPane.showDialog(ClientFrame.getInstance(),
 								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 					}
-					
+
 					// Restore original state of chart panel
 					for (Component comp : chartPnl.getComponents()) {
 						comp.setVisible(true);
@@ -1185,7 +1183,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				private int calculateWidth(int colWidth) {
 					return margin.left + HeatMapPane.this.colCount * (colWidth + 2) + margin.right;
 				}
-	
+
 				/**
 				 * Convenience method to calculate the total component height based
 				 * on the specified pixel height for individual data rows and the
@@ -1197,7 +1195,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					return  margin.top + HeatMapPane.this.rowCount * (rowHeight + 1) + margin.bottom;
 				}
 			});
-			
+
 			return saveBtn;
 		}
 
@@ -1208,10 +1206,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * @return a color bar legend
 	 */
 	private PaintScaleLegend createLegend(String label, XYPlot plot) {
-		
+
 		// create color bar
 		PaintScale scale = ((XYBlockRenderer) plot.getRenderer()).getPaintScale();
-		
+
 		NumberAxis scaleAxis = new NumberAxis(label) {
 			@Override
 			protected double findMaximumTickLabelWidth(@SuppressWarnings("rawtypes") List ticks,
@@ -1219,15 +1217,15 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				RectangleInsets insets = this.getTickLabelInsets();
 		        Font font = this.getTickLabelFont();
 		        FontMetrics fm = g2.getFontMetrics(font);
-		        
+
 		        double upperBound = this.getDefaultAutoRange().getUpperBound();
 		        NumberTickUnit ntu = (NumberTickUnit) getStandardTickUnits().getCeilingTickUnit(upperBound);
 				Tick tick = new NumberTick(upperBound, ntu.valueToString(upperBound),
 						TextAnchor.CENTER_LEFT, TextAnchor.CENTER_LEFT, 0.0);
-				
+
 		        Rectangle2D labelBounds = TextUtilities.getTextBounds(
 		        		tick.getText(), g2, fm);
-		       
+
 		        return labelBounds.getWidth() + insets.getLeft() + insets.getRight();
 			}
 		};
@@ -1235,12 +1233,12 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		scaleAxis.setDefaultAutoRange(new Range(-0.5, 100.5));
 		scaleAxis.setRange(-0.5, 100.5);
 		scaleAxis.setLabelPaint(Color.WHITE);
-		
+
 		PaintScaleLegend psl = new PaintScaleLegend(scale, scaleAxis);
 		psl.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
 		psl.setMargin(4.0, 8.0, 48.0, 9.0);
 		psl.setPosition(RectangleEdge.RIGHT);
-		
+
 		return psl;
 	}
 
@@ -1248,14 +1246,14 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	 * Creates a heat map plot using the specified axis tick labels as well as
 	 * data values and applies the default blue-green-red color scale renderer
 	 * to it.
-	 * @param xTitle 
-	 * @param yTitle 
+	 * @param xTitle
+	 * @param yTitle
 	 * @param xLabels the tick labels of the x axis
 	 * @param yLabels the tick labels of the y axis
 	 * @param data the matrix of values to be displayed as colored blocks
 	 * @return the heat map plot
 	 */
-	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels, 
+	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels,
 			double lowerBound, double upperBound, MatrixSeries data) {
 		return this.createPlot(xTitle, yTitle, xLabels, yLabels, data, this.createRenderer(lowerBound, upperBound));
 	}
@@ -1263,17 +1261,17 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	/**
 	 * Creates a heat map plot using the specified axis tick labels, data values
 	 * and renderer.
-	 * @param xTitle 
-	 * @param yTitle 
+	 * @param xTitle
+	 * @param yTitle
 	 * @param xLabels the tick labels of the x axis
 	 * @param yLabels the tick labels of the y axis
 	 * @param data the matrix of values to be displayed as colored blocks
 	 * @param renderer the renderer to draw colored blocks
 	 * @return the heat map plot
 	 */
-	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels, 
+	private XYPlot createPlot(String xTitle, String yTitle, String[] xLabels, String[] yLabels,
 			MatrixSeries data, XYBlockRenderer renderer) {
-	
+
 		// create x axis
 		FontMetrics fm = this.getFontMetrics(org.jfree.chart.axis.Axis.DEFAULT_TICK_LABEL_FONT);
 		SymbolAxis xAxis = new SymbolAxisExt(xTitle, xLabels, fm);
@@ -1281,12 +1279,12 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		xAxis.setVerticalTickLabels(true);
 		xAxis.setTickLabelInsets(new RectangleInsets(4, 2, 4, 2));
 		xAxis.setLabelPaint(Color.WHITE);
-		
+
 		// create y axis
 		SymbolAxis yAxis = new SymbolAxisExt(yTitle, yLabels, fm);
 		yAxis.setInverted(true);
 		yAxis.setLabelPaint(Color.WHITE);
-		
+
 		// create plot, hide grid lines
 		XYPlot plot = new XYPlot(new MatrixSeriesCollection(data),
 				xAxis, yAxis, renderer) {
@@ -1302,7 +1300,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	    plot.setRangeGridlinesVisible(false);
 	    plot.setDomainGridlinesVisible(false);
 	    plot.setInsets(new RectangleInsets(4.0, 8.0, 8.0, 8.0));
-	    
+
 		return plot;
 	}
 
@@ -1323,7 +1321,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					ValueAxis domainAxis, ValueAxis rangeAxis,
 					XYDataset dataset, int series, int item,
 					CrosshairState crosshairState, int pass) {
-				
+
 				double x = dataset.getXValue(series, item);
 		        double y = dataset.getYValue(series, item);
 		        double z = 0.0;
@@ -1334,7 +1332,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 //	            if (item == 0) {
 //	            	System.out.println("" + z + "\n" + p);
 //	            }
-				
+
 				double xx0 = domainAxis.valueToJava2D(x - 0.5, dataArea,
 		                plot.getDomainAxisEdge());
 		        double yy0 = rangeAxis.valueToJava2D(y - 0.5, dataArea,
@@ -1356,19 +1354,19 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 //		        }
 		        g2.setPaint(p);
 		        g2.fill(block);
-		        
+
 		        g2.setPaint(Color.GRAY);
 		        g2.setStroke(new BasicStroke(1.0f));
 		        g2.draw(block);
-	
+
 		        EntityCollection entities = state.getEntityCollection();
 		        if (entities != null) {
 		            addEntity(entities, block, dataset, series, item, 0.0, 0.0);
 		        }
 			}
 		};
-		renderer.setPaintScale(new RainbowPaintScale(lowerBound, upperBound));
-		
+		renderer.setPaintScale(new HeatMapPane.RainbowPaintScale(lowerBound, upperBound));
+
 		return renderer;
 	}
 
@@ -1380,10 +1378,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	public JScrollBar getVerticalScrollBar() {
 		return this.getVerticalScrollBar(false);
 	}
-	
+
 	/**
 	 * Returns either one of the vertical scroll bars.
-	 * @param primary if <code>true</code> the primary scroll bar will be returned, 
+	 * @param primary if <code>true</code> the primary scroll bar will be returned,
 	 * 				  otherwise the secondary scroll bar will be returned
 	 * @return the primary or secondary vertical scroll bar
 	 */
@@ -1394,7 +1392,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			return this.getSecondaryVerticalScrollBar();
 		}
 	}
-	
+
 	/**
 	 * Returns the primary vertical scroll bar (associated with the z axis).
 	 * @return the primary vertical scroll bar
@@ -1402,7 +1400,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 	public JScrollBar getPrimaryVerticalScrollbar() {
 		return getVerticalScrollBar(true);
 	}
-	
+
 	/**
 	 * Returns the secondary vertical scroll bar (associated with the y axis).
 	 * @return the secondary vertical scroll bar
@@ -1430,7 +1428,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		}
 		// Propagate change event
 		this.firePropertyChange("visColCount", -1, visColCount);
-		
+
 		this.visColCount = visColCount;
 	}
 
@@ -1453,34 +1451,34 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		}
 		// Propagate change event
 		this.firePropertyChange("visRowCount", -1, visRowCount);
-		
+
 		this.visRowCount = visRowCount;
-		
+
 	}
-	
+
 	/**
 	 * Returns the value client property of the axis button corresponding to the
 	 * specified axis.
 	 * @param axis the axis
 	 * @return the axis button value property
 	 */
-	public Object getAxisButtonValue(Axis axis) {
-		AxisPopupButton axisBtn = this.getAxisButton(axis);
+	public Object getAxisButtonValue(HeatMapPane.Axis axis) {
+		HeatMapPane.AxisPopupButton axisBtn = this.getAxisButton(axis);
 		if (axisBtn != null) {
 			return axisBtn.getValue();
 		}
 		System.err.println("ERROR: unknown axis specified");
 		return null;
 	}
-	
+
 	/**
 	 * Sets the value client property of the axis button corresponding to the
 	 * specified axis to the specified value object.
 	 * @param axis the axis
 	 * @param obj the balue object
 	 */
-	public void setAxisButtonValue(Axis axis, Object obj) {
-		AxisPopupButton axisBtn = this.getAxisButton(axis);
+	public void setAxisButtonValue(HeatMapPane.Axis axis, Object obj) {
+		HeatMapPane.AxisPopupButton axisBtn = this.getAxisButton(axis);
 		if (axisBtn != null) {
 			axisBtn.setValue(obj);
 			this.updateData();
@@ -1488,13 +1486,13 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			System.err.println("ERROR: unknown axis specified");
 		}
 	}
-	
+
 	/**
 	 * Returns the button corresponding to the specified axis
 	 * @param axis the axis
 	 * @return the axis button
 	 */
-	public AxisPopupButton getAxisButton(Axis axis) {
+	public HeatMapPane.AxisPopupButton getAxisButton(HeatMapPane.Axis axis) {
 		switch (axis) {
 		case X_AXIS:
 			return this.xBtn;
@@ -1507,7 +1505,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Returns whether the heat map is currently in the process of being updated.
 	 * @return <code>true</code> if the heat map is updating, <code>false</code> otherwise
@@ -1546,15 +1544,15 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		this.getHorizontalScrollBar().revalidate();
 		this.getPrimaryVerticalScrollbar().revalidate();
 		this.getSecondaryVerticalScrollBar().revalidate();
-	};
-	
-	/**
+	}
+
+    /**
 	 * Convenience class for a popup button control for use in the heat map component.
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	private class AxisPopupButton extends JToggleButton {
-		
+
 		/**
 		 * The currently selected value.
 		 */
@@ -1567,25 +1565,25 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		 * @param angle the rotation angle
 		 * @param values the values to use inside the associated popup
 		 */
-		public AxisPopupButton(final Axis axis, Object[][] values, Object initValue) {
+		public AxisPopupButton(final HeatMapPane.Axis axis, Object[][] values, Object initValue) {
 			super();
-			
+
 			// Cache initial value
 			this.value = initValue;
-			
+
 			// Configure button properties
 			this.setLayout(new BorderLayout());
 			this.setBackground(new Color(245, 245, 245));
-			
+
 			// Create text label to be placed on button
 			JLabel buttonLbl = new JLabel(initValue.toString());
 			buttonLbl.setHorizontalAlignment(SwingConstants.CENTER);
 			// Rotate and align text label depending on axis
 			// TODO: check insets on Windows machine
-			if (axis == Axis.Y_AXIS) {
+			if (axis == HeatMapPane.Axis.Y_AXIS) {
 				buttonLbl.setUI(new VerticalLabelUI(false));
 				this.setMargin(new Insets(3, 1, 5, 1));
-			} else if (axis == Axis.Z_AXIS) {
+			} else if (axis == HeatMapPane.Axis.Z_AXIS) {
 				buttonLbl.setUI(new VerticalLabelUI(true));
 				this.setMargin(new Insets(5, 1, 3, 1));
 			} else {
@@ -1593,7 +1591,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			}
 			buttonLbl.setFont(this.getFont().deriveFont(Font.BOLD));
 			this.add(buttonLbl, BorderLayout.CENTER);
-			
+
 			// Create dynamic cascading popup adding items derived from the provided objects
 			final JPopupMenu pop = new JPopupMenu();
 			ButtonGroup grp = new ButtonGroup();
@@ -1601,9 +1599,9 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				JComponent subMenu = pop;
 				// Identify sub-menu type
 				if (values.length > 1) {
-					if (group[0] instanceof OntologyChartType) {
+					if (group[0] instanceof OntologyChart.OntologyChartType) {
 						subMenu = new JMenu("Ontology");
-					} else if (group[0] instanceof TaxonomyChartType) {
+					} else if (group[0] instanceof TaxonomyChart.TaxonomyChartType) {
 						subMenu = new JMenu("Taxonomy");
 					} else if (group[0] instanceof HierarchyLevel) {
 						subMenu = new JMenu("Hierarchy");
@@ -1628,7 +1626,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					pop.add(subMenu);
 				}
 			}
-			
+
 			// Synchronize popup visibility with button selection state
 			pop.addPopupMenuListener(new PopupMenuListener() {
 				@Override
@@ -1637,10 +1635,10 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 				public void popupMenuCanceled(PopupMenuEvent e) { }
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					AxisPopupButton.this.setSelected(false);
+					HeatMapPane.AxisPopupButton.this.setSelected(false);
 				}
 			});
-			
+
 			// Install action listener to show popup on click
 			this.addActionListener(new ActionListener() {
 				@Override
@@ -1649,9 +1647,9 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					pop.show(src, 0, src.getHeight());
 				}
 			});
-			
+
 		}
-		
+
 		/**
 		 * Returns the currently selected value.
 		 * @return the selected value
@@ -1659,7 +1657,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		public Object getValue() {
 			return this.value;
 		}
-		
+
 		/**
 		 * Sets the currently selected value.
 		 * @param value the value to set
@@ -1668,42 +1666,42 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			this.value = value;
 			((JLabel) this.getComponent(0)).setText(value.toString());
 		}
-		
+
 		@Override
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
 			this.getComponent(0).setEnabled(enabled);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Custom paint scale implementation providing a continuous rainbow-like color gradient.
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	private class RainbowPaintScale implements PaintScale {
-		
+
 		/**
 		 * The lower value boundary of the scale.
 		 */
 		private double lowerBound;
-		
+
 		/**
 		 * The upper value boundary of the scale.
 		 */
 		private double upperBound;
-		
+
 		/**
 		 * The opacity of the scale.
 		 */
 		private float alpha;
-		
+
 		/**
 		 * The background color of the scale.
 		 */
 		private Color background;
-		
+
 		/**
 		 * Creates a rainbow paint scale with the specified upper and lower
 		 * range boundaries and colors with 50% opacity blended into a white
@@ -1714,7 +1712,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		public RainbowPaintScale(double lowerBound, double upperBound) {
 			this(lowerBound, upperBound, 0.5f, Color.WHITE);
 		}
-		
+
 		/**
 		 * Creates a rainbow paint scale with the specified upper and lower
 		 * range boundaries as well as the specified opacity and background color.
@@ -1748,7 +1746,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		public double getUpperBound() {
 			return upperBound;
 		}
-		
+
 		/**
 		 * Sets the upper bound for the scale.
 		 * @param the upper bound to set
@@ -1774,13 +1772,13 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			r = r * alpha + bg[0] * (1.0f - alpha);
 			g = g * alpha + bg[1] * (1.0f - alpha);
 			b = b * alpha + bg[2] * (1.0f - alpha);
-			
+
 			Color col = new Color(r, g, b);
 			return col;
 		}
-		
+
 	}
-	
+
 	/**
 	 * UI class for vertical labels.<br>
 	 * @see <a href="http://www.codeguru.com/java/articles/199.shtml">http://www.codeguru.com/java/articles/199.shtml</a>
@@ -1859,18 +1857,18 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			g2.setTransform(tr);
 		}
 	}
-	
+
 	/**
 	 * Convenience extension of the SymbolAxis class to allow dynamic truncation
 	 * of axis tick labels.
 	 */
 	public static class SymbolAxisExt extends SymbolAxis {
-		
+
 		/**
 		 * Maximum pixel length of label strings.
 		 */
 		private int maxLabelSize = 60;
-		
+
 		/**
 		 * The font metrics used for measuring axis label sizes.
 		 */
@@ -1886,7 +1884,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			super(label, sv);
 			this.fm = fm;
 		}
-		
+
 		/**
 		 * {@inheritDoc}<p>
 		 * Overriden to take into account for all tick labels, not only the
@@ -1898,14 +1896,14 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			if (vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
 				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60), 
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60),
 							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
 				}
 				return super.findMaximumTickLabelHeight(newTicks, g2, drawArea, vertical);
 			}
 			return super.findMaximumTickLabelHeight(ticks, g2, drawArea, vertical);
 		}
-		
+
 
 		/**
 		 * {@inheritDoc}<p>
@@ -1918,7 +1916,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			if (!vertical && (this.maxLabelSize > 0)) {
 				List<NumberTick> newTicks = new ArrayList<NumberTick>();
 				for (String str : this.getSymbols()) {
-					newTicks.add(new NumberTick(0.0, trimToSize(str, 60), 
+					newTicks.add(new NumberTick(0.0, trimToSize(str, 60),
 							TextAnchor.CENTER_RIGHT, TextAnchor.CENTER_RIGHT, -Math.PI / 2.0));
 				}
 				return super.findMaximumTickLabelWidth(newTicks, g2, drawArea, vertical);
@@ -1928,7 +1926,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 
 		/**
 		 * {@inheritDoc}<p>
-		 * Overridden to shorten overly long tick labels. 
+		 * Overridden to shorten overly long tick labels.
 		 */
 		@Override
 		public String valueToString(double value) {
@@ -2149,17 +2147,17 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		public void setMaximumTickLabelSize(int maxLabelSize) {
 			this.maxLabelSize = maxLabelSize;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Worker implementation for updating heat map contents based on a search
 	 * result object.
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	private class UpdateWorker extends SwingWorker<Object, Object> {
-		
+
 		/**
 		 * The result object reference.
 		 */
@@ -2177,18 +2175,18 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		@Override
 		protected Object doInBackground() {
 			Thread.currentThread().setName("UpdateHeatMapThread");
-			
+
 			HeatMapPane heatMap = HeatMapPane.this;
 			heatMap.setBusy(true);
-			
+
 			// Refresh data container contents
 			if (result != null) {
 				heatMap.data.setResult(result);
 			}
 			heatMap.data.setAxisTypes(
-					(ChartType) heatMap.getAxisButtonValue(Axis.X_AXIS),
-					(ChartType) heatMap.getAxisButtonValue(Axis.Y_AXIS),
-					(HierarchyLevel) heatMap.getAxisButtonValue(Axis.Z_AXIS));
+					(ChartType) heatMap.getAxisButtonValue(HeatMapPane.Axis.X_AXIS),
+					(ChartType) heatMap.getAxisButtonValue(HeatMapPane.Axis.Y_AXIS),
+					(HierarchyLevel) heatMap.getAxisButtonValue(HeatMapPane.Axis.Z_AXIS));
 			
 			// Get existing chart instances
 			ChartPanel chartPnl = (ChartPanel) heatMap.getViewport().getView();
@@ -2201,7 +2199,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 					heatMap.data.getXLabels(), heatMap.data.getYLabels(),
 					0.0, heatMap.data.getMaximum(), heatMap.data.getMatrix());
 			
-			double max = data.getMaximum();
+			double max = HeatMapPane.this.data.getMaximum();
 			
 			// Re-create chart
 			JFreeChart newChart = new JFreeChart(oldChart.getTitle().getText(), newPlot);
@@ -2217,7 +2215,7 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 			chartPnl.setChart(newChart);
 			
 			// Adjust view
-			MatrixSeries series = data.getMatrix();
+			MatrixSeries series = HeatMapPane.this.data.getMatrix();
 			heatMap.colCount = series.getColumnsCount();
 			heatMap.firePropertyChange("colCount", -1, series.getColumnsCount());
 			heatMap.rowCount = series.getRowCount();
@@ -2239,8 +2237,8 @@ public class HeatMapPane extends JScrollPane implements Busyable {
 		@Override
 		protected void done() {
 			// Refresh chart controls
-			HeatMapPane.this.updateChartLayout();
-			HeatMapPane.this.setBusy(false);
+            updateChartLayout();
+            setBusy(false);
 		}
 		
 	}

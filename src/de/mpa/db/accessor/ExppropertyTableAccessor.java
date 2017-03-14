@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +38,12 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'exppropertyid' column.
@@ -59,25 +60,25 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	/**
 	 * This variable represents the contents for the 'name' column.
 	 */
-	protected String iName = null;
+	protected String iName;
 
 
 	/**
 	 * This variable represents the contents for the 'value' column.
 	 */
-	protected String iValue = null;
+	protected String iValue;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -126,25 +127,25 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public ExppropertyTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(EXPPROPERTYID)) {
-			this.iExppropertyid = ((Long)aParams.get(EXPPROPERTYID)).longValue();
+		if(aParams.containsKey(ExppropertyTableAccessor.EXPPROPERTYID)) {
+            iExppropertyid = ((Long)aParams.get(ExppropertyTableAccessor.EXPPROPERTYID)).longValue();
 		}
-		if(aParams.containsKey(FK_EXPERIMENTID)) {
-			this.iFk_experimentid = ((Long)aParams.get(FK_EXPERIMENTID)).longValue();
+		if(aParams.containsKey(ExppropertyTableAccessor.FK_EXPERIMENTID)) {
+            iFk_experimentid = ((Long)aParams.get(ExppropertyTableAccessor.FK_EXPERIMENTID)).longValue();
 		}
-		if(aParams.containsKey(NAME)) {
-			this.iName = (String)aParams.get(NAME);
+		if(aParams.containsKey(ExppropertyTableAccessor.NAME)) {
+            iName = (String)aParams.get(ExppropertyTableAccessor.NAME);
 		}
-		if(aParams.containsKey(VALUE)) {
-			this.iValue = (String)aParams.get(VALUE);
+		if(aParams.containsKey(ExppropertyTableAccessor.VALUE)) {
+            iValue = (String)aParams.get(ExppropertyTableAccessor.VALUE);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(ExppropertyTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(ExppropertyTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(ExppropertyTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(ExppropertyTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -156,14 +157,14 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public ExppropertyTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iExppropertyid = aResultSet.getLong("exppropertyid");
-		this.iFk_experimentid = aResultSet.getLong("fk_experimentid");
-		this.iName = (String)aResultSet.getObject("name");
-		this.iValue = (String)aResultSet.getObject("value");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+        iExppropertyid = aResultSet.getLong("exppropertyid");
+        iFk_experimentid = aResultSet.getLong("fk_experimentid");
+        iName = (String)aResultSet.getObject("name");
+        iValue = (String)aResultSet.getObject("value");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -173,7 +174,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @return	long	with the value for the Exppropertyid column.
 	 */
 	public long getExppropertyid() {
-		return this.iExppropertyid;
+		return iExppropertyid;
 	}
 
 	/**
@@ -182,7 +183,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @return	long	with the value for the Fk_experimentid column.
 	 */
 	public long getFk_experimentid() {
-		return this.iFk_experimentid;
+		return iFk_experimentid;
 	}
 
 	/**
@@ -191,7 +192,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @return	String	with the value for the Name column.
 	 */
 	public String getName() {
-		return this.iName;
+		return iName;
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @return	String	with the value for the Value column.
 	 */
 	public String getValue() {
-		return this.iValue;
+		return iValue;
 	}
 
 	/**
@@ -208,8 +209,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -217,8 +218,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -227,8 +228,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aExppropertyid	long with the value for the Exppropertyid column.
 	 */
 	public void setExppropertyid(long aExppropertyid) {
-		this.iExppropertyid = aExppropertyid;
-		this.iUpdated = true;
+        iExppropertyid = aExppropertyid;
+        iUpdated = true;
 	}
 
 	/**
@@ -237,8 +238,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aFk_experimentid	long with the value for the Fk_experimentid column.
 	 */
 	public void setFk_experimentid(long aFk_experimentid) {
-		this.iFk_experimentid = aFk_experimentid;
-		this.iUpdated = true;
+        iFk_experimentid = aFk_experimentid;
+        iUpdated = true;
 	}
 
 	/**
@@ -247,8 +248,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aName	String with the value for the Name column.
 	 */
 	public void setName(String aName) {
-		this.iName = aName;
-		this.iUpdated = true;
+        iName = aName;
+        iUpdated = true;
 	}
 
 	/**
@@ -257,8 +258,8 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param	aValue	String with the value for the Value column.
 	 */
 	public void setValue(String aValue) {
-		this.iValue = aValue;
-		this.iUpdated = true;
+        iValue = aValue;
+        iUpdated = true;
 	}
 
 	/**
@@ -266,9 +267,9 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -276,9 +277,9 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -291,7 +292,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM expproperty WHERE exppropertyid = ?");
-		lStat.setLong(1, iExppropertyid);
+		lStat.setLong(1, this.iExppropertyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -306,24 +307,24 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(EXPPROPERTYID)) {
+		if(!aKeys.containsKey(ExppropertyTableAccessor.EXPPROPERTYID)) {
 			throw new IllegalArgumentException("Primary key field 'EXPPROPERTYID' is missing in HashMap!");
 		} else {
-			iExppropertyid = ((Long)aKeys.get(EXPPROPERTYID)).longValue();
+            this.iExppropertyid = ((Long)aKeys.get(ExppropertyTableAccessor.EXPPROPERTYID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM expproperty WHERE exppropertyid = ?");
-		lStat.setLong(1, iExppropertyid);
+		lStat.setLong(1, this.iExppropertyid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iExppropertyid = lRS.getLong("exppropertyid");
-			iFk_experimentid = lRS.getLong("fk_experimentid");
-			iName = (String)lRS.getObject("name");
-			iValue = (String)lRS.getObject("value");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iExppropertyid = lRS.getLong("exppropertyid");
+            this.iFk_experimentid = lRS.getLong("fk_experimentid");
+            this.iName = (String)lRS.getObject("name");
+            this.iValue = (String)lRS.getObject("value");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -352,7 +353,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	public static ArrayList<ExppropertyTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<ExppropertyTableAccessor>  entities = new ArrayList<ExppropertyTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(ExppropertyTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new ExppropertyTableAccessor(rs));
 		}
@@ -370,19 +371,19 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE expproperty SET exppropertyid = ?, fk_experimentid = ?, name = ?, value = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE exppropertyid = ?");
-		lStat.setLong(1, iExppropertyid);
-		lStat.setLong(2, iFk_experimentid);
-		lStat.setObject(3, iName);
-		lStat.setObject(4, iValue);
-		lStat.setObject(5, iCreationdate);
-		lStat.setLong(6, iExppropertyid);
+		lStat.setLong(1, this.iExppropertyid);
+		lStat.setLong(2, this.iFk_experimentid);
+		lStat.setObject(3, this.iName);
+		lStat.setObject(4, this.iValue);
+		lStat.setObject(5, this.iCreationdate);
+		lStat.setLong(6, this.iExppropertyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -395,25 +396,25 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO expproperty (exppropertyid, fk_experimentid, name, value, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iExppropertyid == Long.MIN_VALUE) {
+		if(this.iExppropertyid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iExppropertyid);
+			lStat.setLong(1, this.iExppropertyid);
 		}
-		if(iFk_experimentid == Long.MIN_VALUE) {
+		if(this.iFk_experimentid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_experimentid);
+			lStat.setLong(2, this.iFk_experimentid);
 		}
-		if(iName == null) {
+		if(this.iName == null) {
 			lStat.setNull(3, 12);
 		} else {
-			lStat.setObject(3, iName);
+			lStat.setObject(3, this.iName);
 		}
-		if(iValue == null) {
+		if(this.iValue == null) {
 			lStat.setNull(4, 12);
 		} else {
-			lStat.setObject(4, iValue);
+			lStat.setObject(4, this.iValue);
 		}
 		int result = lStat.executeUpdate();
 
@@ -421,22 +422,22 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iExppropertyid = ((Number) iKeys[0]).longValue();
+            this.iExppropertyid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -447,7 +448,7 @@ public class ExppropertyTableAccessor implements Deleteable, Retrievable, Update
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

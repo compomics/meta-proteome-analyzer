@@ -47,7 +47,7 @@ public class DbConnectionSettings {
 	 */
 	public DbConnectionSettings() {
 		try {
-			readSettingsFromFile(new File("password/DbConnectionSettings.txt"));
+            this.readSettingsFromFile(new File("password/DbConnectionSettings.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
 //			JXErrorPane.showDialog(ClientFrame.getInstance(),
@@ -63,51 +63,51 @@ public class DbConnectionSettings {
 	public void readSettingsFromFile(File settingsFile) throws IOException {
 		FileReader fr = new FileReader(settingsFile);
 		BufferedReader textReader = new BufferedReader(fr);
-		urlLocale += textReader.readLine();
-		urlRemote += textReader.readLine();
-		port += textReader.readLine() + "/";
-		username = textReader.readLine();
-		password = textReader.readLine();
+        this.urlLocale += textReader.readLine();
+        this.urlRemote += textReader.readLine();
+        this.port += textReader.readLine() + "/";
+        this.username = textReader.readLine();
+        this.password = textReader.readLine();
 		textReader.close();
 	}
 
 	public String getJdbcDriver() {
-		return jdbcDriver;
+		return this.jdbcDriver;
 	}
 	public void setJdbcDriver(String jdbcDriver) {
 		this.jdbcDriver = jdbcDriver;
 	}
 
 	public String getUrlLocale() {
-		return urlLocale;
+		return this.urlLocale;
 	}
 	public void setUrlLocale(String urlLocale) {
 		this.urlLocale = urlLocale;
 	}
 
 	public String getUrlRemote() {
-		return urlRemote;
+		return this.urlRemote;
 	}
 	public void setUrlRemote(String urlRemote) {
 		this.urlRemote = urlRemote;
 	}
 
 	public String getPort() {
-		return port;
+		return this.port;
 	}
 	public void setPort(String port) {
 		this.port = port;
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 	public void setPassword(String password) {
 		this.password = password;

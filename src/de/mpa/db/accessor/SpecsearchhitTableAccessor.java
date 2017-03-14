@@ -37,12 +37,12 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'specsearchhitid' column.
@@ -65,19 +65,19 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	/**
 	 * This variable represents the contents for the 'similarity' column.
 	 */
-	protected Number iSimilarity = null;
+	protected Number iSimilarity;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected String iCreationdate = null;
+	protected String iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected String iModificationdate = null;
+	protected String iModificationdate;
 
 
 	/**
@@ -126,25 +126,25 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SpecsearchhitTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(SPECSEARCHHITID)) {
-			this.iSpecsearchhitid = ((Long)aParams.get(SPECSEARCHHITID)).longValue();
+		if(aParams.containsKey(SpecsearchhitTableAccessor.SPECSEARCHHITID)) {
+            iSpecsearchhitid = ((Long)aParams.get(SpecsearchhitTableAccessor.SPECSEARCHHITID)).longValue();
 		}
-		if(aParams.containsKey(FK_SEARCHSPECTRUMID)) {
-			this.iFk_searchspectrumid = ((Long)aParams.get(FK_SEARCHSPECTRUMID)).longValue();
+		if(aParams.containsKey(SpecsearchhitTableAccessor.FK_SEARCHSPECTRUMID)) {
+            iFk_searchspectrumid = ((Long)aParams.get(SpecsearchhitTableAccessor.FK_SEARCHSPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(FK_LIBSPECTRUMID)) {
-			this.iFk_libspectrumid = ((Long)aParams.get(FK_LIBSPECTRUMID)).longValue();
+		if(aParams.containsKey(SpecsearchhitTableAccessor.FK_LIBSPECTRUMID)) {
+            iFk_libspectrumid = ((Long)aParams.get(SpecsearchhitTableAccessor.FK_LIBSPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(SIMILARITY)) {
-			this.iSimilarity = (Number)aParams.get(SIMILARITY);
+		if(aParams.containsKey(SpecsearchhitTableAccessor.SIMILARITY)) {
+            iSimilarity = (Number)aParams.get(SpecsearchhitTableAccessor.SIMILARITY);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (String)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(SpecsearchhitTableAccessor.CREATIONDATE)) {
+            iCreationdate = (String)aParams.get(SpecsearchhitTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (String)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(SpecsearchhitTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (String)aParams.get(SpecsearchhitTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -156,14 +156,14 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SpecsearchhitTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSpecsearchhitid = aResultSet.getLong("specsearchhitid");
-		this.iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
-		this.iFk_libspectrumid = aResultSet.getLong("fk_libspectrumid");
-		this.iSimilarity = (Number)aResultSet.getObject("similarity");
-		this.iCreationdate = (String)aResultSet.getObject("creationdate");
-		this.iModificationdate = (String)aResultSet.getObject("modificationdate");
+        iSpecsearchhitid = aResultSet.getLong("specsearchhitid");
+        iFk_searchspectrumid = aResultSet.getLong("fk_searchspectrumid");
+        iFk_libspectrumid = aResultSet.getLong("fk_libspectrumid");
+        iSimilarity = (Number)aResultSet.getObject("similarity");
+        iCreationdate = (String)aResultSet.getObject("creationdate");
+        iModificationdate = (String)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -173,7 +173,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	long	with the value for the Specsearchhitid column.
 	 */
 	public long getSpecsearchhitid() {
-		return this.iSpecsearchhitid;
+		return iSpecsearchhitid;
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	long	with the value for the Fk_searchspectrumid column.
 	 */
 	public long getFk_searchspectrumid() {
-		return this.iFk_searchspectrumid;
+		return iFk_searchspectrumid;
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	long	with the value for the Fk_libspectrumid column.
 	 */
 	public long getFk_libspectrumid() {
-		return this.iFk_libspectrumid;
+		return iFk_libspectrumid;
 	}
 
 	/**
@@ -200,7 +200,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	Number	with the value for the Similarity column.
 	 */
 	public Number getSimilarity() {
-		return this.iSimilarity;
+		return iSimilarity;
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	String	with the value for the Creationdate column.
 	 */
 	public String getCreationdate() {
-		return this.iCreationdate;
+		return iCreationdate;
 	}
 
 	/**
@@ -218,7 +218,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	String	with the value for the Modificationdate column.
 	 */
 	public String getModificationdate() {
-		return this.iModificationdate;
+		return iModificationdate;
 	}
 
 	/**
@@ -227,8 +227,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aSpecsearchhitid	long with the value for the Specsearchhitid column.
 	 */
 	public void setSpecsearchhitid(long aSpecsearchhitid) {
-		this.iSpecsearchhitid = aSpecsearchhitid;
-		this.iUpdated = true;
+        iSpecsearchhitid = aSpecsearchhitid;
+        iUpdated = true;
 	}
 
 	/**
@@ -237,8 +237,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aFk_searchspectrumid	long with the value for the Fk_searchspectrumid column.
 	 */
 	public void setFk_searchspectrumid(long aFk_searchspectrumid) {
-		this.iFk_searchspectrumid = aFk_searchspectrumid;
-		this.iUpdated = true;
+        iFk_searchspectrumid = aFk_searchspectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -247,8 +247,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aFk_libspectrumid	long with the value for the Fk_libspectrumid column.
 	 */
 	public void setFk_libspectrumid(long aFk_libspectrumid) {
-		this.iFk_libspectrumid = aFk_libspectrumid;
-		this.iUpdated = true;
+        iFk_libspectrumid = aFk_libspectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -257,8 +257,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aSimilarity	Number with the value for the Similarity column.
 	 */
 	public void setSimilarity(Number aSimilarity) {
-		this.iSimilarity = aSimilarity;
-		this.iUpdated = true;
+        iSimilarity = aSimilarity;
+        iUpdated = true;
 	}
 
 	/**
@@ -267,8 +267,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aCreationdate	String with the value for the Creationdate column.
 	 */
 	public void setCreationdate(String aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -277,8 +277,8 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param	aModificationdate	String with the value for the Modificationdate column.
 	 */
 	public void setModificationdate(String aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -291,7 +291,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM specsearchhit WHERE specsearchhitid = ?");
-		lStat.setLong(1, iSpecsearchhitid);
+		lStat.setLong(1, this.iSpecsearchhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -306,24 +306,24 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SPECSEARCHHITID)) {
+		if(!aKeys.containsKey(SpecsearchhitTableAccessor.SPECSEARCHHITID)) {
 			throw new IllegalArgumentException("Primary key field 'SPECSEARCHHITID' is missing in HashMap!");
 		} else {
-			iSpecsearchhitid = ((Long)aKeys.get(SPECSEARCHHITID)).longValue();
+            this.iSpecsearchhitid = ((Long)aKeys.get(SpecsearchhitTableAccessor.SPECSEARCHHITID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM specsearchhit WHERE specsearchhitid = ?");
-		lStat.setLong(1, iSpecsearchhitid);
+		lStat.setLong(1, this.iSpecsearchhitid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSpecsearchhitid = lRS.getLong("specsearchhitid");
-			iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
-			iFk_libspectrumid = lRS.getLong("fk_libspectrumid");
-			iSimilarity = (Number)lRS.getObject("similarity");
-			iCreationdate = (String)lRS.getObject("creationdate");
-			iModificationdate = (String)lRS.getObject("modificationdate");
+            this.iSpecsearchhitid = lRS.getLong("specsearchhitid");
+            this.iFk_searchspectrumid = lRS.getLong("fk_searchspectrumid");
+            this.iFk_libspectrumid = lRS.getLong("fk_libspectrumid");
+            this.iSimilarity = (Number)lRS.getObject("similarity");
+            this.iCreationdate = (String)lRS.getObject("creationdate");
+            this.iModificationdate = (String)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -352,7 +352,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	public static ArrayList<SpecsearchhitTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<SpecsearchhitTableAccessor>  entities = new ArrayList<SpecsearchhitTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(SpecsearchhitTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new SpecsearchhitTableAccessor(rs));
 		}
@@ -370,19 +370,19 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE specsearchhit SET specsearchhitid = ?, fk_searchspectrumid = ?, fk_libspectrumid = ?, similarity = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE specsearchhitid = ?");
-		lStat.setLong(1, iSpecsearchhitid);
-		lStat.setLong(2, iFk_searchspectrumid);
-		lStat.setLong(3, iFk_libspectrumid);
-		lStat.setObject(4, iSimilarity);
-		lStat.setObject(5, iCreationdate);
-		lStat.setLong(6, iSpecsearchhitid);
+		lStat.setLong(1, this.iSpecsearchhitid);
+		lStat.setLong(2, this.iFk_searchspectrumid);
+		lStat.setLong(3, this.iFk_libspectrumid);
+		lStat.setObject(4, this.iSimilarity);
+		lStat.setObject(5, this.iCreationdate);
+		lStat.setLong(6, this.iSpecsearchhitid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -395,25 +395,25 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO specsearchhit (specsearchhitid, fk_searchspectrumid, fk_libspectrumid, similarity, creationdate, modificationdate) values(?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iSpecsearchhitid == Long.MIN_VALUE) {
+		if(this.iSpecsearchhitid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSpecsearchhitid);
+			lStat.setLong(1, this.iSpecsearchhitid);
 		}
-		if(iFk_searchspectrumid == Long.MIN_VALUE) {
+		if(this.iFk_searchspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iFk_searchspectrumid);
+			lStat.setLong(2, this.iFk_searchspectrumid);
 		}
-		if(iFk_libspectrumid == Long.MIN_VALUE) {
+		if(this.iFk_libspectrumid == Long.MIN_VALUE) {
 			lStat.setNull(3, 4);
 		} else {
-			lStat.setLong(3, iFk_libspectrumid);
+			lStat.setLong(3, this.iFk_libspectrumid);
 		}
-		if(iSimilarity == null) {
+		if(this.iSimilarity == null) {
 			lStat.setNull(4, 3);
 		} else {
-			lStat.setObject(4, iSimilarity);
+			lStat.setObject(4, this.iSimilarity);
 		}
 		int result = lStat.executeUpdate();
 
@@ -421,22 +421,22 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSpecsearchhitid = ((Number) iKeys[0]).longValue();
+            this.iSpecsearchhitid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -447,7 +447,7 @@ public class SpecsearchhitTableAccessor implements Deleteable, Retrievable, Upda
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

@@ -73,8 +73,8 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	/**
 	 * The cache of selectable peptide sequence labels.
 	 */
-	private Map<String, HoverLabel> hoverLabels;
-	
+	private Map<String, CoverageViewerPane.HoverLabel> hoverLabels;
+
 //	/**
 //	 * The button group linking together peptide sequence labels.
 //	 */
@@ -84,18 +84,18 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * The sequence string of the currently selected peptide.
 	 */
 	private String selSequence;
-	
+
 	/**
 	 * Creates a sequence coverage viewer panel.
 	 */
 	public CoverageViewerPane() {
 		super();
-		
-		hoverLabels = new HashMap<String, HoverLabel>();
-		
+
+		hoverLabels = new HashMap<String, CoverageViewerPane.HoverLabel>();
+
 		this.initComponents();
 	}
-	
+
 	/**
 	 * Creates and lays out the panel's components.
 	 */
@@ -109,7 +109,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		backgroundPnl = new JPanel(new BorderLayout());
 		backgroundPnl.setBackground(Color.WHITE);
 		backgroundPnl.setOpaque(false);
-		
+
 		// create custom viewport for painting the busy label as static overlay
 		final JViewport viewport = new JViewport() {
 			/** Dummy container for painting purposes */
@@ -118,11 +118,11 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			private final String emptyStr = "no protein(s) selected";
 			/** The cached width of the empty table text */
 			private int emptyStrW = 0;
-			
+
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
-				// paint 
+				// paint
 				if (getRowCount() == 0) {
 					if (emptyStrW == 0) {
 						// cache string width
@@ -141,7 +141,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			}
 		};
 		viewport.setBackground(Color.WHITE);
-		
+
 		busyLbl = new JXBusyLabel(new Dimension(100, 100)) {
 			@Override
 			protected void paintComponent(Graphics g) {
@@ -159,22 +159,22 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 
 		this.setViewport(viewport);
 		this.setViewportView(backgroundPnl);
-		
+
 		this.clear();
 	}
-	
+
 	/**
 	 * Updates the coverage viewer by mapping out the peptide sequences inside the provided proteins.
 	 * @param proteins the proteins to be mapped out
 	 * @param peptides the peptides to map onto the proteins
 	 */
 	public void setData(final Collection<ProteinHit> proteins, final Collection<PeptideHit> peptides) {
-		
+
 		// cancel existing update process if one is in progress
 		if (updateWorker != null) {
 			updateWorker.cancel(true);
 		}
-		
+
 		// process data in background thread
 		updateWorker = new SwingWorker<Object, Object>() {
 
@@ -182,12 +182,12 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 			protected Object doInBackground() throws Exception {
 				// start appearing busy
 				setBusy(true);
-				
+
 				// clear panel
 				hoverLabels.clear();
 //				hoverGroup = new ButtonGroup();
 				backgroundPnl.removeAll();
-				
+
 				try {
 
 					Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
@@ -196,24 +196,24 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 							new Dimension(getRowHeader().getView().getPreferredSize().width, 0));
 					headerFillerLbl.setBorder(headerBorder);
 					setRowHeaderView(headerFillerLbl);
-					
+
 					// create coverage mapping
 					Map<ProteinHit, List<Interval>> coverageMap = createCoverageMapping(proteins, peptides);
 					// create color map
 					Map<String, Color> colorMap = createColorMapping(peptides);
-					
+
 					// create row header panel containing protein accessions
 					PanelBuilder headerBuilder = new PanelBuilder(new FormLayout("p:g"));
 					// create panel wrapping all protein-specific coverage panels
 					PanelBuilder coverageBuilder = new PanelBuilder(new FormLayout("l:p"));
 					coverageBuilder.setOpaque(false);
-					
+
 					int i = 1;
 					for (Entry<ProteinHit, List<Interval>> entry : coverageMap.entrySet()) {
 						ProteinHit protein = entry.getKey();
-						
+
 						Component covPnl = createCoveragePanel(protein, entry.getValue(), colorMap);
-						
+
 						JLabel headerLbl = new JLabel(protein.getAccession());
 						Insets insets = headerBorder.getBorderInsets(headerLbl);
 						headerLbl.setBorder(BorderFactory.createCompoundBorder(headerBorder, BorderFactory.createEmptyBorder(
@@ -223,13 +223,13 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						if (this.isCancelled()) {
 							return null;
 						}
-						
+
 						headerBuilder.appendRow("p");
 						headerBuilder.add(headerLbl, CC.xy(1, i));
-						
+
 						coverageBuilder.appendRow("p");
 						coverageBuilder.add(covPnl, CC.xy(1, i));
-						
+
 						coverageBuilder.getPanel().revalidate();
 						if (i == 1) {
 							setRowHeaderView(headerBuilder.getPanel());
@@ -240,16 +240,16 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 					if (this.isCancelled()) {
 						return null;
 					}
-					
+
 					// add final filler objects
 					headerBuilder.appendRow("f:0px:g");
 					headerBuilder.add(headerFillerLbl, CC.xy(1, i));
-					
+
 					backgroundPnl.revalidate();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
+
 				return null;
 			}
 
@@ -270,12 +270,12 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	private Map<ProteinHit, List<Interval>> createCoverageMapping(
 			Collection<ProteinHit> proteins, Collection<PeptideHit> peptides) {
 		Map<ProteinHit, List<Interval>> coverageMap = new LinkedHashMap<ProteinHit, List<Interval>>();
-		
+
 		for (ProteinHit protein : proteins) {
 			List<Interval> intervals = new ArrayList<Interval>(peptides.size());
-			
+
 			String protSeq = protein.getSequence();
-			
+
 			if (protSeq !=null) {
 				int row = 0;
 				for (PeptideHit peptide : peptides) {
@@ -290,13 +290,13 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						intervals.add(interval);
 					}
 				}
-				
+
 				coverageMap.put(protein, intervals);
 			}else{
 				coverageMap.put(protein, null);
 			}
 		}
-		
+
 		return coverageMap;
 	}
 
@@ -326,9 +326,9 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		// Init return value
 		JPanel covPnl = new JPanel();
 		covPnl.setOpaque(false);
-	
+
 		String protSeq = proteinHit.getSequence();
-		
+
 		if (protSeq != null) {
 			// Iterate protein sequence blocks
 			int blockSize = 10;
@@ -346,20 +346,20 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 				}
 				indexRow.append(" " + (start + blockSize));
 				indexRow.append("</html></code>");
-		
+
 				JPanel blockPnl = new JPanel(new BorderLayout());
 				blockPnl.setOpaque(false);
 				JLabel indexLbl = new JLabel(indexRow.toString());
 				indexLbl.setBackground(new Color(0, 255, 0, 32));
 				indexLbl.setOpaque(true);
 				blockPnl.add(indexLbl, BorderLayout.NORTH);
-		
+
 				// Create lower panel containing label-like buttons and plain labels
 				JPanel subBlockPnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 				subBlockPnl.setOpaque(false);
-		
+
 				JComponent label = null;
-				
+
 				// Iterate characters inside block to find upper/lower interval boundaries
 				String blockSeq = protSeq.substring(start, end);
 				int blockLength = blockSeq.length();
@@ -373,7 +373,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						if ((pos == (int) interval.getLeftBorder())) {
 							// Highlightable part begins here, store contents up to this point in label
 							label = new JLabel("<html><code>" + blockSeq.substring(subIndex, i) + "</code></html>");
-		
+
 							isBorder = true;
 							openIntervals++;
 							lastOpened = (String) interval.getUserObject();
@@ -382,19 +382,19 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 						if ((pos == (int) interval.getRightBorder())) {
 							// Highlightable part ends here, store contents in hover label
 							final String sequence = (String) interval.getUserObject();
-							label = new HoverLabel(blockSeq.substring(subIndex, i), colorMap.get(sequence));
-							
-							HoverLabel cachedLbl = hoverLabels.get(sequence);
+							label = new CoverageViewerPane.HoverLabel(blockSeq.substring(subIndex, i), colorMap.get(sequence));
+
+							CoverageViewerPane.HoverLabel cachedLbl = hoverLabels.get(sequence);
 							if (cachedLbl != null) {
 								((AbstractButton) label).setModel(cachedLbl.getModel());
 							} else {
 								// cache label
-								hoverLabels.put((String) sequence, (HoverLabel) label);
+								hoverLabels.put(sequence, (CoverageViewerPane.HoverLabel) label);
 //								// put label in button group
 //								hoverGroup.add((AbstractButton) label);
-								
+
 								// install action listener
-								((HoverLabel) label).addActionListener(new ActionListener() {
+								((CoverageViewerPane.HoverLabel) label).addActionListener(new ActionListener() {
 									@Override
 									public void actionPerformed(ActionEvent evt) {
 										firePropertyChange("selection",
@@ -403,7 +403,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 								});
 							}
 							((AbstractButton) label).setSelected(sequence == selSequence);
-		
+
 							isBorder = true;
 							openIntervals--;
 						}
@@ -417,19 +417,19 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 				// Store any remaining subsequences in (hover) label
 				if (openIntervals > 0) {
 					final String sequence = lastOpened;
-					label = new HoverLabel(blockSeq.substring(subIndex), colorMap.get(sequence));
-					
-					HoverLabel cachedLbl = hoverLabels.get(sequence);
+					label = new CoverageViewerPane.HoverLabel(blockSeq.substring(subIndex), colorMap.get(sequence));
+
+					CoverageViewerPane.HoverLabel cachedLbl = hoverLabels.get(sequence);
 					if (cachedLbl != null) {
 						((AbstractButton) label).setModel(cachedLbl.getModel());
 					} else {
 						// cache label
-						hoverLabels.put(sequence, (HoverLabel) label);
+						hoverLabels.put(sequence, (CoverageViewerPane.HoverLabel) label);
 //						// put label in button group
 //						hoverGroup.add((AbstractButton) label);
-						
+
 						// install action listener
-						((HoverLabel) label).addActionListener(new ActionListener() {
+						((CoverageViewerPane.HoverLabel) label).addActionListener(new ActionListener() {
 							@Override
 							public void actionPerformed(ActionEvent evt) {
 								firePropertyChange("selection",
@@ -442,18 +442,18 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 					label = new JLabel("<html><code>" + blockSeq.substring(subIndex) + "</code></html>");
 				}
 				subBlockPnl.add(label);
-		
+
 				blockPnl.add(subBlockPnl, BorderLayout.SOUTH);
-		
+
 				covPnl.add(blockPnl);
 			}
 		} else {
 			covPnl.add(new JLabel("Disabled if no sequence informations are available"));
 		}
-		
+
 		return covPnl;
 	}
-	
+
 	/**
 	 * Clears the coverage viewer pane's contents.
 	 */
@@ -463,24 +463,24 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		}
 		backgroundPnl.removeAll();
 		this.setBusy(false);
-		
+
 		Border headerBorder = UIManager.getBorder("TableHeader.cellBorder");
 		JLabel headerLbl = new JLabel();
 		headerLbl.setPreferredSize(new Dimension(63, 0));
 		headerLbl.setBorder(headerBorder);
-		
+
 		this.setRowHeaderView(headerLbl);
 	}
-	
+
 	/**
 	 * Clears the selection of all sequence labels.
 	 */
 	public void clearSelection() {
-		for (HoverLabel label : hoverLabels.values()) {
+		for (CoverageViewerPane.HoverLabel label : hoverLabels.values()) {
 			label.setSelected(false);
 		}
 	}
-	
+
 	/**
 	 * Sets the selection state of the peptide label associated with the
 	 * specified peptide sequence to the specified selection value.
@@ -489,7 +489,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 */
 	public void setSelected(String sequence, boolean selected) {
 		selSequence = sequence;
-		HoverLabel label = hoverLabels.get(sequence);
+		CoverageViewerPane.HoverLabel label = this.hoverLabels.get(sequence);
 		if (label != null) {
 			label.setSelected(selected);
 //			// scroll to the selected label
@@ -505,7 +505,7 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @return the currently selected peptide sequence
 	 */
 	public String getSelectedSequence() {
-		return selSequence;
+		return this.selSequence;
 	}
 	
 	/**
@@ -513,20 +513,20 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 	 * @return the number of protein rows
 	 */
 	public int getRowCount() {
-		if (backgroundPnl.getComponentCount() > 0) {
-			return ((Container) backgroundPnl.getComponent(0)).getComponentCount();
+		if (this.backgroundPnl.getComponentCount() > 0) {
+			return ((Container) this.backgroundPnl.getComponent(0)).getComponentCount();
 		}
 		return 0;
 	}
 
 	@Override
 	public boolean isBusy() {
-		return busyLbl.isBusy();
+		return this.busyLbl.isBusy();
 	}
 
 	@Override
 	public void setBusy(boolean busy) {
-		busyLbl.setBusy(busy);
+        this.busyLbl.setBusy(busy);
 	}
 
 	/**
@@ -543,12 +543,12 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		/**
 		 * The default font.
 		 */
-		private Font normalFont;
+		private final Font normalFont;
 		
 		/**
 		 * The font used when the mouse cursor is hovering over this label.
 		 */
-		private Font underlineFont;
+		private final Font underlineFont;
 	
 		/**
 		 * Creates a hover label using the specified label text and foreground color.
@@ -557,35 +557,35 @@ public class CoverageViewerPane extends JScrollPane implements Busyable {
 		 */
 		public HoverLabel(String text, Color foreground) {
 			super(text);
-			this.setRolloverEnabled(true);
-			this.setForeground(foreground);
-			this.setFocusPainted(false);
-			this.setContentAreaFilled(false);
-			this.setBorder(null);
-			
-			normalFont = new Font("Monospaced", Font.PLAIN, 12);
+            setRolloverEnabled(true);
+            setForeground(foreground);
+            setFocusPainted(false);
+            setContentAreaFilled(false);
+            setBorder(null);
+
+            this.normalFont = new Font("Monospaced", Font.PLAIN, 12);
 			Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
 			attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-			underlineFont = normalFont.deriveFont(attributes);
-			
-			this.setFont(normalFont);
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            this.underlineFont = this.normalFont.deriveFont(attributes);
+
+            setFont(this.normalFont);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		}
 	
 		@Override
 		public void setForeground(Color foreground) {
-			selectionColor = new Color(foreground.getRed(), foreground.getGreen(),
+            this.selectionColor = new Color(foreground.getRed(), foreground.getGreen(),
 						foreground.getBlue(), (foreground.getAlpha() + 1) / 8);
 			super.setForeground(foreground);
 		}
 	
 		@Override
 		protected void paintComponent(Graphics g) {
-			if (this.isSelected()) {
-				g.setColor(selectionColor);
-				g.fillRect(0, 0, getWidth(), getHeight());
+			if (isSelected()) {
+				g.setColor(this.selectionColor);
+				g.fillRect(0, 0, this.getWidth(), this.getHeight());
 			}
-			this.setFont(model.isRollover() ? underlineFont : normalFont);
+            setFont(this.model.isRollover() ? this.underlineFont : this.normalFont);
 			super.paintComponent(g);
 		}
 	}

@@ -26,12 +26,12 @@ public class BarChartPanel extends JPanel {
 	/**
 	 * Label for left-hand total value.
 	 */
-	private JLabel totalLbl;
+	private final JLabel totalLbl;
 
 	/**
 	 * Label for right-hand fractional value.
 	 */
-	private JLabel fracLbl;
+	private final JLabel fracLbl;
 
 	/**
 	 * Constructs a bar chart panel featuring the specified total and fractional labels.
@@ -47,25 +47,25 @@ public class BarChartPanel extends JPanel {
 	public void paint(Graphics g) {
 		// paint background gradient
 		Graphics2D g2 = (Graphics2D) g;
-		int bgWidth = this.getWidth();
+		int bgWidth = getWidth();
 		Point pt1 = new Point(bgWidth, 0);
 		Point pt2 = new Point();
 		g2.setPaint(new GradientPaint(
 				pt1, UIManager.getColor("barChartPanel.backgroundStartColor"),
 				pt2, UIManager.getColor("barChartPanel.backgroundEndColor")));
-		g2.fillRect(0, 0, bgWidth, this.getHeight());
+		g2.fillRect(0, 0, bgWidth, getHeight());
 
 		try {
 			// parse total and fractional values
-			double total = Double.parseDouble(totalLbl.getText());
+			double total = Double.parseDouble(this.totalLbl.getText());
 			if (total > 0.0) {
-				double rel = Double.parseDouble(fracLbl.getText()) / total;
+				double rel = Double.parseDouble(this.fracLbl.getText()) / total;
 				int barWidth = (int) (bgWidth * rel);
 				// paint foreground gradient
 				g2.setPaint(new GradientPaint(
 						pt1, UIManager.getColor("barChartPanel.foregroundStartColor"),
 						pt2, UIManager.getColor("barChartPanel.foregroundEndColor")));
-				g2.fillRect(bgWidth - barWidth, 0, barWidth, this.getHeight());
+				g2.fillRect(bgWidth - barWidth, 0, barWidth, getHeight());
 				
 				// calculate label bounds
 				String str = String.format("%.1f", rel * 100.0) + "%";
@@ -86,7 +86,7 @@ public class BarChartPanel extends JPanel {
 				} else {
 					x = bgWidth - barWidth + 2.0f;
 				}
-				float y = (float) (this.getHeight() - strBounds.getY()) / 2.0f - 1.0f;
+				float y = (float) (getHeight() - strBounds.getY()) / 2.0f - 1.0f;
 				
 				// paint label
 				g2.setPaint(Color.BLACK);
@@ -103,7 +103,7 @@ public class BarChartPanel extends JPanel {
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			String str = e.toString();
 			Rectangle2D bounds = g2.getFontMetrics().getStringBounds(str, g2);
-			float y = (float) (this.getHeight() - bounds.getY()) / 2.0f - 2.0f;
+			float y = (float) (getHeight() - bounds.getY()) / 2.0f - 2.0f;
 			g2.setPaint(ColorUtils.DARK_RED);
 			g2.drawString(str, 2.0f, y + 1.0f);
 			g2.setPaint(Color.RED);
@@ -111,12 +111,12 @@ public class BarChartPanel extends JPanel {
 			g2.setPaint(Color.ORANGE);
 			g2.drawString(str, 1.0f, y);
 		}
-	};
-	
-	@Override
+	}
+
+    @Override
 	public Dimension getPreferredSize() {
 		return new Dimension(0,
-				Math.max(totalLbl.getPreferredSize().height, fracLbl.getPreferredSize().height));
+				Math.max(this.totalLbl.getPreferredSize().height, this.fracLbl.getPreferredSize().height));
 	}
 	
 }

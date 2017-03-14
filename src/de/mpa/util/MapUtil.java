@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class contains helper utilities for maps, e.g. generic sorting.
@@ -23,19 +24,19 @@ public class MapUtil {
 	 * @return keys sorted by values
 	 */
 	public static <K, V extends Comparable<? super V>> List<K> getKeysSortedByValue(Map<K, V> map, boolean reversed) {
-	    final int size = map.size();
+	    int size = map.size();
 	    
 	    // List of map entries
-	    final List<Map.Entry<K, V>> list = new ArrayList<Map.Entry<K, V>>(size);
+	    List<Entry<K, V>> list = new ArrayList<Entry<K, V>>(size);
 	    list.addAll(map.entrySet());
 	    
 	    
 	    // Value comparator
-	    final ValueComparator<V> cmp = new ValueComparator<V>();
+	    MapUtil.ValueComparator<V> cmp = new MapUtil.ValueComparator<V>();
 	    
 	    // Sort the map entry list by its values
 	    Collections.sort(list, cmp);
-	    final List<K> keys = new ArrayList<K>();
+	    List<K> keys = new ArrayList<K>();
 	    
 	    
 	    // Set the sorted keys list.
@@ -58,8 +59,8 @@ public class MapUtil {
 	 * @date 26-07-2012
 	 * @param <V> Map value to be compared
 	 */
-	private static final class ValueComparator<V extends Comparable<? super V>> implements Comparator<Map.Entry<?, V>> {
-	    public int compare(Map.Entry<?, V> o1, Map.Entry<?, V> o2) {
+	private static final class ValueComparator<V extends Comparable<? super V>> implements Comparator<Entry<?, V>> {
+	    public int compare(Entry<?, V> o1, Entry<?, V> o2) {
 	        return o1.getValue().compareTo(o2.getValue());
 	    }
 	}

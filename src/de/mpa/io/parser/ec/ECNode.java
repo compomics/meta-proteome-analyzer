@@ -14,12 +14,12 @@ public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode>
 	/**
 	 * The description string.
 	 */
-	private String description;
+	private final String description;
 	
 	/**
 	 * The comments string.
 	 */
-	private String comments;
+	private final String comments;
 
 	/**
 	 * Constructs an ENZYME node from the specified identifier (i.e. E.C.
@@ -71,7 +71,7 @@ public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode>
 	 * @return the identifier
 	 */
 	public String getIdentifier() {
-		return (String) this.userObject;
+		return (String) userObject;
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode>
 	 * @return the description
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	/**
@@ -87,12 +87,12 @@ public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode>
 	 * @return the comments
 	 */
 	public String getComments() {
-		return comments;
+		return this.comments;
 	}
 
 	@Override
 	public int compareTo(ECNode that) {
-		short[] thisNums = ECReader.toArray(this.getIdentifier());
+		short[] thisNums = ECReader.toArray(getIdentifier());
 		short[] thatNums = ECReader.toArray(that.getIdentifier());
 		for (int i = 0; i < 4; i++) {
 			int res = Short.compare(thisNums[i], thatNums[i]);
@@ -101,14 +101,14 @@ public class ECNode extends DefaultMutableTreeNode implements Comparable<ECNode>
 			}
 		}
 		// fall back to alphabetical ordering
-		return this.getIdentifier().compareTo(that.getIdentifier());
+		return getIdentifier().compareTo(that.getIdentifier());
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ECNode) {
 			ECNode that = (ECNode) obj;
-			return (this.getIdentifier().equals(that.getIdentifier()));
+			return (getIdentifier().equals(that.getIdentifier()));
 		}
 		return false;
 	}

@@ -32,10 +32,10 @@ public class SpectrumUtilities {
 	 */
 	public void initDBConnection() throws SQLException {
 		// Connection conn
-		if (conn == null || !conn.isValid(0)) {
+		if (this.conn == null || !this.conn.isValid(0)) {
 			// connect to database
 			DBConfiguration dbconfig = new DBConfiguration(Client.getInstance().getConnectionParameters());
-			this.conn = dbconfig.getConnection();
+            conn = dbconfig.getConnection();
 		}
 	}
 	
@@ -65,7 +65,7 @@ public class SpectrumUtilities {
 	public List<MascotGenericFile> getAllSpectra(long experimentID) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT spectrumid, title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT spectrumid, title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray FROM spectrum " +
 				"INNER JOIN searchspectrum on spectrum.spectrumid = searchspectrum.fk_spectrumid " +
 				"WHERE searchspectrum.fk_experimentid = ?");
@@ -92,7 +92,7 @@ public class SpectrumUtilities {
 	public List<MascotGenericFile> getIdentifiedSpectra(long experimentID, long limit, long length) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT searchspectrum.searchspectrumid, spectrumid, title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT searchspectrum.searchspectrumid, spectrumid, title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray FROM spectrum " +
 				"INNER JOIN searchspectrum on spectrum.spectrumid = searchspectrum.fk_spectrumid " +
 				"WHERE searchspectrum.fk_experimentid = ? " + 
@@ -100,7 +100,7 @@ public class SpectrumUtilities {
 		ps.setLong(1, experimentID);
 		ps.setLong(2, limit);
 		ps.setLong(3, length);
-		SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
+		SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, this.conn);
 		
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -126,7 +126,7 @@ public class SpectrumUtilities {
 	public List<MascotGenericFile> getUnIdentifiedSpectra(long experimentID, long start, long length) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT searchspectrum.searchspectrumid, spectrumid, title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT searchspectrum.searchspectrumid, spectrumid, title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray FROM spectrum " +
 				"INNER JOIN searchspectrum on spectrum.spectrumid = searchspectrum.fk_spectrumid " +
 				"WHERE searchspectrum.fk_experimentid = ? " + 
@@ -135,7 +135,7 @@ public class SpectrumUtilities {
 		ps.setLong(1, experimentID);
 		ps.setLong(2, start);
 		ps.setLong(3, length);
-		SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, conn);
+		SearchHitExtractor.findSearchHitsFromExperimentID(experimentID, this.conn);
 		
 		ResultSet rs = ps.executeQuery();
         while (rs.next()) {
@@ -157,8 +157,8 @@ public class SpectrumUtilities {
 		try {
 			spectrumUtils.initDBConnection();
 			//SpectrumUtilities.writeToFile(spectrumUtils.getAllSpectra(21), "/home/muth/PersonalFolder/Metaproteomics/Review/all");
-			SpectrumUtilities.writeToFile(spectrumUtils.getIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/id");
-			SpectrumUtilities.writeToFile(spectrumUtils.getUnIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/nonid");
+			writeToFile(spectrumUtils.getIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/id");
+			writeToFile(spectrumUtils.getUnIdentifiedSpectra(33, 160000, 10000), "/home/muth/PersonalFolder/Metaproteomics/Review/nonid");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

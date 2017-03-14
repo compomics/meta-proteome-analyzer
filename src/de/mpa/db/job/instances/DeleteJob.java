@@ -23,13 +23,13 @@ public class DeleteJob extends Job {
 
 	@Override
 	public void run() {
-		String parent = new File(filename).getParent();
+		String parent = new File(this.filename).getParent();
 		String filenamePrefix = "";
 		
-		if (filename.endsWith("xml")) {
-			filenamePrefix = filename.substring(0, filename.indexOf("_target"));
-		} else if (filename.endsWith("omx")) {
-			filenamePrefix = filename.substring(0, filename.indexOf("_target"));
+		if (this.filename.endsWith("xml")) {
+			filenamePrefix = this.filename.substring(0, this.filename.indexOf("_target"));
+		} else if (this.filename.endsWith("omx")) {
+			filenamePrefix = this.filename.substring(0, this.filename.indexOf("_target"));
 		}
 		File parentFolder = new File(parent);
 		// Iterate the files in the directory

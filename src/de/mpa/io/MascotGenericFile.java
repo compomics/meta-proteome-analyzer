@@ -41,17 +41,17 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
     /**
      * This variable holds the filename for the spectrum file.
      */
-    protected String iFilename = null;
+    protected String iFilename;
     
     /**
      * This variable holds the comments for this MascotGenericFile.
      */
-    private String iComments = null;
+    private String iComments;
 
     /**
      * The title of the MascotGenericFile.
      */
-    private String iTitle = null;
+    private String iTitle;
 
     /**
      * This HashMap holds all the peaks in the spectrum file.
@@ -71,7 +71,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
     /**
      * This variable holds the charge state.
      */
-    protected int iCharge = 0;
+    protected int iCharge;
 
     /**
      * The precursor intensity.
@@ -128,8 +128,8 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aContents String with the contents of the MGF File.
      */
     public MascotGenericFile(String aFilename, String aContents) {
-        this.iFilename = aFilename;
-        this.parseFromString(aContents);
+        iFilename = aFilename;
+        parseFromString(aContents);
     }
 
     
@@ -152,8 +152,8 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                 lsb.append(line + "\n");
             }
             br.close();
-            this.parseFromString(lsb.toString());
-            this.iFilename = aFilename.getName();
+            parseFromString(lsb.toString());
+            iFilename = aFilename.getName();
         }
     }
     
@@ -167,12 +167,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aCharge The precursor charge.
      */
     public MascotGenericFile(String aFileName, String aTitle, HashMap<Double, Double> aPeaks, double aPrecursorMz, double aIntensity, int aCharge) {
-    	this.iFilename = aFileName;
-        this.iTitle = aTitle;
-        this.iPeaks = aPeaks;
-        this.iPrecursorMz = aPrecursorMz;
-        this.iIntensity = aIntensity;
-        this.iCharge = aCharge;
+        iFilename = aFileName;
+        iTitle = aTitle;
+        iPeaks = aPeaks;
+        iPrecursorMz = aPrecursorMz;
+        iIntensity = aIntensity;
+        iCharge = aCharge;
     }
     
     /**
@@ -180,11 +180,11 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param spectrum The spectrum accessor DAO object. 
      */
     public MascotGenericFile(Spectrum spectrum) {
-    	this.iTitle = spectrum.getTitle();
-		this.iPrecursorMz = spectrum.getPrecursor_mz().doubleValue();
-		this.iIntensity = spectrum.getPrecursor_int().doubleValue();
-		this.iCharge = (int) spectrum.getPrecursor_charge();
-		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getMzarray()),
+        iTitle = spectrum.getTitle();
+        iPrecursorMz = spectrum.getPrecursor_mz().doubleValue();
+        iIntensity = spectrum.getPrecursor_int().doubleValue();
+        iCharge = (int) spectrum.getPrecursor_charge();
+        iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getMzarray()),
 				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(spectrum.getIntarray()));
 	}
     /**
@@ -194,13 +194,13 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @throws SQLException
      */
     public MascotGenericFile(ResultSet aResultSet) throws SQLException {
-    	this.iTitle = aResultSet.getString("title");
-		this.iPrecursorMz = aResultSet.getDouble("precursor_mz");
-		this.iIntensity = aResultSet.getDouble("precursor_int");
-		this.iCharge = aResultSet.getInt("precursor_charge");
-		this.iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
+        iTitle = aResultSet.getString("title");
+        iPrecursorMz = aResultSet.getDouble("precursor_mz");
+        iIntensity = aResultSet.getDouble("precursor_int");
+        iCharge = aResultSet.getInt("precursor_charge");
+        iPeaks = SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
 				   											 SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("intarray")));
-		this.iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
+        iCharges = SixtyFourBitStringSupport.buildChargeMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(aResultSet.getString("mzarray")),
 																 SixtyFourBitStringSupport.decodeBase64StringToInts(aResultSet.getString("chargearray")));
 	}
 
@@ -211,7 +211,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @throws IOException when the write operation fails.
      */
     public void writeToStream(OutputStream aOut) throws IOException {
-        this.writeToStream(aOut, false);
+        writeToStream(aOut, false);
     }
 
     /**
@@ -224,7 +224,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @throws IOException when the write operation fails.
      */
     public void writeToStream(OutputStream aOut, boolean aSubstituteFilename) throws IOException {
-        this.writeToWriter(new OutputStreamWriter(aOut), aSubstituteFilename);
+        writeToWriter(new OutputStreamWriter(aOut), aSubstituteFilename);
     }
 
     /**
@@ -237,9 +237,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         if (!aParentDir.exists() && !aParentDir.isDirectory()) {
             throw new IOException("Parent '" + aParentDir.getCanonicalPath() + "' does not exist or is not a directory!");
         }
-        File output = new File(aParentDir, this.iFilename);
+        File output = new File(aParentDir, iFilename);
         FileOutputStream fos = new FileOutputStream(output);
-        this.writeToStream(fos);
+        writeToStream(fos);
         fos.flush();
         fos.close();
     }
@@ -250,7 +250,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return String with the comments for this MascotGenericFile.
      */
     public String getComments() {
-        return iComments;
+        return this.iComments;
     }
 
     /**
@@ -259,7 +259,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aComments String with the comments for this MAscotGenericFile.
      */
     public void setComments(String aComments) {
-        iComments = aComments;
+        this.iComments = aComments;
     }
 
     /**
@@ -268,7 +268,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return String with the title for the MascotGenericFile.
      */
     public String getTitle() {
-        return iTitle;
+        return this.iTitle;
     }
 
     /**
@@ -277,7 +277,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aTitle String with the title for the MascotGenericFile.
      */
     public void setTitle(String aTitle) {
-        iTitle = aTitle;
+        this.iTitle = aTitle;
     }
 
 
@@ -289,9 +289,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      */
     public String getExtraEmbeddedProperty(String aKey) {
         String lReturn = "NoSuchKey";
-        if (iExtraEmbeddedParameters != null) {
-            if (iExtraEmbeddedParameters.containsKey(aKey)) {
-                lReturn = (String) iExtraEmbeddedParameters.get(aKey);
+        if (this.iExtraEmbeddedParameters != null) {
+            if (this.iExtraEmbeddedParameters.containsKey(aKey)) {
+                lReturn = (String) this.iExtraEmbeddedParameters.get(aKey);
             }
         }
         return lReturn;
@@ -305,10 +305,10 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aValue Embedded Property Value.
      */
     private void addExtraEmbeddedParameter(String aKey, String aValue) {
-        if (iExtraEmbeddedParameters == null) {
-            iExtraEmbeddedParameters = new Properties();
+        if (this.iExtraEmbeddedParameters == null) {
+            this.iExtraEmbeddedParameters = new Properties();
         }
-        iExtraEmbeddedParameters.put(aKey, aValue);
+        this.iExtraEmbeddedParameters.put(aKey, aValue);
     }
 
     /**
@@ -326,7 +326,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         // the mass, since (many) MGF spectra do not include charge information.
         MascotGenericFile other = (MascotGenericFile) anObject;
 
-        double intermediate_result = (this.getPrecursorMZ() - other.getPrecursorMZ());
+        double intermediate_result = (getPrecursorMZ() - other.getPrecursorMZ());
 
         if (intermediate_result > 0) {
             result = 1;
@@ -350,9 +350,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 
         if (anObject != null && anObject instanceof MascotGenericFile) {
             MascotGenericFile other = (MascotGenericFile) anObject;
-            if (this.iFilename.equals(other.iFilename) && this.iCharge == other.iCharge &&
-                    this.iTitle.equals(other.iTitle) && this.iPeaks.equals(other.iPeaks) &&
-                    this.iCharges.equals(other.iCharges)) {
+            if (iFilename.equals(other.iFilename) && iCharge == other.iCharge &&
+                    iTitle.equals(other.iTitle) && iPeaks.equals(other.iPeaks) &&
+                    iCharges.equals(other.iCharges)) {
                 result = true;
             }
         }
@@ -369,7 +369,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         String result = null;
         StringWriter sw = new StringWriter();
         try {
-            this.writeToWriter(sw, false);
+            writeToWriter(sw, false);
             result = sw.toString();
             sw.close();
         } catch (IOException ioe) {
@@ -390,7 +390,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         String result = null;
         StringWriter sw = new StringWriter();
         try {
-            this.writeToWriter(sw, aSubstituteFilename);
+            writeToWriter(sw, aSubstituteFilename);
             result = sw.toString();
             sw.close();
         } catch (IOException ioe) {
@@ -483,14 +483,14 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                     continue;
                 }
                 // First line can be 'CHARGE'.
-                if (lineCount == 1 && line.startsWith(CHARGE)) {
+                if (lineCount == 1 && line.startsWith(MascotGenericFile.CHARGE)) {
                     continue;
                 }
                 // Read all starting comments.
                 if (line.startsWith("#")) {
                 	if (line.startsWith("sid", 1)) {
                 		try {
-                    		this.spectrumID = Long.parseLong(line.substring(5));
+                            spectrumID = Long.parseLong(line.substring(5));
 						} catch (Exception e) {
 							// do nothing, just catch failed parse attempt
 						}
@@ -498,11 +498,11 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                     comments.append(line + "\n");
                 }
                 // BEGIN IONS marks the start of the real file.
-                else if (line.equals(IONS_START)) {
+                else if (line.equals(MascotGenericFile.IONS_START)) {
                     inSpectrum = true;
                 }
                 // END IONS marks the end.
-                else if (line.equals(IONS_END)) {
+                else if (line.equals(MascotGenericFile.IONS_END)) {
                     inSpectrum = false;
                 }
                 // Read embedded parameters. The most important parameters (such as TITLE, PEPMASS and optional CHARGE fields)
@@ -513,36 +513,36 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                     int equalSignIndex = line.indexOf("=");
 
                     // See which header line is encountered.
-                    if (line.startsWith(TITLE)) {
+                    if (line.startsWith(MascotGenericFile.TITLE)) {
                         // TITLE line found.
                     	// the final title format is "File: #### Spectrum: #### scans: ####"
                     	// sometimes the title contains an "id" which is removed here
                     	String title;
                     	title = line.substring(equalSignIndex + 1);
                     	title = title.split("( \\(id)")[0];
-                    	this.setTitle(title);
+                        setTitle(title);
                     	titleFound = true;
-                    } else if (line.startsWith(PEPMASS)) {
+                    } else if (line.startsWith(MascotGenericFile.PEPMASS)) {
                         // PEPMASS line found.
                         String value = line.substring(equalSignIndex + 1).trim();
                         StringTokenizer st = new StringTokenizer(value, " \t");
-                        this.setPrecursorMZ(Double.parseDouble(st.nextToken().trim()));
+                        setPrecursorMZ(Double.parseDouble(st.nextToken().trim()));
                         // It is possible that parent intensity is not mentioned. We then set it to '0'.
                         if (st.hasMoreTokens()) {
-                            this.setIntensity(Double.parseDouble(st.nextToken().trim()));
+                            setIntensity(Double.parseDouble(st.nextToken().trim()));
                         } else {
-                        	this.setIntensity(0.0);
+                            setIntensity(0.0);
                         }
-                    } else if (line.startsWith(CHARGE)) {
+                    } else if (line.startsWith(MascotGenericFile.CHARGE)) {
                         // CHARGE line found.
                         // Note the extra parsing to read a Mascot Generic File charge (eg., 1+).
-                        this.setCharge(this.extractCharge(line.substring(equalSignIndex + 1)));
+                        setCharge(extractCharge(line.substring(equalSignIndex + 1)));
                     } else {
                         // This is an extra embedded parameter!
                         String aKey = line.substring(0, equalSignIndex);
                         String aValue = line.substring(equalSignIndex + 1);
                         // Save the extra embedded parameter in iEmbeddedParameter
-                        addExtraEmbeddedParameter(aKey, aValue);
+                        this.addExtraEmbeddedParameter(aKey, aValue);
                     }
                 }
                 // Read peaks, minding the possibility of charge present!
@@ -553,7 +553,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                     // 234.56 789
                     // 234.56 789   1+
                 	if (!titleFound) {	// if no title was found, substitute with filename
-                		this.setTitle(this.getFilename());
+                        setTitle(getFilename());
                 		titleFound = true;
                 	}
                     StringTokenizer st = new StringTokenizer(line, " \t");
@@ -563,11 +563,11 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                         Double mass = new Double(temp);
                         temp = st.nextToken().trim();
                         Double intensity = new Double(temp);
-                        
-                        this.iPeaks.put(mass, intensity);
+
+                        iPeaks.put(mass, intensity);
                         if (st.hasMoreTokens()) {
-                            int charge = extractCharge(st.nextToken());
-                            iCharges.put(mass, new Integer(charge));
+                            int charge = this.extractCharge(st.nextToken());
+                            this.iCharges.put(mass, new Integer(charge));
                         }                     
                     } else {
                         System.out.println("\n\nUnrecognized line at line number " + lineCount + ": '" + line + "'!\n");
@@ -575,7 +575,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                 }
             }
             // Last but not least: add the comments.
-            this.iComments = comments.toString();
+            iComments = comments.toString();
             // That's it.
             br.close();
         } catch (IOException ioe) {
@@ -596,38 +596,38 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         BufferedWriter bw = new BufferedWriter(aWriter);
 
         // Comments go first.
-        if (iComments != null) {
-            bw.write(iComments);
+        if (this.iComments != null) {
+            bw.write(this.iComments);
         }
         // Next the ion start tag.
-        bw.write(IONS_START + "\n");
+        bw.write(MascotGenericFile.IONS_START + "\n");
         // Now the title, or the filename if the substitution flag is 'true'.
         if (aSubstituteFilename) {
             // Substituting the title with the filename.
-            bw.write(TITLE + "=" + this.getFilename() + "\n");
+            bw.write(MascotGenericFile.TITLE + "=" + getFilename() + "\n");
         } else {
-        	if (this.getTitle() != null) {
+        	if (getTitle() != null) {
                 // Keeping the title.
-                bw.write(TITLE + "=" + this.getTitle() + "\n");
+                bw.write(MascotGenericFile.TITLE + "=" + getTitle() + "\n");
         	}
         }
         // Precursor M/Z and intensity (separated by a space).
-        if ((this.getPrecursorMZ() >= 0.0)) {
-            bw.write(PEPMASS + "=" + this.getPrecursorMZ() + " " + this.getIntensity() + "\n");
+        if ((getPrecursorMZ() >= 0.0)) {
+            bw.write(MascotGenericFile.PEPMASS + "=" + getPrecursorMZ() + " " + getIntensity() + "\n");
         }
         // For charge: see if it is present first (charge != 0).
         // If it is not present, omit this line altogether.
-        if (this.getCharge() != 0) {
-            bw.write(CHARGE + "=" + this.processCharge(this.getCharge()) + "\n");
+        if (getCharge() != 0) {
+            bw.write(MascotGenericFile.CHARGE + "=" + processCharge(getCharge()) + "\n");
         }
         // If there are any extra embedded parameters in the mascot generic file,
         // also write them in this header section.
-        if (this.iExtraEmbeddedParameters != null) {
-            if (!iExtraEmbeddedParameters.isEmpty()) {
-                Iterator<Object> iter = iExtraEmbeddedParameters.keySet().iterator();
+        if (iExtraEmbeddedParameters != null) {
+            if (!this.iExtraEmbeddedParameters.isEmpty()) {
+                Iterator<Object> iter = this.iExtraEmbeddedParameters.keySet().iterator();
                 while (iter.hasNext()) {
                     String aKey = (String) iter.next();
-                    String aValue = (String) iExtraEmbeddedParameters.get(aKey);
+                    String aValue = (String) this.iExtraEmbeddedParameters.get(aKey);
                     bw.write(aKey + "=" + aValue + "\n");
                 }
             }
@@ -635,21 +635,21 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         // After the header, it is customary to leave an empty line.
         bw.write("\n");
         // Next up the ions themselves.
-        SortedSet<Double> ss = new TreeSet<Double>(this.getPeaks().keySet());
+        SortedSet<Double> ss = new TreeSet<Double>(getPeaks().keySet());
         Iterator<Double> it = ss.iterator();
         while (it.hasNext()) {
             Double tempKey = it.next();
             BigDecimal lDouble = new BigDecimal(tempKey.doubleValue()).setScale(4, BigDecimal.ROUND_HALF_UP);
             // We need to check whether a charge is known for this peak.
             String charge = "";
-            if (iCharges.containsKey(tempKey)) {
-                int chargeState = ((Integer) iCharges.get(tempKey)).intValue();
-                charge = "\t" + this.processCharge(chargeState);
+            if (this.iCharges.containsKey(tempKey)) {
+                int chargeState = this.iCharges.get(tempKey).intValue();
+                charge = "\t" + processCharge(chargeState);
             }
-            bw.write(lDouble.toString() + " " + new BigDecimal(((Double) this.iPeaks.get(tempKey)).doubleValue()).setScale(4, BigDecimal.ROUND_HALF_UP).toString() + charge + "\n");
+            bw.write(lDouble + " " + new BigDecimal(iPeaks.get(tempKey).doubleValue()).setScale(4, BigDecimal.ROUND_HALF_UP) + charge + "\n");
         }
 
-        bw.write(IONS_END);
+        bw.write(MascotGenericFile.IONS_END);
         bw.write("\n\n");
 
         bw.flush();
@@ -661,12 +661,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return Intensity total rounded.
      */
     public double getTotalIntensity() {
-        Iterator<Double> iter = this.iPeaks.values().iterator();
+        Iterator<Double> iter = iPeaks.values().iterator();
         double totalIntensity = 0.0;
         while (iter.hasNext()) {
             totalIntensity += iter.next();
         }
-        return round(totalIntensity);
+        return this.round(totalIntensity);
     }
 
     /**
@@ -674,7 +674,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return Highest intensity rounded
      */
     public double getHighestIntensity() {
-        Iterator<Double> iter = this.iPeaks.values().iterator();
+        Iterator<Double> iter = iPeaks.values().iterator();
         double highestIntensity = -1.0;
         while (iter.hasNext()) {
             double temp = iter.next();
@@ -682,7 +682,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                 highestIntensity = temp;
             }
         }
-        return round(highestIntensity);
+        return this.round(highestIntensity);
     }
 
     /**
@@ -690,7 +690,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aTotalIntensity
      * @return Rounded value
      */
-    private double round(final double aTotalIntensity) {
+    private double round(double aTotalIntensity) {
         BigDecimal bd = new BigDecimal(aTotalIntensity).setScale(2, RoundingMode.UP);
         return bd.doubleValue();
     }
@@ -702,12 +702,12 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      */
     public double getSNR(double noiseLvl) {
     	if (noiseLvl <= 0.0) {
-    		return getTotalIntensity();
+    		return this.getTotalIntensity();
     	}
     	
     	double signal = 0.0;
     	double noise = 0.0;
-    	for (double intensity : iPeaks.values()) {
+    	for (double intensity : this.iPeaks.values()) {
     		if (intensity > noiseLvl) {
     			signal += intensity;
     		} else {
@@ -728,7 +728,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return int with the charge of the precursor, or '0' if no charge state is known.
      */
     public int getCharge() {
-        return iCharge;
+        return this.iCharge;
     }
 
     /**
@@ -737,7 +737,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return String with the filename for the file.
      */
     public String getFilename() {
-        return iFilename;
+        return this.iFilename;
     }
 
     /**
@@ -746,7 +746,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return double with the intensity of the precursor ion.
      */
     public double getIntensity() {
-        return iIntensity;
+        return this.iIntensity;
     }
 
     /**
@@ -756,7 +756,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return HashMap with Doubles as keys (the masses) and Doubles as values (the intensities).
      */
     public HashMap<Double, Double> getPeaks() {
-        return iPeaks;
+        return this.iPeaks;
     }
     
     /**
@@ -766,9 +766,9 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      */
     public HashMap<Double, Double> getHighestPeaks(int k) {
     	if (k == 0) {
-    		return iPeaks;
+    		return this.iPeaks;
     	} else {
-    		HashMap<Double, Double> res = new HashMap<Double, Double>(iPeaks);
+    		HashMap<Double, Double> res = new HashMap<Double, Double>(this.iPeaks);
     		ArrayList<Double> sortedList = new ArrayList<Double>(res.values());
     		Collections.sort(sortedList);
     		Iterator<Double> iter = sortedList.listIterator();
@@ -785,14 +785,14 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @return Map containing fragment m/z-to-charge pairs.
      */
 	public HashMap<Double, Integer> getCharges() {
-		return iCharges;
+		return this.iCharges;
 	}
     
 	/**
 	 * Returns the precursor ion m/z.
 	 */
     public double getPrecursorMZ() {
-        return iPrecursorMz;
+        return this.iPrecursorMz;
     }
     
     /**
@@ -800,7 +800,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param aCharge the charge to set
      */
 	public void setCharge(int aCharge) {
-		this.iCharge = aCharge;
+        iCharge = aCharge;
 	}
 
 	/**
@@ -808,7 +808,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	 * @param aIntensity the intensity to set
 	 */
     public void setIntensity(double aIntensity) {
-        this.iIntensity = aIntensity;
+        iIntensity = aIntensity;
     }
 
     /**
@@ -816,7 +816,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
      * @param the m/z to set
      */
     public void setPrecursorMZ(double aPrecursorMz) {
-        this.iPrecursorMz = aPrecursorMz;
+        iPrecursorMz = aPrecursorMz;
     }
     
     /**
@@ -824,20 +824,20 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 	 * @return the spectrum ID or <code>null</code> if undefined.
 	 */
 	public Long getSpectrumID() {
-		if (spectrumID == null) {
-			if (iComments != null) {
-				int indexOfID = iComments.indexOf("#sid ");
+		if (this.spectrumID == null) {
+			if (this.iComments != null) {
+				int indexOfID = this.iComments.indexOf("#sid ");
 				if (indexOfID >= 0) {
-					int indexOfBr = iComments.indexOf("\n", indexOfID);
+					int indexOfBr = this.iComments.indexOf("\n", indexOfID);
 					if (indexOfBr > 0) {
-						spectrumID = Long.parseLong(iComments.substring(indexOfID + 5, indexOfBr));
+                        this.spectrumID = Long.parseLong(this.iComments.substring(indexOfID + 5, indexOfBr));
 					} else {
-						spectrumID = Long.parseLong(iComments.substring(indexOfID + 5));
+                        this.spectrumID = Long.parseLong(this.iComments.substring(indexOfID + 5));
 					}
 				}
 			}
 		}
-		return spectrumID;
+		return this.spectrumID;
 	}
 	
 	/**
@@ -852,13 +852,13 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
     // inherited from SpectrumFile
 	@Override
 	public void setFilename(String aFilename) {
-		this.iFilename = aFilename;
+        iFilename = aFilename;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setPeaks(@SuppressWarnings("rawtypes") HashMap aPeaks) {
-		this.iPeaks = aPeaks;
+        iPeaks = aPeaks;
 	}
 
 }

@@ -29,15 +29,15 @@ public enum CypherOperatorType {
 	IS_NULL("IS NULL"),	// unary
 	IN("IN");
 	
-	private String val;
+	private final String val;
 	
-	private CypherOperatorType(String val) {
+	CypherOperatorType(String val) {
 		this.val = val;
 	}
 	
 	@Override
 	public String toString() {
-		return val;
+		return this.val;
 	}
 	
 }

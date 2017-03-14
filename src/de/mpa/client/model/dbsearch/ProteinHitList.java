@@ -14,7 +14,7 @@ import de.mpa.client.model.SpectrumMatch;
  * 
  * @author A. Behne
  */
-public class ProteinHitList extends ArrayList<ProteinHit> implements Serializable {
+public class ProteinHitList extends ArrayList<ProteinHit> {
 	
 	/**
 	 * Serialization ID set to default == 1L;
@@ -45,8 +45,7 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * Constructs an empty list with an initial capacity of ten.
 	 */
 	public ProteinHitList() {
-		super();
-	}
+    }
 
 	/**
 	 * Constructs a list containing the elements of the specified collection, in
@@ -59,32 +58,32 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	
 	@Override
 	public boolean add(ProteinHit e) {
-		this.hasChanged = super.add(e);
-		return this.hasChanged;
+        hasChanged = super.add(e);
+		return hasChanged;
 	}
 	
 	@Override
 	public void add(int index, ProteinHit element) {
 		super.add(index, element);
-		this.hasChanged = true;
+        hasChanged = true;
 	}
 	
 	@Override
 	public ProteinHit remove(int index) {
 		ProteinHit res = super.remove(index);
-		this.hasChanged = true;
+        hasChanged = true;
 		return res;
 	}
 	
 	@Override
 	public boolean remove(Object o) {
-		this.hasChanged = super.remove(o);
-		return this.hasChanged;
+        hasChanged = super.remove(o);
+		return hasChanged;
 	}
 	
 	@Override
 	public void clear() {
-		this.hasChanged = this.size() > 0;
+        hasChanged = size() > 0;
 		super.clear();
 	}
 	
@@ -93,26 +92,26 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 		if (c == null) {
 			return false;
 		}
-		this.hasChanged = super.addAll(c);
-		return this.hasChanged;
+        hasChanged = super.addAll(c);
+		return hasChanged;
 	}
 	
 	@Override
 	public boolean addAll(int index, Collection<? extends ProteinHit> c) {
-		this.hasChanged = super.addAll(index, c);
-		return this.hasChanged;
+        hasChanged = super.addAll(index, c);
+		return hasChanged;
 	}
 	
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		this.hasChanged = super.removeAll(c);
-		return this.hasChanged;
+        hasChanged = super.removeAll(c);
+		return hasChanged;
 	}
 	
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		this.hasChanged = super.retainAll(c);
-		return this.hasChanged;
+        hasChanged = super.retainAll(c);
+		return hasChanged;
 	}
 
 	/**
@@ -120,10 +119,10 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * @return
 	 */
 	public Set<ProteinHit> getProteinSet() {
-		if (this.hasChanged) {
-			regenerateSets();
+		if (hasChanged) {
+            this.regenerateSets();
 		}
-		return proteinSet;
+		return this.proteinSet;
 	}
 
 	/**
@@ -132,10 +131,10 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * @return the peptide hit set
 	 */
 	public Set<PeptideHit> getPeptideSet() {
-		if (this.hasChanged) {
-			regenerateSets();
+		if (hasChanged) {
+            this.regenerateSets();
 		}
-		return peptideSet;
+		return this.peptideSet;
 	}
 
 	/**
@@ -144,38 +143,38 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * @return the spectrum match set
 	 */
 	public Set<SpectrumMatch> getMatchSet() {
-		if (this.hasChanged) {
-			regenerateSets();
+		if (hasChanged) {
+            this.regenerateSets();
 		}
-		return matchSet;
+		return this.matchSet;
 	}
 
 	/**
 	 * Caches sets of distinct peptides and spectrum matches contained in this protein list.
 	 */
 	private void regenerateSets() {
-		proteinSet = new TreeSet<ProteinHit>();
-		peptideSet = new TreeSet<PeptideHit>();
-		matchSet = new TreeSet<SpectrumMatch>();
-		if (!this.isEmpty()) {
+        this.proteinSet = new TreeSet<ProteinHit>();
+        this.peptideSet = new TreeSet<PeptideHit>();
+        this.matchSet = new TreeSet<SpectrumMatch>();
+		if (!isEmpty()) {
 			// this list contains meta-protein hits
 			for (ProteinHit proteinHit : this) {
 				if (proteinHit instanceof MetaProteinHit) {
 					MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
-					proteinSet.addAll(metaProteinHit.getProteinSet());
-					peptideSet.addAll(metaProteinHit.getPeptideSet());
-					matchSet.addAll(metaProteinHit.getMatchSet());
+                    this.proteinSet.addAll(metaProteinHit.getProteinSet());
+                    this.peptideSet.addAll(metaProteinHit.getPeptideSet());
+                    this.matchSet.addAll(metaProteinHit.getMatchSet());
 				} else {
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (PeptideHit peptideHit : peptideHitList) {
-						matchSet.addAll(peptideHit.getSpectrumMatches());
+                        this.matchSet.addAll(peptideHit.getSpectrumMatches());
 					}
-					peptideSet.addAll(peptideHitList);
-					proteinSet.add(proteinHit);
+                    this.peptideSet.addAll(peptideHitList);
+                    this.proteinSet.add(proteinHit);
 				}
 			}
 		}
-		this.hasChanged = false;
+        hasChanged = false;
 	}
 
 }

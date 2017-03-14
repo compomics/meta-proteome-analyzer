@@ -13,18 +13,18 @@ public interface Taxonomic {
 	 * Returns the taxonomy node.
 	 * @return the taxonomy node
 	 */
-	public TaxonomyNode getTaxonomyNode();
+    TaxonomyNode getTaxonomyNode();
 	
 	/**
 	 * Sets the taxonomy node.
 	 * @param taxNode the taxonomy node to set
 	 */
-	public void setTaxonomyNode(TaxonomyNode taxonNode);
+    void setTaxonomyNode(TaxonomyNode taxonNode);
 	
 	/**
 	 * Returns the list of child taxonomic instances.
 	 * @return the children
 	 */
-	public List<? extends Taxonomic> getTaxonomicChildren();
+    List<? extends Taxonomic> getTaxonomicChildren();
 	
 }

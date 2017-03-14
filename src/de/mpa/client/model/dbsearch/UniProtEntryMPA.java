@@ -6,6 +6,7 @@ import java.util.List;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
+import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import de.mpa.analysis.taxonomy.Taxonomic;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
@@ -31,7 +32,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	/**
 	 * The accession
 	 */
-	private String accession = null;
+	private String accession;
 	
 	/**
 	 * The NCBI taxonomy ID
@@ -41,7 +42,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	/**
 	 * The taxon node
 	 */
-	private TaxonomyNode taxNode = null;
+	private TaxonomyNode taxNode;
 	
 	
 	/**
@@ -52,17 +53,17 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	/**
 	 * The KO-numbers
 	 */
-	private List<String> konumbers = new ArrayList<String>();;
-	
-	/**
+	private List<String> konumbers = new ArrayList<String>();
+
+    /**
 	 * The keywords
 	 */
-	private List<String> keywords = new ArrayList<String>();;
+	private List<String> keywords = new ArrayList<String>();
 
-	/**
+    /**
 	 * The uniRef entry.
 	 */
-	private UniRefEntryMPA uniRefMPA = null;
+	private UniRefEntryMPA uniRefMPA;
 	
 	/**
 	 * Default constructur
@@ -82,7 +83,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	public UniProtEntryMPA(String accession,  TaxonomyNode taxNode, List<String> ecnumbers, List<String> konumbers, List<String> keywords, UniRefEntryMPA uniRefMPA) {
 		this.accession = accession;
 		this.taxNode = taxNode;
-		this.taxid = taxNode.getID();
+        taxid = taxNode.getID();
 		this.ecnumbers = ecnumbers;
 		this.konumbers = konumbers;
 		this.keywords = keywords;
@@ -96,27 +97,27 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	public UniProtEntryMPA(UniProtEntry uniProtEntry, UniRefEntryMPA uniRefEntry) {
 		
 		// Fill uniProtEntry
-		this.accession = uniProtEntry.getPrimaryUniProtAccession().toString();
+        accession = uniProtEntry.getPrimaryUniProtAccession().toString();
 
-		taxid = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
-		this.ecnumbers = uniProtEntry.getProteinDescription().getEcNumbers();
+        this.taxid = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
+        ecnumbers = uniProtEntry.getProteinDescription().getEcNumbers();
 		List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
 		if (xRefs.size() > 0) {
 			for (DatabaseCrossReference xRef : xRefs) {
-				this.konumbers.add(xRef.getPrimaryId().getValue());
+                konumbers.add(xRef.getPrimaryId().getValue());
 
 			}
 		}
-		List<uk.ac.ebi.kraken.interfaces.uniprot.Keyword> keywordsList = uniProtEntry.getKeywords();
+		List<Keyword> keywordsList = uniProtEntry.getKeywords();
 		if (keywordsList.size() > 0) {
-			for (uk.ac.ebi.kraken.interfaces.uniprot.Keyword kw : keywordsList) {
+			for (Keyword kw : keywordsList) {
 				
 				if (kw.getValue() != null) {
-					keywords.add(kw.getValue());
+                    this.keywords.add(kw.getValue());
 				}
 			}
 		}
-		this.uniRefMPA = uniRefEntry;
+        uniRefMPA = uniRefEntry;
 	}
 
 	/**
@@ -126,28 +127,28 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 */
 	public UniProtEntryMPA(UniprotentryAccessor uniProtAccessor) {
 			// uniprot ID
-			this.uniProtID 		= uniProtAccessor.getUniprotentryid();
+        uniProtID = uniProtAccessor.getUniprotentryid();
 			// taxonomyID
-			this.taxid 			= uniProtAccessor.getTaxid();
+        taxid = uniProtAccessor.getTaxid();
 			// EC number
 			String ecnumber = uniProtAccessor.getEcnumber();
 			if (ecnumber != null) {
 				String[] split = ecnumber.split(";");
 				for (String string : split) {
-					this.ecnumbers.add(string);
+                    ecnumbers.add(string);
 				}
 			}else{
-				this.ecnumbers = null;
+                ecnumbers = null;
 			}
 			// KO numbers
 			String konumber = uniProtAccessor.getKonumber();
 			if (konumber != null) {
 				String[] split = konumber.split(";");
 				for (String string : split) {
-					this.konumbers.add(string);
+                    konumbers.add(string);
 				}
 			}else{
-				this.konumbers = null;
+                konumbers = null;
 			}
 			// Keywords
 			String keywords = uniProtAccessor.getKeywords();
@@ -163,7 +164,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 			String uniref100 = uniProtAccessor.getUniref100();
 			String uniref90 = uniProtAccessor.getUniref90();
 			String uniref50 = uniProtAccessor.getUniref50();
-			this.uniRefMPA 	= new UniRefEntryMPA(uniref100,uniref90, uniref50);
+        uniRefMPA = new UniRefEntryMPA(uniref100,uniref90, uniref50);
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return. The uniProtID.
 	 */
 	public Long getUniProtID() {
-		return uniProtID;
+		return this.uniProtID;
 	}
 
 	/**
@@ -179,7 +180,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return The uniProt accession.
 	 */
 	public String getAccession() {
-		return accession;
+		return this.accession;
 	}
 
 	/**
@@ -187,7 +188,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return. The NCBI taxonomy ID.
 	 */
 	public long getTaxid() {
-		return taxid;
+		return this.taxid;
 	}
 
 	/**
@@ -195,7 +196,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return The list of EC numbers.
 	 */
 	public List<String> getEcnumbers() {
-		return ecnumbers;
+		return this.ecnumbers;
 	}
 
 	/**
@@ -203,7 +204,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return The list of KO numbers.
 	 */
 	public List<String> getKonumbers() {
-		return konumbers;
+		return this.konumbers;
 	}
 
 	/**
@@ -211,7 +212,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return The list of uniProt keywords
 	 */
 	public List<String> getKeywords() {
-		return keywords;
+		return this.keywords;
 	}
 
 	/**
@@ -219,7 +220,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 * @return The uniRef entry
 	 */
 	public UniRefEntryMPA getUniRefMPA() {
-		return uniRefMPA;
+		return this.uniRefMPA;
 	}
 
 	/**
@@ -235,7 +236,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 */
 	@Override
 	public TaxonomyNode getTaxonomyNode() {
-		return taxNode;
+		return this.taxNode;
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	 */
 	@Override
 	public void setTaxonomyNode(TaxonomyNode taxonNode) {
-		this.taxNode = taxonNode;
+        taxNode = taxonNode;
 		
 	}
 

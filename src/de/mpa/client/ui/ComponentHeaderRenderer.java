@@ -13,7 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -32,7 +31,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	/**
 	 * The header label.
 	 */
-	private JLabel label;
+	private final JLabel label;
 	
 	/**
 	 * The header component.
@@ -42,12 +41,12 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	/**
 	 * The header's compound panel.
 	 */
-	private JPanel panel;
+	private final JPanel panel;
 	
 	/**
 	 * The header (sort) icon.
 	 */
-	private Icon icon;
+	private final Icon icon;
 	
 	/**
 	 * Creates a component header renderer using the provided component and the
@@ -78,49 +77,48 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	 */
 	public ComponentHeaderRenderer(JComponent component, Icon icon, int orientation) {
 		// invoke super constructor, configure default label
-		super();
-		this.setHorizontalTextPosition(SwingConstants.RIGHT);
-		this.setOpaque(false);
+        setHorizontalTextPosition(SwingConstants.RIGHT);
+        setOpaque(false);
 		
 		// initialize delegate label and component
-		this.label = new JLabel("", SwingConstants.CENTER);
-		this.comp = component;
+        label = new JLabel("", SwingConstants.CENTER);
+        comp = component;
 		
 		// create and configure panel containing label, icon and component
-		this.panel = new JPanel(new FormLayout("1px, 13px, c:0px:g, 13px, " + 
+        panel = new JPanel(new FormLayout("1px, 13px, c:0px:g, 13px, " +
 				((orientation == SwingConstants.TRAILING) ? "4px" : "1px"), "p"));
-		this.panel.setBackground(new Color(164, 164, 164));
-		this.panel.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-		this.panel.setOpaque(false);
+        panel.setBackground(new Color(164, 164, 164));
+        panel.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+        panel.setOpaque(false);
 		// lay out components, default label is reduced to showing only its icon (e.g. the sort icon)
-		this.panel.add(this, CC.xy((orientation == SwingConstants.TRAILING) ? 4 : 2, 1));
-		this.panel.add(this.label, CC.xy(3, 1));
+        panel.add(this, CC.xy((orientation == SwingConstants.TRAILING) ? 4 : 2, 1));
+        panel.add(label, CC.xy(3, 1));
 		// add component only if not null
-		if (this.comp != null) {
-			this.panel.add(this.comp, CC.xy((orientation == SwingConstants.TRAILING) ? 2 : 4, 1));
+		if (comp != null) {
+            panel.add(comp, CC.xy((orientation == SwingConstants.TRAILING) ? 2 : 4, 1));
 			// forward mouse events on header to component
-			this.addMouseListener(new MouseAdapter() {
+            addMouseListener(new MouseAdapter() {
 				public void mousePressed(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				public void mouseReleased(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				public void mouseClicked(MouseEvent me) {
-					forwardEvent(me);
+                    this.forwardEvent(me);
 				}
 				private void forwardEvent(MouseEvent me) {
-					comp.dispatchEvent(SwingUtilities.convertMouseEvent(panel, me, comp));
+                    ComponentHeaderRenderer.this.comp.dispatchEvent(SwingUtilities.convertMouseEvent(ComponentHeaderRenderer.this.panel, me, ComponentHeaderRenderer.this.comp));
 				}
 			});
 		} else {
 			// use dummy panel as component, don't add it to layout
-			this.comp = new JPanel();
+            comp = new JPanel();
 		}
 
 		// create empty dummy icon if no icon was provided
 		if (icon == null) {
-			final int iconWidth = 13, iconHeight = 13;
+			int iconWidth = 13, iconHeight = 13;
 			icon = new Icon() {
 				public void paintIcon(Component c, Graphics g, int x, int y) { }
 				public int getIconWidth() { return iconWidth; }
@@ -137,12 +135,12 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 		super.getTableCellRendererComponent(table, value,
 				isSelected, hasFocus, row, column);
 		// remove border and text
-		this.setBorder(null);
-		this.setText(null);
+        setBorder(null);
+        setText(null);
 		// apply text to delegate label
-		this.label.setText(value.toString());
+        label.setText(value.toString());
 		// return compound panel
-		return this.panel;
+		return panel;
 	}
 	
 	@Override
@@ -153,7 +151,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	
 	@SuppressWarnings("rawtypes")
 	@Override
-	protected SortKey getSortKey(JTable table, int column) {
+	protected RowSorter.SortKey getSortKey(JTable table, int column) {
 		RowSorter rowSorter = table.getRowSorter();
 		if (rowSorter == null) {
 			return null;
@@ -161,7 +159,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 		// return primary sort key if any are present
 		List sortedColumns = rowSorter.getSortKeys();
 		if (sortedColumns.size() > 0) {
-			return (SortKey) sortedColumns.get(0);
+			return (RowSorter.SortKey) sortedColumns.get(0);
 		}
 		return null;
 	}
@@ -171,7 +169,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	 * @return the renderer component
 	 */
 	public JComponent getComponent() {
-		return this.comp;
+		return comp;
 	}
 	
 	/**
@@ -179,7 +177,7 @@ public class ComponentHeaderRenderer extends DefaultTableHeaderCellRenderer {
 	 * @return the header panel
 	 */
 	public JPanel getPanel() {
-		return this.panel;
+		return panel;
 	}
 
 }

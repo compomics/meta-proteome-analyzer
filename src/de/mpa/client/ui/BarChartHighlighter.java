@@ -13,12 +13,11 @@ import java.text.NumberFormat;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
+import de.mpa.client.Constants;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.PainterHighlighter;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.renderer.JRendererLabel;
-
-import de.mpa.client.Constants.UIColor;
 
 /**
  * A simple highlighter for displaying numerical table cell values in a bar chart-like fashion.
@@ -46,15 +45,15 @@ public class BarChartHighlighter extends PainterHighlighter {
 	/**
 	 * The number format to be used on the text label.
 	 */
-	private NumberFormat formatter;
+	private final NumberFormat formatter;
 
 	/**
 	 * Convenience constructor for a bar chart highlighter using a default appearance.
 	 */
 	public BarChartHighlighter() {
 		this(0, 100.0, 50, SwingConstants.HORIZONTAL,
-				UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR.getDelegateColor(),
-				UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR.getDelegateColor());
+				Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR.getDelegateColor(),
+				Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR.getDelegateColor());
 	}
 	
 	/**
@@ -146,12 +145,11 @@ public class BarChartHighlighter extends PainterHighlighter {
 	public BarChartHighlighter(double minValue, double maxValue, int baseline,
 			Point2D startPoint, Point2D endPoint, Color startColor, Color endColor,
 			NumberFormat formatter) {
-		super();
-		this.minValue = minValue;
+        this.minValue = minValue;
 		this.maxValue = maxValue;
 		this.baseline = baseline;
 		this.formatter = formatter;
-		this.setPainter(new BarChartPainter(startPoint, startColor, endPoint, endColor));
+        setPainter(new BarChartHighlighter.BarChartPainter(startPoint, startColor, endPoint, endColor));
 	}
 
 	/**
@@ -187,13 +185,13 @@ public class BarChartHighlighter extends PainterHighlighter {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 	}
-	
+
 	/**
 	 * Sets the orientation of the bar.
 	 * @param orientation either <code>SwingConstants.HORIZONTAL</code> or <code>VERTICAL</code>
 	 */
 	public void setOrientation(int orientation) {
-		BarChartPainter painter = (BarChartPainter) this.getPainter();
+		BarChartHighlighter.BarChartPainter painter = (BarChartHighlighter.BarChartPainter) this.getPainter();
 		GradientPaint paint = (GradientPaint) painter.getFillPaint();
 		painter.setFillPaint(new GradientPaint(
 				new Point(0, (orientation == SwingConstants.VERTICAL) ? 1 : 0),
@@ -201,11 +199,11 @@ public class BarChartHighlighter extends PainterHighlighter {
 				new Point((orientation == SwingConstants.HORIZONTAL) ? 1 : 0, 0),
 				paint.getColor2()));
 	}
-	
+
 	@Override
 	protected Component doHighlight(Component component,
 			ComponentAdapter adapter) {
-		((BarChartPainter) this.getPainter()).setValue((Number) adapter.getValue());
+		((BarChartHighlighter.BarChartPainter) getPainter()).setValue((Number) adapter.getValue());
 		return super.doHighlight(component, adapter);
 	}
 
@@ -241,8 +239,8 @@ public class BarChartHighlighter extends PainterHighlighter {
 			double value;
 			if (this.value != null) {
 				value = this.value.doubleValue();
-				if (baseline > 0) {
-					label.setText(formatter.format(value));
+				if (BarChartHighlighter.this.baseline > 0) {
+					label.setText(BarChartHighlighter.this.formatter.format(value));
 				} else {
 					label.setText(null);
 				}
@@ -251,12 +249,12 @@ public class BarChartHighlighter extends PainterHighlighter {
 				label.setText(null);
 			}
 			// correct value by specified minimum
-			value -= minValue;
-			double range = maxValue - minValue;
-			int xOffset = (baseline > 0) ? baseline + 4 : 2;
+			value -= BarChartHighlighter.this.minValue;
+			double range = BarChartHighlighter.this.maxValue - BarChartHighlighter.this.minValue;
+			int xOffset = (BarChartHighlighter.this.baseline > 0) ? BarChartHighlighter.this.baseline + 4 : 2;
 			// shrink label to make room for bar
 //			label.setBounds(0, 0, xOffset, height);
-			final int barWidth = width - baseline - 4;
+			int barWidth = width - BarChartHighlighter.this.baseline - 4;
 			label.setIcon(new Icon() {
 				public void paintIcon(Component c, Graphics g, int x, int y) { }
 				public int getIconWidth() { return barWidth; }
@@ -265,8 +263,8 @@ public class BarChartHighlighter extends PainterHighlighter {
 			
 			width -= xOffset + 2;
 			// determine clip rectangle
-			int x = (int) ((GradientPaint) getFillPaint()).getPoint2().getX();
-			int y = (int) ((GradientPaint) getFillPaint()).getPoint1().getY();
+			int x = (int) ((GradientPaint) this.getFillPaint()).getPoint2().getX();
+			int y = (int) ((GradientPaint) this.getFillPaint()).getPoint1().getY();
 			int clipWidth = ((width < 0) ? 0 : (x == 0) ? width : 
 				(int) Math.ceil(value/range * width));	// ceil() so always at least 1px gets painted
 			int clipHeight = (y == 0) ? (height - 4) : 

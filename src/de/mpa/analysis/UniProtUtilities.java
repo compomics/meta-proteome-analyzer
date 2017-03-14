@@ -29,7 +29,6 @@ import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
 import uk.ac.ebi.uniprot.dataservice.query.Query;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.analysis.taxonomy.TaxonomyUtils;
-import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
@@ -59,12 +58,12 @@ public class UniProtUtilities {
 	/**
 	 * UniProt service instance. 
 	 */	
-	private UniProtService uniProtQueryService = null;
+	private UniProtService uniProtQueryService;
 
 	/**
 	 * UniRef service instance.
 	 */
-	private UniRefService uniRefQueryService = null;
+	private UniRefService uniRefQueryService;
 
 	/**
 	 *  Constructor for this class
@@ -78,11 +77,11 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void startUniProtService() {
-		silenceOutput(true);
-		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();			
-		this.uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
-		uniProtQueryService.start();
-		silenceOutput(false);
+        this.silenceOutput(true);
+		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();
+        uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
+        this.uniProtQueryService.start();
+        this.silenceOutput(false);
 	}
 
 	/**
@@ -90,7 +89,7 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void stopUniProtService() {
-		this.uniProtQueryService.stop();
+        uniProtQueryService.stop();
 	}	
 
 	/**
@@ -98,9 +97,9 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void startUniRefService() {
-		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();			
-		this.uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
-		this.uniRefQueryService.start();
+		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();
+        uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
+        uniRefQueryService.start();
 	}
 
 	/**
@@ -108,7 +107,7 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void stopUniRefService() {
-		this.uniRefQueryService.stop();
+        uniRefQueryService.stop();
 	}
 
 	/**
@@ -431,14 +430,14 @@ public class UniProtUtilities {
 				Client.getInstance().firePropertyChange("resetcur", -1L, (long) batchAccessions.size());
 			}
 			// start uniprotservice
-			this.startUniProtService();
+            startUniProtService();
 
 
 			// Query UniProt
 			QueryResult<UniProtEntry> entryIterator = null;
 			try {			
 				Query query = UniProtQueryBuilder.accessions(batchAccessions);	
-				entryIterator = uniProtQueryService.getEntries(query);		
+				entryIterator = this.uniProtQueryService.getEntries(query);
 			} catch (ServiceException e) {
 				e.printStackTrace();
 			}
@@ -447,9 +446,9 @@ public class UniProtUtilities {
 				// take the next uniprot entry
 
 				// Avoid output stream
-				silenceOutput(true);  
+                this.silenceOutput(true);
 				UniProtEntry entry = entryIterator.next();
-				silenceOutput(false);
+                this.silenceOutput(false);
 
 				// Add a new entry to the map
 				UniProtEntryMPA uniProtEntryMPA = new UniProtEntryMPA(entry, null);
@@ -462,12 +461,12 @@ public class UniProtUtilities {
 			}	
 
 			// stop uniprotservice
-			this.stopUniProtService();
+            stopUniProtService();
 		}
 
 		// Add uniRefs
 		if (addUniRef) {
-			TreeMap<String, UniRefEntryMPA> uniRefMap = this.fetchUniRefEntriesByAccessions(batchAccessions);
+			TreeMap<String, UniRefEntryMPA> uniRefMap = fetchUniRefEntriesByAccessions(batchAccessions);
 			for (String key : batchResultMap.keySet()) {
 				UniRefEntryMPA mpaUniRef = uniRefMap.get(key);
 				if (mpaUniRef != null) {
@@ -502,7 +501,7 @@ public class UniProtUtilities {
 
 		// Forward the accession list to the fetchUniProtEntriesByAccessions
 		if (fastaAccessionList.size() > 0) {
-			uniRef2AccMap = this.fetchUniProtEntriesByAccessions(fastaAccessionList, addUniRefs);
+			uniRef2AccMap = fetchUniProtEntriesByAccessions(fastaAccessionList, addUniRefs);
 		}
 
 
@@ -528,7 +527,7 @@ public class UniProtUtilities {
 		}
 
 		// Forward the accession list to the fetchUniProtEntriesByAccessions
-		uniprotResultMap = this.fetchUniRefEntriesByAccessions(fastaAccessionList);
+		uniprotResultMap = fetchUniRefEntriesByAccessions(fastaAccessionList);
 
 		return uniprotResultMap;
 	}
@@ -566,7 +565,7 @@ public class UniProtUtilities {
 		if (shortList != null && shortList.size()>0 ) {
 
 			// Process a batch of entries
-			TreeMap<String, UniProtEntryMPA> batchResultMap = this.processBatch(shortList, addUniRefs);
+			TreeMap<String, UniProtEntryMPA> batchResultMap = processBatch(shortList, addUniRefs);
 
 			// Prove the correctness of the entries
 			for (String key : shortList) {
@@ -611,16 +610,12 @@ public class UniProtUtilities {
 		}
 
 		// start the uniref service
-		this.startUniRefService();
+        startUniRefService();
 
 		// Fetch all uniRef entries from the list
 		for (String acc : accessionLists) {
 			UniRefEntryMPA uniRefEntry = null;
-			try {
-				uniRefEntry = fetchUniRefEntriesByAccession(acc);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			uniRefEntry = this.fetchUniRefEntriesByAccession(acc);
 			// Add UniRef to result map
 			if (uniRefEntry != null) {
 				uniRefMap.put(acc, uniRefEntry);
@@ -628,7 +623,7 @@ public class UniProtUtilities {
 
 		}		
 		// stop the unirefservice and return
-		this.stopUniRefService();
+        stopUniRefService();
 
 		return uniRefMap;
 	}
@@ -639,7 +634,7 @@ public class UniProtUtilities {
 	 * @throws SQLException --> Why does this throw an SQL exception??
 	 * @return The uniref entry
 	 */
-	private UniRefEntryMPA fetchUniRefEntriesByAccession(String accession) throws SQLException {
+	private UniRefEntryMPA fetchUniRefEntriesByAccession(String accession) {
 
 		// The resultmap with the uniprotEntries
 		UniRefEntryMPA uniRefs = new UniRefEntryMPA("EMPTY", "EMPTY", "EMPTY");
@@ -648,7 +643,7 @@ public class UniProtUtilities {
 		Query query = UniRefQueryBuilder.memberAccession(accession);
 		QueryResult<UniRefEntry> entries = null;
 		try {		
-			entries = this.uniRefQueryService.getEntries(query);
+			entries = uniRefQueryService.getEntries(query);
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}		
@@ -912,7 +907,7 @@ public class UniProtUtilities {
 		/**
 		 * The name.
 		 */
-		private String name;
+		private final String name;
 
 		/**
 		 * The description.
@@ -922,7 +917,7 @@ public class UniProtUtilities {
 		/**
 		 * The parent keyword category.
 		 */
-		private Keyword category;
+		private UniProtUtilities.Keyword category;
 
 		/**
 		 * Creates a keyword entry from the specified name, description and
@@ -932,7 +927,7 @@ public class UniProtUtilities {
 		 * @param category the parent category
 		 */
 		private Keyword(String name, String description,
-				Keyword category) {
+				UniProtUtilities.Keyword category) {
 			this.name = name;
 			this.description = description;
 			this.category = category;
@@ -966,7 +961,7 @@ public class UniProtUtilities {
 		 * Returns the category.
 		 * @return the category
 		 */
-		public Keyword getCategory() {
+		public UniProtUtilities.Keyword getCategory() {
 			return category;
 		}
 
@@ -977,8 +972,8 @@ public class UniProtUtilities {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof Keyword) {
-				Keyword that = (Keyword) obj;
+			if (obj instanceof UniProtUtilities.Keyword) {
+				UniProtUtilities.Keyword that = (UniProtUtilities.Keyword) obj;
 				return this.getName().equals(that.getName());
 			}
 			return false;
@@ -988,29 +983,29 @@ public class UniProtUtilities {
 	/**
 	 * The UniProt keyword ontology map.
 	 */
-	public static final Map<String, Keyword> ONTOLOGY_MAP = createOntologyMap();
+	public static final Map<String, UniProtUtilities.Keyword> ONTOLOGY_MAP = createOntologyMap();
 
 	/**
 	 * Parses a text file containing keyword data and stores it into a map.<br>
 	 * @see <a href="http://www.uniprot.org/keywords/?format=obo">http://www.uniprot.org/keywords/?format=obo</a>
 	 * @return the ontology map
 	 */
-	public static Map<String, Keyword> createOntologyMap() {
+	public static Map<String, UniProtUtilities.Keyword> createOntologyMap() {
 		// Initialize category keywords, link them to KeyWordOntology enums
-		Map<String, KeywordCategory> categoryMap = new HashMap<String, KeywordCategory>();
-		categoryMap.put("KW-9990", KeywordCategory.TECHNICAL_TERM);
-		categoryMap.put("KW-9991", KeywordCategory.PTM);
-		categoryMap.put("KW-9992", KeywordCategory.MOLECULAR_FUNCTION);
-		categoryMap.put("KW-9993", KeywordCategory.LIGAND);
-		categoryMap.put("KW-9994", KeywordCategory.DOMAIN);
-		categoryMap.put("KW-9995", KeywordCategory.DISEASE);
-		categoryMap.put("KW-9996", KeywordCategory.DEVELOPMENTAL_STAGE);
-		categoryMap.put("KW-9997", KeywordCategory.CODING_SEQUNCE_DIVERSITY);
-		categoryMap.put("KW-9998", KeywordCategory.CELLULAR_COMPONENT);
-		categoryMap.put("KW-9999", KeywordCategory.BIOLOGICAL_PROCESS);
+		Map<String, UniProtUtilities.KeywordCategory> categoryMap = new HashMap<String, UniProtUtilities.KeywordCategory>();
+		categoryMap.put("KW-9990", UniProtUtilities.KeywordCategory.TECHNICAL_TERM);
+		categoryMap.put("KW-9991", UniProtUtilities.KeywordCategory.PTM);
+		categoryMap.put("KW-9992", UniProtUtilities.KeywordCategory.MOLECULAR_FUNCTION);
+		categoryMap.put("KW-9993", UniProtUtilities.KeywordCategory.LIGAND);
+		categoryMap.put("KW-9994", UniProtUtilities.KeywordCategory.DOMAIN);
+		categoryMap.put("KW-9995", UniProtUtilities.KeywordCategory.DISEASE);
+		categoryMap.put("KW-9996", UniProtUtilities.KeywordCategory.DEVELOPMENTAL_STAGE);
+		categoryMap.put("KW-9997", UniProtUtilities.KeywordCategory.CODING_SEQUNCE_DIVERSITY);
+		categoryMap.put("KW-9998", UniProtUtilities.KeywordCategory.CELLULAR_COMPONENT);
+		categoryMap.put("KW-9999", UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS);
 
 		// Initialize ontology map
-		HashMap<String, Keyword> ontologyMap = new HashMap<String, Keyword>();
+		HashMap<String, UniProtUtilities.Keyword> ontologyMap = new HashMap<String, UniProtUtilities.Keyword>();
 
 		try {
 			// Initialize reader
@@ -1035,7 +1030,7 @@ public class UniProtUtilities {
 
 					// if we reach a category's entry use it to fill out the
 					// uninitialized description string now
-					KeywordCategory category = categoryMap.get(id);
+					UniProtUtilities.KeywordCategory category = categoryMap.get(id);
 					if (category != null) {
 						category.getKeyword().setDescription(description);
 					}
@@ -1043,8 +1038,8 @@ public class UniProtUtilities {
 				}
 				if (line.startsWith("relationship: ")) {
 					String category = line.substring(23);
-					KeywordCategory kwCategory = categoryMap.get(category);
-					ontologyMap.put(name, new Keyword(name, description, kwCategory.getKeyword()));
+					UniProtUtilities.KeywordCategory kwCategory = categoryMap.get(category);
+					ontologyMap.put(name, new UniProtUtilities.Keyword(name, description, kwCategory.getKeyword()));
 				}
 			}
 			br.close();
@@ -1059,27 +1054,27 @@ public class UniProtUtilities {
 	 * Enumeration holding ontology keywords.
 	 */
 	public enum KeywordCategory {//implements Comparable<KeywordCategory> {
-		BIOLOGICAL_PROCESS(new Keyword("Biological Process", null, null)),
-		CELLULAR_COMPONENT(new Keyword("Cellular Component", null, null)),
-		CODING_SEQUNCE_DIVERSITY(new Keyword("Coding sequence diversity", null, null)),
-		DEVELOPMENTAL_STAGE(new Keyword("Developmental stage", null, null)),
-		DISEASE(new Keyword("Disease", null, null)),
-		DOMAIN(new Keyword("Domain", null, null)),
-		LIGAND(new Keyword("Ligand", null, null)),
-		MOLECULAR_FUNCTION(new Keyword("Molecular Function", null, null)),
-		PTM(new Keyword("PTM", null, null)),
-		TECHNICAL_TERM(new Keyword("Technical term", null, null));
+		BIOLOGICAL_PROCESS(new UniProtUtilities.Keyword("Biological Process", null, null)),
+		CELLULAR_COMPONENT(new UniProtUtilities.Keyword("Cellular Component", null, null)),
+		CODING_SEQUNCE_DIVERSITY(new UniProtUtilities.Keyword("Coding sequence diversity", null, null)),
+		DEVELOPMENTAL_STAGE(new UniProtUtilities.Keyword("Developmental stage", null, null)),
+		DISEASE(new UniProtUtilities.Keyword("Disease", null, null)),
+		DOMAIN(new UniProtUtilities.Keyword("Domain", null, null)),
+		LIGAND(new UniProtUtilities.Keyword("Ligand", null, null)),
+		MOLECULAR_FUNCTION(new UniProtUtilities.Keyword("Molecular Function", null, null)),
+		PTM(new UniProtUtilities.Keyword("PTM", null, null)),
+		TECHNICAL_TERM(new UniProtUtilities.Keyword("Technical term", null, null));
 
 		/**
 		 * The ontology keyword backing this category.
 		 */
-		private Keyword keyword;
+		private UniProtUtilities.Keyword keyword;
 
 		/**
 		 * Creates a keyword category from the specified keyword.
 		 * @param keyword the keyword wrapping the category data
 		 */
-		private KeywordCategory(Keyword keyword) {
+        KeywordCategory(UniProtUtilities.Keyword keyword) {
 			this.keyword = keyword;
 		}
 
@@ -1087,7 +1082,7 @@ public class UniProtUtilities {
 		 * Returns the keyword backing the category entry.
 		 * @return the keyword
 		 */
-		public Keyword getKeyword() {
+		public UniProtUtilities.Keyword getKeyword() {
 			return keyword;
 		}
 
@@ -1101,8 +1096,8 @@ public class UniProtUtilities {
 		 * @param keyword the keyword
 		 * @return the category wrapping the keyword or <code>null</code> if no such category exists
 		 */
-		public static KeywordCategory valueOf(Keyword keyword) {
-			for (KeywordCategory category : KeywordCategory.values()) {
+		public static UniProtUtilities.KeywordCategory valueOf(UniProtUtilities.Keyword keyword) {
+			for (UniProtUtilities.KeywordCategory category : UniProtUtilities.KeywordCategory.values()) {
 				if (category.keyword.equals(keyword)) {
 					return category;
 				}
@@ -1123,19 +1118,19 @@ public class UniProtUtilities {
 	/**
 	 * The UniProt keyword taxonomy map.
 	 */
-	public static final Map<String, TaxonomyRank> TAXONOMY_RANKS_MAP;
+	public static final Map<String, UniProtUtilities.TaxonomyRank> TAXONOMY_RANKS_MAP;
 	static {
-		Map<String, TaxonomyRank> map = new LinkedHashMap<String, TaxonomyRank>();
-		map.put("root", TaxonomyRank.ROOT);
-		map.put("superkingdom", TaxonomyRank.SUPERKINGDOM);
-		map.put("kingdom", TaxonomyRank.KINGDOM);
-		map.put("phylum", TaxonomyRank.PHYLUM);
-		map.put("class", TaxonomyRank.CLASS);
-		map.put("order", TaxonomyRank.ORDER);
-		map.put("family", TaxonomyRank.FAMILY);
-		map.put("genus", TaxonomyRank.GENUS);
-		map.put("species", TaxonomyRank.SPECIES);
-		map.put("subspecies", TaxonomyRank.SUBSPECIES);
+		Map<String, UniProtUtilities.TaxonomyRank> map = new LinkedHashMap<String, UniProtUtilities.TaxonomyRank>();
+		map.put("root", UniProtUtilities.TaxonomyRank.ROOT);
+		map.put("superkingdom", UniProtUtilities.TaxonomyRank.SUPERKINGDOM);
+		map.put("kingdom", UniProtUtilities.TaxonomyRank.KINGDOM);
+		map.put("phylum", UniProtUtilities.TaxonomyRank.PHYLUM);
+		map.put("class", UniProtUtilities.TaxonomyRank.CLASS);
+		map.put("order", UniProtUtilities.TaxonomyRank.ORDER);
+		map.put("family", UniProtUtilities.TaxonomyRank.FAMILY);
+		map.put("genus", UniProtUtilities.TaxonomyRank.GENUS);
+		map.put("species", UniProtUtilities.TaxonomyRank.SPECIES);
+		map.put("subspecies", UniProtUtilities.TaxonomyRank.SUBSPECIES);
 		TAXONOMY_RANKS_MAP = Collections.unmodifiableMap(map);
 	}
 
@@ -1155,14 +1150,14 @@ public class UniProtUtilities {
 		SUBSPECIES("Subspecies"),
 		NO_RANK("No rank"); 
 
-		private String val;
-		private TaxonomyRank(String value) {
-			this.val = value;
+		private final String val;
+		TaxonomyRank(String value) {
+            val = value;
 		}
 
 		@Override
 		public String toString() {
-			return val;
+			return this.val;
 		}
 	}
 
@@ -1175,13 +1170,13 @@ public class UniProtUtilities {
 		// turn off or on? 
 		if (silence) {
 			// make a backup of the output stream
-			original = System.out;
+            this.original = System.out;
 			System.setOut(new PrintStream(new OutputStream() {
 				public void write(int b) {
 				}
 			}));
 		}else{
-			System.setOut(original);
+			System.setOut(this.original);
 		}
 	}
 
@@ -1192,7 +1187,7 @@ public class UniProtUtilities {
 	 * @param tax_def, TaxonomyDefinition used to create a common taxonomy (common ancestor or most specific)
 	 * @return commonUniProtMPAentry. The common UniProtMPAentry
 	 */
-	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries, Map<Long, Taxonomy> taxonomyMap, TaxonomyDefinition tax_def) {
+	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries, Map<Long, Taxonomy> taxonomyMap, TaxonomyUtils.TaxonomyDefinition tax_def) {
 
 		// Items of uniProtMPAentries
 		Set<String> ecnumbers = new TreeSet<String>();

@@ -21,10 +21,10 @@ public class HistogramChart extends Chart {
     public enum HistogramChartType implements ChartType {
     	TOTAL_ION_HIST("Total Ion Current", "Abs. Frequency");
 
-    	private String xLabel;
-    	private String yLabel;
+    	private final String xLabel;
+    	private final String yLabel;
     	
-		private HistogramChartType(String xLabel, String yLabel) {
+		HistogramChartType(String xLabel, String yLabel) {
 			this.xLabel = xLabel;
 			this.yLabel = yLabel;
 		}
@@ -33,10 +33,10 @@ public class HistogramChart extends Chart {
 			return "TIC Histogram";
 		}
 		public String getXLabel() {
-			return xLabel;
+			return this.xLabel;
 		}
 		public String getYLabel() {
-			return yLabel;
+			return this.yLabel;
 		}
 		@Override
 		public String getTitle() {
@@ -56,22 +56,22 @@ public class HistogramChart extends Chart {
     protected void process(ChartData data) {
     	if (data instanceof HistogramData) {
     		HistogramData totalIonData = (HistogramData) data;
-			histDataset = (HistogramDataset) totalIonData.getDataset();
+            this.histDataset = (HistogramDataset) totalIonData.getDataset();
 		}
     }
 
     @Override
     protected void setChart(ChartData data) {
-    	HistogramChartType hct = (HistogramChartType) chartType;
-        chart = ChartFactory.createHistogram(getChartTitle(),
+    	HistogramChart.HistogramChartType hct = (HistogramChart.HistogramChartType) this.chartType;
+        this.chart = ChartFactory.createHistogram(this.getChartTitle(),
                 hct.getXLabel(),
                 hct.getYLabel(),
-                histDataset,
+                this.histDataset,
                 PlotOrientation.VERTICAL,
                 false,
                 true,
                 false);
-        XYPlot plot = (XYPlot) chart.getPlot();
+        XYPlot plot = (XYPlot) this.chart.getPlot();
         
         plot.setBackgroundAlpha(0.0f);
         plot.setOutlineVisible(false);

@@ -14,8 +14,7 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	 * Default constructor.
 	 */
 	public ExperimentAccessor() {
-		super();
-	}
+    }
 	
 	/**
 	 * Calls the super class.
@@ -38,7 +37,7 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	 */
 	public static List<ExperimentAccessor> findAllExperimentsOfProject(long fk_projectid, Connection aConn) throws SQLException {
 		List<ExperimentAccessor> temp = new ArrayList<ExperimentAccessor>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where fk_projectid = ?");
+		PreparedStatement ps = aConn.prepareStatement(ExperimentTableAccessor.getBasicSelect()+ " where fk_projectid = ?");
 		ps.setLong(1, fk_projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -52,7 +51,7 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	
 	public static ExperimentAccessor findExperimentByID(long experimentid, Connection aConn) throws SQLException {
 		ExperimentAccessor temp = new ExperimentAccessor();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where experimentid = ?");
+		PreparedStatement ps = aConn.prepareStatement(ExperimentTableAccessor.getBasicSelect()+ " where experimentid = ?");
 		ps.setLong(1, experimentid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -73,7 +72,7 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	 */
 	public static ExperimentAccessor findExperimentByIDandProjectID(long experimentid, long projectid, Connection aConn) throws SQLException {
 		ExperimentAccessor temp = new ExperimentAccessor();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where experimentid = ? and fk_projectid = ?");
+		PreparedStatement ps = aConn.prepareStatement(ExperimentTableAccessor.getBasicSelect()+ " where experimentid = ? and fk_projectid = ?");
 		ps.setLong(1, experimentid);
 		ps.setLong(2, projectid);
 		ResultSet rs = ps.executeQuery();
@@ -102,14 +101,14 @@ public class ExperimentAccessor extends ExperimentTableAccessor {
 	
 	@Override
 	public String toString() {
-		return this.iTitle;
+		return iTitle;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ExperimentAccessor) {
 			ExperimentAccessor that = (ExperimentAccessor) obj;
-			return (that.iExperimentid == this.iExperimentid);
+			return (that.iExperimentid == iExperimentid);
 		}
 		return false;
 	}

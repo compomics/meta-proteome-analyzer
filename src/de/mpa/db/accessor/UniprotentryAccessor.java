@@ -46,7 +46,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 	 */
 	public static UniprotentryAccessor findFromID(long uniprotID, Connection conn) throws SQLException {
 		UniprotentryAccessor temp = null;
-		PreparedStatement ps = conn.prepareStatement(getBasicSelect() + " WHERE " + UNIPROTENTRYID + " = ?");
+		PreparedStatement ps = conn.prepareStatement(UniprotentryTableAccessor.getBasicSelect() + " WHERE " + UniprotentryTableAccessor.UNIPROTENTRYID + " = ?");
 		ps.setLong(1, uniprotID);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -67,7 +67,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 	public static ArrayList<UniprotentryAccessor> findAllEntries(Connection aConn) throws SQLException {
 		ArrayList<UniprotentryAccessor>  entities = new ArrayList<UniprotentryAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(UniprotentryTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new UniprotentryAccessor(rs));
 		}
@@ -93,7 +93,7 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		UniProtEntryMPA temp = null;
 
 		// Query the UniProt-table
-		UniprotentryAccessor uniProtAccessor = findFromID(uniprotID, conn);
+		UniprotentryAccessor uniProtAccessor = UniprotentryAccessor.findFromID(uniprotID, conn);
 
 		if (uniProtAccessor != null) {
 			temp = new UniProtEntryMPA(uniProtAccessor);
@@ -348,8 +348,8 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				} else {
 					lStat.setObject(8, uniProtEntry.getUniRefMPA().getUniRef50());
 				}
-				lStat.addBatch();;
-			}
+				lStat.addBatch();
+            }
 			lStat.executeBatch();
 
 			// Get the keys (uniprotEntry ID)
@@ -456,8 +456,8 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 		} else {
 			lStat.setObject(8, uniProtEntry.getUniRefMPA().getUniRef50());
 		}
-		lStat.addBatch();;
-		lStat.execute();
+		lStat.addBatch();
+        lStat.execute();
 		
 		// Get the keys (uniprotEntry ID)
 		ResultSet generatedKeys = lStat.getGeneratedKeys();

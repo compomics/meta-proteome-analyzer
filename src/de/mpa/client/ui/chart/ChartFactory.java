@@ -11,7 +11,7 @@ public class ChartFactory {
 	/**
 	 * ChartFactory instance.
 	 */
-	private static ChartFactory instance = null;
+	private static ChartFactory instance;
 	
 	/**
 	 * Non-visible constructor.
@@ -23,10 +23,10 @@ public class ChartFactory {
 	 * @return ChartFactory instance.
 	 */
 	public static ChartFactory getInstance() {
-		if (instance == null) {
-			instance = new ChartFactory();
+		if (ChartFactory.instance == null) {
+            ChartFactory.instance = new ChartFactory();
 		}
-		return instance;
+		return ChartFactory.instance;
 	}
 	
 	/**

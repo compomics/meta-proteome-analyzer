@@ -4,7 +4,7 @@ public enum EdgeProperty implements ElementProperty {
 	ID("id"),
 	LABEL("label");
 	
-	EdgeProperty(final String propertyName){
+	EdgeProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -12,6 +12,6 @@ public enum EdgeProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

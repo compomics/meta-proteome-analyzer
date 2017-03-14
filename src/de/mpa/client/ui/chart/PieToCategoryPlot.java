@@ -40,7 +40,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	/**
 	 * The pie plot reference.
 	 */
-	private PiePlot piePlot;
+	private final PiePlot piePlot;
 	
 	/**
 	 * The column key of the highlighted item.
@@ -59,7 +59,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 * @param piePlot the pie plot to reference
 	 */
 	public PieToCategoryPlot(PiePlot piePlot) {
-		this(piePlot, createDefaultCategoryAxis(), createDefaultValueAxis());
+		this(piePlot, PieToCategoryPlot.createDefaultCategoryAxis(), PieToCategoryPlot.createDefaultValueAxis());
 	}
 
 	/**
@@ -83,9 +83,9 @@ public class PieToCategoryPlot extends CategoryPlot {
 		super(new PieToCategoryDataset(piePlot.getDataset()), domainAxis, rangeAxis, renderer);
 		this.piePlot = piePlot;
 		if (renderer == null) {
-			renderer = this.createDefaultRenderer(piePlot);
+			renderer = createDefaultRenderer(piePlot);
 		}
-		this.setRenderer(renderer);
+        setRenderer(renderer);
 		// TODO: implement interactivity (clickable bars, maybe scrollable view)
 	}
 	
@@ -94,8 +94,8 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 * @param dataset the pie dataset to reference
 	 */
 	public void setDataset(PieDataset dataset) {
-		this.piePlot.setDataset(dataset);
-		this.setDataset(new PieToCategoryDataset(dataset));
+        piePlot.setDataset(dataset);
+        setDataset(new PieToCategoryDataset(dataset));
 	}
 	
 	/**
@@ -111,7 +111,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 				// overridden to avoid label truncation
 				TextBlock block = new TextBlock();
 				block.addLine(category.toString(),
-						this.getTickLabelFont(category), this.getTickLabelPaint(category));
+                        getTickLabelFont(category), getTickLabelPaint(category));
 				return block;
 			}
 		};
@@ -146,7 +146,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 		
 		CategoryToolTipGenerator generator = new StandardCategoryToolTipGenerator(
 				"<html>{1}<br><center>{2} ({3})</center></html>", new DecimalFormat("0")) {
-			private NumberFormat percentFormat = new DecimalFormat("0.00%");
+			private final NumberFormat percentFormat = new DecimalFormat("0.00%");
 			@Override
 			protected Object[] createItemArray(
 					CategoryDataset dataset, int row, int column) {
@@ -155,7 +155,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 		        Number value = dataset.getValue(row, column);
 	            double total = DataUtilities.calculateRowTotal(dataset, row);
 	            double percent = value.doubleValue() / total;
-	            result[3] = this.percentFormat.format(percent);
+	            result[3] = percentFormat.format(percent);
 
 		        return result;
 			}
@@ -171,8 +171,8 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void setHighlightedKey(Comparable key) {
-		this.highlightedKey = key;
-		fireChangeEvent();
+        highlightedKey = key;
+        this.fireChangeEvent();
 	}
 
 	/**
@@ -181,8 +181,8 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 */
 	@SuppressWarnings("rawtypes")
 	public void setSelectedKey(Comparable key) {
-		this.selectedKey = key;
-		fireChangeEvent();
+        selectedKey = key;
+        this.fireChangeEvent();
 	}
 	
 	/**
@@ -190,7 +190,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	 * @param angle the angle in degrees
 	 */
 	public void setStartAngle(double angle) {
-		this.piePlot.setStartAngle(angle);
+        piePlot.setStartAngle(angle);
 	}
 	
 	/**
@@ -204,7 +204,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 		/**
 		 * The reference pie plot
 		 */
-		private PiePlot piePlot;
+		private final PiePlot piePlot;
 		
 		public BarRenderer3DExt(PiePlot piePlot) {
 			this.piePlot = piePlot;
@@ -214,13 +214,13 @@ public class PieToCategoryPlot extends CategoryPlot {
 		@Override
 		public Paint getItemPaint(int row, int column) {
 			// fetch color from underlying pie plot
-			PieDataset dataset = piePlot.getDataset();
+			PieDataset dataset = this.piePlot.getDataset();
 			Comparable key = dataset.getKey(column);
-			Paint paint = piePlot.getSectionPaint(key);
+			Paint paint = this.piePlot.getSectionPaint(key);
 			if (paint == null) {
 				// refresh colors and try again
-				piePlot.getLegendItems();
-				paint = piePlot.getSectionPaint(key);
+                this.piePlot.getLegendItems();
+				paint = this.piePlot.getSectionPaint(key);
 			}
 			return paint;
 		}
@@ -240,21 +240,21 @@ public class PieToCategoryPlot extends CategoryPlot {
 	        
 	        // check whether the item shall be drawn highlighted/selected
 			Comparable key = dataset.getColumnKey(column);
-			boolean highlighted = key.equals(highlightedKey);
-			boolean selected = key.equals(selectedKey);
+			boolean highlighted = key.equals(PieToCategoryPlot.this.highlightedKey);
+			boolean selected = key.equals(PieToCategoryPlot.this.selectedKey);
 
 	        double value = dataValue.doubleValue();
 
 	        Rectangle2D adjusted = new Rectangle2D.Double(dataArea.getX(),
-	                dataArea.getY() + getYOffset(),
-	                dataArea.getWidth() - getXOffset(),
-	                dataArea.getHeight() - getYOffset());
+	                dataArea.getY() + this.getYOffset(),
+	                dataArea.getWidth() - this.getXOffset(),
+	                dataArea.getHeight() - this.getYOffset());
 
 	        PlotOrientation orientation = plot.getOrientation();
 
-	        double barW0 = calculateBarW0(plot, orientation, adjusted, domainAxis,
+	        double barW0 = this.calculateBarW0(plot, orientation, adjusted, domainAxis,
 	                state, row, column);
-	        double[] barL0L1 = calculateBarL0L1(value);
+	        double[] barL0L1 = this.calculateBarL0L1(value);
 	        if (barL0L1 == null) {
 	            return;  // the bar is not visible
 	        }
@@ -265,8 +265,8 @@ public class PieToCategoryPlot extends CategoryPlot {
 	        double barL0 = Math.min(transL0, transL1);
 	        double barLength = Math.abs(transL1 - transL0);
 
-	        double xOffset = this.getXOffset() / 2.0;
-	        double yOffset = this.getYOffset() / 2.0;
+	        double xOffset = getXOffset() / 2.0;
+	        double yOffset = getYOffset() / 2.0;
 	        
 	        if (selected) {
 	        	// do nothing
@@ -281,7 +281,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	        // draw the bar...
 	        Rectangle2D bar = new Rectangle2D.Double(barW0, barL0, state.getBarWidth(),
                     barLength);
-	        Paint itemPaint = getItemPaint(row, column);
+	        Paint itemPaint = this.getItemPaint(row, column);
 	        g2.setPaint(itemPaint);
 	        g2.fill(bar);
 	        
@@ -319,10 +319,10 @@ public class PieToCategoryPlot extends CategoryPlot {
 	        bar3dTop.closePath();
 	        g2.fill(bar3dTop);
 
-	        if (isDrawBarOutline()
-	                && state.getBarWidth() > BAR_OUTLINE_WIDTH_THRESHOLD) {
-	            g2.setStroke(getItemOutlineStroke(row, column));
-	            g2.setPaint(getItemOutlinePaint(row, column));
+	        if (this.isDrawBarOutline()
+	                && state.getBarWidth() > BarRenderer.BAR_OUTLINE_WIDTH_THRESHOLD) {
+	            g2.setStroke(this.getItemOutlineStroke(row, column));
+	            g2.setPaint(this.getItemOutlinePaint(row, column));
 	            g2.draw(bar);
 	            if (bar3dRight != null) {
 	                g2.draw(bar3dRight);
@@ -333,9 +333,9 @@ public class PieToCategoryPlot extends CategoryPlot {
 	        }
 
 	        CategoryItemLabelGenerator generator
-	            = getItemLabelGenerator(row, column);
-	        if (generator != null && isItemLabelVisible(row, column)) {
-	            drawItemLabel(g2, dataset, row, column, plot, generator, bar,
+	            = this.getItemLabelGenerator(row, column);
+	        if (generator != null && this.isItemLabelVisible(row, column)) {
+                this.drawItemLabel(g2, dataset, row, column, plot, generator, bar,
 	                    (value < 0.0));
 	        }
 
@@ -350,7 +350,7 @@ public class PieToCategoryPlot extends CategoryPlot {
 	            barOutline.lineTo((float) x3, (float) y2);
 	            barOutline.lineTo((float) x2, (float) y3);
 	            barOutline.closePath();
-	            addItemEntity(entities, dataset, row, column, barOutline);
+                this.addItemEntity(entities, dataset, row, column, barOutline);
 	        }
 		}
 	}

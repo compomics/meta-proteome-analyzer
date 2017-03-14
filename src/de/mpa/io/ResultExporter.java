@@ -61,13 +61,13 @@ public class ResultExporter {
 		boolean hasFeature[] = new boolean[21];
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.METAPROTEINS) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.METAPROTEINS) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
+
 		// Filling the format with data
 		int metaProtCount = 0;
 		for (ProteinHit metaProteinHit : result.getMetaProteins()) {
@@ -132,7 +132,7 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100() != null) {
 				uniref100 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100();
 			}else{
-				uniref100= "unknown";	
+				uniref100= "unknown";
 			}
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90() != null) {
 				uniref90 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90();
@@ -164,16 +164,16 @@ public class ResultExporter {
 			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcnumbers() != null && (!metaProtein.getUniProtEntry().getEcnumbers().isEmpty())) {
 				List<String> ECNumbers = metaProtein.getUniProtEntry().getEcnumbers();
 				for (String ec : ECNumbers) {
-					
+
 					ECs += ec.replace(";", "") + "|";
 				}
 			}else{
 				ECs = "UNKNOWN";
 			}
 			if (hasFeature[8]) writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
-			
-			
-			
+
+
+
 			if (hasFeature[16]) writer.append(metaProtein.getPeptideSet().size() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[17]) writer.append(metaProtein.getMatchSet().size() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[18]) {
@@ -207,7 +207,7 @@ public class ResultExporter {
 		}
 		writer.close();
 	}
-	
+
 	/**
 	 * This method exports the meta-protein results.
 	 * @param filePath The path string pointing to the target file.
@@ -219,27 +219,27 @@ public class ResultExporter {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 		boolean hasFeature[] = new boolean[2];
-		
+
 		// Taxonomy header information: Always write fixed header.
 		int counter = 0;
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.PROTEINTAXONOMY && counter < 10) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.PROTEINTAXONOMY && counter < 10) {
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 				counter++;
 			}
 		}
 		// Meta-protein header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.METAPROTEINTAXONOMY) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.METAPROTEINTAXONOMY) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
+
 		Map<TaxonomyNode, Set<SpectrumMatch>> taxonomySpectra = new HashMap<TaxonomyNode, Set<SpectrumMatch>>();
 		Map<TaxonomyNode, Set<PeptideHit>> taxonomyPeptides = new HashMap<TaxonomyNode, Set<PeptideHit>>();
-		
+
 		// Collect peptides and spectra from taxonomy hits.
 		for (ProteinHit metaProteinHit : result.getMetaProteins()) {
 			MetaProteinHit metaProtein = (MetaProteinHit) metaProteinHit;
@@ -248,15 +248,15 @@ public class ResultExporter {
 			if (taxonomySpectra.get(metaProtein.getTaxonomyNode()) != null ) {
 				Set<SpectrumMatch> spectraSet = taxonomySpectra.get(metaProtein.getTaxonomyNode());
 				spectrumIDs.addAll(spectraSet);
-			} 
+			}
 			if (taxonomyPeptides.get(metaProtein.getTaxonomyNode()) != null ) {
 				Set<PeptideHit> peptideSet2 = taxonomyPeptides.get(metaProtein.getTaxonomyNode());
 				peptideSet.addAll(peptideSet2);
-			} 
+			}
 			taxonomySpectra.put(metaProtein.getTaxonomyNode(), spectrumIDs);
 			taxonomyPeptides.put(metaProtein.getTaxonomyNode(), peptideSet);
 		}
-		
+
 		Map<TaxonomyRank, Integer> rankMap = new LinkedHashMap<TaxonomyRank, Integer>();
 		rankMap.put(TaxonomyRank.ROOT, 0);
 		rankMap.put(TaxonomyRank.SUPERKINGDOM, 1);
@@ -270,13 +270,13 @@ public class ResultExporter {
 		rankMap.put(TaxonomyRank.SUBSPECIES, 9);
 		List<TaxonomyRank> ranks = new ArrayList<TaxonomyRank>(rankMap.keySet());
 		ranks.remove(0);
-		
+
 		Set<Entry<TaxonomyNode, Set<SpectrumMatch>>> entrySet = taxonomySpectra.entrySet();
 		for (Entry<TaxonomyNode, Set<SpectrumMatch>> entry : entrySet) {
 			String[] taxArray = new String[10];
 			Set<PeptideHit> peptides = taxonomyPeptides.get(entry.getKey());
 			TaxonomyNode[] path = entry.getKey().getPath();
-			
+
 			// Get the real position of the taxonomic rank.
 			for (TaxonomyNode taxonomyNode : path) {
 				if (rankMap.get(taxonomyNode.getRank()) != null) {
@@ -287,7 +287,7 @@ public class ResultExporter {
 			for (int i = 0; i < taxArray.length; i++) {
 				String taxon = taxArray[i];
 				if (taxon == null) {
-					if (i == 0) taxon = ""; 
+					if (i == 0) taxon = "";
 					else taxon = "Unknown " + ranks.get(i - 1).toString();
 				}
 				writer.append(taxon + Constants.TSV_FILE_SEPARATOR);
@@ -299,8 +299,8 @@ public class ResultExporter {
 		writer.flush();
 		writer.close();
 	}
-	
-	
+
+
 	/**
 	 * This method exports the protein results.
 	 * @param filePath The path string pointing to the target file.
@@ -311,26 +311,26 @@ public class ResultExporter {
 	public static void exportProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException{
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[13];		
+		boolean hasFeature[] = new boolean[13];
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.PROTEINS) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.PROTEINS) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
+
 		// Filling the format with data
 		int protCount = 0;
 		for (Entry<String, ProteinHit> entry : result.getProteinHits().entrySet()) {
 			if ((entry.getValue()).isSelected()) {
 
-				ProteinHit proteinHit = (ProteinHit) entry.getValue();
+				ProteinHit proteinHit = entry.getValue();
 				// Export not metagenomic hits
 				// if(!proteinHit.getAccession().matches("^\\d*$")) {
-				
+
 				if (hasFeature[0]) writer.append(++protCount + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[1]) writer.append(proteinHit.getAccession() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[2]) writer.append(proteinHit.getDescription() + Constants.TSV_FILE_SEPARATOR);
@@ -350,7 +350,7 @@ public class ResultExporter {
 						// Append separater, except the last entry
 						if ((i < peptideHitList.size() - 1)) {
 							writer.append(", ");
-							
+
 						}
 					}
 					writer.append(Constants.TSV_FILE_SEPARATOR);
@@ -361,7 +361,7 @@ public class ResultExporter {
 		}
 		writer.close();
 	}
-	
+
 	/**
 	 * This method exports the peptide results.
 	 * @param filePath The path string pointing to the target file.
@@ -372,11 +372,11 @@ public class ResultExporter {
 	public static void exportPeptides(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[10];		
+		boolean hasFeature[] = new boolean[10];
 
 		// Peptide header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.PEPTIDES) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.PEPTIDES) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				// Holy Shit
 				if (exportHeader.getId() < 4 || exportHeader.getId() > 5){
@@ -385,29 +385,29 @@ public class ResultExporter {
 			}
 		}
 		writer.newLine();
-		
+
 		boolean uniquePeptidesOnly = hasFeature[3];
 		boolean sharedPeptidesOnly = hasFeature[4];
-		
-		// The set is used to ensure that the same peptides are exported only once. 
+
+		// The set is used to ensure that the same peptides are exported only once.
 		Set<PeptideHit> peptideSet = new HashSet<PeptideHit>();
-		
+
 		// Get the peptide hits.
 		int pepCount = 0;
 		List<ProteinHit> proteinHitList = result.getProteinHitList();
 		for (ProteinHit proteinHit : proteinHitList) {
-			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {				
+			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
 				if (peptideHit.isSelected() && !peptideSet.contains(peptideHit)) {
 					if (uniquePeptidesOnly) {
 						if(peptideHit.getProteinCount() > 1) {
 							continue;
-						}	
+						}
 					} else if (sharedPeptidesOnly) {
 						if(peptideHit.getProteinCount() == 1) {
 							continue;
 						}
 					}
-						
+
 					if (hasFeature[0]) writer.append(++pepCount + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[1]) {
 						List<ProteinHit> proteinHits = peptideHit.getProteinHits();
@@ -433,7 +433,7 @@ public class ResultExporter {
 					if (hasFeature[8]) writer.append(peptideHit.getTaxonomyNode().getRank() + Constants.TSV_FILE_SEPARATOR);
 					if (hasFeature[9]) writer.append(peptideHit.getTaxonomyNode().getID()+ Constants.TSV_FILE_SEPARATOR);
 					writer.newLine();
-					
+
 					// Add peptide to set.
 					peptideSet.add(peptideHit);
 				}
@@ -442,42 +442,42 @@ public class ResultExporter {
 		}
 		writer.close();
 	}
-	
+
 	/**
 	 * This method exports the PSM results.
 	 * @param filePath The path string pointing to the target file.
 	 * @param result The database search result object.
 	 * @param exportHeaders The exported headers.
 	 * @throws IOException
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	public static void exportPSMs(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException, SQLException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		
-		boolean hasFeature[] = new boolean[8];		
+
+		boolean hasFeature[] = new boolean[8];
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.PSMS) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.PSMS) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
+
 		// Get the spectrum hits.
 		int smCount = 0;
-		
+
 		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) result.getProteinHitList()).getMatchSet();
-		
+
 		for (SpectrumMatch sm : spectrumMatches) {
 			if (!Client.isViewer()) {
 				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
 				sm.setTitle(mgf.getTitle());
 			}
 			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
-			
+
 			Collection<PeptideHit> peptideHits = sm.getPeptideHits();
 			for (PeptideHit peptideHit : peptideHits) {
 				List<ProteinHit> proteinHits = peptideHit.getProteinHits();
@@ -493,50 +493,50 @@ public class ResultExporter {
 						if (hasFeature[6]) writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
 						if (hasFeature[7]) writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
 						writer.newLine();
-					}		
+					}
 				}
 			}
 		}
 		writer.flush();
 		writer.close();
 	}
-	
+
 	/**
 	 * This method exports the identified spectra.
 	 * @param filePath The path string pointing to the target file.
 	 * @param result The database search result object.
 	 * @param exportHeaders The exported headers.
 	 * @throws IOException
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	public static void exportIdentifiedSpectra(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException, SQLException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		
-		boolean hasFeature[] = new boolean[5];		
+
+		boolean hasFeature[] = new boolean[5];
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.SPECTRA) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.SPECTRA) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
+
 		// Number of identified spectra
 		int nIdentifiedSpectra = 0;
-		
+
 		Map<String, List<SpectrumMatch>> spectraToPSMs = new HashMap<String, List<SpectrumMatch>>();
-		
+
 		for (ProteinHit ph : result.getProteinHitList()) {
 			List<PeptideHit> peptideHits = ph.getPeptideHitList();
 			for (PeptideHit peptideHit : peptideHits) {
-				
+
 				for (SpectrumMatch sm : peptideHit.getSpectrumMatches()) {
 					if (!Client.isViewer()) {
 						MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(sm.getSearchSpectrumID());
-						sm.setTitle(mgf.getTitle());						
+						sm.setTitle(mgf.getTitle());
 					}
 					List<SpectrumMatch> currentPSMs = null;
 					if (spectraToPSMs.get(sm.getTitle()) != null) {
@@ -547,18 +547,18 @@ public class ResultExporter {
 					currentPSMs.add(sm);
 					spectraToPSMs.put(sm.getTitle(), currentPSMs);
 				}
-			}		
+			}
 		}
-		
+
 		Set<Entry<String, List<SpectrumMatch>>> entrySet = spectraToPSMs.entrySet();
 		for (Entry<String, List<SpectrumMatch>> entry : entrySet) {
 			if (hasFeature[0]) writer.append(++nIdentifiedSpectra + Constants.TSV_FILE_SEPARATOR);
 			List<SpectrumMatch> psms = entry.getValue();
 			if (hasFeature[1]) writer.append(psms.get(0).getSearchSpectrumID() + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[2]) writer.append(psms.get(0).getTitle() + Constants.TSV_FILE_SEPARATOR);
-			
+
 			Set<PeptideHit> allPeptides = new HashSet<PeptideHit>();
-			
+
 			Set<ProteinHit> allProteins = new HashSet<ProteinHit>();
 			for (SpectrumMatch sm : psms) {
 				Collection<PeptideHit> peptideHits = sm.getPeptideHits();
@@ -567,7 +567,7 @@ public class ResultExporter {
 					allProteins.addAll(peptideHit.getProteinHits());
 				}
 			}
-			
+
 			List<PeptideHit> peptideHits = new ArrayList<PeptideHit>(allPeptides);
 			List<ProteinHit> proteinHits = new ArrayList<ProteinHit>(allProteins);
 			if (hasFeature[3]) {
@@ -580,7 +580,7 @@ public class ResultExporter {
 					}
 				}
 			}
-			
+
 			if (hasFeature[4]) {
 				for (int i = 0; i < proteinHits.size(); i++) {
 					ProteinHit proteinHit = proteinHits.get(i);
@@ -590,14 +590,14 @@ public class ResultExporter {
 						writer.append(proteinHit.getAccession() + ";");
 					}
 				}
-						
+
 			}
 			writer.newLine();
 			writer.flush();
 		}
 		writer.close();
 	}
-	
+
 	/**
 	 * This method exports the taxonomic results.
 	 * @param filePath The path string pointing to the target file.
@@ -608,18 +608,18 @@ public class ResultExporter {
 	public static void exportProteinTaxonomy(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[13];		
+		boolean hasFeature[] = new boolean[13];
 
 		// Peptide header
 		for (ExportHeader exportHeader : exportHeaders) {
-			if(exportHeader.getType() == ExportHeaderType.PROTEINTAXONOMY) {
+			if(exportHeader.getType() == ResultExporter.ExportHeaderType.PROTEINTAXONOMY) {
 				hasFeature[exportHeader.getId() - 1] = true;
 				writer.append(exportHeader.getName() + Constants.TSV_FILE_SEPARATOR);
 			}
 		}
 		writer.newLine();
-		
-		writeProteinTaxonomy(writer, hasFeature);
+
+		ResultExporter.writeProteinTaxonomy(writer, hasFeature);
 		writer.flush();
 		writer.close();
 	}
@@ -705,12 +705,12 @@ public class ResultExporter {
 						if (rankFound) {
 							formatFlag = true;
 							if (tableModel.getColumnName(col).equals("PepC") && hasFeature[10]) {
-								writer.append(value.toString() + Constants.TSV_FILE_SEPARATOR);
+								writer.append(value + Constants.TSV_FILE_SEPARATOR);
 								
 							}
 							if (tableModel.getColumnName(col).equals("SpC")) {
 								if (hasFeature[11]) {
-									writer.append(value.toString() + Constants.TSV_FILE_SEPARATOR);
+									writer.append(value + Constants.TSV_FILE_SEPARATOR);
 								}
 								
 								Set<Long> specificSpectrumIDs = new HashSet<Long>();
@@ -720,10 +720,10 @@ public class ResultExporter {
 										TreeTableNode childNode = tableNode.getChildAt(i);
 										// Get all specific spectrum IDs from the children (except leaves!)
 										if (!childNode.isLeaf()) {
-											specificSpectrumIDs.addAll(getSpectrumIDsRecursively(childNode));
+											specificSpectrumIDs.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										} 
 										if (childNode.isLeaf()) {
-											unspecificSpectrumIDs.addAll(getSpectrumIDsRecursively(childNode));
+											unspecificSpectrumIDs.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										}
 									}
 									// Get the asymmetric set difference of the two sets.
@@ -761,7 +761,7 @@ public class ResultExporter {
 				Enumeration<? extends TreeTableNode> children = tableNode.children();
 				while (children.hasMoreElements()) {
 					TreeTableNode child = children.nextElement();
-					spectrumIDs.addAll(getSpectrumIDsRecursively((TreeTableNode) child));
+					spectrumIDs.addAll(ResultExporter.getSpectrumIDsRecursively(child));
 				}
 			}
 		}

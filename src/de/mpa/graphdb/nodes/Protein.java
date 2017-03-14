@@ -8,35 +8,35 @@ import com.tinkerpop.frames.VertexFrame;
 public interface Protein extends VertexFrame {
 
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("SPECIES")
-	public String getSpecies();
+    String getSpecies();
 	
 	@Property("SPECTRALCOUNT")
-	public int getSpectralCount();
+    int getSpectralCount();
 	
 	@Property("DESCRIPTION")
-	public String getDescription();
+    String getDescription();
 	
 	@Adjacency(label="BELONGS_TO_TAXONOMY", direction=Direction.OUT)
-	public Iterable<Taxon> getTaxa();
+    Iterable<Taxon> getTaxa();
 	
 	@Adjacency(label="BELONGS_TO_ENZYME", direction=Direction.OUT)
-	public Iterable<Enzyme> getEnzymes();
+    Iterable<Enzyme> getEnzymes();
 	
 	@Adjacency(label="BELONGS_TO_PATHWAY", direction=Direction.OUT)
-	public Iterable<Pathway> getPathways();
+    Iterable<Pathway> getPathways();
 	
 	@Adjacency(label="BELONGS_IN_FUNCTION_GROUP")
-	public Iterable<Ontology> getFunctionGroup();
+    Iterable<Ontology> getFunctionGroup();
 	
 	@Adjacency(label="HAS_PEPTIDE", direction=Direction.OUT)
-	public Iterable<Peptide> getPeptides();
+    Iterable<Peptide> getPeptides();
 	
 	@Adjacency(label = "HAS_PEPTIDE")
-    public void setPeptides(final Iterable<Peptide> peptides);
+    void setPeptides(Iterable<Peptide> peptides);
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 }

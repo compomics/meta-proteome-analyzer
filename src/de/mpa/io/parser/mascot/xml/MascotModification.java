@@ -67,10 +67,10 @@ public class MascotModification {
 			Node item = childNodes.item(i);
 			if ("name".equals(item.getNodeName())) {
 				String text = item.getTextContent();
-				this.name = text.substring(0, text.indexOf(' '));
-				this.residue = text.charAt(text.lastIndexOf(')') - 1);
+                name = text.substring(0, text.indexOf(' '));
+                residue = text.charAt(text.lastIndexOf(')') - 1);
 			} else if ("delta".equals(item.getNodeName())) {
-				this.delta = Float.parseFloat(item.getTextContent());
+                delta = Float.parseFloat(item.getTextContent());
 			}
 		}
 		this.fixed = fixed;
@@ -81,7 +81,7 @@ public class MascotModification {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class MascotModification {
 	 * @return the residue
 	 */
 	public char getResidue() {
-		return residue;
+		return this.residue;
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class MascotModification {
 	 * @return the delta
 	 */
 	public float getDelta() {
-		return delta;
+		return this.delta;
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class MascotModification {
 	 * @return <code>true</code> if this modification is fixed, <code>false</code> if this is a variable modification
 	 */
 	public boolean isFixed() {
-		return fixed;
+		return this.fixed;
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class MascotModification {
 	
 	@Override
 	public String toString() {
-		return this.name + " (" + this.residue + ((delta > 0) ? "+" : "") + ((int) Math.round(delta)) + ")";
+		return name + " (" + residue + ((this.delta > 0) ? "+" : "") + Math.round(this.delta) + ")";
 	}
 	
 }

@@ -50,7 +50,7 @@ public class CypherQuery {
 	 */
 	public CypherQuery(String statement) {
 		this.statement = statement;
-		this.custom = true;
+        custom = true;
 	}
 	
 	/**
@@ -73,20 +73,20 @@ public class CypherQuery {
 	 */
 	public boolean isValid() {
 		// Assume that the provided statement is valid. 
-		if(statement != null) return true;		
-		return (startNodes != null) && (returnIndices != null);
+		if(this.statement != null) return true;
+		return (this.startNodes != null) && (this.returnIndices != null);
 	}
 	
 	@Override
 	public String toString() {
 		
 		// Returns direct statement
-		if(statement != null) return statement;
+		if(this.statement != null) return this.statement;
 		
 		// Begin with START line
 		String statement = "START ";
 		boolean first = true;
-		for (CypherStartNode startNode : startNodes) {
+		for (CypherStartNode startNode : this.startNodes) {
 			if (!first) {
 				statement += ", ";
 			}
@@ -94,25 +94,25 @@ public class CypherQuery {
 			first = false;
 		}
 		// Add matches, if any were defined
-		if ((matches != null) && (matches.size() > 1)) {
+		if ((this.matches != null) && (this.matches.size() > 1)) {
 			statement += "\nMATCH ";
-			for (CypherMatch match : matches) {
+			for (CypherMatch match : this.matches) {
 				statement += match;
 			}
 		}
-		if (conditions != null) {
+		if (this.conditions != null) {
 			statement += "\nWHERE ";
-			for (CypherCondition cond : conditions) {
+			for (CypherCondition cond : this.conditions) {
 				statement += cond;
 			}
 		}
 		statement += "\nRETURN ";
 		first = true;
-		for (Integer returnIndex : returnIndices) {
+		for (Integer returnIndex : this.returnIndices) {
 			if (!first) {
 				statement += ", ";
 			}
-			statement += matches.get(returnIndex).getNodeIdentifier();
+			statement += this.matches.get(returnIndex).getNodeIdentifier();
 			first = false;
 		}
 		
@@ -124,7 +124,7 @@ public class CypherQuery {
 	 * @return the start nodes
 	 */
 	public List<CypherStartNode> getStartNodes() {
-		return startNodes;
+		return this.startNodes;
 	}
 	
 	/**
@@ -140,7 +140,7 @@ public class CypherQuery {
 	 * @return the matches
 	 */
 	public List<CypherMatch> getMatches() {
-		return matches;
+		return this.matches;
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class CypherQuery {
 	 * @return the return indices
 	 */
 	public List<Integer> getReturnIndices() {
-		return returnIndices;
+		return this.returnIndices;
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class CypherQuery {
 	 * @return true if the CypherQuery is custom-built else false
 	 */
 	public boolean isCustom() {
-		return custom;
+		return this.custom;
 	}
 	
 	/**
@@ -180,7 +180,7 @@ public class CypherQuery {
 	 * @return
 	 */
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 	
 	/**

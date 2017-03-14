@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
  */
 public class MascotXMLParser {
 	
-	private File xmlFile;
+	private final File xmlFile;
 	private boolean verbose = true;
 	
 	// constants
@@ -48,10 +48,10 @@ public class MascotXMLParser {
 			// parse xml document					
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(xmlFile);
+			Document doc = dBuilder.parse(this.xmlFile);
 			doc.getDocumentElement().normalize();					
 			// set xml name
-			mascotRecord.setXmlFilename(xmlFile.getName());
+			mascotRecord.setXmlFilename(this.xmlFile.getName());
 			
 			// header starts here
 			NodeList nHeaderList = doc.getElementsByTagName("header");		
@@ -59,9 +59,9 @@ public class MascotXMLParser {
 				Node nNode = nHeaderList.item(temp);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element eElement = (Element) nNode;
-					mascotRecord.setURI(getTagValue("URI", eElement));							
-					mascotRecord.setInputFilename(getTagValue("FILENAME", eElement));
-					mascotRecord.setNumQueries(Integer.parseInt(getTagValue("NumQueries", eElement)));
+					mascotRecord.setURI(this.getTagValue("URI", eElement));
+					mascotRecord.setInputFilename(this.getTagValue("FILENAME", eElement));
+					mascotRecord.setNumQueries(Integer.parseInt(this.getTagValue("NumQueries", eElement)));
 				}
 			}
 			
@@ -105,31 +105,31 @@ public class MascotXMLParser {
 						accessions.add(protNode.getAttributes().item(0).getNodeValue());
 						// get protein accession
 						try {
-							descriptions.add(getTagValue("prot_desc", protElement));
+							descriptions.add(this.getTagValue("prot_desc", protElement));
 						} catch (Exception e) {
-							if (verbose) {
+							if (this.verbose) {
 								System.out.println("WARNING: no prot_desc found at hit " + num + 
-										" in protein " + (j+1) + " in file " + xmlFile.getName());
+										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							descriptions.add(null);
 						}
 						// get protein score
 						try {
-							scores.add(Double.parseDouble(getTagValue("prot_score", protElement)));
+							scores.add(Double.parseDouble(this.getTagValue("prot_score", protElement)));
 						} catch (Exception e) {
-							if (verbose) {
+							if (this.verbose) {
 								System.out.println("WARNING: no prot_score found at hit " + num + 
-										" in protein " + (j+1) + " in file " + xmlFile.getName());
+										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							scores.add(null);
 						}
 						// get protein mass
 						try {
-							masses.add(Double.parseDouble(getTagValue("prot_mass", protElement)));
+							masses.add(Double.parseDouble(this.getTagValue("prot_mass", protElement)));
 						} catch (Exception e) {
-							if (verbose) {
+							if (this.verbose) {
 								System.out.println("WARNING: no prot_mass found at hit " + num + 
-										" in protein " + (j+1) + " in file " + xmlFile.getName());
+										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							masses.add(null);
 						}
@@ -165,33 +165,33 @@ public class MascotXMLParser {
 							
 							// get peptide mass
 							try {
-								peptideHit.setMz(Double.parseDouble(getTagValue("pep_exp_mz", peptideElement)));
+								peptideHit.setMz(Double.parseDouble(this.getTagValue("pep_exp_mz", peptideElement)));
 							} 
 							catch (Exception e) {
-								if (verbose) {
+								if (this.verbose) {
 									System.out.println("WARNING: no pep_exp_mz found at protein hit " + num +
-											", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
 
 							// get peptide charge
 							try {
-								peptideHit.setCharge(Integer.parseInt(getTagValue("pep_exp_z", peptideElement)));
+								peptideHit.setCharge(Integer.parseInt(this.getTagValue("pep_exp_z", peptideElement)));
 							} 
 							catch (Exception e) {
-								if (verbose) {
+								if (this.verbose) {
 									System.out.println("WARNING: no pep_exp_z found at protein hit " + num +
-											", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
 
 							// get peptide sequence
 							try {
-								peptideHit.setSequence(getTagValue("pep_seq", peptideElement));
+								peptideHit.setSequence(this.getTagValue("pep_seq", peptideElement));
 							} catch (Exception e) {
-								if (verbose) {
+								if (this.verbose) {
 									System.out.println("WARNING: no pep_seq found at protein hit " + num +
-											", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
 
@@ -217,9 +217,9 @@ public class MascotXMLParser {
 								}
 								peptideHit.setModifications(pepMods);
 							} catch (Exception e) {
-								if (verbose) {
+								if (this.verbose) {
 									System.out.println("WARNING: no pep_var_mod found at protein hit " + num +
-											", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
 							
@@ -228,7 +228,7 @@ public class MascotXMLParser {
 							// get peptide scan title
 							try {
 								// prune random number (introduced by Mascot) from end of string
-								String scanTitle = getTagValue("pep_scan_title", peptideElement);
+								String scanTitle = this.getTagValue("pep_scan_title", peptideElement);
 								int lastBracket = scanTitle.lastIndexOf("(");
 								if (lastBracket != -1) {	// title contains left bracket
 									try {
@@ -253,9 +253,9 @@ public class MascotXMLParser {
 
 								peptideHit.setScanTitle(scanTitle);
 							} catch (Exception e) {
-								if (verbose) {
+								if (this.verbose) {
 									System.out.println("WARNING: no pep_scan_title found at protein hit " + num +
-											", peptide " + (j+1) + " in file " + xmlFile.getName());
+											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
 						}
@@ -285,7 +285,7 @@ public class MascotXMLParser {
 	 */
 	private String getTagValue(String sTag, Element eElement) {
 		NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-		Node nValue = (Node) nlList.item(0);
+		Node nValue = nlList.item(0);
 
 		return nValue.getNodeValue();
 	}

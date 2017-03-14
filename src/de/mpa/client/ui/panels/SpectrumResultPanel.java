@@ -65,22 +65,22 @@ public class SpectrumResultPanel extends JPanel {
 	 * Default Constructor
 	 */
 	public SpectrumResultPanel(){
-		initComponents();
+        this.initComponents();
 	}
 
 	/**
 	 * Init components
 	 */
 	private void initComponents() {
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
+        setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 
 		// Set up spectrum table
-		this.setupSpectrumTableProperties();
+        setupSpectrumTableProperties();
 
 		// Lay out spectrum table
 		JPanel specTblPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 		
-		JScrollPane spectrumScp = new JScrollPane(spectrumTbl,
+		JScrollPane spectrumScp = new JScrollPane(this.spectrumTbl,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		specTblPnl.add(spectrumScp, CC.xy(2, 2));
@@ -94,7 +94,7 @@ public class SpectrumResultPanel extends JPanel {
 				new SwingWorker<Object, Object>() {
 					@Override
 					protected Object doInBackground() throws Exception {
-						SpectrumResultPanel.this.refreshSpectrumTable();
+                        refreshSpectrumTable();
 						return null;
 					}
 					@Override
@@ -108,8 +108,8 @@ public class SpectrumResultPanel extends JPanel {
 		JXTitledPanel specTblTtlPnl = PanelConfig.createTitledPanel("Spectrum Table", specTblPnl, null, fetchBtn);
 		
 		// Lay out components
-		this.add(specTblTtlPnl, CC.xy(2, 2));
-		this.add(PanelConfig.createTitledPanel("Title", new JLabel("stuff")), CC.xy(2, 4));
+        add(specTblTtlPnl, CC.xy(2, 2));
+        add(PanelConfig.createTitledPanel("Title", new JLabel("stuff")), CC.xy(2, 4));
 	}
 
 	/**
@@ -118,10 +118,10 @@ public class SpectrumResultPanel extends JPanel {
 	private void setupSpectrumTableProperties() {
 	
 		// Create protein table model
-		final TableModel spectrumTblMdl = new DefaultTableModel() {
+		TableModel spectrumTblMdl = new DefaultTableModel() {
 			// instance initializer block
 			{
-				setColumnIdentifiers(new Object[] {
+                this.setColumnIdentifiers(new Object[] {
 						"#", "Spectrum", "Peaks", "TIC", "SNR",
 						"X", "O", "I", "C", "M", "S", "Peptide", "Protein"});
 			}
@@ -134,7 +134,7 @@ public class SpectrumResultPanel extends JPanel {
 			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				switch (columnIndex) {
-				case SPEC_SELECTION: 
+				case SPEC_SELECTION:
 				case SPEC_XTANDEM:
 				case SPEC_OMSSA:
 				case SPEC_INSPECT:
@@ -142,7 +142,7 @@ public class SpectrumResultPanel extends JPanel {
 				case SPEC_MASCOT:
 				case SPEC_SPECLIB:
 					return Boolean.class;
-				case SPEC_PEAKS:	
+				case SPEC_PEAKS:
 					return Integer.class;
 				case SPEC_TIC:
 				case SPEC_SNR:
@@ -155,7 +155,7 @@ public class SpectrumResultPanel extends JPanel {
 				}
 			}
 		};
-		this.spectrumTbl = new JXTable(spectrumTblMdl) ;
+        spectrumTbl = new JXTable(spectrumTblMdl) ;
 	}
 
 	/**
@@ -181,7 +181,7 @@ public class SpectrumResultPanel extends JPanel {
 			Client.getInstance().firePropertyChange("resetcur", null, (long) specSet.size());
 
 			// Gather models
-			DefaultTableModel specTblMdl = (DefaultTableModel) spectrumTbl.getModel();
+			DefaultTableModel specTblMdl = (DefaultTableModel) this.spectrumTbl.getModel();
 
 			// Iterate meta-proteins
 			for (SpectrumMatch specMatch : specSet) {

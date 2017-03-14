@@ -7,7 +7,7 @@ public enum PsmProperty implements ElementProperty {
 	VOTES("Votes"),
 	TITLE("Spectrum Title");
 	
-	PsmProperty(final String propertyName){
+	PsmProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -15,6 +15,6 @@ public enum PsmProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

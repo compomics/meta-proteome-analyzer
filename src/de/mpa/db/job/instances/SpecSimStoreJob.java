@@ -21,7 +21,7 @@ public class SpecSimStoreJob extends Job {
 	/**
 	 * The Spectral Similarity Search job reference.
 	 */
-	private SpecSimJob specSimJob;
+	private final SpecSimJob specSimJob;
 
 	/**
 	 * Constructs a Spectral Similarity results storing job.
@@ -29,23 +29,23 @@ public class SpecSimStoreJob extends Job {
 	 */
 	public SpecSimStoreJob(SpecSimJob specSimJob) {
 		try {
-			this.dbManager = DBManager.getInstance();
+            dbManager = DBManager.getInstance();
 		} catch (SQLException e) {
-			setError(e);
+            this.setError(e);
 		}
 		this.specSimJob = specSimJob;
 		// Set the description
-		setDescription("SPECTRAL SIMILARITY SEARCH RESULTS STORING");
+        this.setDescription("SPECTRAL SIMILARITY SEARCH RESULTS STORING");
 	}
 	
 	@Override
 	public void run() {
 		try {
-			setStatus(JobStatus.RUNNING);
-			dbManager.storeSpecSimResults(specSimJob.getResults());
-			done();
+            this.setStatus(JobStatus.RUNNING);
+            this.dbManager.storeSpecSimResults(this.specSimJob.getResults());
+            this.done();
 		} catch (Exception e) {
-			setError(e);
+            this.setError(e);
 		}
 	}
 }

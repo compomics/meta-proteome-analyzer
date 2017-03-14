@@ -49,7 +49,7 @@ public class Prediction {
 	private String sequence;
 	
 	public int getIndex() {
-		return index;
+		return this.index;
 	}
 
 	public void setIndex(int index) {
@@ -57,7 +57,7 @@ public class Prediction {
 	}
 
 	public double getRankScore() {
-		return rankScore;
+		return this.rankScore;
 	}
 
 	public void setRankScore(double rankScore) {
@@ -65,7 +65,7 @@ public class Prediction {
 	}
 
 	public double getPepNovoScore() {
-		return pepNovoScore;
+		return this.pepNovoScore;
 	}
 
 	public void setPepNovoScore(double pepNovoScore) {
@@ -73,7 +73,7 @@ public class Prediction {
 	}
 
 	public double getnTermGap() {
-		return nTermGap;
+		return this.nTermGap;
 	}
 
 	public void setnTermGap(double nTermGap) {
@@ -81,7 +81,7 @@ public class Prediction {
 	}
 
 	public double getcTermGap() {
-		return cTermGap;
+		return this.cTermGap;
 	}
 
 	public void setcTermGap(double cTermGap) {
@@ -89,7 +89,7 @@ public class Prediction {
 	}
 
 	public double getPrecursorMh() {
-		return precursorMh;
+		return this.precursorMh;
 	}
 
 	public void setPrecursorMh(double precursorMh) {
@@ -97,7 +97,7 @@ public class Prediction {
 	}
 
 	public int getCharge() {
-		return charge;
+		return this.charge;
 	}
 
 	public void setCharge(int charge) {
@@ -105,7 +105,7 @@ public class Prediction {
 	}
 
 	public String getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 
 	public void setSequence(String sequence) {

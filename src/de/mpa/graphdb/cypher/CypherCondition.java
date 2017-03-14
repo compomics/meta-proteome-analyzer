@@ -12,17 +12,17 @@ public class CypherCondition {
 	/**
 	 * Left-hand side of the conditional.
 	 */
-	private Object leftTerm;
+	private final Object leftTerm;
 	
 	/**
 	 * Right-hand side of the conditional.
 	 */
-	private Object rightTerm;
+	private final Object rightTerm;
 	
 	/**
 	 * The conditional operator.
 	 */
-	private CypherOperatorType operator;
+	private final CypherOperatorType operator;
 	
 	/**
 	 * Constructs a singular value for use in conditional statements of Cypher queries.
@@ -47,9 +47,9 @@ public class CypherCondition {
 	
 	@Override
 	public String toString() {
-		if (rightTerm != null) {
-			return "(" + leftTerm + " " + operator + " " + rightTerm + ")";
+		if (this.rightTerm != null) {
+			return "(" + this.leftTerm + " " + this.operator + " " + this.rightTerm + ")";
 		}
-		return leftTerm.toString();
+		return this.leftTerm.toString();
 	}
 }

@@ -51,8 +51,8 @@ public class LibrarySpectrum {
 		this.spectrumFile = spectrumFile;
 		this.spectrumID = spectrumID;
 		this.sequence = sequence;
-		this.annotations = new ArrayList<Protein>();
-		this.annotations.add(new Protein(accession, description));
+        annotations = new ArrayList<Protein>();
+        annotations.add(new Protein(accession, description));
 	}
 
 	/**
@@ -83,14 +83,14 @@ public class LibrarySpectrum {
 	 * Returns the MGF spectrum file.
 	 */
 	public MascotGenericFile getSpectrumFile() {
-		return this.spectrumFile;
+		return spectrumFile;
 	}
 	
 	/**
 	 * Returns the peptide sequence.
 	 */
 	public String getSequence() {
-		return this.sequence;
+		return sequence;
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class LibrarySpectrum {
 	 * Returns the list of protein annotations.
 	 */
 	public List<Protein> getAnnotations() {
-		return this.annotations;
+		return annotations;
 	}
 	
 	/**
@@ -120,17 +120,17 @@ public class LibrarySpectrum {
 	 * Adds a protein annotation to the list of annotations.
 	 */
 	public void addAnnotation(Protein protein) {
-		if (this.annotations == null) {	// no annotations present yet
-			this.annotations = new ArrayList<Protein>();
+		if (annotations == null) {	// no annotations present yet
+            annotations = new ArrayList<Protein>();
 		}
-		this.annotations.add(protein);
+        annotations.add(protein);
 	}
 
 	/**
 	 * @return the spectrumID
 	 */
 	public long getSpectrumID() {
-		return spectrumID;
+		return this.spectrumID;
 	}
 
 	/**

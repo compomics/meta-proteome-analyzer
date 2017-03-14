@@ -2,7 +2,6 @@ package de.mpa.algorithms.similarity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 public class CrossCorrelation implements SpectrumComparator {
@@ -10,17 +9,17 @@ public class CrossCorrelation implements SpectrumComparator {
 	/**
 	 * The input vectorization method.
 	 */
-	private Vectorization vect;
+	private final Vectorization vect;
 	
 	/**
 	 * The input transformation method.
 	 */
-	private Transformation trafo;
+	private final Transformation trafo;
 
 	/**
 	 * The amount of neighboring bins that are evaluated (in both positive and negative m/z direction) during correlation.
 	 */
-	private int offsets;
+	private final int offsets;
 	
 	/**
 	 * The peak map of the source spectrum which gets auto-correlated during preparation.
@@ -30,7 +29,7 @@ public class CrossCorrelation implements SpectrumComparator {
 	/**
 	 * The bin width.
 	 */
-	private double binWidth;
+	private final double binWidth;
 	
 	/**
 	 * The auto-correlation score of the source spectrum. Used for normalization purposes.
@@ -58,9 +57,9 @@ public class CrossCorrelation implements SpectrumComparator {
 		// TODO: make adjustments for peak matching method, if possible
 		
 		// vectorize input source spectrum
-		Map<Double, Double> vectPeaksSrc = vect.vectorize(inputPeaksSrc, trafo);
-		
-		peaksSrc = new HashMap<Double, Double>(vectPeaksSrc.size());
+		Map<Double, Double> vectPeaksSrc = this.vect.vectorize(inputPeaksSrc, this.trafo);
+
+        this.peaksSrc = new HashMap<Double, Double>(vectPeaksSrc.size());
 		
 		// determine source spectrum magnitude
 		double magSrc = 0.0;
@@ -69,7 +68,7 @@ public class CrossCorrelation implements SpectrumComparator {
 		magSrc = Math.sqrt(magSrc);
 		
 		// apply cross-correlation transformation
-		for (Entry<Double, Double> peakSrc : vectPeaksSrc.entrySet()) {
+		for (Map.Entry<Double, Double> peakSrc : vectPeaksSrc.entrySet()) {
 			// normalize intensity
 			double intenSrc = peakSrc.getValue() / magSrc;
 			// apply cross-correlation processing and store resulting peaks
@@ -84,51 +83,51 @@ public class CrossCorrelation implements SpectrumComparator {
 				}
 			}
 		}
-		
+
 		// determine auto-correlation (squared magnitude, essentially)
 		autoCorr = 0.0;
 		for (double intenSrc : peaksSrc.values()) {
-			autoCorr += intenSrc * intenSrc; 
+			autoCorr += intenSrc * intenSrc;
 		}
 	}
-	
+
 	@Override
 	public void compareTo(Map<Double, Double> inputPeaksTrg) {
-		
+
 		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
-		
+
 		// determine target spectrum magnitude
 		double magTrg = 0.0;
 		for (double intenTrg : peaksTrg.values())
 			magTrg += intenTrg * intenTrg;
 		magTrg = Math.sqrt(magTrg);
-		
+
 		// calculate dot product
 		double numer = 0.0;
-		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
-			Double intenSrc = peaksSrc.get(peakTrg.getKey());
+		for (Map.Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
+			Double intenSrc = this.peaksSrc.get(peakTrg.getKey());
 			if (intenSrc != null)
 				numer += intenSrc * (peakTrg.getValue() / magTrg);
 		}
 		
 		// normalize score using auto-correlation
-		double similarity = numer / autoCorr;
+		double similarity = numer / this.autoCorr;
 		this.similarity = (similarity > 0.0) ? similarity : 0.0;	// cut off negative scores
 	}
 
 	@Override
 	public double getSimilarity() {
-		return similarity;
+		return this.similarity;
 	}
 
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
-		return peaksSrc;
+		return this.peaksSrc;
 	}
 
 	@Override
 	public Vectorization getVectorization() {
-		return vect;
+		return this.vect;
 	}
 
 }

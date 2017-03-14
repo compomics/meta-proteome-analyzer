@@ -990,7 +990,7 @@ public class ProjectPanel extends JPanel {
 		/**
 		 * The currently selected project.
 		 */
-		private AbstractProject project;
+		private final AbstractProject project;
 
 		/**
 		 * Constructor for this class, 
@@ -998,15 +998,16 @@ public class ProjectPanel extends JPanel {
 		 * @param project
 		 */
 		public DeleteProjectWorker(AbstractProject currentProject) {
-			this.project = currentProject;
+            project = currentProject;
 		}
 
-		protected Object doInBackground() {	
-			project.delete();
-			selectedProject = null;
-			selectedExperiment = null;
-			projectTbl.clearSelection();
-			experimentTbl.clearSelection();
+		protected Object doInBackground() {
+            this.project.delete();
+            ProjectPanel.this.selectedProject = null;
+            ProjectPanel.this.selectedExperiment = null;
+            ProjectPanel.this.refreshProjectTable();
+            experimentTbl.clearSelection();
+            projectTbl.clearSelection();
 			refreshProjectTable();
 			return 0;
 		}

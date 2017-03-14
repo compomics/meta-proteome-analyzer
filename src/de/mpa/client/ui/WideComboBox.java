@@ -19,7 +19,7 @@ public class WideComboBox extends JComboBox {
 	 * Flag denoting whether this component is currently laying out its
 	 * sub-components.
 	 */
-	private boolean layingOut = false;
+	private boolean layingOut;
 
 	/** 
      * Creates a <code>JComboBox</code> that contains the elements
@@ -37,20 +37,20 @@ public class WideComboBox extends JComboBox {
 	@Override
 	public void doLayout() {
 		try {
-			this.layingOut = true;
+            layingOut = true;
 			super.doLayout();
 		} finally {
-			this.layingOut = false;
+            layingOut = false;
 		}
 	}
 
 	@Override
 	public Dimension getSize() {
 		Dimension dim = super.getSize();
-		if (!layingOut) {
+		if (!this.layingOut) {
 			System.out.println(dim.width);
-			System.out.println(this.getPreferredSize().width);
-			dim.width = Math.max(dim.width, this.getPreferredSize().width);
+			System.out.println(getPreferredSize().width);
+			dim.width = Math.max(dim.width, getPreferredSize().width);
 		}
 		return dim;
 	}

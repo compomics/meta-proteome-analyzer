@@ -38,8 +38,8 @@ public class FetchSpectraDialog extends JDialog {
 	/**
 	 * The ClientFrame
 	 */
-	private ClientFrame clntFrame;
-	private AbstractExperiment experiment;
+	private final ClientFrame clntFrame;
+	private final AbstractExperiment experiment;
 	@SuppressWarnings("unused")
 	private Connection conn;
 	private JTextField expTxt;
@@ -53,15 +53,15 @@ public class FetchSpectraDialog extends JDialog {
 	 */
 	public FetchSpectraDialog(ClientFrame owner, String title, AbstractExperiment experiment) {
 		super(owner, title);
-		this.clntFrame = owner;
+        clntFrame = owner;
 		this.experiment = experiment;
 		try {
-			this.conn = DBManager.getInstance().getConnection();
+            conn = DBManager.getInstance().getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		initComponents();
-		showDialog();
+        this.initComponents();
+        this.showDialog();
 	}
 	
 	/**
@@ -73,23 +73,23 @@ public class FetchSpectraDialog extends JDialog {
 		JPanel fetchDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JPanel fetchSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 		JLabel titleLbl 		= new JLabel("Experiment Title");
-		expTxt = new JTextField(experiment.getTitle()); 
-		expTxt.setEnabled(false);
+        this.expTxt = new JTextField(this.experiment.getTitle());
+        this.expTxt.setEnabled(false);
 		JLabel lookUpLbl 			= new JLabel("Filter by specific String in Spectrum Title");
-		lookUpTxt = new JTextField("FILE"); 
-		identCbx = new JCheckBox();
-		identCbx.setText("Get identified spectra");
-		identCbx.setSelected(false);
-		unidentCbx = new JCheckBox();
-		unidentCbx.setText("Get unidentified spectra");
-		unidentCbx.setSelected(true);
+        this.lookUpTxt = new JTextField("FILE");
+        this.identCbx = new JCheckBox();
+        this.identCbx.setText("Get identified spectra");
+        this.identCbx.setSelected(false);
+        this.unidentCbx = new JCheckBox();
+        this.unidentCbx.setText("Get unidentified spectra");
+        this.unidentCbx.setSelected(true);
 		
 		fetchSettingsPnl.add(titleLbl, 	CC.xy(2, 2));
-		fetchSettingsPnl.add(expTxt, 	CC.xy(2, 4));
+		fetchSettingsPnl.add(this.expTxt, 	CC.xy(2, 4));
 		fetchSettingsPnl.add(lookUpLbl, CC.xy(2, 6));
-		fetchSettingsPnl.add(lookUpTxt, CC.xy(2, 8));
-		fetchSettingsPnl.add(identCbx,  CC.xy(2, 10));
-		fetchSettingsPnl.add(unidentCbx,  CC.xy(2, 12));
+		fetchSettingsPnl.add(this.lookUpTxt, CC.xy(2, 8));
+		fetchSettingsPnl.add(this.identCbx,  CC.xy(2, 10));
+		fetchSettingsPnl.add(this.unidentCbx,  CC.xy(2, 12));
 		
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
@@ -104,30 +104,30 @@ public class FetchSpectraDialog extends JDialog {
 					@Override
 					protected Void doInBackground() throws Exception {
 						JFileChooser chooser = new ConfirmFileChooser();
-						chooser.setCurrentDirectory(new File(clntFrame.getLastSelectedFolder()));
+						chooser.setCurrentDirectory(new File(FetchSpectraDialog.this.clntFrame.getLastSelectedFolder()));
 						chooser.setFileFilter(Constants.MGF_FILE_FILTER);
 						chooser.setAcceptAllFileFilterUsed(false);
-						int returnVal = chooser.showSaveDialog(clntFrame);
+						int returnVal = chooser.showSaveDialog(FetchSpectraDialog.this.clntFrame);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							File selFile = chooser.getSelectedFile();
 							if (selFile != null) {
 								String filePath = selFile.getPath();
-								clntFrame.setLastSelectedFolder(selFile.getParent());
+                                FetchSpectraDialog.this.clntFrame.setLastSelectedFolder(selFile.getParent());
 								if (!filePath.toLowerCase().endsWith(".mgf")) {
 									filePath += ".mgf";
 								}
-								Client.getInstance().fetchAndExportSpectra(filePath, 
-																experiment.getID(),
-																identCbx.isSelected(),
-																unidentCbx.isSelected(),
-																lookUpTxt.getText());
+								Client.getInstance().fetchAndExportSpectra(filePath,
+                                        FetchSpectraDialog.this.experiment.getID(),
+                                        FetchSpectraDialog.this.identCbx.isSelected(),
+                                        FetchSpectraDialog.this.unidentCbx.isSelected(),
+                                        FetchSpectraDialog.this.lookUpTxt.getText());
 							}
 						}
 						return null;
 					}
 
 				}.execute();
-				close();
+                FetchSpectraDialog.this.close();
 			}
 		});
 		
@@ -139,14 +139,14 @@ public class FetchSpectraDialog extends JDialog {
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			close();
+                FetchSpectraDialog.this.close();
 			}
 		});
 		
 		fetchDlgPnl.add(fetchSettingsPnl, CC.xyw(2, 2,3));
 		fetchDlgPnl.add(okBtn,CC.xy(2, 4) );
 		fetchDlgPnl.add(cancelBtn,CC.xy(4, 4) );
-		Container cp = this.getContentPane();		
+		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
 
 		cp.add(fetchDlgPnl, CC.xy(2,  2));
@@ -157,19 +157,19 @@ public class FetchSpectraDialog extends JDialog {
 	 */
 	private void showDialog() {
 		// Configure size and position
-		this.pack();
-		this.setResizable(false);
+        pack();
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 	
 	/**
 	 * Close method for the dialog.
 	 */
 	private void close() {
-		dispose();
+        this.dispose();
 	}
 	
 }

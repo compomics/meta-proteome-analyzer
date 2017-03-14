@@ -15,7 +15,7 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 
 public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 	
-	private Object[] userObjects;
+	private final Object[] userObjects;
 
 	private static final int NAME = 0;
 	private static final int DESCRIPTION = 1;
@@ -26,16 +26,16 @@ public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 	 * Constructs a taxonomic view tree node using UniProtJAPI taxonomy data or a protein hit.
 	 */
 	public TaxonTreeNode(Object obj) {
-		this.userObjects = new Object[4];
-		this.userObjects[SPECTRAL_COUNT] = new HashSet<Long>();
+        userObjects = new Object[4];
+        userObjects[TaxonTreeNode.SPECTRAL_COUNT] = new HashSet<Long>();
 		if (obj instanceof NcbiTaxon) {
-			this.userObjects[NAME] = ((NcbiTaxon) obj).getValue();
+            userObjects[TaxonTreeNode.NAME] = ((NcbiTaxon) obj).getValue();
 		} else if (obj instanceof Organism) {
-			this.userObjects[NAME] = ((Organism) obj).getScientificName().getValue();
+            userObjects[TaxonTreeNode.NAME] = ((Organism) obj).getScientificName().getValue();
 		} else if (obj instanceof ProteinHit) {
 			ProteinHit ph = (ProteinHit) obj;
-			this.userObjects[NAME] = ph.getAccession();
-			this.userObjects[DESCRIPTION] = ph.getDescription();
+            userObjects[TaxonTreeNode.NAME] = ph.getAccession();
+            userObjects[TaxonTreeNode.DESCRIPTION] = ph.getDescription();
 		}
 	}
 	
@@ -59,46 +59,46 @@ public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 	
 	@SuppressWarnings("unchecked")
 	protected void addSpectrumIDs(Set<Long> spectrumIDs) {
-		((Collection<Long>) this.userObjects[SPECTRAL_COUNT]).addAll(spectrumIDs);
-		if (getParent().getParent() != null) {	// if parent is not root
-			((TaxonTreeNode) getParent()).addSpectrumIDs(spectrumIDs);
+		((Collection<Long>) userObjects[TaxonTreeNode.SPECTRAL_COUNT]).addAll(spectrumIDs);
+		if (this.getParent().getParent() != null) {	// if parent is not root
+			((TaxonTreeNode) this.getParent()).addSpectrumIDs(spectrumIDs);
 		}
 	}
 	
 	@Override
 	public Object getUserObject() {
-		return this.getUserObject(0);
+		return getUserObject(0);
 	}
 
 	public Object getUserObject(int i) {
-		return this.userObjects[i];
+		return userObjects[i];
 	}
 
 	@Override
 	public int getColumnCount() {
-		return this.userObjects.length;
+		return userObjects.length;
 	}
 	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getValueAt(int column) {
 		switch (column) {
-		case PROTEIN_COUNT:
-			if (isLeaf()) {
+		case TaxonTreeNode.PROTEIN_COUNT:
+			if (this.isLeaf()) {
 				return null;
-			} else if (getChildAt(0).isLeaf()) {
-				return getChildCount();
+			} else if (this.getChildAt(0).isLeaf()) {
+				return this.getChildCount();
 			} else {
 				int res = 0;
-				for (int i = 0; i < getChildCount(); i++) {
-					res += (Integer) (getChildAt(i).getValueAt(PROTEIN_COUNT));
+				for (int i = 0; i < this.getChildCount(); i++) {
+					res += (Integer) (this.getChildAt(i).getValueAt(TaxonTreeNode.PROTEIN_COUNT));
 				}
 				return res;
 			}
-		case SPECTRAL_COUNT:
-			return ((Collection) userObjects[SPECTRAL_COUNT]).size();	
+		case TaxonTreeNode.SPECTRAL_COUNT:
+			return ((Collection) this.userObjects[TaxonTreeNode.SPECTRAL_COUNT]).size();
 		default:
-			return this.userObjects[column];
+			return userObjects[column];
 		}
 	}
 	
@@ -106,24 +106,24 @@ public class TaxonTreeNode extends DefaultMutableTreeTableNode {
 	@Override
 	public void setValueAt(Object aValue, int column) {
 		switch (column) {
-		case SPECTRAL_COUNT:
-			addSpectrumIDs((Set<Long>) aValue);
+		case TaxonTreeNode.SPECTRAL_COUNT:
+            this.addSpectrumIDs((Set<Long>) aValue);
 			break;
 		default:
-			this.userObjects[column] = aValue;
+            userObjects[column] = aValue;
 			break;
 		}
 	}
 	
 	public void removeAllChildren() {
-		for (int i = getChildCount()-1; i >= 0; i--) {
-			remove(i);
+		for (int i = this.getChildCount()-1; i >= 0; i--) {
+            this.remove(i);
 		}
 	}
 	
 	@Override
 	public String toString() {
-		return this.userObjects[NAME].toString();
+		return userObjects[TaxonTreeNode.NAME].toString();
 	}
 
 }

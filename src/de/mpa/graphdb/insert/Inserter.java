@@ -8,19 +8,19 @@ package de.mpa.graphdb.insert;
  */
 public interface Inserter {
 	
-	public void setData(Object data);
+	void setData(Object data);
 
-	public void insert();
+	void insert();
 	
-	public void setupIndices();
+	void setupIndices();
 	
-	public int[] getDefaultIndexes();
+	int[] getDefaultIndexes();
 
-	public String getDefaultDelimiter();
+	String getDefaultDelimiter();
 	
-	public void setDefaultIndexes(int[] indexes);
+	void setDefaultIndexes(int[] indexes);
 
-	public void setDefaultDelimiter(String delimiter);
+	void setDefaultDelimiter(String delimiter);
 	
-	public void stop();
+	void stop();
 }

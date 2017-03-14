@@ -14,11 +14,11 @@ public interface Storager extends Runnable {
     /**
      * Loads the file containing relevant data.
      */
-    public void load();
+    void load();
     
     /**
      * Store all data persistently into the database.
      */
-    public void store() throws Exception;
+    void store() throws Exception;
 }
 

@@ -37,12 +37,12 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'taxonomyid' column.
@@ -59,13 +59,13 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'description' column.
 	 */
-	protected String iDescription = null;
+	protected String iDescription;
 
 
 	/**
 	 * This variable represents the contents for the 'rank' column.
 	 */
-	protected String iRank = null;
+	protected String iRank;
 
 
 	/**
@@ -104,19 +104,19 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public TaxonomyTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(TAXONOMYID)) {
-			this.iTaxonomyid = ((Long)aParams.get(TAXONOMYID)).longValue();
+		if(aParams.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
+            iTaxonomyid = ((Long)aParams.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
 		}
-		if(aParams.containsKey(PARENTID)) {
-			this.iParentid = ((Long)aParams.get(PARENTID)).longValue();
+		if(aParams.containsKey(TaxonomyTableAccessor.PARENTID)) {
+            iParentid = ((Long)aParams.get(TaxonomyTableAccessor.PARENTID)).longValue();
 		}
-		if(aParams.containsKey(DESCRIPTION)) {
-			this.iDescription = (String)aParams.get(DESCRIPTION);
+		if(aParams.containsKey(TaxonomyTableAccessor.DESCRIPTION)) {
+            iDescription = (String)aParams.get(TaxonomyTableAccessor.DESCRIPTION);
 		}
-		if(aParams.containsKey(RANK)) {
-			this.iRank = (String)aParams.get(RANK);
+		if(aParams.containsKey(TaxonomyTableAccessor.RANK)) {
+            iRank = (String)aParams.get(TaxonomyTableAccessor.RANK);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -128,12 +128,12 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public TaxonomyTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iTaxonomyid = aResultSet.getLong("taxonomyid");
-		this.iParentid = aResultSet.getLong("parentid");
-		this.iDescription = (String)aResultSet.getObject("description");
-		this.iRank = (String)aResultSet.getObject("rank");
+        iTaxonomyid = aResultSet.getLong("taxonomyid");
+        iParentid = aResultSet.getLong("parentid");
+        iDescription = (String)aResultSet.getObject("description");
+        iRank = (String)aResultSet.getObject("rank");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -143,7 +143,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Taxonomyid column.
 	 */
 	public long getTaxonomyid() {
-		return this.iTaxonomyid;
+		return iTaxonomyid;
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Parentid column.
 	 */
 	public long getParentid() {
-		return this.iParentid;
+		return iParentid;
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Description column.
 	 */
 	public String getDescription() {
-		return this.iDescription;
+		return iDescription;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Rank column.
 	 */
 	public String getRank() {
-		return this.iRank;
+		return iRank;
 	}
 
 	/**
@@ -179,8 +179,8 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aTaxonomyid	long with the value for the Taxonomyid column.
 	 */
 	public void setTaxonomyid(long aTaxonomyid) {
-		this.iTaxonomyid = aTaxonomyid;
-		this.iUpdated = true;
+        iTaxonomyid = aTaxonomyid;
+        iUpdated = true;
 	}
 
 	/**
@@ -189,8 +189,8 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aParentid	long with the value for the Parentid column.
 	 */
 	public void setParentid(long aParentid) {
-		this.iParentid = aParentid;
-		this.iUpdated = true;
+        iParentid = aParentid;
+        iUpdated = true;
 	}
 
 	/**
@@ -199,8 +199,8 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aDescription	String with the value for the Description column.
 	 */
 	public void setDescription(String aDescription) {
-		this.iDescription = aDescription;
-		this.iUpdated = true;
+        iDescription = aDescription;
+        iUpdated = true;
 	}
 
 	/**
@@ -209,8 +209,8 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aRank	String with the value for the Rank column.
 	 */
 	public void setRank(String aRank) {
-		this.iRank = aRank;
-		this.iUpdated = true;
+        iRank = aRank;
+        iUpdated = true;
 	}
 
 
@@ -223,7 +223,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM taxonomy WHERE taxonomyid = ?");
-		lStat.setLong(1, iTaxonomyid);
+		lStat.setLong(1, this.iTaxonomyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -238,22 +238,22 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(TAXONOMYID)) {
+		if(!aKeys.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
 			throw new IllegalArgumentException("Primary key field 'TAXONOMYID' is missing in HashMap!");
 		} else {
-			iTaxonomyid = ((Long)aKeys.get(TAXONOMYID)).longValue();
+            this.iTaxonomyid = ((Long)aKeys.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM taxonomy WHERE taxonomyid = ?");
-		lStat.setLong(1, iTaxonomyid);
+		lStat.setLong(1, this.iTaxonomyid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iTaxonomyid = lRS.getLong("taxonomyid");
-			iParentid = lRS.getLong("parentid");
-			iDescription = (String)lRS.getObject("description");
-			iRank = (String)lRS.getObject("rank");
+            this.iTaxonomyid = lRS.getLong("taxonomyid");
+            this.iParentid = lRS.getLong("parentid");
+            this.iDescription = (String)lRS.getObject("description");
+            this.iRank = (String)lRS.getObject("rank");
 		}
 		lRS.close();
 		lStat.close();
@@ -282,7 +282,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<TaxonomyTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<TaxonomyTableAccessor>  entities = new ArrayList<TaxonomyTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new TaxonomyTableAccessor(rs));
 		}
@@ -300,18 +300,18 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE taxonomy SET taxonomyid = ?, parentid = ?, description = ?, rank = ? WHERE taxonomyid = ?");
-		lStat.setLong(1, iTaxonomyid);
-		lStat.setLong(2, iParentid);
-		lStat.setObject(3, iDescription);
-		lStat.setObject(4, iRank);
-		lStat.setLong(5, iTaxonomyid);
+		lStat.setLong(1, this.iTaxonomyid);
+		lStat.setLong(2, this.iParentid);
+		lStat.setObject(3, this.iDescription);
+		lStat.setObject(4, this.iRank);
+		lStat.setLong(5, this.iTaxonomyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -324,25 +324,25 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO taxonomy (taxonomyid, parentid, description, rank) values(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		if(iTaxonomyid == Long.MIN_VALUE) {
+		if(this.iTaxonomyid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iTaxonomyid);
+			lStat.setLong(1, this.iTaxonomyid);
 		}
-		if(iParentid == Long.MIN_VALUE) {
+		if(this.iParentid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
-			lStat.setLong(2, iParentid);
+			lStat.setLong(2, this.iParentid);
 		}
-		if(iDescription == null) {
+		if(this.iDescription == null) {
 			lStat.setNull(3, 12);
 		} else {
-			lStat.setObject(3, iDescription);
+			lStat.setObject(3, this.iDescription);
 		}
-		if(iRank == null) {
+		if(this.iRank == null) {
 			lStat.setNull(4, 12);
 		} else {
-			lStat.setObject(4, iRank);
+			lStat.setObject(4, this.iRank);
 		}
 		int result = lStat.executeUpdate();
 
@@ -350,22 +350,22 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iTaxonomyid = ((Number) iKeys[0]).longValue();
+            this.iTaxonomyid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -376,7 +376,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

@@ -17,25 +17,25 @@ import de.mpa.util.PropertyLoader;
  */
 public class XTandemJob extends Job {
 
-	private final static String INPUT_TARGET_FILE = "input_target.xml";
-	private final static String INPUT_DECOY_FILE = "input_decoy.xml";
-	private final static String PARAMETER_FILE = "parameters.xml";
-	private final static String TAXONOMY_FILE = "taxonomy.xml";
-	private final static String TAXONOMY_DECOY_FILE = "taxonomy_decoy.xml";
+	private static final String INPUT_TARGET_FILE = "input_target.xml";
+	private static final String INPUT_DECOY_FILE = "input_decoy.xml";
+	private static final String PARAMETER_FILE = "parameters.xml";
+	private static final String TAXONOMY_FILE = "taxonomy.xml";
+	private static final String TAXONOMY_DECOY_FILE = "taxonomy_decoy.xml";
 	private String filename;
-	private File xTandemFile;
+	private final File xTandemFile;
 	private File inputFile;
 	private File parameterFile;
 	private File taxonomyFile;
-	private File mgfFile;
-	private String searchDB;
-	private double fragmentTol;
-	private double precursorTol;
-	private int nMissedCleavages;
+	private final File mgfFile;
+	private final String searchDB;
+	private final double fragmentTol;
+	private final double precursorTol;
+	private final int nMissedCleavages;
 	// String of precursor ion tolerance unit ( ppm versus Da)
-	private String precursorUnit;
-	private SearchType searchType;
-	private String params;
+	private final String precursorUnit;
+	private final SearchType searchType;
+	private final String params;
 
 	/**
 	 * Constructor for starting the X!Tandem search engine.
@@ -68,32 +68,32 @@ public class XTandemJob extends Job {
 		this.nMissedCleavages = nMissedCleavages;
 		// Add units for fragments and precursors
 		if (isPrecursorTolerancePpm) {
-			this.precursorUnit = "ppm";
+            precursorUnit = "ppm";
 		} else {
-			this.precursorUnit = "Daltons";
+            precursorUnit = "Daltons";
 		}
 		this.searchType = searchType;
 		String pathXtandem = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_XTANDEM);
 		String pathXtandemOutput = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_XTANDEM_OUTPUT);
-		this.xTandemFile = new File(pathXtandem);
+        xTandemFile = new File(pathXtandem);
 		if (searchType == SearchType.TARGET) {
-			this.inputFile = new File(xTandemFile, INPUT_TARGET_FILE);
-			this.filename = pathXtandemOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4)
+            inputFile = new File(this.xTandemFile, XTandemJob.INPUT_TARGET_FILE);
+            filename = pathXtandemOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4)
 					+ "_target.xml";
-			buildTaxonomyFile();
-			buildInputFile();
+            this.buildTaxonomyFile();
+            this.buildInputFile();
 
 		} else if (searchType == SearchType.DECOY) {
-			this.inputFile = new File(xTandemFile, INPUT_DECOY_FILE);
-			this.filename = pathXtandemOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4)
+            inputFile = new File(this.xTandemFile, XTandemJob.INPUT_DECOY_FILE);
+            filename = pathXtandemOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4)
 					+ "_decoy.xml";
-			buildTaxonomyDecoyFile();
-			buildInputDecoyFile();
+            this.buildTaxonomyDecoyFile();
+            this.buildInputDecoyFile();
 		}
-		buildParameterFile();
-		initJob();
+        this.buildParameterFile();
+        this.initJob();
 	}
 
 	/**
@@ -106,13 +106,13 @@ public class XTandemJob extends Job {
 			String pathOutputXtandem = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 					+ PropertyLoader.getProperty(PropertyLoader.PATH_XTANDEM_OUTPUT);
 
-			BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(this.inputFile));
 			bw.write("<?xml version=\"1.0\"?>\n" + "<bioml>\n"
-					+ "\t<note type=\"input\" label=\"list path, default parameters\">" + PARAMETER_FILE + "</note>\n"
-					+ "\t<note type=\"input\" label=\"list path, taxonomy information\">" + TAXONOMY_FILE + "</note>\n"
-					+ "\t<note type=\"input\" label=\"protein, taxon\">" + searchDB + "</note>\n"
-					+ "\t<note type=\"input\" label=\"spectrum, path\">" + mgfFile.getAbsolutePath() + "</note>\n"
-					+ "\t<note type=\"input\" label=\"output, path\">" + this.filename + "</note>\n" + "</bioml>\n");
+					+ "\t<note type=\"input\" label=\"list path, default parameters\">" + XTandemJob.PARAMETER_FILE + "</note>\n"
+					+ "\t<note type=\"input\" label=\"list path, taxonomy information\">" + XTandemJob.TAXONOMY_FILE + "</note>\n"
+					+ "\t<note type=\"input\" label=\"protein, taxon\">" + this.searchDB + "</note>\n"
+					+ "\t<note type=\"input\" label=\"spectrum, path\">" + this.mgfFile.getAbsolutePath() + "</note>\n"
+					+ "\t<note type=\"input\" label=\"output, path\">" + filename + "</note>\n" + "</bioml>\n");
 			bw.flush();
 			bw.close();
 		} catch (IOException ioe) {
@@ -128,13 +128,13 @@ public class XTandemJob extends Job {
 
 		try {
 
-			BufferedWriter bw = new BufferedWriter(new FileWriter(inputFile));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(this.inputFile));
 			bw.write("<?xml version=\"1.0\"?>\n" + "<bioml>\n"
-					+ "\t<note type=\"input\" label=\"list path, default parameters\">" + PARAMETER_FILE + "</note>\n"
-					+ "\t<note type=\"input\" label=\"list path, taxonomy information\">" + TAXONOMY_DECOY_FILE
-					+ "</note>\n" + "\t<note type=\"input\" label=\"protein, taxon\">" + searchDB + "_decoy"
-					+ "</note>\n" + "\t<note type=\"input\" label=\"spectrum, path\">" + mgfFile.getAbsolutePath()
-					+ "</note>\n" + "\t<note type=\"input\" label=\"output, path\">" + this.filename + "</note>\n"
+					+ "\t<note type=\"input\" label=\"list path, default parameters\">" + XTandemJob.PARAMETER_FILE + "</note>\n"
+					+ "\t<note type=\"input\" label=\"list path, taxonomy information\">" + XTandemJob.TAXONOMY_DECOY_FILE
+					+ "</note>\n" + "\t<note type=\"input\" label=\"protein, taxon\">" + this.searchDB + "_decoy"
+					+ "</note>\n" + "\t<note type=\"input\" label=\"spectrum, path\">" + this.mgfFile.getAbsolutePath()
+					+ "</note>\n" + "\t<note type=\"input\" label=\"output, path\">" + filename + "</note>\n"
 					+ "</bioml>\n");
 			bw.flush();
 			bw.close();
@@ -147,14 +147,14 @@ public class XTandemJob extends Job {
 	 * This method builds taxonomy file.
 	 */
 	public void buildTaxonomyFile() {
-		taxonomyFile = new File(xTandemFile, TAXONOMY_FILE);
+        this.taxonomyFile = new File(this.xTandemFile, XTandemJob.TAXONOMY_FILE);
 		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(taxonomyFile));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(this.taxonomyFile));
 			bw.write("<?xml version=\"1.0\"?>\n" + "<bioml label=\"x! taxon-to-file matching list\">\n"
-					+ "\t<taxon label=\"" + searchDB + "\">\n" + "\t\t<file format=\"peptide\" URL=\"" + pathFasta
-					+ searchDB + ".fasta" + "\" />\n" + "\t</taxon>\n" + "</bioml>");
+					+ "\t<taxon label=\"" + this.searchDB + "\">\n" + "\t\t<file format=\"peptide\" URL=\"" + pathFasta
+					+ this.searchDB + ".fasta" + "\" />\n" + "\t</taxon>\n" + "</bioml>");
 			bw.flush();
 			bw.close();
 		} catch (IOException ioe) {
@@ -166,14 +166,14 @@ public class XTandemJob extends Job {
 	 * This method builds taxonomy file.
 	 */
 	public void buildTaxonomyDecoyFile() {
-		taxonomyFile = new File(xTandemFile, TAXONOMY_DECOY_FILE);
+        this.taxonomyFile = new File(this.xTandemFile, XTandemJob.TAXONOMY_DECOY_FILE);
 		String pathFasta = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_FASTA);
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(taxonomyFile));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(this.taxonomyFile));
 			bw.write("<?xml version=\"1.0\"?>\n" + "<bioml label=\"x! taxon-to-file matching list\">\n"
-					+ "\t<taxon label=\"" + searchDB + "_decoy" + "\">\n" + "\t\t<file format=\"peptide\" URL=\""
-					+ pathFasta + searchDB + "_decoy.fasta" + "\" />\n" + "\t</taxon>\n" + "</bioml>");
+					+ "\t<taxon label=\"" + this.searchDB + "_decoy" + "\">\n" + "\t\t<file format=\"peptide\" URL=\""
+					+ pathFasta + this.searchDB + "_decoy.fasta" + "\" />\n" + "\t</taxon>\n" + "</bioml>");
 			bw.flush();
 			bw.close();
 		} catch (IOException ioe) {
@@ -186,27 +186,27 @@ public class XTandemJob extends Job {
 	 */
 	private void buildParameterFile() {
 
-		parameterFile = new File(xTandemFile, PARAMETER_FILE);
-		String[] parameters = params.split(";");
+        this.parameterFile = new File(this.xTandemFile, XTandemJob.PARAMETER_FILE);
+		String[] parameters = this.params.split(";");
 
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(parameterFile));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(this.parameterFile));
 			bw.write("<?xml version=\"1.0\"?>\n"
 					+ "<?xml-stylesheet type=\"text/xsl\" href=\"tandem-input-style.xsl\"?>\n" + "<bioml>\n"
 					+ "<note>list path parameters</note>\n"
 					+ "\t<note type=\"input\" label=\"list path, default parameters\">default_input.xml</note>\n"
 					+ "\t\t<note>This value is ignored when it is present in the default parameter\n"
 					+ "\t\tlist path.</note>\n" + "\t<note type=\"input\" label=\"list path, taxonomy information\">"
-					+ TAXONOMY_FILE + "</note>\n" + "\n" + "<note>spectrum parameters</note>\n"
-					+ "\t<note type=\"input\" label=\"spectrum, fragment monoisotopic mass error\">" + fragmentTol
+					+ XTandemJob.TAXONOMY_FILE + "</note>\n" + "\n" + "<note>spectrum parameters</note>\n"
+					+ "\t<note type=\"input\" label=\"spectrum, fragment monoisotopic mass error\">" + this.fragmentTol
 					+ "</note>\n" + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error plus\">"
-					+ precursorTol + "</note>\n"
-					+ "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error minus\">" + precursorTol
+					+ this.precursorTol + "</note>\n"
+					+ "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error minus\">" + this.precursorTol
 					+ "</note>\n"
 					+ "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass isotope error\">yes</note>\n"
 					+ "\t<note type=\"input\" label=\"spectrum, fragment monoisotopic mass error units\">Daltons</note>\n"
 					+ "\t<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>\n"
-					+ "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">" + precursorUnit
+					+ "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">" + this.precursorUnit
 					+ "</note>\n"
 					+ "\t\t<note>The value for this parameter may be 'Daltons' or 'ppm': all other values are ignored</note>\n"
 					+ parameters[2] // "\t<note type=\"input\" label=\"spectrum,
@@ -314,7 +314,7 @@ public class XTandemJob extends Job {
 																			// minimum
 																			// ion
 																			// count\">4</note>\n"
-					+ "\t<note type=\"input\" label=\"scoring, maximum missed cleavage sites\">" + nMissedCleavages
+					+ "\t<note type=\"input\" label=\"scoring, maximum missed cleavage sites\">" + this.nMissedCleavages
 					+ "</note>\n" + parameters[14] // "\t<note type=\"input\"
 													// label=\"scoring, x
 													// ions\">no</note>\n"
@@ -394,25 +394,25 @@ public class XTandemJob extends Job {
 	 * Initializes the job, setting up the commands for the ProcessBuilder.
 	 */
 	private void initJob() {
-		setDescription("X!TANDEM " + searchType.name() + " SEARCH");
+        this.setDescription("X!TANDEM " + this.searchType.name() + " SEARCH");
 
 		String pathXtandem = PropertyLoader.getProperty(PropertyLoader.APP_XTANDEM);
 		if (PropertyLoader.OS.indexOf("win") >= 0) {
-			procCommands.add("cmd.exe");
-			procCommands.add("/C");
+            this.procCommands.add("cmd.exe");
+            this.procCommands.add("/C");
 		}
 		// full path to executable
-		procCommands.add(xTandemFile.getAbsolutePath() + File.separator + pathXtandem);
+        this.procCommands.add(this.xTandemFile.getAbsolutePath() + File.separator + pathXtandem);
 
 		// Link to the input file
-		procCommands.add(inputFile.getAbsolutePath());
+        this.procCommands.add(this.inputFile.getAbsolutePath());
 
-		procCommands.trimToSize();
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(xTandemFile);
+        this.procCommands.trimToSize();
+        this.procBuilder = new ProcessBuilder(this.procCommands);
+        this.procBuilder.directory(this.xTandemFile);
 
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 
 	}
 
@@ -422,6 +422,6 @@ public class XTandemJob extends Job {
 	 * @return filename
 	 */
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 }

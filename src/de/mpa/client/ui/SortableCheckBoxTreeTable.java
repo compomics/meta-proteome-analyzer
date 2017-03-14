@@ -70,35 +70,35 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		}
 		
 		// Install column factory to cache and restore visuals after sorting/filtering
-		this.setColumnFactory(new SortableColumnFactory(this));
+        setColumnFactory(new SortableCheckBoxTreeTable.SortableColumnFactory(this));
 
 		// Install row sorter to enable sorting by clicking on column header
 		this.setSortable(true);
 		this.setAutoCreateRowSorter(true);
 		this.setRowSorter(new CheckBoxTreeTableRowSorter(this));
-		
+
 	}
-	
+
 	@Override
 	public void setTreeTableModel(TreeTableModel treeModel) {
 		// forward model change to column factory
-		((SortableColumnFactory) this.getColumnFactory()).setColumnCount(
+		((SortableCheckBoxTreeTable.SortableColumnFactory) this.getColumnFactory()).setColumnCount(
 				treeModel.getColumnCount());
-		
+
 		super.setTreeTableModel(treeModel);
 	}
-	
+
 	/* Overrides of sorting-related methods forwarding to JXTreeTable's hooks. */
 	@Override
 	public void setSortable(boolean sortable) {
 		superSetSortable(sortable);
 	}
-	
+
 	@Override
 	public void setAutoCreateRowSorter(boolean autoCreateRowSorter) {
 		superSetAutoCreateRowSorter(autoCreateRowSorter);
 	}
-	
+
 	@Override
 	public void setRowSorter(RowSorter<? extends TableModel> sorter) {
 		superSetRowSorter(sorter);
@@ -108,14 +108,14 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	public RowFilter<?, ?> getRowFilter() {
 		return ((TreeTableRowSorter<?>) getRowSorter()).getRowFilter();
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R extends TableModel> void setRowFilter(RowFilter<? super R, ? super Integer> filter) {
             // all fine, because R extends TableModel
             ((TreeTableRowSorter<R>) getRowSorter()).setRowFilter(filter);
     }
-	
+
 	@Override
 	protected TableColumnModel createDefaultColumnModel() {
 		return new DefaultTableColumnModelExt() {
@@ -127,16 +127,16 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			}
 		};
 	}
-	
+
 	@Override
 	protected void postprocessModelChange(TableModelEvent e) {
 		super.postprocessModelChange(e);
 		ColumnFactory factory = this.getColumnFactory();
-		if (factory instanceof SortableColumnFactory) {
-			((SortableColumnFactory) factory).reorderColumns();
+		if (factory instanceof SortableCheckBoxTreeTable.SortableColumnFactory) {
+			((SortableCheckBoxTreeTable.SortableColumnFactory) factory).reorderColumns();
 		}
 	}
-	
+
 	/**
 	 * Calculates aggregate values of non-leaf nodes for the specified column
 	 * index and aggregation function.
@@ -151,7 +151,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			this.updateHighlighters(column);
 		}
 	}
-	
+
 	/**
 	 * Recursively aggregates the specified node's children values of the
 	 * specified column using the specified aggregation function.
@@ -217,7 +217,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 	 * @author A. Behne
 	 */
 	private class CheckBoxTreeTableRowSorter extends TreeTableRowSorter<TableModel> {
-		
+
 		private Enumeration<TreePath> expPaths;
 
 		/**
@@ -227,14 +227,14 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		public CheckBoxTreeTableRowSorter(JXTreeTable treeTable) {
 			super(treeTable);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		protected void preCollapse() {
 			this.expPaths = (Enumeration<TreePath>) this.treeTable.getExpandedDescendants(
 					new TreePath(this.treeModel.getRoot()));
 		}
-		
+
 		@Override
 		protected void reExpand() {
 			if (this.expPaths != null) {
@@ -244,20 +244,20 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * Column factory extension to automatically cache and restore column properties.
 	 * @author A. Behne
 	 */
 	private class SortableColumnFactory extends ColumnFactory {
-		
+
 		/**
 		 * The parent tree table reference.
 		 */
 		private JXTreeTable treeTbl;
-		
+
 		/**
 		 * The array of column prototypes.
 		 */
@@ -276,7 +276,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			super();
 			this.treeTbl = treeTbl;
 			this.setColumnCount(treeTbl.getColumnCount());
-			
+
 			treeTbl.getColumnModel().addColumnModelListener(new TableColumnModelExtListener() {
 				@Override
 				public void columnMoved(TableColumnModelEvent evt) {
@@ -285,7 +285,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 						DefaultTableColumnModelExt model = (DefaultTableColumnModelExt) evt.getSource();
 						// only update cache when visible columns are reordered
 						if (!model.isAddedFromInvisibleEvent(0)) {
-							SortableColumnFactory factory = SortableColumnFactory.this;
+							SortableCheckBoxTreeTable.SortableColumnFactory factory = SortableCheckBoxTreeTable.SortableColumnFactory.this;
 							JXTreeTable treeTbl = factory.treeTbl;
 							// cache view coordinates
 							for (int i = 0; i < treeTbl.getColumnModel().getColumnCount(); i++) {
@@ -304,7 +304,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					TableColumnExt column = (TableColumnExt) evt.getSource();
 					int modelIndex = column.getModelIndex();
 					// update prototype cache
-					SortableColumnFactory.this.prototypes[modelIndex] = new TableColumnExt2(column);
+                    prototypes[modelIndex] = new SortableCheckBoxTreeTable.TableColumnExt2(column);
 				}
 				/* we don't need these */
 				public void columnSelectionChanged(ListSelectionEvent evt) { }
@@ -313,7 +313,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 				public void columnRemoved(TableColumnModelEvent evt) { }
 			});
 		}
-		
+
 		/**
 		 * Sets the number of columns to the specified value.
 		 * @param columnCount the number of columns
@@ -321,19 +321,19 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		public void setColumnCount(int columnCount) {
 			this.prototypes = new TableColumnExt[columnCount];
 			this.viewToModel = new int[columnCount];
-			
+
 			// init view coordinates
 			for (int i = 0; i < this.viewToModel.length; i++) {
 				this.viewToModel[i] = i;
 			}
 		}
-		
+
 		/**
 		 * Reorders the table's columns using the cached view-to-model coordinate mapping.
 		 */
 		public void reorderColumns() {
 			boolean[] hidden = this.unhideAll();
-			
+
 			// cache coordinates locally
 			int[] targetIndexes = Arrays.copyOf(this.viewToModel, this.viewToModel.length);
 			// initialize current positions
@@ -355,7 +355,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			}
 //			factory.viewToModel = viewToModel;
 			this.hideAll(hidden);
-			
+
 		}
 
 		/** Convenience method to unhide all columns and return an array of their visibility states. */
@@ -371,7 +371,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			}
 			return hidden;
 		}
-		
+
 		/** Convenience method to set the visibility states of all columns. */
 		private void hideAll(boolean[] hidden) {
 			List<TableColumn> columns =
@@ -393,13 +393,13 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					// Create checkbox widget for hierarchical column header
 					JComponent comp = null;
 					if (columnExt.getModelIndex() == 0) {
-						
+
 						JCheckBox selChk = new TriStateCheckBox() {
 							/** The tree table reference. */
 							private JXTreeTable treeTbl = (JXTreeTable) table;
 							{
-								/* Hook into tree table checkbox selection model to synchronize 
-								 * root node selection state with checkbox selection state */ 
+								/* Hook into tree table checkbox selection model to synchronize
+								 * root node selection state with checkbox selection state */
 								this.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent evt) {
 										TreePath rootPath = new TreePath(
@@ -448,13 +448,13 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 						selChk.setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));
 						selChk.setBackground(new Color(0, 0, 0, 0));
 						selChk.setOpaque(false);
-						
+
 						TreePath rootPath = new TreePath(
 								treeTbl.getTreeTableModel().getRoot());
 						CheckBoxTreeSelectionModel cbtsm =
 								((CheckBoxTreeTable) treeTbl).getCheckBoxTreeSelectionModel();
 						selChk.setSelected(cbtsm.isPathSelected(rootPath));
-						
+
 						comp = selChk;
 					}
 					// wrap component in special header renderer
@@ -470,29 +470,29 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 			}
 			return null;
 		}
-		
+
 		@Override
 		public void configureColumnWidths(JXTable table,
 				TableColumnExt columnExt) {
 			// get cached values and apply them
 			int modelIndex = columnExt.getModelIndex();
 			TableColumnExt prototype = this.prototypes[modelIndex];
-			
+
 			int prefWidth = prototype.getPreferredWidth();
 			if (prefWidth > 0) {
 				columnExt.setPreferredWidth(prefWidth);
 			}
-			
+
 			int minWidth = prototype.getMinWidth();
 			columnExt.setMinWidth(minWidth);
-			
+
 			int maxWidth = prototype.getMaxWidth();
 			if (maxWidth > 0) {
 				columnExt.setMaxWidth(maxWidth);
 			}
-			
+
 		}
-		
+
 		@Override
 		public TableColumnExt createAndConfigureTableColumn(TableModel model, int modelIndex) {
 			if (modelIndex < this.prototypes.length) {
@@ -505,37 +505,37 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 					this.prototypes[modelIndex] = prototype;
 				}
 				// create column using prototype properties
-				TableColumnExt column = new TableColumnExt2(prototype);
-				
+				TableColumnExt column = new SortableCheckBoxTreeTable.TableColumnExt2(prototype);
+
 				// configure header renderer
 				column.setHeaderRenderer(this.getHeaderRenderer(this.treeTbl, column));
-				
+
 				return column;
 			}
 			return null;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Extension to table column allowing to specify additional properties (e.g. aggregate functions).
 	 * @author A. Behne
 	 */
 	public class TableColumnExt2 extends TableColumnExt {
-		
+
 		/**
 		 * The aggregate function of this column.
 		 */
 		private AggregateFunction aggFcn = null;
-		
+
 		/**
 		 * Instantiates a new table view column with all properties copied from the given original.
 		 * @param columnExt the column to copy properties from
 		 */
 		public TableColumnExt2(TableColumnExt columnExt) {
 			super(columnExt);
-			if (columnExt instanceof TableColumnExt2) {
-				this.aggFcn = ((TableColumnExt2) columnExt).getAggregateFunction();
+			if (columnExt instanceof SortableCheckBoxTreeTable.TableColumnExt2) {
+				this.aggFcn = ((SortableCheckBoxTreeTable.TableColumnExt2) columnExt).getAggregateFunction();
 			}
 		}
 		
@@ -543,7 +543,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 * Calculates and sets aggregate values of non-leaf nodes for this column.
 		 */
 		public void aggregate() {
-			SortableCheckBoxTreeTable.this.aggregate(this.getModelIndex(), this.getAggregateFunction());
+			SortableCheckBoxTreeTable.this.aggregate(getModelIndex(), getAggregateFunction());
 		}
 
 		/**
@@ -552,7 +552,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 * @return <code>true</code> if this column can aggregate, <code>false</code> otherwise
 		 */
 		public boolean canAggregate() {
-			return (this.aggFcn != null);
+			return (aggFcn != null);
 		}
 
 		/**
@@ -560,7 +560,7 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 * @return the aggregate function
 		 */
 		public AggregateFunction getAggregateFunction() {
-			return this.aggFcn;
+			return aggFcn;
 		}
 
 		/**
@@ -569,10 +569,10 @@ public class SortableCheckBoxTreeTable extends CheckBoxTreeTable {
 		 * @param aggFcn the aggregate function to set
 		 */
 		public void setAggregateFunction(AggregateFunction aggFcn) {
-			AggregateFunction oldValue = this.getAggregateFunction();
+			AggregateFunction oldValue = getAggregateFunction();
 			this.aggFcn = aggFcn;
-			this.firePropertyChange("aggregate", oldValue, aggFcn);
-			this.aggregate();
+            firePropertyChange("aggregate", oldValue, aggFcn);
+            aggregate();
 		}
 		
 	}

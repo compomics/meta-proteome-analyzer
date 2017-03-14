@@ -41,10 +41,10 @@ public class GraphDatabase {
 	public GraphDatabase(String dbPath, boolean cleanStart) {
 		if (cleanStart) {
 			// clear pre-existing database instance
-			this.clearDatabase(dbPath);
+            clearDatabase(dbPath);
 		}
 		// launch new database instance
-		this.startDatabase(dbPath);
+        startDatabase(dbPath);
 	}
 
 	/**
@@ -53,8 +53,8 @@ public class GraphDatabase {
 	 * @param dbPath Database path
 	 */
 	public void startDatabase(String dbPath) {
-		graphDatabase = (EmbeddedGraphDatabase) new GraphDatabaseFactory().newEmbeddedDatabase(dbPath);
-		this.registerShutdownHook(graphDatabase);
+        this.graphDatabase = (EmbeddedGraphDatabase) new GraphDatabaseFactory().newEmbeddedDatabase(dbPath);
+        registerShutdownHook(this.graphDatabase);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class GraphDatabase {
 	 * @return graphDb
 	 */
 	public GraphDatabaseService getService() {
-		return graphDatabase;
+		return this.graphDatabase;
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class GraphDatabase {
 	 * nicely when the VM exits.
 	 * @param graphDb GraphDatabaseService
 	 */
-	private void registerShutdownHook(final GraphDatabaseService graphDb) {
+	private void registerShutdownHook(GraphDatabaseService graphDb) {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -92,7 +92,7 @@ public class GraphDatabase {
 			
 		} catch (IOException e) {
 			// try again
-			this.clearDatabase(dbPath);
+            clearDatabase(dbPath);
 			// TODO: it's possible this causes endless recursion, add safety precautions
 		}
 	}
@@ -104,11 +104,11 @@ public class GraphDatabase {
 		System.out.print("Shutting down database... ");
 		
 		// shut down the graph database service
-		graphDatabase.shutdown();
+        this.graphDatabase.shutdown();
 		// clear file-based database contents
-		this.clearDatabase(graphDatabase.getStoreDir());
+        clearDatabase(this.graphDatabase.getStoreDir());
 		// clear service instance
-		graphDatabase = null;
+        this.graphDatabase = null;
 		
 		System.out.println("done.");
 	}

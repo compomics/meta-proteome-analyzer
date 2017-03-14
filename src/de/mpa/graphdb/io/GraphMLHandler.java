@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.TransactionalGraph;
-import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLReader;
 import com.tinkerpop.blueprints.util.io.graphml.GraphMLWriter;
 
@@ -33,7 +32,7 @@ public class GraphMLHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		destinationGraph.stopTransaction(Conclusion.SUCCESS);
+		destinationGraph.stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 	}
 	
 	/**
@@ -43,7 +42,7 @@ public class GraphMLHandler {
 	 * @throws IOException 
 	 * @throws FileNotFoundException 
 	 */
-	public static void exportGraphML(Graph outputGraph, File outputFile) throws FileNotFoundException, IOException {
+	public static void exportGraphML(Graph outputGraph, File outputFile) throws IOException {
 		GraphMLWriter writer = new GraphMLWriter(outputGraph);
 		writer.setNormalize(true);
 		writer.outputGraph(new FileOutputStream(outputFile));

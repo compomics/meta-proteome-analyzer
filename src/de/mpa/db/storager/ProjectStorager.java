@@ -47,7 +47,7 @@ public class ProjectStorager extends BasicStorager {
      * @param conn
      * @param projectid
      */
-    public ProjectStorager(final Connection conn, final String title) {
+    public ProjectStorager(Connection conn, String title) {
     	this.conn = conn;
         this.title = title;
     }
@@ -59,7 +59,7 @@ public class ProjectStorager extends BasicStorager {
      */
     public void load() {
         try {
-            project = ProjectAccessor.findFromTitle(title, conn);
+            this.project = ProjectAccessor.findFromTitle(this.title, this.conn);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -74,17 +74,17 @@ public class ProjectStorager extends BasicStorager {
     public void store() throws IOException, SQLException {
             
             /* Project section */
-            final HashMap<Object, Object> projectdata = new HashMap<Object, Object>(8);
+            HashMap<Object, Object> projectdata = new HashMap<Object, Object>(8);
             
-            if(project == null){
+            if(this.project == null){
             	// The title              
-                projectdata.put(ProjectAccessor.TITLE, title);
+                projectdata.put(ProjectAccessor.TITLE, this.title);
                 // Create the project database object.
-                final ProjectAccessor newProject = new ProjectAccessor(projectdata);
-                newProject.persist(conn);
-                projectid = (Long) newProject.getGeneratedKeys()[0];
+                ProjectAccessor newProject = new ProjectAccessor(projectdata);
+                newProject.persist(this.conn);
+                this.projectid = (Long) newProject.getGeneratedKeys()[0];
             } else {
-            	projectid = project.getProjectid();
+                this.projectid = this.project.getProjectid();
             }
     }
 	
@@ -93,7 +93,7 @@ public class ProjectStorager extends BasicStorager {
 	 * @return
 	 */
 	public long getProjectid() {
-		return projectid;
+		return this.projectid;
 	}
 	
 	/**
@@ -101,7 +101,7 @@ public class ProjectStorager extends BasicStorager {
 	 * @return
 	 */
 	public long getTaxonid() {
-		return taxonid;
+		return this.taxonid;
 	}
 	
 }

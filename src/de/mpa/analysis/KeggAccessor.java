@@ -38,7 +38,7 @@ public class KeggAccessor {
 	/**
 	 * The accessor instance.
 	 */
-	private static KeggAccessor instance = null;
+	private static KeggAccessor instance;
 
 	/**
 	 * The KEGG port type instance.
@@ -71,7 +71,7 @@ public class KeggAccessor {
 	private KeggAccessor() {
         try {
     		KEGGLocator  locator = new KEGGLocator();
-			serv = locator.getKEGGPort();
+            this.serv = locator.getKEGGPort();
 		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
@@ -82,10 +82,10 @@ public class KeggAccessor {
 	 * @return the KEGG accessor instance.
 	 */
 	public static KeggAccessor getInstance() {
-		if (instance == null) {
-			instance = new KeggAccessor();
+		if (KeggAccessor.instance == null) {
+            KeggAccessor.instance = new KeggAccessor();
 		}
-		return instance;
+		return KeggAccessor.instance;
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class KeggAccessor {
 	 * @return the KEGG port type.
 	 */
 	public KEGGPortType getKeggPort() {
-		return serv;
+		return this.serv;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class KeggAccessor {
 		} else {
 			return null;
 		}
-		return getPathwaysByKO(Short.parseShort(ko));
+		return this.getPathwaysByKO(Short.parseShort(ko));
 	}
 
 	/**
@@ -117,10 +117,10 @@ public class KeggAccessor {
 	 * @return A list of pathways mapped to the specified K number.
 	 */
 	public List<Short> getPathwaysByKO(Short ko) {
-		if (ko2pathway == null) {
-			readDumpedKeggPathways();
+		if (this.ko2pathway == null) {
+            this.readDumpedKeggPathways();
 		}
-		return ko2pathway.get(ko);
+		return this.ko2pathway.get(ko);
 	}
 	
 	/**
@@ -129,10 +129,10 @@ public class KeggAccessor {
 	 * @return A list of K numbers mapped to the specified pathway ID.
 	 */
 	public List<Short> getKOsByPathway(Short pw) {
-		if (pathway2ko == null) {
-			readDumpedKeggPathways();
+		if (this.pathway2ko == null) {
+            this.readDumpedKeggPathways();
 		}
-		return pathway2ko.get(pw);
+		return this.pathway2ko.get(pw);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class KeggAccessor {
 	 * @return A list of pathways mapped to the specified EC number.
 	 */
 	public List<Short> getPathwaysByEC(String ec) {
-		return getPathwaysByEC(ECReader.toArray(ec));
+		return this.getPathwaysByEC(ECReader.toArray(ec));
 	}
 
 	/**
@@ -151,10 +151,10 @@ public class KeggAccessor {
 	 * @return A list of pathways mapped to the specified EC number.
 	 */
 	public List<Short> getPathwaysByEC(short[] ec) {
-		if (ec2pathway == null) {
-			readDumpedKeggPathways();
+		if (this.ec2pathway == null) {
+            this.readDumpedKeggPathways();
 		}
-		return ec2pathway.get(ec);
+		return this.ec2pathway.get(ec);
 	}
 	
 	/**
@@ -163,10 +163,10 @@ public class KeggAccessor {
 	 * @return A list of EC numbers mapped to the specified pathway ID.
 	 */
 	public List<short[]> getECsByPathway(Short pw) {
-		if (pathway2ec == null) {
-			readDumpedKeggPathways();
+		if (this.pathway2ec == null) {
+            this.readDumpedKeggPathways();
 		}
-		return pathway2ec.get(pw);
+		return this.pathway2ec.get(pw);
 	}
 	
 	/**
@@ -179,14 +179,14 @@ public class KeggAccessor {
 		try {
 			// read dumped file contents
 //			File input = new File("conf/keggKO2PW.map");
-			InputStream is = getClass().getResourceAsStream("/de/mpa/resources/conf/keggKO2PW.map");
+			InputStream is = this.getClass().getResourceAsStream("/de/mpa/resources/conf/keggKO2PW.map");
 			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(is)));
 
-			ko2pathway = (HashMap<Short, List<Short>>) ois.readObject();
-			pathway2ko = (HashMap<Short, List<Short>>) ois.readObject();
+            this.ko2pathway = (HashMap<Short, List<Short>>) ois.readObject();
+            this.pathway2ko = (HashMap<Short, List<Short>>) ois.readObject();
 			
 //			ec2pathway = (HashMap<short[], List<Short>>) ois.readObject();
-			ec2pathway = new TreeMap<short[], List<Short>>(
+            this.ec2pathway = new TreeMap<short[], List<Short>>(
 					new Comparator<short[]>() {
 						public int compare(short[] o1, short[] o2) {
 							int delta = 0;
@@ -199,9 +199,9 @@ public class KeggAccessor {
 							return delta;
 						}
 			});
-			ec2pathway.putAll((Map<? extends short[], ? extends List<Short>>) ois.readObject());
-			
-			pathway2ec = (HashMap<Short, List<short[]>>) ois.readObject();
+            this.ec2pathway.putAll((Map<? extends short[], ? extends List<Short>>) ois.readObject());
+
+            this.pathway2ec = (HashMap<Short, List<short[]>>) ois.readObject();
 			ois.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -222,7 +222,7 @@ public class KeggAccessor {
 		Enumeration<TreeNode> dfEnum = ((DefaultMutableTreeNode) pathwayRoot).depthFirstEnumeration();
 		// iterate nodes of pathway
 		while (dfEnum.hasMoreElements()) {
-			TreeNode treeNode = (TreeNode) dfEnum.nextElement();
+			TreeNode treeNode = dfEnum.nextElement();
 			// extract data from leaf nodes only
 			if (treeNode.isLeaf()) {
 				String leafName = (String) ((DefaultMutableTreeNode) treeNode).getUserObject();
@@ -231,51 +231,51 @@ public class KeggAccessor {
 			}
 		}
 
-		ko2pathway = new HashMap<Short, List<Short>>();
-		pathway2ko = new HashMap<Short, List<Short>>();
-		ec2pathway = new HashMap<short[], List<Short>>();
-		pathway2ec = new HashMap<Short, List<short[]>>();
+        this.ko2pathway = new HashMap<Short, List<Short>>();
+        this.pathway2ko = new HashMap<Short, List<Short>>();
+        this.ec2pathway = new HashMap<short[], List<Short>>();
+        this.pathway2ec = new HashMap<Short, List<short[]>>();
 		int i = 1;
 		// iterate list of pathway IDs
 		for (Short pathwayID : pathwayIDs) {
 			System.out.println("" + (i++) + "/" + pathwayIDs.size());
 			String pathway = "path:map" + String.format("%05d", pathwayID);
 			
-			String[] koStrings = serv.get_kos_by_pathway(pathway);
+			String[] koStrings = this.serv.get_kos_by_pathway(pathway);
 			List<Short> koList = new ArrayList<Short>();
 			for (String koString : koStrings) {
 				Short ko = Short.parseShort(koString.substring(4));
-				List<Short> pathwayList = ko2pathway.get(ko);
+				List<Short> pathwayList = this.ko2pathway.get(ko);
 				if (pathwayList == null) {
 					pathwayList = new ArrayList<Short>();
 				}
 				if (!pathwayList.contains(pathwayID)) {
 					pathwayList.add(pathwayID);
 				}
-				ko2pathway.put(ko, pathwayList);
+                this.ko2pathway.put(ko, pathwayList);
 				
 				koList.add(ko);
 			}
 			if (!koList.isEmpty()) {
-				pathway2ko.put(pathwayID, koList);
+                this.pathway2ko.put(pathwayID, koList);
 			}
 
-			String[] ecStrings = serv.get_enzymes_by_pathway(pathway);
+			String[] ecStrings = this.serv.get_enzymes_by_pathway(pathway);
 			List<short[]> ecList = new ArrayList<short[]>();
 			for (String ecString : ecStrings) {
 				short[] ec = ECReader.toArray(ecString.substring(3));
-				List<Short> pathwayList = ec2pathway.get(ec);
+				List<Short> pathwayList = this.ec2pathway.get(ec);
 				if (pathwayList == null) {
 					pathwayList = new ArrayList<Short>();
 				}
 				if (!pathwayList.contains(pathwayID)) {
 					pathwayList.add(pathwayID);
 				}
-				ec2pathway.put(ec, pathwayList);
+                this.ec2pathway.put(ec, pathwayList);
 				
 				ecList.add(ec);
 			}
-			pathway2ec.put(pathwayID, ecList);
+            this.pathway2ec.put(pathwayID, ecList);
 			
 		}
 		
@@ -284,10 +284,10 @@ public class KeggAccessor {
 		FileOutputStream fos = new FileOutputStream(output);
 		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(fos)));
 
-		oos.writeObject(ko2pathway);
-		oos.writeObject(pathway2ko);
-		oos.writeObject(ec2pathway);
-		oos.writeObject(pathway2ec);
+		oos.writeObject(this.ko2pathway);
+		oos.writeObject(this.pathway2ko);
+		oos.writeObject(this.ec2pathway);
+		oos.writeObject(this.pathway2ec);
 		oos.flush();
 		oos.close();
 	}

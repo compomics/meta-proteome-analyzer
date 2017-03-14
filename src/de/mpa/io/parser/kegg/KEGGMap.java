@@ -16,7 +16,7 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	/**
 	 * The root of the tree of KEGG nodes.
 	 */
-	private KEGGNode root;
+	private final KEGGNode root;
 
 	/**
 	 * Constructs a map of all leaf nodes below the specified KEGG tree root
@@ -25,7 +25,7 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	 */
 	public KEGGMap(KEGGNode root) {
 		this.root = root;
-		this.mapLeaves();
+        mapLeaves();
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	@SuppressWarnings("unchecked")
 	protected void mapLeaves() {
 		// iterate all tree nodes
-		Enumeration<KEGGNode> dfe = root.depthFirstEnumeration();
+		Enumeration<KEGGNode> dfe = this.root.depthFirstEnumeration();
 		while (dfe.hasMoreElements()) {
 			KEGGNode child = dfe.nextElement();
 			// only leaf nodes are of interest
@@ -42,7 +42,7 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 				// extract key
 				Object key = child.getUserObject();
 				// add mapping
-				this.addMapping(key, child);
+                addMapping(key, child);
 			}
 		}
 	}
@@ -54,12 +54,12 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	 * @param node the node to map
 	 */
 	protected void addMapping(Object key, KEGGNode node) {
-		List<KEGGNode> nodes = this.get(key);
+		List<KEGGNode> nodes = get(key);
 		// check whether mapping does not exist yet
 		if (nodes == null) {
 			// create new list and store it
 			nodes = new ArrayList<>();
-			this.put(key, nodes);
+            put(key, nodes);
 		}
 		// add node to mapping
 		nodes.add(node);
@@ -70,7 +70,7 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	 * @return the root node
 	 */
 	public KEGGNode getRoot() {
-		return root;
+		return this.root;
 	}
 
 }

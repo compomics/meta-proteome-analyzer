@@ -12,19 +12,19 @@ public interface IPeak {
      *
      * @return double
      */
-    public double getMZ();
+    double getMZ();
 
     /**
      * This method returns the intensity.
      *
      * @return double
      */
-    public double getIntensity();
+    double getIntensity();
 
     /**
      * Returns charge information for this peak.
      * 
      * @return int
      */
-    public int getCharge();
+    int getCharge();
 }

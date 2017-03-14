@@ -49,7 +49,7 @@ public class UniRefEntryMPA implements Serializable{
 	 * @return. UniRef100. Gets the Uniref100 as string
 	 */
 	public String getUniRef100() {
-		return uniRef100;
+		return this.uniRef100;
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class UniRefEntryMPA implements Serializable{
 	 * @return. UniRef90. Gets the Uniref90 as string
 	 */
 	public String getUniRef90() {
-		return uniRef90;
+		return this.uniRef90;
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class UniRefEntryMPA implements Serializable{
 	 * @return. UniRef50. Gets the Uniref50 as string
 	 */
 	public String getUniRef50() {
-		return uniRef50;
+		return this.uniRef50;
 	}
 
 	/**

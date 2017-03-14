@@ -22,9 +22,9 @@ public class PercolatorJob extends Job {
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_CRUX);
 		String pathCruxOutput = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_CRUX_OUTPUT);
-		this.cruxFile = new File(pathCrux);
-		filename = pathCruxOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
-		initJob();
+        cruxFile = new File(pathCrux);
+        this.filename = pathCruxOutput + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_percolated.txt";
+        this.initJob();
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class PercolatorJob extends Job {
 	 * q-values to them.
 	 */
 	private void initJob() {
-		setDescription("PERCOLATOR JOB");
+        this.setDescription("PERCOLATOR JOB");
 
 		String pathCrux = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_CRUX);
@@ -40,42 +40,42 @@ public class PercolatorJob extends Job {
 				+ PropertyLoader.getProperty(PropertyLoader.PATH_CRUX_OUTPUT);
 		String appCrux = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
 				+ PropertyLoader.getProperty(PropertyLoader.APP_CRUX);
-		
-		procCommands = new ArrayList<String>();
+
+        this.procCommands = new ArrayList<String>();
 		// Link to the output file.
-		procCommands.add(pathCrux + appCrux);
-		procCommands.add("percolator");
+        this.procCommands.add(pathCrux + appCrux);
+        this.procCommands.add("percolator");
 
 		// Link to crux sourcefolder path.
-		procCommands.add(pathCruxOutput + "search.target.txt");
+        this.procCommands.add(pathCruxOutput + "search.target.txt");
 
 		// Link to outputfolder path.
-		procCommands.add("--output-dir");
-		procCommands.add(pathCruxOutput);
+        this.procCommands.add("--output-dir");
+        this.procCommands.add(pathCruxOutput);
 
 		// Overwrite existing files (if any searches before)
-		procCommands.add("--overwrite");
-		procCommands.add("T");
+        this.procCommands.add("--overwrite");
+        this.procCommands.add("T");
 
 		// FDR < 5%
-		procCommands.add("--train-fdr");
-		procCommands.add("0.05");
+        this.procCommands.add("--train-fdr");
+        this.procCommands.add("0.05");
 
-		procCommands.add("--test-fdr");
-		procCommands.add("0.05");
+        this.procCommands.add("--test-fdr");
+        this.procCommands.add("0.05");
 
-		procCommands.trimToSize();
+        this.procCommands.trimToSize();
 
-		procBuilder = new ProcessBuilder(procCommands);
-		procBuilder.directory(cruxFile);
+        this.procBuilder = new ProcessBuilder(this.procCommands);
+        this.procBuilder.directory(this.cruxFile);
 		// set error out and std out to same stream
-		procBuilder.redirectErrorStream(true);
+        this.procBuilder.redirectErrorStream(true);
 	}
 
 	/**
 	 * Returns the path to the crux percolated output file.
 	 */
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 }

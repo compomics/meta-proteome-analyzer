@@ -14,12 +14,12 @@ public class BlastParser {
 	/**
 	 * Blast queries.
 	 */
-	private List<BlastQuery> blastQueries = new ArrayList<BlastQuery>();
+	private final List<BlastQuery> blastQueries = new ArrayList<BlastQuery>();
 
 	/**
 	 * The file handle to the Blast output file.
 	 */
-	private File blastOutputFile;
+	private final File blastOutputFile;
 
 	/**
 	 * Constructs a parser for Blast output.
@@ -37,7 +37,7 @@ public class BlastParser {
 	public void read() {
 		try {
 			// Create a reader for the file.
-			BufferedReader bReader = new BufferedReader(new InputStreamReader(new FileInputStream(blastOutputFile)));
+			BufferedReader bReader = new BufferedReader(new InputStreamReader(new FileInputStream(this.blastOutputFile)));
 
 			StringBuffer strBuf = null;
 			String line;
@@ -46,7 +46,7 @@ public class BlastParser {
 					// New section has started
 					if (strBuf != null) {
 						BlastQuery lBlastQuery = new BlastQuery(strBuf.toString());
-						blastQueries.add(lBlastQuery);
+                        this.blastQueries.add(lBlastQuery);
 					}
 					strBuf = new StringBuffer();
 				}
@@ -60,7 +60,7 @@ public class BlastParser {
 				throw new Exception("No BlastP output in the given file!!");
 			} else if (!strBuf.toString().equals("")) {
 				BlastQuery query = new BlastQuery(strBuf.toString());
-				blastQueries.add(query);
+                this.blastQueries.add(query);
 			}
 			bReader.close();
 		} catch (FileNotFoundException e) {
@@ -78,7 +78,7 @@ public class BlastParser {
 	 * @return Number of queries.
 	 */
 	public int getNumberOfQueries() {
-		return blastQueries.size();
+		return this.blastQueries.size();
 	}
 
 	/**
@@ -87,6 +87,6 @@ public class BlastParser {
 	 * @return BLAST queries.
 	 */
 	public List<BlastQuery> getQueries() {
-		return blastQueries;
+		return this.blastQueries;
 	}
 }

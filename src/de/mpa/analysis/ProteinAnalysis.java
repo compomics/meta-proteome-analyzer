@@ -60,7 +60,7 @@ public class ProteinAnalysis {
 	 * @param proteinHit The protein hit whose coverage shall be calculated.
 	 */
 	public static double calculateSequenceCoverage(ProteinHit proteinHit) {
-		return calculateSequenceCoverage(proteinHit, true);
+		return ProteinAnalysis.calculateSequenceCoverage(proteinHit, true);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class ProteinAnalysis {
 			Double pKa;
 			for (int i = 0; i < aa.length; i++) {
 				if (i == 0){
-					pKa = IsoelectricPoints.pKaNtermMap.get(aa[i]);
+					pKa = IsoelectricPoints.pKaNtermMap.get(aa[0]);
 					if(pKa != null) {
 						pKaListBasicPos.add(pKa);
 					}

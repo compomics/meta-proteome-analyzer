@@ -12,12 +12,12 @@ public interface Busyable {
 	 * Returns whether this component is currently busy.
 	 * @return <code>true</code> if this component is busy, <code>false</code> otherwise
 	 */
-	public boolean isBusy();
+    boolean isBusy();
 	
 	/**
 	 * Sets the busy state of this component to the specified value.
 	 * @param busy <code>true</code> if this component is to be busy, <code>false</code> otherwise
 	 */
-	public void setBusy(boolean busy);
+    void setBusy(boolean busy);
 
 }

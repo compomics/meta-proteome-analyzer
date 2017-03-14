@@ -13,7 +13,7 @@ public class FragmentIon implements Ion {
     /**
      * The m/z of the frament ion.
      */
-    private double iMz;
+    private final double iMz;
     
     /**
      * The intensity of the fragment ion.
@@ -23,7 +23,7 @@ public class FragmentIon implements Ion {
     /**
      * The number of the fragment ion. For example: b1 ion has the number 1, b4 has number 4 etc.
      */
-    private int iNumber;
+    private final int iNumber;
     
     /**
      * The score of the fragment ion.
@@ -33,18 +33,18 @@ public class FragmentIon implements Ion {
     /**
      * The type of this ion as defined int the Ion interface.
      */
-    private IonType iType;
-    
+    private Ion.IonType iType;
+
     /**
      * The error margin of the fragment ion. Is needed later for the spectrum panel.
      */
     private double iErrorMargin;
-    
+
     /**
      * This variable holds the calculated theoretical vs. experimental error.
      */
     private double iTheoreticalExperimentalMassError;
-    
+
     /**
      * The charge of the ion
      */
@@ -57,7 +57,7 @@ public class FragmentIon implements Ion {
      * @param aNumber
      * @param aCharge
      */
-    public FragmentIon(double aMz, IonType aType, int aNumber, int aCharge) {
+    public FragmentIon(double aMz, Ion.IonType aType, int aNumber, int aCharge) {
     	this(aMz, aType, aNumber, aCharge, 0.0);
     }
 
@@ -70,7 +70,7 @@ public class FragmentIon implements Ion {
      * @param aCharge      The charge of the fragment ion.
      * @param aErrorMargin The error margin of the fragment ion.
      */
-    public FragmentIon(double aMz, IonType aType, int aNumber, int aCharge, double aErrorMargin) {
+    public FragmentIon(double aMz, Ion.IonType aType, int aNumber, int aCharge, double aErrorMargin) {
     	this(aMz, 0.0, aType, aNumber, aCharge, aErrorMargin);
     }
 
@@ -84,7 +84,7 @@ public class FragmentIon implements Ion {
      * @param aCharge      The charge of the fragment ion.
      * @param aErrorMargin The error margin of the fragment ion.
      */
-    public FragmentIon(double aMz, double aIntensity, IonType aType, int aNumber, int aCharge, double aErrorMargin) {
+    public FragmentIon(double aMz, double aIntensity, Ion.IonType aType, int aNumber, int aCharge, double aErrorMargin) {
         iMz = aMz;
         iIntensity = aIntensity;
         iType = aType;
@@ -158,8 +158,8 @@ public class FragmentIon implements Ion {
      *
      * @return iType
      */
-    public IonType getType() {
-        return iType;
+    public Ion.IonType getType() {
+        return this.iType;
     }
 
     /**
@@ -168,7 +168,7 @@ public class FragmentIon implements Ion {
      * @return iErrorMargin
      */
     public double getErrorMargin() {
-        return iErrorMargin;
+        return this.iErrorMargin;
     }
 
     /**
@@ -177,7 +177,7 @@ public class FragmentIon implements Ion {
      * @return iTheoreticalExperimentalMassError
      */
     public double getTheoreticalExperimentalMassError() {
-        return iTheoreticalExperimentalMassError;
+        return this.iTheoreticalExperimentalMassError;
     }
 
     /**
@@ -186,7 +186,7 @@ public class FragmentIon implements Ion {
      * @return iCharge
      */
     public double getCharge() {
-        return iCharge;
+        return this.iCharge;
     }
 
     /**
@@ -195,17 +195,17 @@ public class FragmentIon implements Ion {
      * @return letter string
      */
     public String getLetter() {
-    	return (iType != null) ? iType.toString() : null;
+    	return (this.iType != null) ? this.iType.toString() : null;
     }
     
     @Override
     public String toString() {
-    	String str = this.getLetter();
-		if (iNumber > 0) {
-			str += iNumber;
+    	String str = getLetter();
+		if (this.iNumber > 0) {
+			str += this.iNumber;
 		}
-		if (iCharge > 1) {
-			for (int i = 0; i < iCharge; i++) {
+		if (this.iCharge > 1) {
+			for (int i = 0; i < this.iCharge; i++) {
 				str += "+";
 			}
 		}

@@ -28,7 +28,7 @@ public class UniProtGiMapper {
 	public static Map<String, String> retrieveGiToUniProtMapping(String giNumber) throws IOException {
 		List<String> giList = new ArrayList<String>();
 		giList.add(giNumber);
-		return retrieveGiToUniProtMapping(giList);
+		return UniProtGiMapper.retrieveGiToUniProtMapping(giList);
 	}
 	
 	/**
@@ -49,10 +49,10 @@ public class UniProtGiMapper {
 			int endIndex = (i + 1) * batchSize - 1;
 			List<String> shortList = new ArrayList<String>(giList.subList(startIndex, endIndex));
 			startIndex = endIndex + 1;
-			gi2acc.putAll(queryGiToUniProtMapping(shortList));
+			gi2acc.putAll(UniProtGiMapper.queryGiToUniProtMapping(shortList));
 			shortList.clear();
 		}
-		gi2acc.putAll(queryGiToUniProtMapping(new ArrayList<String>(giList.subList(maxBatchCount * batchSize, giList.size()))));
+		gi2acc.putAll(UniProtGiMapper.queryGiToUniProtMapping(new ArrayList<String>(giList.subList(maxBatchCount * batchSize, giList.size()))));
 		
 		return gi2acc;
 	}

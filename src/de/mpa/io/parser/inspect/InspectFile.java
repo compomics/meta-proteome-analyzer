@@ -19,7 +19,7 @@ public class InspectFile {
     private List<InspectHit> identifications;
 
     public List<InspectHit> getIdentifications() {
-        return identifications;
+        return this.identifications;
     }
 
     public void setIdentifications(List<InspectHit> identifications) {
@@ -27,7 +27,7 @@ public class InspectFile {
     }
     
     public String getFilename() {
-        return filename;
+        return this.filename;
     }
 
     public void setFilename(String filename) {

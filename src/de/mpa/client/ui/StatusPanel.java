@@ -55,8 +55,8 @@ public class StatusPanel extends JPanel {
 	 * Creates the client frame's status bar panel.
 	 */
 	public StatusPanel() {
-		initComponents();
-		initListener();
+        this.initComponents();
+        this.initListener();
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class StatusPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("0dlu:g(3), 0dlu:g(3), 2dlu, 0dlu:g(3), 2dlu, 0dlu:g(5), p, 0dlu:g(4)",
+        setLayout(new FormLayout("0dlu:g(3), 0dlu:g(3), 2dlu, 0dlu:g(3), 2dlu, 0dlu:g(5), p, 0dlu:g(4)",
 									  "f:p:g"));
 
 		BevelBorder bevelBrd = new ThinBevelBorder(BevelBorder.LOWERED);
@@ -77,24 +77,24 @@ public class StatusPanel extends JPanel {
 		projectPnl.setBorder(bevelBrd);
 
 		// TODO: use binding to synchronize text field values with project properties
-		projectTtf = new JTextField("None");
-		projectTtf.setBorder(null);
-		projectTtf.setEditable(false);
-		projectTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
+        this.projectTtf = new JTextField("None");
+        this.projectTtf.setBorder(null);
+        this.projectTtf.setEditable(false);
+        this.projectTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 
-		projectPnl.add(projectTtf, cc.xy(2,2));
+		projectPnl.add(this.projectTtf, cc.xy(2,2));
 
 		// Experiment name
 		JPanel experimentPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
 														 "2dlu, f:p:g, 2dlu"));
 		experimentPnl.setBorder(bevelBrd);
+
+        this.experimentTtf = new JTextField("None");
+        this.experimentTtf.setBorder(null);
+        this.experimentTtf.setEditable(false);
+        this.experimentTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 		
-		experimentTtf = new JTextField("None");
-		experimentTtf.setBorder(null);
-		experimentTtf.setEditable(false);
-		experimentTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
-		
-		experimentPnl.add(experimentTtf, cc.xy(2,2));
+		experimentPnl.add(this.experimentTtf, cc.xy(2,2));
 
 		// Settings info
 		JPanel settingsPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
@@ -123,49 +123,49 @@ public class StatusPanel extends JPanel {
 		// progress bars
 		JPanel progressPnl = new JPanel(new FormLayout("0dlu, p:g, 0dlu",
 				   "0dlu, f:p:g(0.75), f:p:g(0.25), 0dlu"));
-		currentPrg = new JProgressBar();
-		currentPrg.setStringPainted(true);
-		currentPrg.setValue(100);
-		currentPrg.setBorder(null);
-		currentPrg.setPreferredSize(new Dimension());
-		
-		totalPrg = new JProgressBar();
-		totalPrg.setStringPainted(false);
-		totalPrg.setValue(100);
-		totalPrg.setBorder(null);
-		totalPrg.setPreferredSize(new Dimension());
+        this.currentPrg = new JProgressBar();
+        this.currentPrg.setStringPainted(true);
+        this.currentPrg.setValue(100);
+        this.currentPrg.setBorder(null);
+        this.currentPrg.setPreferredSize(new Dimension());
+
+        this.totalPrg = new JProgressBar();
+        this.totalPrg.setStringPainted(false);
+        this.totalPrg.setValue(100);
+        this.totalPrg.setBorder(null);
+        this.totalPrg.setPreferredSize(new Dimension());
 		
 		// remaining time display
 		JPanel timePnl = new JPanel(new FormLayout("2dlu, p, 2dlu", "2dlu, f:p:g, 2dlu"));
 
-		timeLbl = new JLabel("00:00:00");
+        this.timeLbl = new JLabel("00:00:00");
 
-		timePnl.add(timeLbl, cc.xy(2, 2));
+		timePnl.add(this.timeLbl, cc.xy(2, 2));
 		timePnl.setBorder(bevelBrd);
 				
-		progressPnl.add(currentPrg, cc.xy(2,2));
-		progressPnl.add(totalPrg, cc.xy(2,3));
+		progressPnl.add(this.currentPrg, cc.xy(2,2));
+		progressPnl.add(this.totalPrg, cc.xy(2,3));
 		progressPnl.setBorder(bevelBrd);
 		
 		// current status message display
 		JPanel currentStatusPnl = new JPanel(new FormLayout("2dlu, p:g, 2dlu",
 				"2dlu, f:p:g, 2dlu"));
+
+        this.statusTtf = new JTextField();
+        this.statusTtf.setBorder(null);
+        this.statusTtf.setEditable(false);
+        this.statusTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
 		
-		statusTtf = new JTextField();
-		statusTtf.setBorder(null);
-		statusTtf.setEditable(false);
-		statusTtf.setCaret(new DefaultCaret() { public void paint(Graphics g) {} });
-		
-		currentStatusPnl.add(statusTtf, cc.xy(2,2));
+		currentStatusPnl.add(this.statusTtf, cc.xy(2,2));
 		currentStatusPnl.setBorder(bevelBrd);
-		
-		this.add(projectPnl, cc.xy(1, 1));
-		this.add(experimentPnl, cc.xy(2, 1));
-		this.add(settingsPnl, cc.xy(4, 1));
+
+        add(projectPnl, cc.xy(1, 1));
+        add(experimentPnl, cc.xy(2, 1));
+        add(settingsPnl, cc.xy(4, 1));
 //		this.add(textPnl, cc.xy(6, 1));
-		this.add(progressPnl, cc.xy(6, 1));
-		this.add(timePnl, cc.xy(7, 1));
-		this.add(currentStatusPnl, cc.xy(8, 1));
+        add(progressPnl, cc.xy(6, 1));
+        add(timePnl, cc.xy(7, 1));
+        add(currentStatusPnl, cc.xy(8, 1));
 
 	}
 
@@ -186,57 +186,57 @@ public class StatusPanel extends JPanel {
 			public void propertyChange(PropertyChangeEvent pce) {
 				String name = pce.getPropertyName();
 				if (name.equalsIgnoreCase("resetall")) {
-					startTime = System.currentTimeMillis();
-					curProgress = 0L;
-					totProgressTillNow = 0L;
-					totProgress = 0L;
-					maxCurProgress = 0L;
-					maxTotProgress = ((Number) pce.getNewValue()).longValue();
-					currentPrg.setValue(0);
-					totalPrg.setValue(0);
+                    this.startTime = System.currentTimeMillis();
+                    this.curProgress = 0L;
+                    this.totProgressTillNow = 0L;
+                    this.totProgress = 0L;
+                    this.maxCurProgress = 0L;
+                    this.maxTotProgress = ((Number) pce.getNewValue()).longValue();
+                    StatusPanel.this.currentPrg.setValue(0);
+                    StatusPanel.this.totalPrg.setValue(0);
 				} else if (name.equalsIgnoreCase("resetcur")) {
-					startTime = System.currentTimeMillis();
-					curProgress = 0L;
-					totProgressTillNow += maxCurProgress;
-					maxCurProgress = ((Number) pce.getNewValue()).longValue();
-					currentPrg.setValue(0);
+                    this.startTime = System.currentTimeMillis();
+                    this.curProgress = 0L;
+                    this.totProgressTillNow += this.maxCurProgress;
+                    this.maxCurProgress = ((Number) pce.getNewValue()).longValue();
+                    StatusPanel.this.currentPrg.setValue(0);
 				} else if (name.equalsIgnoreCase("indeterminate")) {
-					final boolean indeterminate = (Boolean) pce.getNewValue();
+					boolean indeterminate = (Boolean) pce.getNewValue();
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							currentPrg.setIndeterminate(indeterminate);
+                            StatusPanel.this.currentPrg.setIndeterminate(indeterminate);
 						}
 					});
 				} else if (name.equalsIgnoreCase("progressmade")) {
-					curProgress++;
-					totProgress++;
-					updateTime();
+                    this.curProgress++;
+                    this.totProgress++;
+                    this.updateTime();
 				} else if (name.equalsIgnoreCase("progress")) {
-					curProgress = ((Number) pce.getNewValue()).longValue();
-					totProgress = totProgressTillNow + curProgress;
-					updateTime();
+                    this.curProgress = ((Number) pce.getNewValue()).longValue();
+                    this.totProgress = this.totProgressTillNow + this.curProgress;
+                    this.updateTime();
 //				} else if (name.equalsIgnoreCase("orientation")) {
 //					currentPrg.setComponentOrientation((ComponentOrientation) pce.getNewValue());
 //				} else if (name.equalsIgnoreCase("reverseprogress")) {
 //					curProgress = (Long) pce.getNewValue();
 				} else if (name.equalsIgnoreCase("new message")) {
-					statusTtf.setText(pce.getNewValue().toString());
+                    StatusPanel.this.statusTtf.setText(pce.getNewValue().toString());
 				}
 			}
 
 			private void updateTime() {
-				double curProgressRel = curProgress*100.0 / (double) maxCurProgress;
-				double totProgressRel = totProgress*100.0 / (double) maxTotProgress;
+				double curProgressRel = this.curProgress *100.0 / (double) this.maxCurProgress;
+				double totProgressRel = this.totProgress *100.0 / (double) this.maxTotProgress;
 
-				currentPrg.setValue((int) curProgressRel);
-				totalPrg.setValue((int) totProgressRel);
+                StatusPanel.this.currentPrg.setValue((int) curProgressRel);
+                StatusPanel.this.totalPrg.setValue((int) totProgressRel);
 
-				long elapsedTime = System.currentTimeMillis() - startTime;
+				long elapsedTime = System.currentTimeMillis() - this.startTime;
 				long remainingTime = 0L;
 				if (curProgressRel > 0.0) {
 					remainingTime = ((long) (elapsedTime/curProgressRel*(100.0-curProgressRel)) + 999L) / 1000L;
 				}
-				timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
+                StatusPanel.this.timeLbl.setText(String.format("%02d:%02d:%02d", remainingTime/3600,
 						(remainingTime%3600)/60, remainingTime%60));
 			}
 		};
@@ -246,26 +246,26 @@ public class StatusPanel extends JPanel {
 	}
 
 	public JProgressBar getCurrentProgressBar() {
-		return currentPrg;
+		return this.currentPrg;
 	}
 
 	public JProgressBar getTotalProgressBar() {
-		return totalPrg;
+		return this.totalPrg;
 	}
 	
 	public JTextField getCurrentStatusTextField() {
-		return statusTtf;
+		return this.statusTtf;
 	}
 
 	public JLabel getTimeLabel() {
-		return timeLbl;
+		return this.timeLbl;
 	}
 
 	public JTextField getProjectTextField() {
-		return projectTtf;
+		return this.projectTtf;
 	}
 
 	public JTextField getExperimentTextField() {
-		return experimentTtf;
+		return this.experimentTtf;
 	}
 }

@@ -8,23 +8,23 @@ import com.tinkerpop.frames.VertexFrame;
 public interface Taxon extends VertexFrame {
 
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("TAXID")
-	public String getTaxID();
+    String getTaxID();
 	
 	@Property("RANK")
-	public String getRank();
+    String getRank();
 	
 	@Adjacency(label="BELONGS_TO")
-	public Taxon getParentTaxon();
+    Taxon getParentTaxon();
 	
 	@Adjacency(label="IS_ANCESTOR_OF", direction=Direction.IN)
-	public Iterable<Taxon> getChildTaxa();
+    Iterable<Taxon> getChildTaxa();
 	
 	@Adjacency(label="BELONGS_TO_TAXONOMY", direction=Direction.IN)
-	public Iterable<Protein> getProteins();
+    Iterable<Protein> getProteins();
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 }

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -54,12 +53,12 @@ public class AdvancedSettingsDialog extends JDialog {
 	/**
 	 * The collection of parameters this dialog shall provide interaction with.
 	 */
-	private ParameterMap parameterMap;
+	private final ParameterMap parameterMap;
 	
 	/**
 	 * The status of the dialog indicating for instance whether parameters got changed or if the dialog was cancelled.
 	 */
-	private int status = 0;
+	private int status;
 
 	/**
 	 * Constructs and displays a dialog dynamically generated from the specified
@@ -72,17 +71,17 @@ public class AdvancedSettingsDialog extends JDialog {
 	private AdvancedSettingsDialog(Frame owner, String title, boolean modal, ParameterMap parameterMap) {
 		super(owner, title, modal);
 		this.parameterMap = parameterMap;
-		this.initComponents();
+        initComponents();
 		
 		// Configure size and position
-		this.pack();
-		Dimension size = this.getSize();
-		this.setSize(new Dimension(size.width, size.height + 7));
-		this.setResizable(false);
+        pack();
+		Dimension size = getSize();
+        setSize(new Dimension(size.width, size.height + 7));
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 		
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	 * @return the dialog status
 	 */
 	private int getStatus() {
-		return status;
+		return this.status;
 	}
 
 	/**
@@ -112,19 +111,19 @@ public class AdvancedSettingsDialog extends JDialog {
 	 */
 	private void initComponents() {
 		// Define dialog content pane layout
-		Container contentPane = this.getContentPane();
+		Container contentPane = getContentPane();
 		contentPane.setLayout(new FormLayout("5dlu, p:g, 5dlu",
 				"5dlu, f:p:g, 5dlu, p, 5dlu"));
 		
 		// Init task pane container
-		final JXTaskPaneContainer tpc = new JXTaskPaneContainer();
+		JXTaskPaneContainer tpc = new JXTaskPaneContainer();
 		((VerticalLayout) tpc.getLayout()).setGap(10);
 		
 		// Group parameters by section identifiers
-		Map<String, List<Parameter>> sectionMap = this.createSectionMap(parameterMap);
+		Map<String, List<Parameter>> sectionMap = createSectionMap(this.parameterMap);
 		
 		// Iterate sections
-		for (Entry<String, List<Parameter>> entry : sectionMap.entrySet()) {
+		for (Map.Entry<String, List<Parameter>> entry : sectionMap.entrySet()) {
 			String key = entry.getKey();
 			// Exclude general settings
 			if (!"General".equals(key)) {
@@ -136,7 +135,7 @@ public class AdvancedSettingsDialog extends JDialog {
 				taskPane.addComponentListener(new ComponentAdapter() {
 					@Override
 					public void componentResized(ComponentEvent evt) {
-						pack();
+                        AdvancedSettingsDialog.this.pack();
 					}
 				});
 				
@@ -173,7 +172,7 @@ public class AdvancedSettingsDialog extends JDialog {
 		restoreBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				restoreDefaults();
+                AdvancedSettingsDialog.this.restoreDefaults();
 			}
 		});
 //		restoreBtn.setToolTipText("Reset all values to their defaults");
@@ -186,9 +185,9 @@ public class AdvancedSettingsDialog extends JDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				applyChanges();
-				status |= DIALOG_ACCEPTED;
-				dispose();
+                AdvancedSettingsDialog.this.applyChanges();
+                AdvancedSettingsDialog.this.status |= AdvancedSettingsDialog.DIALOG_ACCEPTED;
+                AdvancedSettingsDialog.this.dispose();
 			}
 		});
 //		okBtn.setToolTipText("Accept changes and dismiss dialog.");
@@ -201,14 +200,14 @@ public class AdvancedSettingsDialog extends JDialog {
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				status = DIALOG_CANCELLED;
-				dispose();
+                AdvancedSettingsDialog.this.status = AdvancedSettingsDialog.DIALOG_CANCELLED;
+                AdvancedSettingsDialog.this.dispose();
 			}
 		});
 //		cancelBtn.setToolTipText("Discard changes and dismiss dialog.");
 		
 		// Align label of 'OK' button
-		int labelWidth = getFontMetrics(okBtn.getFont()).stringWidth("OK");
+		int labelWidth = this.getFontMetrics(okBtn.getFont()).stringWidth("OK");
 		okBtn.setIconTextGap(cancelBtn.getPreferredSize().width/2 -
 				okBtn.getIcon().getIconWidth() - labelWidth/2);
 		
@@ -245,11 +244,11 @@ public class AdvancedSettingsDialog extends JDialog {
 	 */
 	protected void applyChanges() {
 		// Update parameters
-		for (Parameter param : parameterMap.values()) {
+		for (Parameter param : this.parameterMap.values()) {
 			// ignore non-configurable settings
 			if (!"General".equals(param.getSection())) {
 				if (param.applyChanges()) {
-					this.status |= DIALOG_CHANGED;
+                    status |= AdvancedSettingsDialog.DIALOG_CHANGED;
 				}
 			}
 		}
@@ -261,7 +260,7 @@ public class AdvancedSettingsDialog extends JDialog {
 	 */
 	protected void restoreDefaults() {
 		// Reset parameters
-		for (Parameter param : parameterMap.values()) {
+		for (Parameter param : this.parameterMap.values()) {
 			// ignore non-configurable settings
 			if (!"General".equals(param.getSection())) {
 				param.restoreDefaults();

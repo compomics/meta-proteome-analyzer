@@ -66,7 +66,7 @@ public class OmssaStorager extends BasicStorager {
 	public OmssaStorager(Connection conn, File file) {
 		this.conn = conn;
 		this.file = file;
-		this.searchEngineType = SearchEngineType.OMSSA;
+        searchEngineType = SearchEngineType.OMSSA;
 	}
 
 	/**
@@ -81,15 +81,15 @@ public class OmssaStorager extends BasicStorager {
 		this.file = file;
 		this.targetScoreFile = targetScoreFile;
 		this.qValueFile = qValueFile;
-		this.searchEngineType = SearchEngineType.OMSSA;
+        searchEngineType = SearchEngineType.OMSSA;
 	}
 
 	/**
 	 * Parses and loads the OMSSA results file(s).
 	 */
 	public void load() {
-		omxFile = new OmssaOmxFile(file.getAbsolutePath());
-		if (qValueFile != null) this.processQValues();
+        this.omxFile = new OmssaOmxFile(this.file.getAbsolutePath());
+		if (this.qValueFile != null) processQValues();
 	}
 
 	/**
@@ -100,10 +100,10 @@ public class OmssaStorager extends BasicStorager {
 	 */
 	public void store() throws IOException, SQLException {
 		// Iterate over all the spectra
-		HashMap<MSSpectrum, MSHitSet> results = omxFile.getSpectrumToHitSetMap();
+		HashMap<MSSpectrum, MSHitSet> results = this.omxFile.getSpectrumToHitSetMap();
 		Iterator<MSSpectrum> iterator = results.keySet().iterator();  	
 		// HitIndex as key, xtandemID as value.
-		hitNumberMap = new HashMap<String, Long>();
+        this.hitNumberMap = new HashMap<String, Long>();
 		int counter = 0;
 		while (iterator.hasNext()) {
 			// Get the next spectrum.
@@ -117,14 +117,14 @@ public class OmssaStorager extends BasicStorager {
 				// Get the spectrum id for the given spectrumName for the OmssaFile    
 				String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
 
-				spectrumTitle = formatSpectrumTitle(spectrumTitle); 
+				spectrumTitle = this.formatSpectrumTitle(spectrumTitle);
 				if (MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
 					long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
 
 					Double qValue = 1.0;
 					Double pep = 1.0;
-					if (validatedPSMScores != null) {
-						ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(msHit.MSHits_evalue);
+					if (this.validatedPSMScores != null) {
+						ValidatedPSMScore validatedPSMScore = this.validatedPSMScores.get(msHit.MSHits_evalue);
 						if (validatedPSMScore != null) {
 							qValue = validatedPSMScore.getQvalue();
 							pep = validatedPSMScore.getPep();
@@ -151,11 +151,11 @@ public class OmssaStorager extends BasicStorager {
 
 						// Get the peptide id
 						String sequence = msHit.MSHits_pepstring;
-						long peptideID = this.storePeptide(sequence);
+						long peptideID = storePeptide(sequence);
 						hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	peptideID);
 
 						// Store peptide-spectrum association
-						this.storeSpec2Pep(searchspectrumID, peptideID);
+                        storeSpec2Pep(searchspectrumID, peptideID);
 
 						// Parse the FASTA header
 						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "", 0L);
@@ -174,18 +174,18 @@ public class OmssaStorager extends BasicStorager {
 
 						for (String acc : accessionSet) {
 							
-							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
+							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, this.conn);
 							if (protSql != null) {
 								hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	protSql.getProteinid());
 
 								// Create the database object.
 								OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-								omssahit.persist(conn);
+								omssahit.persist(this.conn);
 								counter++;
 
 								// Get the omssahitid
 								Long omssahitid = (Long) omssahit.getGeneratedKeys()[0];
-								hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
+                                this.hitNumberMap.put(msHitSet.MSHitSet_number + "_"	+ hitnumber, omssahitid);
 								hitnumber++;
 							} else {
 								System.err.println("Protein: " + acc + " not found in the database.");
@@ -196,8 +196,8 @@ public class OmssaStorager extends BasicStorager {
 				}
 			}
 		}
-		conn.commit();
-		log.debug("No. of OMSSA hits saved: " + counter);
+        this.conn.commit();
+        this.log.debug("No. of OMSSA hits saved: " + counter);
 	}
 
 	/**
@@ -222,12 +222,12 @@ public class OmssaStorager extends BasicStorager {
 
 		// buffered reasder for target files
 		BufferedReader targetFileReader;
-		if (qValueFile.exists()) {
+		if (this.qValueFile.exists()) {
 
 			try {
-				qValueFileReader = new BufferedReader(new FileReader(qValueFile));
-				targetFileReader = new BufferedReader(new FileReader(targetScoreFile));
-				validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
+				qValueFileReader = new BufferedReader(new FileReader(this.qValueFile));
+				targetFileReader = new BufferedReader(new FileReader(this.targetScoreFile));
+                this.validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
 				String nextLine;
 				// Skip the first line
 				qValueFileReader.readLine();
@@ -244,7 +244,7 @@ public class OmssaStorager extends BasicStorager {
 
 					// Get original target score
 					double score = Double.valueOf(targetFileReader.readLine());
-					validatedPSMScores.put(score, validatedPSMScore);
+                    this.validatedPSMScores.put(score, validatedPSMScore);
 				}
 				qValueFileReader.close();
 				targetFileReader.close();

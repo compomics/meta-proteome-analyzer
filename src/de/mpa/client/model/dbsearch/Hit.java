@@ -4,8 +4,8 @@ import java.util.Set;
 
 import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HierarchyLevel;
-import de.mpa.client.ui.chart.OntologyChart.OntologyChartType;
-import de.mpa.client.ui.chart.TaxonomyChart.TaxonomyChartType;
+import de.mpa.client.ui.chart.OntologyChart;
+import de.mpa.client.ui.chart.TaxonomyChart;
 
 /**
  * Interface for entries of spectrum, peptide, protein and metaprotein hits.
@@ -17,31 +17,31 @@ public interface Hit {
 	 * @return <code>true</code> if hit is selected for export, 
 	 * <code>false</code> otherwise.
 	 */
-	public boolean isSelected();
+    boolean isSelected();
 	
 	/**
 	 * Sets whether this hit is selected for exporting. 
 	 * @param selected <code>true</code> if hit is selected for export, 
 	 * <code>false</code> otherwise.
 	 */
-	public void setSelected(boolean selected);
+    void setSelected(boolean selected);
 	
 	/**
 	 * This gets the property of the entry, supporting taxonomy, hierachies (protein, peptide..) and ontologies
-	 * @param type one of {@link TaxonomyChartType}, {@link OntologyChartType} or {@link HierarchyLevel}
+	 * @param type one of {@link TaxonomyChart.TaxonomyChartType}, {@link OntologyChart.OntologyChartType} or {@link HierarchyLevel}
 	 * @return
 	 */
-	public Set<Object> getProperties(ChartType type);
+    Set<Object> getProperties(ChartType type);
 	
 	/**
 	 * Sets the false discovery rate.
 	 */
-	public void setFDR(double fdr);
+    void setFDR(double fdr);
 	
 	/**
 	 * Returns true if hit should be visible else false.
 	 * @return
 	 */
-	public boolean isVisible();
+    boolean isVisible();
 	
 }

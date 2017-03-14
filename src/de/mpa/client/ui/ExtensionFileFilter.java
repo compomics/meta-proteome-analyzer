@@ -15,17 +15,17 @@ public class ExtensionFileFilter extends FileFilter {
     /**
      * The extension to filter on. Will always be prefixed with a '.'.
      */
-    private String extension = null;
+    private String extension;
     
     /**
      * The description String to be displayed in file chooser dialogs.
      */
-    private String description = null;
+    private String description;
     
     /**
      * Boolean to indicate whether the matching needs to be case-sensitive.
      */
-    private boolean caseSensitive = false;
+    private boolean caseSensitive;
     
     /**
      * Constructs a file filter that filters on the specified extension.
@@ -70,13 +70,13 @@ public class ExtensionFileFilter extends FileFilter {
         }
         
         // Case sensitivity.
-        if (!caseSensitive) {
+        if (!this.caseSensitive) {
             aExtension = aExtension.toLowerCase();
         }
-        
-        this.extension = aExtension;
-        this.caseSensitive = aCaseSensitive;
-        this.description = aDescription;
+
+        extension = aExtension;
+        caseSensitive = aCaseSensitive;
+        description = aDescription;
 	}
 
 	/**
@@ -90,11 +90,11 @@ public class ExtensionFileFilter extends FileFilter {
         if (pathname.isFile()) {
             String name = pathname.getName();
             // See if we need to work case-insensitive...
-            if (!caseSensitive) {
+            if (!this.caseSensitive) {
                 name = name.toLowerCase();
             }
             // Check the extension.
-            if (name.endsWith(extension)) {
+            if (name.endsWith(this.extension)) {
                 result = true;
             }
         } else {
@@ -110,7 +110,7 @@ public class ExtensionFileFilter extends FileFilter {
      * @return <code>true</code> if the filter is case-sensitive, <code>false</code> otherwise.
      */
     public boolean isCaseSensitive() {
-        return caseSensitive;
+        return this.caseSensitive;
     }
 
     /**
@@ -119,7 +119,7 @@ public class ExtensionFileFilter extends FileFilter {
      * @return the extension String.
      */
     public String getExtension() {
-        return extension;
+        return this.extension;
     }
 
     /**
@@ -128,6 +128,6 @@ public class ExtensionFileFilter extends FileFilter {
      * @see javax.swing.filechooser.FileView#getName
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 }

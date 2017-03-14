@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -41,7 +41,7 @@ import de.mpa.io.MascotGenericFileReader;
 public class ClusterPanel extends JPanel {				
 	
 	// fields or class variables
-	private ClientFrame clientFrame;
+	private final ClientFrame clientFrame;
 	protected HashMap<String, Integer> seqMap;
 	private JSpinner binSizeSpn;
 	private JCheckBox meanPeakInt;
@@ -52,37 +52,37 @@ public class ClusterPanel extends JPanel {
 	private JTable specTbl;
 	private SpinnerNumberModel sqncCntSpnMdl;
 	protected MascotGenericFile mergedMGF;
-	private ClusterTableModel tblMdl;
+	private ClusterPanel.ClusterTableModel tblMdl;
 
 	public ClusterPanel() {
-		this.clientFrame = ClientFrame.getInstance();
-		initComponents();												// function call
+        clientFrame = ClientFrame.getInstance();
+        this.initComponents();												// function call
 	}
-	
+
 	// void = without return value
 	private void initComponents() {										// declaration of initComponents, void = bo return value
 		ClusterPanel clusterPnl = this;									// Init Panel "Clustering"
-		
+
 		CellConstraints cc = new CellConstraints();
-		
+
 		clusterPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",			// col
 											"5dlu, f:p:g, 5dlu"));		// row
-		
+
 			JPanel setPnl = new JPanel();								// init Panel "Cluster Panel"
 			setPnl.setBorder(new TitledBorder("Cluster Panel"));
 			FormLayout layout = new FormLayout("5dlu, p, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu",
 											   "5dlu, f:p, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu");
-			layout.setRowGroups(new int[][]{ {4, 6} });					// forcing size of row 4 and 6 as equal 
+			layout.setRowGroups(new int[][]{ {4, 6} });					// forcing size of row 4 and 6 as equal
 			layout.setColumnGroups(new int[][]{ {4, 6} });				// forcing size of column 4 and 6 as equal
-			setPnl.setLayout(layout);									// editing layout of setPnl	
-			
+			setPnl.setLayout(layout);									// editing layout of setPnl
+
 				// table of spectra
-				tblMdl = new ClusterTableModel();						// final for immutable reference
+        this.tblMdl = new ClusterPanel.ClusterTableModel();						// final for immutable reference
 //				tblMdl.addRow(new Object[] {1,"ABCD",true});				// 'force-feed' first line (with String and CheckBox)
-				specTbl = new JTable(tblMdl);							    // Init 'specTbl' adding tblMdl as model
-				specTbl.setAutoCreateRowSorter(true);						// enables alphabetic sorting, done by click on column title 
+        this.specTbl = new JTable(this.tblMdl);							    // Init 'specTbl' adding tblMdl as model
+        this.specTbl.setAutoCreateRowSorter(true);						// enables alphabetic sorting, done by click on column title
 //				specTbl.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // disable multiple selections
-				JScrollPane specTblScp = new JScrollPane(specTbl);			// Init Scrollbar for 'specTbl'
+				JScrollPane specTblScp = new JScrollPane(this.specTbl);			// Init Scrollbar for 'specTbl'
 			
 				// panel of table options
 				JPanel intrActPnl = new JPanel();
@@ -90,12 +90,12 @@ public class ClusterPanel extends JPanel {
 				intrActPnl.setLayout(new FormLayout("5dlu, p, 5dlu, r:p:g, 5dlu",
 													"5dlu, p, 5dlu, p, 5dlu, p, 5dlu"));
 
-					sqncCntSpnMdl = new SpinnerNumberModel(1, 					// default
+        this.sqncCntSpnMdl = new SpinnerNumberModel(1, 					// default
 														   1, 					// min	
 													   	   null, 				// max unbounded
 													       1);					// step  
 					JSpinner sqncCntSpn = new JSpinner();							// init spinner with prior defined model
-					sqncCntSpn.setModel(sqncCntSpnMdl);								// assign model to spinner 
+					sqncCntSpn.setModel(this.sqncCntSpnMdl);								// assign model to spinner
 					sqncCntSpn.addChangeListener(new ChangeListener() {				// add changelistener to spinner
 					
 						
@@ -103,14 +103,14 @@ public class ClusterPanel extends JPanel {
 						@Override
 						public void stateChanged(ChangeEvent evt) {
 							
-							Integer sqncCnt = (Integer)sqncCntSpnMdl.getValue();			// get spinner value
-							for (int row = 0; row < specTbl.getRowCount(); row++) {			// init loop over size of specTbl
-								String sequence = (String) tblMdl.getValueAt(row, 1);	    // get sequence for current entry 
+							Integer sqncCnt = (Integer) ClusterPanel.this.sqncCntSpnMdl.getValue();			// get spinner value
+							for (int row = 0; row < ClusterPanel.this.specTbl.getRowCount(); row++) {			// init loop over size of specTbl
+								String sequence = (String) ClusterPanel.this.tblMdl.getValueAt(row, 1);	    // get sequence for current entry
 	
-								if (seqMap.get(sequence) >= sqncCnt) {						
-									tblMdl.setValueAt(true, row, 2);
+								if (ClusterPanel.this.seqMap.get(sequence) >= sqncCnt) {
+                                    ClusterPanel.this.tblMdl.setValueAt(true, row, 2);
 								} else {
-									tblMdl.setValueAt(false, row, 2);
+                                    ClusterPanel.this.tblMdl.setValueAt(false, row, 2);
 								}
 							}
 						}
@@ -119,15 +119,15 @@ public class ClusterPanel extends JPanel {
 					getValueBtn.addActionListener(new ActionListener() {		
 						@Override
 						public void actionPerformed(ActionEvent evt) {
-							final JFileChooser fc = new JFileChooser();
+							JFileChooser fc = new JFileChooser();
 							fc.setFileFilter(Constants.MGF_FILE_FILTER);
 							fc.setAcceptAllFileFilterUsed(false);
 							fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 							fc.setMultiSelectionEnabled(true); 							
-							int result = fc.showOpenDialog(clientFrame);
+							int result = fc.showOpenDialog(ClusterPanel.this.clientFrame);
 							if (result == (JFileChooser.APPROVE_OPTION)) {
-								tblMdl.setRowCount(0);
-								seqMap = new HashMap<String, Integer>();
+                                ClusterPanel.this.tblMdl.setRowCount(0);
+                                ClusterPanel.this.seqMap = new HashMap<String, Integer>();
 								File[] slctdFls = fc.getSelectedFiles();
 								for (File file : slctdFls) {
 									int i = 1;
@@ -135,13 +135,13 @@ public class ClusterPanel extends JPanel {
 										MascotGenericFileReader reader = new MascotGenericFileReader(file);
 										List<MascotGenericFile> mgfFiles = reader.getSpectrumFiles();
 										for (MascotGenericFile mgf : mgfFiles) {
-											tblMdl.addRow(new Object[] {"Spectrum " + i++, mgf, false});
+                                            ClusterPanel.this.tblMdl.addRow(new Object[] {"Spectrum " + i++, mgf, false});
 											String title = mgf.getTitle();
 											String sequence = title.substring(0, title.indexOf(' '));
-											if (seqMap.containsKey(sequence)) {
-												seqMap.put(sequence, seqMap.get(sequence)+1);
+											if (ClusterPanel.this.seqMap.containsKey(sequence)) {
+                                                ClusterPanel.this.seqMap.put(sequence, ClusterPanel.this.seqMap.get(sequence)+1);
 											} else {
-												seqMap.put(sequence, 1);	
+                                                ClusterPanel.this.seqMap.put(sequence, 1);
 											}
 										}
 										
@@ -150,14 +150,14 @@ public class ClusterPanel extends JPanel {
 										e.printStackTrace();
 									}
 								}
-								for (int i = 0; i < tblMdl.getRowCount(); i++) {
-									String sequence = (String) tblMdl.getValueAt(i, 1);
-									if (seqMap.get(sequence) >= (Integer)sqncCntSpnMdl.getValue()) {
-										tblMdl.setValueAt(true, i, 2);
+								for (int i = 0; i < ClusterPanel.this.tblMdl.getRowCount(); i++) {
+									String sequence = (String) ClusterPanel.this.tblMdl.getValueAt(i, 1);
+									if (ClusterPanel.this.seqMap.get(sequence) >= (Integer) ClusterPanel.this.sqncCntSpnMdl.getValue()) {
+                                        ClusterPanel.this.tblMdl.setValueAt(true, i, 2);
 									}
 								}
-							};
-						}
+							}
+                        }
 					});
 				    
 				    JButton export = new JButton("Write!"); 
@@ -167,9 +167,9 @@ public class ClusterPanel extends JPanel {
 						public void actionPerformed(ActionEvent e) {
 							try {
 								FileOutputStream fos = new FileOutputStream(new File("cluster.mgf"));
-								for (int row = 0; row < specTbl.getRowCount(); row++) {
-									if ((Boolean) tblMdl.getValueAt(row, 2)) {
-										MascotGenericFile mgf = tblMdl.getSpectrumAt(row);
+								for (int row = 0; row < ClusterPanel.this.specTbl.getRowCount(); row++) {
+									if ((Boolean) ClusterPanel.this.tblMdl.getValueAt(row, 2)) {
+										MascotGenericFile mgf = ClusterPanel.this.tblMdl.getSpectrumAt(row);
 										mgf.writeToStream(fos);
 									}
 								}
@@ -185,28 +185,28 @@ public class ClusterPanel extends JPanel {
 				mrgOptnsPnl.setBorder(new TitledBorder("Merge Options"));
 				mrgOptnsPnl.setLayout(new FormLayout("5dlu, p, 5dlu, r:p:g, 5dlu",
 													 "5dlu, p, 5dlu, p:g, 5dlu, p:g, 5dlu"));
-					final SpinnerModel binSizeSpnMdl = new SpinnerNumberModel(1.0, 		// default
+					SpinnerModel binSizeSpnMdl = new SpinnerNumberModel(1.0, 		// default
 																			  0.1, 	// min	
 																			  1e4, 		// max unbounded
 																			  0.1);		// step  
-					binSizeSpn = new JSpinner();							// init spinner
-					binSizeSpn.setModel(binSizeSpnMdl);						// assign model to spinner 
-					binSizeSpn.addChangeListener(new RefreshListener());
+        this.binSizeSpn = new JSpinner();							// init spinner
+        this.binSizeSpn.setModel(binSizeSpnMdl);						// assign model to spinner
+        this.binSizeSpn.addChangeListener(new RefreshListener());
 
-					meanPeakInt = new JCheckBox();
-					meanPeakInt.setSelected(true);
-					meanPeakInt.addActionListener(new RefreshListener());
-					
-					nrmlzPeakInt = new JCheckBox();
-					nrmlzPeakInt.setSelected(false);
-					nrmlzPeakInt.addActionListener(new RefreshListener());
+        this.meanPeakInt = new JCheckBox();
+        this.meanPeakInt.setSelected(true);
+        this.meanPeakInt.addActionListener(new RefreshListener());
+
+        this.nrmlzPeakInt = new JCheckBox();
+        this.nrmlzPeakInt.setSelected(false);
+        this.nrmlzPeakInt.addActionListener(new RefreshListener());
 					
 				mrgOptnsPnl.add(new JLabel("Set Bin Size [m/z]"), cc.xy(2,2));	
-				mrgOptnsPnl.add(binSizeSpn, cc.xy(4,2));
+				mrgOptnsPnl.add(this.binSizeSpn, cc.xy(4,2));
 				mrgOptnsPnl.add(new JLabel("Normalize Intensity to Highest"), cc.xy(2,4));
-				mrgOptnsPnl.add(nrmlzPeakInt, cc.xy(4,4));
+				mrgOptnsPnl.add(this.nrmlzPeakInt, cc.xy(4,4));
 				mrgOptnsPnl.add(new JLabel("Average Peak Intensity"), cc.xy(2,6));
-				mrgOptnsPnl.add(meanPeakInt, cc.xy(4,6));
+				mrgOptnsPnl.add(this.meanPeakInt, cc.xy(4,6));
 				
 			setPnl.add(mrgOptnsPnl, cc.xy(6,2));	
 				
@@ -222,24 +222,24 @@ public class ClusterPanel extends JPanel {
 				addSpcPnl.setBorder(new TitledBorder("Single Spectra"));
 				addSpcPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
 												   "5dlu, f:p:g, 5dlu"));
-					addSpcPltPnl = new PlotPanel2(null);
-					addSpcPltPnl.setPreferredSize(new Dimension(400, 200));
-					addSpcPltPnl.clearSpectrumFile();
+        this.addSpcPltPnl = new PlotPanel2(null);
+        this.addSpcPltPnl.setPreferredSize(new Dimension(400, 200));
+        this.addSpcPltPnl.clearSpectrumFile();
 
-				addSpcPnl.add(addSpcPltPnl, cc.xy(2,2));
+				addSpcPnl.add(this.addSpcPltPnl, cc.xy(2,2));
 				
 				// lower plot
 				JPanel mrgdSpcPnl = new JPanel();
 				mrgdSpcPnl.setBorder(new TitledBorder("Merged Spectrum"));
 				mrgdSpcPnl.setLayout(new FormLayout("5dlu, p:g, 5dlu",
 						  							"5dlu, f:p:g, 5dlu"));
-					mrgdSpcPltPnl = new PlotPanel2(null);
-					mrgdSpcPltPnl.setPreferredSize(new Dimension(400, 200));
-					mrgdSpcPltPnl.clearSpectrumFile();
+        this.mrgdSpcPltPnl = new PlotPanel2(null);
+        this.mrgdSpcPltPnl.setPreferredSize(new Dimension(400, 200));
+        this.mrgdSpcPltPnl.clearSpectrumFile();
 					
-				mrgdSpcPnl.add(mrgdSpcPltPnl, cc.xy(2,2));
+				mrgdSpcPnl.add(this.mrgdSpcPltPnl, cc.xy(2,2));
 
-				specTbl.getSelectionModel().addListSelectionListener(new RefreshListener());
+        this.specTbl.getSelectionModel().addListSelectionListener(new RefreshListener());
 			
 			setPnl.add(intrActPnl, cc.xy(4,2));
 			setPnl.add(specTblScp, cc.xywh(2,2,1,5));
@@ -250,49 +250,49 @@ public class ClusterPanel extends JPanel {
 	}
 
 	private void refreshSinglePlot() {
-		slctdMGFs = new ArrayList<MascotGenericFile>(specTbl.getSelectedRowCount());
-		addSpcPltPnl.clearSpectrumFile();
-		boolean nrmlzPeaks = nrmlzPeakInt.isSelected();				// Check, if normalization is wanted
-		int[] rowIndexes = specTbl.getSelectedRows();
+        this.slctdMGFs = new ArrayList<MascotGenericFile>(this.specTbl.getSelectedRowCount());
+        this.addSpcPltPnl.clearSpectrumFile();
+		boolean nrmlzPeaks = this.nrmlzPeakInt.isSelected();				// Check, if normalization is wanted
+		int[] rowIndexes = this.specTbl.getSelectedRows();
 		for (int i = 0; i < rowIndexes.length; i++) {
-			MascotGenericFile mgf = tblMdl.getSpectrumAt(specTbl.convertRowIndexToModel(rowIndexes[i]));	
+			MascotGenericFile mgf = this.tblMdl.getSpectrumAt(this.specTbl.convertRowIndexToModel(rowIndexes[i]));
 			if (nrmlzPeaks) {
-				mgf = normalizeMGF(mgf);
+				mgf = this.normalizeMGF(mgf);
 			}
-			slctdMGFs.add(mgf);
-			addSpcPltPnl.setSpectrumFile(mgf);
+            this.slctdMGFs.add(mgf);
+            this.addSpcPltPnl.setSpectrumFile(mgf);
 		}
-		addSpcPltPnl.repaint();
+        this.addSpcPltPnl.repaint();
 	}
 	
 	private MascotGenericFile normalizeMGF(MascotGenericFile mgf) {
 		double maxInt = mgf.getHighestIntensity()/100.0;
 		MascotGenericFile mgfNrmlzd = new MascotGenericFile(mgf.getFilename(), mgf.getTitle(), new HashMap<Double, Double>(mgf.getPeaks()), mgf.getPrecursorMZ(), mgf.getIntensity(), mgf.getCharge());
-		for (Entry<Double, Double> peak : mgfNrmlzd.getPeaks().entrySet()) {
+		for (Map.Entry<Double, Double> peak : mgfNrmlzd.getPeaks().entrySet()) {
 			peak.setValue(peak.getValue()/maxInt); 
 		}
 		return mgfNrmlzd;
 	}
 
 	private void refreshMergePlot() {
-		mrgdSpcPltPnl.clearSpectrumFile();										// clear plot
-		mergedMGF = mergeSpectra(slctdMGFs, (Double) binSizeSpn.getValue()); 	// function call + handover of vars
-		if (!mergedMGF.getPeaks().isEmpty()) {
-			mrgdSpcPltPnl.setSpectrumFile(mergedMGF, Color.RED);				// plotten
+        this.mrgdSpcPltPnl.clearSpectrumFile();										// clear plot
+        this.mergedMGF = this.mergeSpectra(this.slctdMGFs, (Double) this.binSizeSpn.getValue()); 	// function call + handover of vars
+		if (!this.mergedMGF.getPeaks().isEmpty()) {
+            this.mrgdSpcPltPnl.setSpectrumFile(this.mergedMGF, Color.RED);				// plotten
 		}
-		mrgdSpcPltPnl.repaint();
+        this.mrgdSpcPltPnl.repaint();
 	}
 
 	protected MascotGenericFile mergeSpectra(ArrayList<MascotGenericFile> mgfList, double binSize) {
 		
 		HashMap<Double, Double> rsltMap = new HashMap<Double, Double>(100);	// init new Hashmap as mastermap
-		boolean averagePeakInt = meanPeakInt.isSelected();					// get Checkbox value averagePeakInt
+		boolean averagePeakInt = this.meanPeakInt.isSelected();					// get Checkbox value averagePeakInt
 //		double divisor = 1.0;
 //		if (averagePeakInt) {
 //			divisor = mgfList.size();
 //		} or in short using ternary notation:
 		double divisor = (averagePeakInt) ? mgfList.size() : 1.0;
-		boolean nrmlzPeaks = nrmlzPeakInt.isSelected();						// get Checkbox value nrmlzPeakInt
+		boolean nrmlzPeaks = this.nrmlzPeakInt.isSelected();						// get Checkbox value nrmlzPeakInt
 		for (MascotGenericFile mgf : mgfList) {								// iterate through provided (former selected) spectrum files
 			HashMap<Double, Double> mgfPeaks = mgf.getPeaks();				// import peak list
 			double maxInt = (nrmlzPeaks) ? mgf.getHighestIntensity()/100.0 : 1.0;
@@ -313,12 +313,13 @@ public class ClusterPanel extends JPanel {
 	private class ClusterTableModel extends DefaultTableModel {
 
 		// instance initializer block
-		{ setColumnIdentifiers(new Object[] {"Serial Number",
+		{
+            this.setColumnIdentifiers(new Object[] {"Serial Number",
 											 "Sequence",
 											 "Selected"}); }	// init column header captions
 		
 		public boolean isCellEditable(int row, int col) {
-			return ((col == 2) ? true : false);	// ternary operator
+			return ((col == 2));	// ternary operator
 												// column 3 is editable, others not
 		}
 		
@@ -331,7 +332,7 @@ public class ClusterPanel extends JPanel {
 			case 2:
 				return Boolean.class;
 			default:
-				return getValueAt(0,col).getClass();
+				return this.getValueAt(0,col).getClass();
 			}
 		}
 		
@@ -359,24 +360,24 @@ public class ClusterPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			refresh();
+            this.refresh();
 		}
 
 		@Override
 		public void stateChanged(ChangeEvent arg0) {
-			refresh();
+            this.refresh();
 		}
 
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting()) {
-				refresh();
+                this.refresh();
 			}
 		}
 		
 		private void refresh() {
-			refreshSinglePlot();
-			refreshMergePlot();
+            ClusterPanel.this.refreshSinglePlot();
+            ClusterPanel.this.refreshMergePlot();
 		}
 	}
 //	protected void fetchResultsFromTree() {

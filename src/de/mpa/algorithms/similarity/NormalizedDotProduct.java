@@ -1,7 +1,6 @@
 package de.mpa.algorithms.similarity;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 public class NormalizedDotProduct implements SpectrumComparator {
@@ -9,12 +8,12 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	/**
 	 * The input vectorization method.
 	 */
-	private Vectorization vect;
+	private final Vectorization vect;
 	
 	/**
 	 * The input transformation method.
 	 */
-	private Transformation trafo;
+	private final Transformation trafo;
 
 	/**
 	 * The peak map of the source spectrum.
@@ -25,7 +24,7 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	 * The similarity score between source spectrum and target spectrum.
 	 * Ranges between 0.0 and 1.0.
 	 */
-	private double similarity = 0.0;
+	private double similarity;
 
 	/**
 	 * The squared magnitude of the source intensity vector.
@@ -46,10 +45,11 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
 
 		// bin source spectrum
-		peaksSrc = vect.vectorize(inputPeaksSrc, trafo);
+        this.peaksSrc = this.vect.vectorize(inputPeaksSrc, this.trafo);
 
-		denom1 = 0.0;
-		for (double intenSrc : peaksSrc.values()) { denom1 += intenSrc * intenSrc; }
+        this.denom1 = 0.0;
+		for (double intenSrc : this.peaksSrc.values()) {
+            this.denom1 += intenSrc * intenSrc; }
 		
 	}
 	
@@ -57,13 +57,13 @@ public class NormalizedDotProduct implements SpectrumComparator {
 	public void compareTo(Map<Double, Double> inputPeaksTrg) {
 
 		// bin target spectrum
-		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
+		Map<Double, Double> peaksTrg = this.vect.vectorize(inputPeaksTrg, this.trafo);
 		
 		// calculate dot product
 		double numer = 0.0, denom2 = 0.0;
-		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
+		for (Map.Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
 			double intenTrg = peakTrg.getValue();
-			Double intenSrc = peaksSrc.get(peakTrg.getKey());
+			Double intenSrc = this.peaksSrc.get(peakTrg.getKey());
 			if (intenSrc != null) {
 				numer += intenSrc * intenTrg;
 			}
@@ -71,22 +71,22 @@ public class NormalizedDotProduct implements SpectrumComparator {
 		}
 		
 		// normalize score
-		this.similarity = numer / Math.sqrt(denom1 * denom2);
+        similarity = numer / Math.sqrt(this.denom1 * denom2);
 	}
 
 	@Override
 	public double getSimilarity() {
-		return similarity;
+		return this.similarity;
 	}
 
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
-		return peaksSrc;
+		return this.peaksSrc;
 	}
 
 	@Override
 	public Vectorization getVectorization() {
-		return vect;
+		return this.vect;
 	}
 
 }

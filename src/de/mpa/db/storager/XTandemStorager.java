@@ -49,7 +49,7 @@ public class XTandemStorager extends BasicStorager {
     /**
      * The q-value file.
      */
-    private File qValueFile = null;
+    private File qValueFile;
     
 	/**
 	 * File containing the original PSM scores.
@@ -66,10 +66,10 @@ public class XTandemStorager extends BasicStorager {
     /**
      * Constructor for storing results from a target-only search with X!Tandem.
      */
-    public XTandemStorager(final Connection conn, final File file){
+    public XTandemStorager(Connection conn, File file){
     	this.conn = conn;
     	this.file = file;
-    	this.searchEngineType = SearchEngineType.XTANDEM;
+        searchEngineType = SearchEngineType.XTANDEM;
     }
     
     /**
@@ -79,12 +79,12 @@ public class XTandemStorager extends BasicStorager {
      * @param targetScoreFile File containing the original PSM scores.
      * @param qValueFile File containing the validated PSM scores.
      */
-	public XTandemStorager(final Connection conn, final File file, File targetScoreFile, File qValueFile) {
+	public XTandemStorager(Connection conn, File file, File targetScoreFile, File qValueFile) {
 		this.conn = conn;
 		this.file = file;
 		this.targetScoreFile = targetScoreFile;
 		this.qValueFile = qValueFile;
-		this.searchEngineType = SearchEngineType.XTANDEM;
+        searchEngineType = SearchEngineType.XTANDEM;
 	}
 
     /**
@@ -92,14 +92,14 @@ public class XTandemStorager extends BasicStorager {
      */
     public void load() {
         try {
-            xTandemFile = new XTandemFile(file.getAbsolutePath());
+            this.xTandemFile = new XTandemFile(this.file.getAbsolutePath());
         } catch (SAXException ex) {
-            log.error("Error while parsing X!Tandem file: " + ex.getMessage());
+            this.log.error("Error while parsing X!Tandem file: " + ex.getMessage());
             ex.printStackTrace();
         } catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-        if(qValueFile != null) this.processQValues();
+        if(this.qValueFile != null) processQValues();
     }
     
     /**
@@ -111,16 +111,16 @@ public class XTandemStorager extends BasicStorager {
                
         // Iterate over all the spectra
         @SuppressWarnings("unchecked")
-		Iterator<de.proteinms.xtandemparser.xtandem.Spectrum> iter = xTandemFile.getSpectraIterator();
+		Iterator<Spectrum> iter = this.xTandemFile.getSpectraIterator();
 
         // Prepare everything for the peptides.
-        PeptideMap pepMap = xTandemFile.getPeptideMap();
+        PeptideMap pepMap = this.xTandemFile.getPeptideMap();
         
         // ProteinMap protMap 
-        ProteinMap protMap = xTandemFile.getProteinMap();
+        ProteinMap protMap = this.xTandemFile.getProteinMap();
         
         // DomainID as key, xtandemID as value.
-        domainMap = new HashMap<String, Long>();
+        this.domainMap = new HashMap<String, Long>();
 
         int counter = 0;
         while (iter.hasNext()) {
@@ -129,8 +129,8 @@ public class XTandemStorager extends BasicStorager {
             Spectrum spectrum = iter.next();
             int spectrumNumber = spectrum.getSpectrumNumber();
             
-            String spectrumTitle = xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
-            spectrumTitle = formatSpectrumTitle(spectrumTitle);
+            String spectrumTitle = this.xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
+            spectrumTitle = this.formatSpectrumTitle(spectrumTitle);
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
@@ -151,8 +151,8 @@ public class XTandemStorager extends BasicStorager {
                 	    	
                 	        Double qValue = 1.0;
             	            Double pep = 1.0;
-                	    	if (validatedPSMScores != null) {
-                	    		ValidatedPSMScore validatedPSMScore = validatedPSMScores.get(domain.getDomainHyperScore());
+                	    	if (this.validatedPSMScores != null) {
+                	    		ValidatedPSMScore validatedPSMScore = this.validatedPSMScores.get(domain.getDomainHyperScore());
                 	    		if (validatedPSMScore != null) {
                 	    	    	qValue = validatedPSMScore.getQvalue();
                 	    	    	pep = validatedPSMScore.getPep();
@@ -182,11 +182,11 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.QVALUE, qValue);
        						
                                 // Get and store the peptide.
-                                long peptideID = this.storePeptide(sequence);
+                                long peptideID = storePeptide(sequence);
                      	    	hitdata.put(XtandemhitTableAccessor.FK_PEPTIDEID, peptideID);
         						
                      	    	// Store peptide-spectrum association
-        						this.storeSpec2Pep(searchspectrumID, peptideID);
+                                storeSpec2Pep(searchspectrumID, peptideID);
         						
         						// Scan for additional protein hits
                      	    	HashSet<String> accessionSet = new HashSet<String>();
@@ -200,18 +200,18 @@ public class XTandemStorager extends BasicStorager {
 								}
                      	    	
         						for (String acc : accessionSet) {
-        							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, conn);
+        							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, this.conn);
         							if (protSql != null) {
         								hitdata.put(XtandemhitTableAccessor.FK_PROTEINID, protSql.getProteinid());
 
         								// Finalize xtandemhit
         								XtandemhitTableAccessor xtandemhit = new XtandemhitTableAccessor(hitdata);     
-        								xtandemhit.persist(conn);
+        								xtandemhit.persist(this.conn);
         								counter++;
 
         								// Get the xtandemhitid
         								Long xtandemhitid = (Long) xtandemhit.getGeneratedKeys()[0];
-        								domainMap.put(domainID, xtandemhitid);
+                                        this.domainMap.put(domainID, xtandemhitid);
         							} else {
         								System.err.println("Protein: " + acc + " not found in the database.");
         							}
@@ -223,8 +223,8 @@ public class XTandemStorager extends BasicStorager {
 				}
             }      
         }
-        conn.commit();
-        log.debug("No. of X!Tandem hits saved: " + counter);
+        this.conn.commit();
+        this.log.debug("No. of X!Tandem hits saved: " + counter);
     }
     
     /**
@@ -244,9 +244,9 @@ public class XTandemStorager extends BasicStorager {
 		BufferedReader qValueFileReader;
 		BufferedReader targetFileReader;
 		try {
-			qValueFileReader = new BufferedReader(new FileReader(qValueFile));
-			targetFileReader = new BufferedReader(new FileReader(targetScoreFile));
-			validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
+			qValueFileReader = new BufferedReader(new FileReader(this.qValueFile));
+			targetFileReader = new BufferedReader(new FileReader(this.targetScoreFile));
+            this.validatedPSMScores = new HashMap<Double, ValidatedPSMScore>();
 			String nextLine;
 			// Skip the first line
 			qValueFileReader.readLine();
@@ -263,7 +263,7 @@ public class XTandemStorager extends BasicStorager {
 				
 				// Get original target score
 				double score = Double.valueOf(targetFileReader.readLine());
-				validatedPSMScores.put(score, validatedPSMScore);
+                this.validatedPSMScores.put(score, validatedPSMScore);
 			}
 			qValueFileReader.close();
 			targetFileReader.close();

@@ -12,12 +12,12 @@ public class QueryFile {
 	/**
 	 * The name of the PepNovo query output file.
 	 */
-	private String filename;
+	private final String filename;
 	
 	/**
 	 * The list of query entries.
 	 */
-	private List<QueryEntry> queryEntries;
+	private final List<QueryEntry> queryEntries;
 
 	/**
 	 * QueryFile gets filename and queryEntries as parameters.
@@ -34,7 +34,7 @@ public class QueryFile {
 	 * @return query filename.
 	 */
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 	
 	/**
@@ -42,6 +42,6 @@ public class QueryFile {
 	 * @return Query entries.
 	 */
 	public List<QueryEntry> getQueryEntries() {
-		return queryEntries;
+		return this.queryEntries;
 	}
 }

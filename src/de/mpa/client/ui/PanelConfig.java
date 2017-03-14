@@ -10,11 +10,10 @@ import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 
+import de.mpa.client.Constants;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.Painter;
-
-import de.mpa.client.Constants.UIColor;
 
 /**
  * Helper class for the panel configuration such as JXTitledPanel.
@@ -53,47 +52,47 @@ public class PanelConfig {
 		
 		// Titled panel variables
 		JXTitledPanel dummyPnl = new JXTitledPanel(" ");
-		
-		ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
+
+        PanelConfig.ttlFont = dummyPnl.getTitleFont().deriveFont(Font.BOLD);
 		
 		Color dummyCol = new Color(0);
 		GradientPaint paint = new GradientPaint(0, 0, dummyCol, 0, 1, dummyCol) {
 			@Override
 			public Color getColor1() {
-				return UIColor.TITLED_PANEL_START_COLOR.getColor();
+				return Constants.UIColor.TITLED_PANEL_START_COLOR.getColor();
 			}
 			@Override
 			public Color getColor2() {
-				return UIColor.TITLED_PANEL_END_COLOR.getColor();
+				return Constants.UIColor.TITLED_PANEL_END_COLOR.getColor();
 			}
 		};
 		ttlPainter = new MattePainter(paint, true);
-		
+
 		ttlBorder = UIManager.getBorder("TitledBorder.border");
-		
+
 //		ttlForeground = dummyPnl.getTitleForeground();
-		ttlForeground = UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor();
+		ttlForeground = Constants.UIColor.TITLED_PANEL_FONT_COLOR.getDelegateColor();
 	}
 
 	public static Font getTitleFont() {
-		if (ttlFont == null) init();
-		return ttlFont;
+		if (PanelConfig.ttlFont == null) PanelConfig.init();
+		return PanelConfig.ttlFont;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static Painter getTitlePainter() {
-		if (ttlPainter == null) init();
-		return ttlPainter;
+		if (PanelConfig.ttlPainter == null) PanelConfig.init();
+		return PanelConfig.ttlPainter;
 	}
 
 	public static Border getTitleBorder() {
-		if (ttlBorder == null) init();
-		return ttlBorder;
+		if (PanelConfig.ttlBorder == null) PanelConfig.init();
+		return PanelConfig.ttlBorder;
 	}
 
 	public static Color getTitleForeground() {
-		if (ttlForeground == null) init();
-		return ttlForeground;
+		if (PanelConfig.ttlForeground == null) PanelConfig.init();
+		return PanelConfig.ttlForeground;
 	}
 	
 	/**
@@ -103,7 +102,7 @@ public class PanelConfig {
 	 * @return A pre-formatted titled panel.
 	 */
 	public static JXTitledPanel createTitledPanel(String title, Container content) {
-		return createTitledPanel(title, content, null, null);
+		return PanelConfig.createTitledPanel(title, content, null, null);
 	}
 	
 	/**
@@ -125,7 +124,7 @@ public class PanelConfig {
 		};
 		panel.setLeftDecoration(leftDecoration);
 		panel.setRightDecoration(rightDecoration);
-		decorate(panel);
+        PanelConfig.decorate(panel);
 		return panel;
 	}
 	
@@ -135,8 +134,8 @@ public class PanelConfig {
 	 * @param panel the titled panel to decorate
 	 */
 	public static void decorate(JXTitledPanel panel) {
-		panel.setTitleFont(getTitleFont());
-		panel.setTitlePainter(getTitlePainter());
-		panel.setBorder(getTitleBorder());
+		panel.setTitleFont(PanelConfig.getTitleFont());
+		panel.setTitlePainter(PanelConfig.getTitlePainter());
+		panel.setBorder(PanelConfig.getTitleBorder());
 	}
 }

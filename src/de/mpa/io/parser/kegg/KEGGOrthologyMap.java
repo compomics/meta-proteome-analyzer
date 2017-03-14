@@ -26,7 +26,7 @@ public class KEGGOrthologyMap extends KEGGMap {
 	@SuppressWarnings("unchecked")
 	protected void mapLeaves() {
 		// iterate all tree nodes
-		Enumeration<KEGGOrthologyNode> dfe = this.getRoot().depthFirstEnumeration();
+		Enumeration<KEGGOrthologyNode> dfe = getRoot().depthFirstEnumeration();
 		while (dfe.hasMoreElements()) {
 			KEGGOrthologyNode child = dfe.nextElement();
 			// only leaf nodes are of interest
@@ -34,14 +34,14 @@ public class KEGGOrthologyMap extends KEGGMap {
 				// extract K number
 				String name = child.getName();
 				// add K number mapping
-				this.addMapping(name, child);
+                addMapping(name, child);
 				
 				// extract E.C. numbers
 				List<String> ecNumbers = child.getECNumbers();
 				if (ecNumbers != null) {
 					for (String ecNumber : ecNumbers) {
 						// add E.C. mapping
-						addMapping(ecNumber, child);
+                        this.addMapping(ecNumber, child);
 					}
 				}
 			}

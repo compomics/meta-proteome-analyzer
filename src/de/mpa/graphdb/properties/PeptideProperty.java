@@ -8,7 +8,7 @@ public enum PeptideProperty implements ElementProperty {
 	MOLECULARWEIGHT("Molecular Weight (kDa)"),
 	PROTEINCOUNT("Protein Count");	
 	
-	PeptideProperty(final String propertyName){
+	PeptideProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -16,6 +16,6 @@ public enum PeptideProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

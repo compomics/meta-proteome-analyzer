@@ -17,8 +17,8 @@ public class OmssaScoreWriter {
 	
 	private OmssaOmxFile omxFileTarget; 
 	private OmssaOmxFile omxFileDecoy;
-	private File targetFile;
-	private File decoyFile;
+	private final File targetFile;
+	private final File decoyFile;
 	
 	/**
 	 * Constructor the omssa score extractor.
@@ -37,11 +37,11 @@ public class OmssaScoreWriter {
 	protected void writeTabfile(File tabfile) throws IOException {
 		
 		FileWriter writer = new FileWriter(tabfile);
-		
-		omxFileTarget = new OmssaOmxFile(targetFile.getAbsolutePath());
+
+        this.omxFileTarget = new OmssaOmxFile(this.targetFile.getAbsolutePath());
 			
 		 // Initialize the spectrum iterators
-        HashMap<MSSpectrum, MSHitSet> targetResults = omxFileTarget.getSpectrumToHitSetMap();
+        HashMap<MSSpectrum, MSHitSet> targetResults = this.omxFileTarget.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> targetIter = targetResults.keySet().iterator();
     	
     	
@@ -136,14 +136,14 @@ public class OmssaScoreWriter {
     	    	writer.write("\n");
     	    }
     	}
-    	
-    	omxFileTarget = null;
+
+        this.omxFileTarget = null;
     	targetResults = null;
     	targetIter = null;
     	
     	// Decoy
-    	omxFileDecoy = new OmssaOmxFile(decoyFile.getAbsolutePath());
-    	HashMap<MSSpectrum, MSHitSet> decoyResults = omxFileDecoy.getSpectrumToHitSetMap();
+        this.omxFileDecoy = new OmssaOmxFile(this.decoyFile.getAbsolutePath());
+    	HashMap<MSSpectrum, MSHitSet> decoyResults = this.omxFileDecoy.getSpectrumToHitSetMap();
     	Iterator<MSSpectrum> decoyIter = decoyResults.keySet().iterator();  	
     	
     	// Decoy hits
@@ -196,8 +196,8 @@ public class OmssaScoreWriter {
     	}
     	writer.flush();
     	writer.close();
-    	
-    	omxFileDecoy = null;
+
+        this.omxFileDecoy = null;
     	decoyResults = null;
     	decoyIter = null;
    	}	

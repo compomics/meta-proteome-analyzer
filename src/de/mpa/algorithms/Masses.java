@@ -59,55 +59,55 @@ public class Masses {
 	 */
 	public static void init(){
 		// The 20 amino acids in the map.
-		aaMap = new HashMap<Character, Double>(20);
+        Masses.aaMap = new HashMap<Character, Double>(20);
 		// Fill the map
 		// Alanine
-		aaMap.put('A', 71.037110);
+        Masses.aaMap.put('A', 71.037110);
 		// Cysteine
-		aaMap.put('C', 160.030649);
+        Masses.aaMap.put('C', 160.030649);
 		// Aspartic Acid
-		aaMap.put('D', 115.026940);
+        Masses.aaMap.put('D', 115.026940);
 		// Glutatmatic Acid
-		aaMap.put('E', 129.042590);
+        Masses.aaMap.put('E', 129.042590);
 		// Phenylalanine
-		aaMap.put('F', 147.068410);
+        Masses.aaMap.put('F', 147.068410);
 		// Glycin
-		aaMap.put('G', 57.021460);
+        Masses.aaMap.put('G', 57.021460);
 		// Histidine
-		aaMap.put('H', 137.0589116);
+        Masses.aaMap.put('H', 137.0589116);
 		// Isoleucine
-		aaMap.put('I', 113.084060);
+        Masses.aaMap.put('I', 113.084060);
 		// Leucine
-		aaMap.put('L', 113.084060);
+        Masses.aaMap.put('L', 113.084060);
 		// Lysine
-		aaMap.put('K', 128.094963);
+        Masses.aaMap.put('K', 128.094963);
 		// Methionine
-		aaMap.put('M', 131.040490);
+        Masses.aaMap.put('M', 131.040490);
 		// Asparagine
-		aaMap.put('N', 114.042930);
+        Masses.aaMap.put('N', 114.042930);
 		// Proline
-		aaMap.put('P', 97.052760);
+        Masses.aaMap.put('P', 97.052760);
 		// Glutamine
-		aaMap.put('Q', 128.058580);
+        Masses.aaMap.put('Q', 128.058580);
 		// Arginine
-		aaMap.put('R', 156.101110);
+        Masses.aaMap.put('R', 156.101110);
 		// Serine
-		aaMap.put('S', 87.032030);
+        Masses.aaMap.put('S', 87.032030);
 		// Threonine
-		aaMap.put('T', 101.047680);
+        Masses.aaMap.put('T', 101.047680);
 		// Valine
-		aaMap.put('V', 99.068410);
+        Masses.aaMap.put('V', 99.068410);
 		// Tryptophan
-		aaMap.put('W', 186.079310);
+        Masses.aaMap.put('W', 186.079310);
 		// Tyrosine
-		aaMap.put('Y', 163.063330);	
+        Masses.aaMap.put('Y', 163.063330);
 		
 		// Add the keys to the letters.
-		letters.addAll(aaMap.keySet());
+        Masses.letters.addAll(Masses.aaMap.keySet());
 		
 		// Trypsin main cleaves Lysine or Arginine
-		trypticLetters.add('K');
-		trypticLetters.add('R');
+        Masses.trypticLetters.add('K');
+        Masses.trypticLetters.add('R');
 	}
 }
 

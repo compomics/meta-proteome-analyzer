@@ -12,8 +12,8 @@ import de.mpa.io.parser.mascot.xml.MascotXMLParser;
 
 public class MascotResultExporter {
 	
-	private File mgfFile;
-	private File xmlFile;
+	private final File mgfFile;
+	private final File xmlFile;
 	private MascotXMLParser parser; 
 	
 	public MascotResultExporter(File mgfFile, File xmlFile) {
@@ -23,14 +23,14 @@ public class MascotResultExporter {
 	
 	public void export(String outputFile) throws IOException{
 		FileWriter writer = new FileWriter(new File(outputFile));
+
+        this.parser = new MascotXMLParser(this.xmlFile);
 		
-		parser = new MascotXMLParser(xmlFile);
-		
-		MascotGenericFileReader reader = new MascotGenericFileReader(mgfFile);
+		MascotGenericFileReader reader = new MascotGenericFileReader(this.mgfFile);
 		List<MascotGenericFile> mgfList = reader.getSpectrumFiles();
 		
 		// MascotRecord
-		MascotRecord record = parser.parse();
+		MascotRecord record = this.parser.parse();
 		
 		Map<String, List<MascotPeptideHit>> pepMap = record.getPeptideMap();
 		// Iterate over all spectra.

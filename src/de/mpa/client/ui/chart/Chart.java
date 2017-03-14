@@ -16,7 +16,7 @@ public abstract class Chart {
     /**
      * The chart instance.
      */
-    protected JFreeChart chart = null;
+    protected JFreeChart chart;
     
     /**
      * Chart title.
@@ -38,8 +38,8 @@ public abstract class Chart {
     	this.chartType = chartType;
     	
         if (data != null) {
-            process(data);
-            setChart(data);
+            this.process(data);
+            this.setChart(data);
         }
     }
 
@@ -61,7 +61,7 @@ public abstract class Chart {
      * @return the title of the chart
      */
     public String getChartTitle() {
-    	return chartTitle;
+    	return this.chartTitle;
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class Chart {
      * @return JFreeChart the chart object
      */
     public final JFreeChart getChart() {
-        return chart;
+        return this.chart;
     }
     
     /**
@@ -78,7 +78,7 @@ public abstract class Chart {
      * @return Chart type 
      */
 	public ChartType getChartType() {
-		return chartType;
+		return this.chartType;
 	}
 }
 

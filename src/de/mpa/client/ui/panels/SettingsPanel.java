@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -53,7 +53,6 @@ import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.storager.MascotStorager;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.io.MascotGenericFileReader.LoadMode;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.util.PropertyLoader;
 
@@ -97,7 +96,7 @@ public class SettingsPanel extends JPanel {
 	 * @throws IOException 
 	 */
 	public SettingsPanel() {
-		this.initComponents();
+        initComponents();
 	}
 
 	/**
@@ -106,17 +105,17 @@ public class SettingsPanel extends JPanel {
 	 */
 	private void initComponents() {
 
-		Set<AWTKeyStroke> forwardKeys = getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
+		Set<AWTKeyStroke> forwardKeys = this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
 		Set<AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);
 		newForwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-		setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
-		this.setLayout(new BorderLayout());
+        this.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
+        setLayout(new BorderLayout());
 
 		// database search settings panel
 		JPanel settingsPnl = new JPanel(new FormLayout("p", "f:p:g, 5dlu, p"));
 
-		databasePnl = new DatabaseSearchSettingsPanel();
-		this.specLibPnl = databasePnl.getSpectralLibrarySettingsPanel();
+        this.databasePnl = new DatabaseSearchSettingsPanel();
+        specLibPnl = this.databasePnl.getSpectralLibrarySettingsPanel();
 
 		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
 
@@ -164,16 +163,16 @@ public class SettingsPanel extends JPanel {
 		
 		
 		// Button for batch search
-		batchBtn = new JButton("Search Files", IconConstants.SAVE_FILE_ICON);
-		batchBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
-		batchBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
-		batchBtn.setEnabled(true);
-		batchBtn.setToolTipText("Press button to select and process several .mgf or .dat files" +
+        this.batchBtn = new JButton("Search Files", IconConstants.SAVE_FILE_ICON);
+        this.batchBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
+        this.batchBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
+        this.batchBtn.setEnabled(true);
+        this.batchBtn.setToolTipText("Press button to select and process several .mgf or .dat files" +
 				" and store each file in a separate experiment.");
-		batchBtn.addActionListener(new ActionListener() {
+        this.batchBtn.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent evt) {
-				final JFileChooser fc = new JFileChooser();
+				JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(new MultiExtensionFileFilter(
 						"All supported formats (*.mgf, *.dat)",
 						Constants.MGF_FILE_FILTER,
@@ -187,10 +186,10 @@ public class SettingsPanel extends JPanel {
 					// reset progress
 					Client client = Client.getInstance();
 					// appear busy
-					firePropertyChange("progress", null, 0);
-					batchBtn.setEnabled(false);
+                    SettingsPanel.this.firePropertyChange("progress", null, 0);
+                    SettingsPanel.this.batchBtn.setEnabled(false);
 //					quickBtn.setEnabled(false);
-					searchBtn.setEnabled(false);
+                    SettingsPanel.this.searchBtn.setEnabled(false);
 					// Disable further actions until loading is finished
 					ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					// Get selected experiment
@@ -253,27 +252,27 @@ public class SettingsPanel extends JPanel {
 //		quickBtn.setEnabled(true);
 
 		// create process button
-		searchBtn = new JButton("Search selected spectra", IconConstants.SEARCH_ICON);
-		searchBtn.setRolloverIcon(IconConstants.SEARCH_ROLLOVER_ICON);
-		searchBtn.setPressedIcon(IconConstants.SEARCH_PRESSED_ICON);
-		searchBtn.setFont(searchBtn.getFont().deriveFont(Font.BOLD, searchBtn.getFont().getSize2D()*1.25f));
-		searchBtn.addActionListener(new ActionListener() {			
+        this.searchBtn = new JButton("Search selected spectra", IconConstants.SEARCH_ICON);
+        this.searchBtn.setRolloverIcon(IconConstants.SEARCH_ROLLOVER_ICON);
+        this.searchBtn.setPressedIcon(IconConstants.SEARCH_PRESSED_ICON);
+        this.searchBtn.setFont(this.searchBtn.getFont().deriveFont(Font.BOLD, this.searchBtn.getFont().getSize2D()*1.25f));
+        this.searchBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				new ProcessWorker().execute();
 			}
 		});
-		searchBtn.setEnabled(true);
+        this.searchBtn.setEnabled(true);
 
 //		buttonPnl.add(connectBtn, CC.xy(2, 2));
-		buttonPnl.add(batchBtn, CC.xy(4, 2));
+		buttonPnl.add(this.batchBtn, CC.xy(4, 2));
 //		buttonPnl.add(quickBtn, CC.xy(6, 2));
-		buttonPnl.add(searchBtn, CC.xy(8, 2));
+		buttonPnl.add(this.searchBtn, CC.xy(8, 2));
 
-		settingsPnl.add(databasePnl, CC.xy(1, 1));
+		settingsPnl.add(this.databasePnl, CC.xy(1, 1));
 		settingsPnl.add(buttonPnl, CC.xy(1, 3));
 
 		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel("Search Settings", settingsPnl);
-		this.add(dbTtlPnl, BorderLayout.CENTER);
+        add(dbTtlPnl, BorderLayout.CENTER);
 	}
 
 	/**
@@ -292,24 +291,24 @@ public class SettingsPanel extends JPanel {
 				Client client = Client.getInstance();
 				client.firePropertyChange("resetall", 0L, (long) (checkBoxTree.getCheckBoxTreeSelectionModel()).getSelectionCount());
 				// appear busy
-				firePropertyChange("progress", null, 0);
-				searchBtn.setEnabled(false);
+                this.firePropertyChange("progress", null, 0);
+                SettingsPanel.this.searchBtn.setEnabled(false);
 				ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
 					// Pack and send files.
 					client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-					long packSize = databasePnl.getPackageSize();
+					long packSize = SettingsPanel.this.databasePnl.getPackageSize();
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 					List<String> filenames = null;
 					// Collect search settings.
-					DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-					SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+					DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
+					SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
 					SearchSettings settings = new SearchSettings(dbss, sss, experimentID);
 					// FIXME: Please change that and get files from file tree.
 					if (dbss.isMascot()) {		
 						// Get Instance of a fastaLoader
 						FastaLoader fastaLoader = FastaLoader.getInstance();
-						String fastaFilePath = getFastaPath();
+						String fastaFilePath = SettingsPanel.this.getFastaPath();
 						if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
 
 							fastaLoader.setFastaFile(new File(fastaFilePath));
@@ -327,7 +326,7 @@ public class SettingsPanel extends JPanel {
 						for (File datFile : datFiles) {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + datFiles.size());
 							// store mascot results
-							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, databasePnl.getMascotParameterMap(), fastaLoader);
+							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), datFile, settings, SettingsPanel.this.databasePnl.getMascotParameterMap(), fastaLoader);
 							storager.run();
 							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + datFiles.size());
 						}
@@ -356,7 +355,7 @@ public class SettingsPanel extends JPanel {
 		@Override
 		public void done() {
 			ClientFrame.getInstance().setCursor(null);
-			searchBtn.setEnabled(true);
+            SettingsPanel.this.searchBtn.setEnabled(true);
 		}
 	}
 
@@ -372,7 +371,7 @@ public class SettingsPanel extends JPanel {
 		/**
 		 * Map with experiments and the associated files.
 		 */
-		private LinkedHashMap<Long, File>expFileMap;
+		private final LinkedHashMap<Long, File>expFileMap;
 
 		/**
 		 * Constructor for a batch with a map of experiments and files
@@ -384,49 +383,49 @@ public class SettingsPanel extends JPanel {
 
 		protected Object doInBackground() {
 			Client client = Client.getInstance();
-			searchBtn.setEnabled(false);
+            SettingsPanel.this.searchBtn.setEnabled(false);
 			ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			try {
 				// Pack and send files.
 				client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 				@SuppressWarnings("unused")
-				long packSize = databasePnl.getPackageSize();
+				long packSize = SettingsPanel.this.databasePnl.getPackageSize();
 				@SuppressWarnings("unused")
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 				// Collect search settings.
-				DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-				SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+				DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
+				SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
 				SearchSettings settings = new SearchSettings(dbss, sss, 1L);
 				if (dbss.isMascot()) {
 					// Get Instance of a fastaLoader
 					FastaLoader fastaLoader = FastaLoader.getInstance();
-					String fastaFilePath = getFastaPath();
+					String fastaFilePath = SettingsPanel.this.getFastaPath();
 					if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
 						// we only need to point to the correct file, the rest is now done during parsing
 						fastaLoader.setFastaFile(new File(fastaFilePath));
 					}else{
 						fastaLoader = null;
 					}
-					client.firePropertyChange("resetall", 0, expFileMap.size());
+					client.firePropertyChange("resetall", 0, this.expFileMap.size());
 					int i = 0; // Flag for number of dat-files
-					for (Entry<Long, File> datFileEntry : expFileMap.entrySet()) {
+					for (Map.Entry<Long, File> datFileEntry : expFileMap.entrySet()) {
 						if (datFileEntry.getValue().getName().contains(".dat")) {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
 							// Store Mascot results
 							settings.setExpID(datFileEntry.getKey());
 
-							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(), 
+							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(),
 									datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
 							storager.run();
 							client.firePropertyChange("new message", null, "FINISHED STORING MASCOT FILE " + i + "/" + expFileMap.size());
 						}
 					}
 				}
-				
+
 				// quicksearch code start __qvalued
 				
-				
-				for (Entry<Long, File> fileEntry : expFileMap.entrySet()) {
+
+				for (Map.Entry<Long, File> fileEntry : this.expFileMap.entrySet()) {
 					if (fileEntry.getValue().getName().contains(".mgf")) {
 						List<String> filenames = new ArrayList<String>();
 						settings.setExpID(fileEntry.getKey());
@@ -434,7 +433,7 @@ public class SettingsPanel extends JPanel {
 						FileOutputStream fos = null;
 						client.firePropertyChange("indeterminate", false, true);
 						client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-						MascotGenericFileReader reader = new MascotGenericFileReader(fileEntry.getValue(), LoadMode.SURVEY);
+						MascotGenericFileReader reader = new MascotGenericFileReader(fileEntry.getValue(), MascotGenericFileReader.LoadMode.SURVEY);
 						client.firePropertyChange("indeterminate", true, false);
 						client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
 						List<Long> positions = reader.getSpectrumPositions(false);
@@ -469,7 +468,7 @@ public class SettingsPanel extends JPanel {
 						batchFile.delete();
 						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 						client.firePropertyChange("new message", null, "SEARCH FOR " + mgffilename +  " RUNNING");
-						// dispatch search request		
+						// dispatch search request
 						client.firePropertyChange("indeterminate", false, true);
 						client.runSearches(filenames, settings);
 						client.firePropertyChange("indeterminate", true, false);
@@ -478,9 +477,9 @@ public class SettingsPanel extends JPanel {
 				return null;
 								
 				// quicksearch code end
-				
-				
-				
+
+
+
 				// TODO: CODE for runnning mulitiple database search jobs .... not working yet
 				// Start database searches
 //				if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
@@ -531,10 +530,10 @@ public class SettingsPanel extends JPanel {
 //						batchFile.delete();
 //						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
 //						for (String str : mgfFileNames) {
-//							System.out.println("RunSearches on Files>" +str +" " + settings.getExpID());							
+//							System.out.println("RunSearches on Files>" +str +" " + settings.getExpID());
 //						}
 //						//client.runSearches(mgfFileNames, settings);
-//						
+//
 //						//////////////////
 //						// Update expFileMap to the sended filename of the server
 //						expFileMap.put(mgfSearch.getKey(), mgfSearch.getValue());
@@ -581,17 +580,17 @@ public class SettingsPanel extends JPanel {
 			Client client = Client.getInstance();
 			List<String> filenames = new ArrayList<String>();
 			for (File file : this.files) {
-				String mgffilename = file.getName();								
-				FileOutputStream fos = null;				
+				String mgffilename = file.getName();
+				FileOutputStream fos = null;
 				client.firePropertyChange("indeterminate", false, true);
 				client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-				MascotGenericFileReader reader = new MascotGenericFileReader(file, LoadMode.SURVEY);
+				MascotGenericFileReader reader = new MascotGenericFileReader(file, MascotGenericFileReader.LoadMode.SURVEY);
 				client.firePropertyChange("indeterminate", true, false);
 				client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
 				List<Long> positions = reader.getSpectrumPositions(false);
 				long numSpectra = 0L;
 				long maxSpectra = (long) positions.size();
-				long packageSize = databasePnl.getPackageSize();
+				long packageSize = SettingsPanel.this.databasePnl.getPackageSize();
 				client.firePropertyChange("resetall", 0L, maxSpectra);
 				client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
 				// iterate over all spectra
@@ -608,13 +607,13 @@ public class SettingsPanel extends JPanel {
 						filenames.add(batchFile.getName());
 						fos = new FileOutputStream(batchFile);
 						long remaining = maxSpectra - numSpectra;
-						firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
+                        this.firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
 					}
 	
 					MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
 					mgf.writeToStream(fos);
 					fos.flush();
-					firePropertyChange("progressmade", 0L, ++numSpectra);
+                    this.firePropertyChange("progressmade", 0L, ++numSpectra);
 				}
 				fos.close();
 				client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
@@ -623,8 +622,8 @@ public class SettingsPanel extends JPanel {
 			}
 			
 			// collect search settings
-			DbSearchSettings dbss = (databasePnl.isEnabled()) ? databasePnl.gatherDBSearchSettings() : null;
-			SpecSimSettings sss = (specLibPnl.isEnabled()) ? specLibPnl.gatherSpecSimSettings() : null;
+			DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
+			SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
 			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request		
@@ -640,7 +639,7 @@ public class SettingsPanel extends JPanel {
 	 * @return the database search settings panel
 	 */
 	public DatabaseSearchSettingsPanel getDatabaseSearchSettingsPanel() {
-		return databasePnl;
+		return this.databasePnl;
 	}
 
 	/**
@@ -650,7 +649,7 @@ public class SettingsPanel extends JPanel {
 	private String getFastaPath() {
 		String fastaFilePath = null;
 		// Get Fasta path to store the amino acid sequence
-		if (((Boolean)databasePnl.getMascotParameterMap().get("useFasta").getValue()).booleanValue()) {
+		if (((Boolean) this.databasePnl.getMascotParameterMap().get("useFasta").getValue()).booleanValue()) {
 			JFileChooser chooser = new ConfirmFileChooser();
 			chooser.setFileFilter(Constants.FASTA_FILE_FILTER);
 			int returnVal = chooser.showOpenDialog(ClientFrame.getInstance());

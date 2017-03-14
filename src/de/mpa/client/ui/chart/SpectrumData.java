@@ -13,12 +13,12 @@ public class SpectrumData {
 	/**
 	 * List of spectra.
 	 */
-	private List<MascotGenericFile> spectra;
+	private final List<MascotGenericFile> spectra;
 	
 	/**
 	 * The MGF filename.
 	 */
-	private String filename;
+	private final String filename;
 	
 	/**
 	 * SpectrumData constructor. 
@@ -34,7 +34,7 @@ public class SpectrumData {
 	 * @return The list of spectra. 
 	 */
 	public List<MascotGenericFile> getSpectra() {
-		return spectra;
+		return this.spectra;
 	}
 	
 	/**
@@ -42,6 +42,6 @@ public class SpectrumData {
 	 * @return The filename. 
 	 */
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 }

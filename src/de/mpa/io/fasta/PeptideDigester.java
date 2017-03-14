@@ -20,26 +20,25 @@ import org.apache.log4j.Logger;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
-import de.mpa.io.fasta.DigFASTAEntry.Type;
 import de.mpa.util.PropertyLoader;
 
 public class PeptideDigester {
 
-	private DB database = null;
+	private DB database;
 
-	private Map<String, HashSet<String>> peptideToProteinMap = null;
+	private Map<String, HashSet<String>> peptideToProteinMap;
 
 	private AtomicInteger proteinNumber;
 	private AtomicInteger peptideNumber;
 	private AtomicInteger peptideNumberUnique;
 
-	private Logger log = Logger.getLogger(getClass());
+	private final Logger log = Logger.getLogger(this.getClass());
 
 	public PeptideDigester() {
 
-		peptideNumberUnique = new AtomicInteger();
-		peptideNumber = new AtomicInteger();
-		proteinNumber = new AtomicInteger();
+        this.peptideNumberUnique = new AtomicInteger();
+        this.peptideNumber = new AtomicInteger();
+        this.proteinNumber = new AtomicInteger();
 	}
 
 	/**
@@ -50,7 +49,7 @@ public class PeptideDigester {
 	 */
 	public void parsePeptideDB(String inFile) {
 		try {
-			log.info("Parsing digested FASTA >> " + inFile);
+            this.log.info("Parsing digested FASTA >> " + inFile);
 			long time = System.currentTimeMillis();
 			SimpleDateFormat timeformat = new SimpleDateFormat("mm:ss");
 
@@ -59,17 +58,17 @@ public class PeptideDigester {
 					inFile.lastIndexOf(File.separator))
 					+ File.separator + "temp" + File.separator);
 			tempDir.mkdir();
-			if (database != null) {
-				database.close();
+			if (this.database != null) {
+                this.database.close();
 			}
-			database = DBMaker
+            this.database = DBMaker
 					.newFileDB(new File(tempDir + File.separator + "mapdata"))
 					.transactionDisable().closeOnJvmShutdown()
 					.deleteFilesAfterClose().mmapFileEnableIfSupported().make();
-			peptideToProteinMap = database.createTreeMap("peptoprot").make();
+            this.peptideToProteinMap = this.database.createTreeMap("peptoprot").make();
 
 			// Parse the peptide database file
-			log.info("Parsing sequences and accessions ..");
+            this.log.info("Parsing sequences and accessions ..");
 
 			BufferedReader reader = new BufferedReader(new FileReader(inFile));
 			String line;
@@ -83,10 +82,10 @@ public class PeptideDigester {
 						proteins.add(split[i]);
 					}
 					// Add the data to the map
-					peptideToProteinMap.put(sequence, proteins);
+                    this.peptideToProteinMap.put(sequence, proteins);
 				}
 			}
-			log.info("..  done. This took "
+            this.log.info("..  done. This took "
 					+ timeformat.format(new Date(System.currentTimeMillis()
 							- time)) + "min.");
 			reader.close();
@@ -104,13 +103,13 @@ public class PeptideDigester {
 	 * @return Set of protein accession strings.
 	 */
 	public HashSet<String> getProteinsFromPeptideSequence(String sequence) {
-		if (peptideToProteinMap.isEmpty()) {
+		if (this.peptideToProteinMap.isEmpty()) {
 			return null;
 		} else {
-			if (!peptideToProteinMap.containsKey(sequence)) {
+			if (!this.peptideToProteinMap.containsKey(sequence)) {
 				return new HashSet<String>();
 			}
-			return new HashSet<String>(peptideToProteinMap.get(sequence));
+			return new HashSet<String>(this.peptideToProteinMap.get(sequence));
 		}
 	}
 
@@ -277,7 +276,7 @@ public class PeptideDigester {
 					DigFASTAEntry protein_entry = DigFASTAEntryParser.parseEntry(header, sequence);
 					
 					// digest protein
-					List<DigFASTAEntry> peptides = Arrays.asList(digestEntry(protein_entry, missedCleavage, minLength, maxLength));
+					List<DigFASTAEntry> peptides = Arrays.asList(this.digestEntry(protein_entry, missedCleavage, minLength, maxLength));
 
 					// write protein identifier + linebreak
 					writer_1.write(">" + protein_entry.getIdentifier() + "\n");
@@ -398,20 +397,20 @@ public class PeptideDigester {
 				inFile.lastIndexOf(File.separator))
 				+ File.separator + "temp" + File.separator);
 		tempDir.mkdir();
-		database = DBMaker
+        this.database = DBMaker
 				.newFileDB(new File(tempDir + File.separator + "mapdata"))
 				.transactionDisable().closeOnJvmShutdown()
 				.deleteFilesAfterClose().mmapFileEnableIfSupported().make();
-		peptideToProteinMap = database.createTreeMap("peptoprot").make();
-		peptideNumberUnique = new AtomicInteger();
-		peptideNumber = new AtomicInteger();
-		proteinNumber = new AtomicInteger();
+        this.peptideToProteinMap = this.database.createTreeMap("peptoprot").make();
+        this.peptideNumberUnique = new AtomicInteger();
+        this.peptideNumber = new AtomicInteger();
+        this.proteinNumber = new AtomicInteger();
 
-		log.info("Parsing and processing sequences ..");
+        this.log.info("Parsing and processing sequences ..");
 		// Count the number of protein entries
-		proteinNumber.set(proteinNumber.get()
+        this.proteinNumber.set(this.proteinNumber.get()
 				+ DigFASTAEntryParser.countEntries(inFile));
-		log.info("  parsed " + proteinNumber.get() + " protein entries.");
+        this.log.info("  parsed " + this.proteinNumber.get() + " protein entries.");
 
 		try {
 			File file = new File(inFile);
@@ -444,20 +443,20 @@ public class PeptideDigester {
 
 						if (missedCleavage >= 0) {
 							// Process Entry
-							DigFASTAEntry[] peptides = digestEntry(entry,
+							DigFASTAEntry[] peptides = this.digestEntry(entry,
 									missedCleavage, minLength, maxLength);
 							for (int j = 0; j < peptides.length; j++) {
 								// Note peptide to protein relation
 								String pep = peptides[j].getSequence();
-								if (peptideToProteinMap.containsKey(pep)) {
-									peptideToProteinMap.get(pep).add(
+								if (this.peptideToProteinMap.containsKey(pep)) {
+                                    this.peptideToProteinMap.get(pep).add(
 											entry.getIdentifier());
 								} else {
 									HashSet<String> newSet = new HashSet<>();
 									newSet.add(entry.getIdentifier());
-									peptideToProteinMap.put(pep, newSet);
+                                    this.peptideToProteinMap.put(pep, newSet);
 									// new sequence
-									peptideNumberUnique.incrementAndGet();
+                                    this.peptideNumberUnique.incrementAndGet();
 								}
 							}
 						}
@@ -465,12 +464,12 @@ public class PeptideDigester {
 				}
 				// Close the reader
 				reader.close();
-				database.commit();
-				log.info("  created " + peptideNumber.get()
+                this.database.commit();
+                this.log.info("  created " + this.peptideNumber.get()
 						+ " total peptides.");
-				log.info("  and found " + peptideNumberUnique.get()
+                this.log.info("  and found " + this.peptideNumberUnique.get()
 						+ " unique sequences.");
-				log.info("..  done. This took "
+                this.log.info("..  done. This took "
 						+ timeformat.format(new Date(System.currentTimeMillis()
 								- time)) + "min.");
 			}
@@ -490,16 +489,16 @@ public class PeptideDigester {
 	private DigFASTAEntry[] digestEntry(DigFASTAEntry entry,
 			int missedCleavages, int minlength, int maxLength) {
 
-		List<String> cleavedPeptides = trypticCleave(entry.getSequence(),
+		List<String> cleavedPeptides = PeptideDigester.trypticCleave(entry.getSequence(),
 				missedCleavages, minlength, maxLength);
 
 		// Result list
 		DigFASTAEntry[] results = new DigFASTAEntry[cleavedPeptides.size()];
 		int i = 0;
 		for (String peptide : cleavedPeptides) {
-			String identifier = String.valueOf(peptideNumber.incrementAndGet());
+			String identifier = String.valueOf(this.peptideNumber.incrementAndGet());
 			results[i] = new DigFASTAEntry(identifier, identifier, "", peptide,
-					Type.SILICO_PEPTIDE, new ArrayList<String>());
+					DigFASTAEntry.Type.SILICO_PEPTIDE, new ArrayList<String>());
 
 			i++;
 		}
@@ -558,7 +557,7 @@ public class PeptideDigester {
 	 */
 	public int[] getPeptideRedundancyHistogram() {
 		int[] histo = new int[1000000];
-		for (java.util.Map.Entry<String, HashSet<String>> entry : peptideToProteinMap
+		for (Map.Entry<String, HashSet<String>> entry : this.peptideToProteinMap
 				.entrySet()) {
 			int count = entry.getValue().size();
 			histo[count] = histo[count] + 1;

@@ -32,7 +32,7 @@ public class InspectHit {
     private double precursorMZError;
 
     public long getScanNumber() {
-        return scanNumber;
+        return this.scanNumber;
     }
 
     public void setScanNumber(long scanNumber) {
@@ -40,7 +40,7 @@ public class InspectHit {
     }
 
     public String getAnnotation() {
-        return annotation;
+        return this.annotation;
     }
 
     public void setAnnotation(String annotation) {
@@ -48,7 +48,7 @@ public class InspectHit {
     }
 
     public String getProtein() {
-        return protein;
+        return this.protein;
     }
 
     public void setProtein(String protein) {
@@ -56,7 +56,7 @@ public class InspectHit {
     }
 
     public int getCharge() {
-        return charge;
+        return this.charge;
     }
 
     public void setCharge(int charge) {
@@ -64,7 +64,7 @@ public class InspectHit {
     }
 
     public double getMqScore() {
-        return mqScore;
+        return this.mqScore;
     }
 
     public void setMqScore(double mqScore) {
@@ -72,7 +72,7 @@ public class InspectHit {
     }
 
     public int getLength() {
-        return length;
+        return this.length;
     }
 
     public void setLength(int length) {
@@ -80,7 +80,7 @@ public class InspectHit {
     }
 
     public double getTotalPRMScore() {
-        return totalPRMScore;
+        return this.totalPRMScore;
     }
 
     public void setTotalPRMScore(double totalPRMScore) {
@@ -88,7 +88,7 @@ public class InspectHit {
     }
 
     public double getMedianPRMScore() {
-        return medianPRMScore;
+        return this.medianPRMScore;
     }
 
     public void setMedianPRMScore(double medianPRMScore) {
@@ -96,7 +96,7 @@ public class InspectHit {
     }
 
     public double getFractionY() {
-        return fractionY;
+        return this.fractionY;
     }
 
     public void setFractionY(double fractionY) {
@@ -104,7 +104,7 @@ public class InspectHit {
     }
 
     public double getFractionB() {
-        return fractionB;
+        return this.fractionB;
     }
 
     public void setFractionB(double fractionB) {
@@ -112,7 +112,7 @@ public class InspectHit {
     }
 
     public double getIntensity() {
-        return intensity;
+        return this.intensity;
     }
 
     public void setIntensity(double intensity) {
@@ -120,7 +120,7 @@ public class InspectHit {
     }
 
     public double getNtt() {
-        return ntt;
+        return this.ntt;
     }
 
     public void setNtt(double ntt) {
@@ -128,7 +128,7 @@ public class InspectHit {
     }
 
     public double getpValue() {
-        return pValue;
+        return this.pValue;
     }
 
     public void setpValue(double pValue) {
@@ -136,7 +136,7 @@ public class InspectHit {
     }
 
     public double getfScore() {
-        return fScore;
+        return this.fScore;
     }
 
     public void setfScore(double fScore) {
@@ -144,7 +144,7 @@ public class InspectHit {
     }
 
     public double getDeltaScore() {
-        return deltaScore;
+        return this.deltaScore;
     }
 
     public void setDeltaScore(double deltaScore) {
@@ -152,7 +152,7 @@ public class InspectHit {
     }
 
     public double getDeltaScoreOther() {
-        return deltaScoreOther;
+        return this.deltaScoreOther;
     }
 
     public void setDeltaScoreOther(double deltaScoreOther) {
@@ -160,7 +160,7 @@ public class InspectHit {
     }
 
     public double getRecordNumber() {
-        return recordNumber;
+        return this.recordNumber;
     }
 
     public void setRecordNumber(double recordNumber) {
@@ -168,7 +168,7 @@ public class InspectHit {
     }
 
     public long getDbFilePos() {
-        return dbFilePos;
+        return this.dbFilePos;
     }
 
     public void setDbFilePos(long dbFilePos) {
@@ -176,7 +176,7 @@ public class InspectHit {
     }
 
     public long getSpecFilePos() {
-        return specFilePos;
+        return this.specFilePos;
     }
 
     public void setSpecFilePos(long specFilePos) {
@@ -184,7 +184,7 @@ public class InspectHit {
     }
 
     public double getPrecursorMZ() {
-        return precursorMZ;
+        return this.precursorMZ;
     }
 
     public void setPrecursorMZ(double precursorMZ) {
@@ -192,7 +192,7 @@ public class InspectHit {
     }
 
     public double getPrecursorMZError() {
-        return precursorMZError;
+        return this.precursorMZError;
     }
 
     public void setPrecursorMZError(double precursorMZError) {

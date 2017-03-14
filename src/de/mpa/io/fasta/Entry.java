@@ -32,11 +32,11 @@ public class Entry {
 	 * @param entry
 	 */
 	public Entry(Entry entry){
-		this.index = entry.getIndex();
-		this.name = entry.getName();
-		this.sequence = entry.getSequence();
-		this.start = entry.getStart();
-		this.end = entry.getEnd();
+        index = entry.getIndex();
+        name = entry.getName();
+        sequence = entry.getSequence();
+        start = entry.getStart();
+        end = entry.getEnd();
 	}
 	
 	/**
@@ -69,8 +69,8 @@ public class Entry {
 	 * Returns the letter (amino acid) at a certain position.
 	 */
 	public char getLetterAt(int i) {
-	    if (i < sequence.length) {	      
-	      return sequence[i];
+	    if (i < this.sequence.length) {
+	      return this.sequence[i];
 	    } else  {
 	      return ' ';
 	    }
@@ -80,7 +80,7 @@ public class Entry {
 	 * Returns the sequence start position of the sequence.
 	 */
 	public int getStart() {
-		return start;
+		return this.start;
 	}
 	
 	/**
@@ -90,8 +90,8 @@ public class Entry {
 	 */
 	public int findPosition(int i) {
 		int j = 0;
-		int pos = start;
-		int seqlen = sequence.length;
+		int pos = this.start;
+		int seqlen = this.sequence.length;
 		while ((j < i) && (j < seqlen)) {
 			pos++;
 			j++;
@@ -105,7 +105,7 @@ public class Entry {
 	 * @return
 	 */
 	public long getIndex() {
-		return index;
+		return this.index;
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public class Entry {
 	 * Returns the end position of the sequence.
 	 */
 	public int getEnd() {
-		return this.end;
+		return end;
 	}
 	
 	/**
@@ -141,7 +141,7 @@ public class Entry {
 	 * Returns the sequence length.
 	 */
 	public int getLength() {
-		return this.sequence.length;
+		return sequence.length;
 	}
 	
 	/**
@@ -149,7 +149,7 @@ public class Entry {
 	 * @return String
 	 */
 	public String getFormattedName() {
-		String[] split = this.name.split(" ");
+		String[] split = name.split(" ");
 		return split[0];
 	}
 	
@@ -158,7 +158,7 @@ public class Entry {
 	 * @return String
 	 */
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
@@ -176,16 +176,16 @@ public class Entry {
 			start = 0;
 		}
 		
-		if (start >= sequence.length) {
+		if (start >= this.sequence.length) {
 			return new char[0];
 		}
 
-		if (end >= sequence.length) {
-			end = sequence.length;
+		if (end >= this.sequence.length) {
+			end = this.sequence.length;
 		}
 
 		char[] charseq = new char[end - start];
-		System.arraycopy(sequence, start, charseq, 0, end - start);
+		System.arraycopy(this.sequence, start, charseq, 0, end - start);
 
 		return charseq;
 	}
@@ -210,13 +210,13 @@ public class Entry {
 	 * Returns the sequence as a string.
 	 */
 	public String getSequenceAsString() {
-		return new String(sequence);
+		return new String(this.sequence);
 	}
 	
 	/**
 	 * Returns the sequence as char array.
 	 */
 	public char[] getSequence() {
-		return sequence;
+		return this.sequence;
 	}
 }

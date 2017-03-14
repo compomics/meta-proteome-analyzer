@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -121,7 +122,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	 * Constructs a panel containing controls for spectral library search settings.
 	 */
 	public SpectralLibrarySettingsPanel() {
-		initComponents();
+        this.initComponents();
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 
 		CellConstraints cc = new CellConstraints();
 
-		this.setLayout(new FormLayout("7dlu, p:g, 7dlu", // col
+        setLayout(new FormLayout("7dlu, p:g, 7dlu", // col
 				"5dlu, p, 5dlu, f:p:g, 7dlu")); // row
 
 		// spectral library search parameters
@@ -146,60 +147,60 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 		JPanel topPnl = new JPanel();
 		topPnl.setLayout(new BoxLayout(topPnl, BoxLayout.X_AXIS));
 		topPnl.add(new JLabel("Precursor Mass Tolerance: "));
-		tolMzSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
-		tolMzSpn.setPreferredSize(new Dimension((int) (tolMzSpn
+        this.tolMzSpn = new JSpinner(new SpinnerNumberModel(10.0, 0.0, null, 0.1));
+        this.tolMzSpn.setPreferredSize(new Dimension((int) (this.tolMzSpn
 				.getPreferredSize().width * 1.75),
-				tolMzSpn.getPreferredSize().height));
-		tolMzSpn.setEditor(new JSpinner.NumberEditor(tolMzSpn, "0.00"));
-		tolMzSpn.setToolTipText("The precursor mass tolerance.");
-		topPnl.add(tolMzSpn);
+                this.tolMzSpn.getPreferredSize().height));
+        this.tolMzSpn.setEditor(new NumberEditor(this.tolMzSpn, "0.00"));
+        this.tolMzSpn.setToolTipText("The precursor mass tolerance.");
+		topPnl.add(this.tolMzSpn);
 		topPnl.add(new JLabel(" Da"));
 
-		annotChk = new JCheckBox("Search only among annotated spectra", true);
+        this.annotChk = new JCheckBox("Search only among annotated spectra", true);
 
 		JPanel bottomPnl = new JPanel(new FormLayout("r:p", "p"));
 		JButton advBtn = new JButton("Advanced Settings");
 		bottomPnl.add(advBtn, cc.xy(1, 1));
 
-		final JPanel advPnl = new JPanel(new FormLayout("5dlu, p, 5dlu",
+		JPanel advPnl = new JPanel(new FormLayout("5dlu, p, 5dlu",
 				"0dlu, p, 5dlu, p, 5dlu"));
 		advPnl.setBorder(BorderFactory.createTitledBorder("Advanced Settings"));
 
 		JPanel expIdPnl = new JPanel();
 		expIdPnl.setLayout(new BoxLayout(expIdPnl, BoxLayout.X_AXIS));
-		expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
-		expIdSpn.setPreferredSize(new Dimension((int)(expIdSpn.getPreferredSize().width * 1.5),
-				expIdSpn.getPreferredSize().height));
-		expIdSpn.setEnabled(false);
+        this.expIdSpn = new JSpinner(new SpinnerNumberModel(1L, 0L, null, 1L));
+        this.expIdSpn.setPreferredSize(new Dimension((int)(this.expIdSpn.getPreferredSize().width * 1.5),
+                this.expIdSpn.getPreferredSize().height));
+        this.expIdSpn.setEnabled(false);
 
-		final JCheckBox expIdChk = new JCheckBox(
+		JCheckBox expIdChk = new JCheckBox(
 				"Search only from experiment ID: ", false);
 		expIdChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				expIdSpn.setEnabled(((JCheckBox) e.getSource()).isSelected());
+                SpectralLibrarySettingsPanel.this.expIdSpn.setEnabled(((JCheckBox) e.getSource()).isSelected());
 			}
 		});
 		expIdPnl.add(expIdChk);
-		expIdPnl.add(expIdSpn);
+		expIdPnl.add(this.expIdSpn);
 
-		advPnl.add(annotChk, cc.xy(2, 2));
+		advPnl.add(this.annotChk, cc.xy(2, 2));
 		advPnl.add(expIdPnl, cc.xy(2, 4));
 
 		advBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean annotatedOnly = annotChk.isSelected();
+				boolean annotatedOnly = SpectralLibrarySettingsPanel.this.annotChk.isSelected();
 				boolean expIdWanted = expIdChk.isSelected();
-				Long expID = (Long) expIdSpn.getValue();
+				Long expID = (Long) SpectralLibrarySettingsPanel.this.expIdSpn.getValue();
 				int res = JOptionPane.showConfirmDialog(ClientFrame.getInstance(), advPnl,
 						"Advanced Settings", JOptionPane.OK_CANCEL_OPTION,
 						JOptionPane.PLAIN_MESSAGE);
 				if (res != JOptionPane.OK_OPTION) {
-					annotChk.setSelected(annotatedOnly);
+                    SpectralLibrarySettingsPanel.this.annotChk.setSelected(annotatedOnly);
 					expIdChk.setSelected(expIdWanted);
-					expIdSpn.setEnabled(expIdWanted);
-					expIdSpn.setValue(expID);
+                    SpectralLibrarySettingsPanel.this.expIdSpn.setEnabled(expIdWanted);
+                    SpectralLibrarySettingsPanel.this.expIdSpn.setValue(expID);
 				}
 			}
 		});
@@ -216,104 +217,104 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 				"Scoring parameters"), paramScPnl));
 
 		// sub-panel for vectorization parameters
-		final JPanel vectPnl = new JPanel();
+		JPanel vectPnl = new JPanel();
 		vectPnl.setLayout(new FormLayout("p:g", "p, 5dlu, p, 5dlu, p, 5dlu, p"));
 
 		// sub-sub-panel for vectorization method
 		JPanel vectMethodPnl = new JPanel();
 		vectMethodPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		vectMethodCbx = new JComboBox(new String[] { "Peak matching", "Direct binning", "Profiling" });
-		vectMethodCbx.setSelectedIndex(1);
+        this.vectMethodCbx = new JComboBox(new String[] { "Peak matching", "Direct binning", "Profiling" });
+        this.vectMethodCbx.setSelectedIndex(1);
 
 		vectMethodPnl.add(new JLabel("Vectorization:"), cc.xy(1, 1));
-		vectMethodPnl.add(vectMethodCbx, cc.xy(3, 1));
+		vectMethodPnl.add(this.vectMethodCbx, cc.xy(3, 1));
 
 		// sub-sub-panel for general vectorization settings
 		JPanel genVectSetPnl = new JPanel();
 		genVectSetPnl.setLayout(new FormLayout("5dlu:g, p, 5dlu, p, 2dlu, p",
 				"p, 5dlu, p"));
 
-		binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, Double.MIN_VALUE, null, 0.1));
-		binWidthSpn.setEditor(new JSpinner.NumberEditor(binWidthSpn, "0.00"));
+        this.binWidthSpn = new JSpinner(new SpinnerNumberModel(1.0, Double.MIN_VALUE, null, 0.1));
+        this.binWidthSpn.setEditor(new NumberEditor(this.binWidthSpn, "0.00"));
 		
-		final JLabel binShiftLbl = new JLabel("Bin Shift:");
-		binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
-		binShiftSpn.setEditor(new JSpinner.NumberEditor(binShiftSpn, "0.00"));
-		final JLabel binShiftLbl2 = new JLabel("Da");
+		JLabel binShiftLbl = new JLabel("Bin Shift:");
+        this.binShiftSpn = new JSpinner(new SpinnerNumberModel(0.0, null, null, 0.1));
+        this.binShiftSpn.setEditor(new NumberEditor(this.binShiftSpn, "0.00"));
+		JLabel binShiftLbl2 = new JLabel("Da");
 		
 		genVectSetPnl.add(new JLabel("Bin Width:"), cc.xy(2, 1));
-		genVectSetPnl.add(binWidthSpn, cc.xy(4, 1));
+		genVectSetPnl.add(this.binWidthSpn, cc.xy(4, 1));
 		genVectSetPnl.add(new JLabel("Da"), cc.xy(6, 1));
 		genVectSetPnl.add(binShiftLbl, cc.xy(2, 3));
-		genVectSetPnl.add(binShiftSpn, cc.xy(4, 3));
+		genVectSetPnl.add(this.binShiftSpn, cc.xy(4, 3));
 		genVectSetPnl.add(binShiftLbl2, cc.xy(6, 3));
 
 		// sub-sub-panels for profiling settings
-		profilingPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g, 5dlu, p, 2dlu, p", "p, 5dlu, p"));
+        this.profilingPnl = new JPanel(new FormLayout("p, 5dlu, 0px:g, 5dlu, p, 2dlu, p", "p, 5dlu, p"));
 
-		proMethodCbx = new JComboBox(new String[] { "Piecewise linear", "Gaussian function" });
+        this.proMethodCbx = new JComboBox(new String[] { "Piecewise linear", "Gaussian function" });
 
-		profilingPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
-		profilingPnl.add(proMethodCbx, cc.xyw(3, 1, 5));
+        this.profilingPnl.add(new JLabel("Profile Shape:"), cc.xy(1, 1));
+        this.profilingPnl.add(this.proMethodCbx, cc.xyw(3, 1, 5));
 
-		proBaseWidthSpn = new JSpinner(new SpinnerNumberModel(0.5, Double.MIN_VALUE, null, 0.1));
-		proBaseWidthSpn.setEditor(new JSpinner.NumberEditor(proBaseWidthSpn, "0.00"));
+        this.proBaseWidthSpn = new JSpinner(new SpinnerNumberModel(0.5, Double.MIN_VALUE, null, 0.1));
+        this.proBaseWidthSpn.setEditor(new NumberEditor(this.proBaseWidthSpn, "0.00"));
 
-		profilingPnl.add(new JLabel("Peak Base Width:", SwingConstants.RIGHT), cc.xyw(1, 3, 3));
-		profilingPnl.add(proBaseWidthSpn, cc.xy(5, 3));
-		profilingPnl.add(new JLabel("Da"), cc.xy(7, 3));
+        this.profilingPnl.add(new JLabel("Peak Base Width:", SwingConstants.RIGHT), cc.xyw(1, 3, 3));
+        this.profilingPnl.add(this.proBaseWidthSpn, cc.xy(5, 3));
+        this.profilingPnl.add(new JLabel("Da"), cc.xy(7, 3));
 		
-		for (Component comp : profilingPnl.getComponents()) {
+		for (Component comp : this.profilingPnl.getComponents()) {
 			comp.setEnabled(false);
 		}
 
 		// sub-sub panel for peak picking
-		final JPanel pickPnl = new JPanel();
+		JPanel pickPnl = new JPanel();
 		pickPnl.setLayout(new BoxLayout(pickPnl, BoxLayout.X_AXIS));
 
-		pickChk = new JCheckBox("Pick only ");
+        this.pickChk = new JCheckBox("Pick only ");
 
-		pickSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
-		pickSpn.setEnabled(false);
+        this.pickSpn = new JSpinner(new SpinnerNumberModel(20, 1, null, 1));
+        this.pickSpn.setEnabled(false);
 
-		pickPnl.add(pickChk);
-		pickPnl.add(pickSpn);
+		pickPnl.add(this.pickChk);
+		pickPnl.add(this.pickSpn);
 		pickPnl.add(new JLabel(" most intensive peaks"));
 		pickPnl.setEnabled(false);
 
 		// add action listener to peak picking checkbox to synch enable state
 		// with spinner
-		pickChk.addActionListener(new ActionListener() {
+        this.pickChk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				boolean selected = ((JCheckBox) e.getSource()).isSelected();
 				pickPnl.setEnabled(selected);
-				pickSpn.setEnabled(selected);
+                SpectralLibrarySettingsPanel.this.pickSpn.setEnabled(selected);
 			}
 		});
 
 		vectPnl.add(vectMethodPnl, cc.xy(1, 1));
 		vectPnl.add(genVectSetPnl, cc.xy(1, 3));
-		vectPnl.add(profilingPnl, cc.xy(1, 5));
+		vectPnl.add(this.profilingPnl, cc.xy(1, 5));
 		vectPnl.add(pickPnl, cc.xy(1, 7));
 
 		// add action listener to vectorization method combobox to disable/enable
 		// method-specific elements
-		vectMethodCbx.addActionListener(new ActionListener() {
+        this.vectMethodCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				/** Boolean flags, { bin shift, profiling } */
 				boolean[] enabled = null;
-				measureCbx.setItemEnabledAt(3, true);
-				switch (vectMethodCbx.getSelectedIndex()) {
+                SpectralLibrarySettingsPanel.this.measureCbx.setItemEnabledAt(3, true);
+				switch (SpectralLibrarySettingsPanel.this.vectMethodCbx.getSelectedIndex()) {
 				case 0:		// peak matching
 					// disable cross-correlation
 					// TODO: make cross-correlation work with peak matching, if possible
-					if (measureCbx.getSelectedIndex() == 3) {
-						measureCbx.setSelectedIndex(1);
+					if (SpectralLibrarySettingsPanel.this.measureCbx.getSelectedIndex() == 3) {
+                        SpectralLibrarySettingsPanel.this.measureCbx.setSelectedIndex(1);
 					}
-					measureCbx.setItemEnabledAt(3, false);
+                    SpectralLibrarySettingsPanel.this.measureCbx.setItemEnabledAt(3, false);
 					enabled = new boolean[] { false, false };
 					break;
 				case 1:		// direct binning
@@ -324,10 +325,10 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 					break;
 				}
 				binShiftLbl.setEnabled(enabled[0]);
-				binShiftSpn.setEnabled(enabled[0]);
+                SpectralLibrarySettingsPanel.this.binShiftSpn.setEnabled(enabled[0]);
 				binShiftLbl2.setEnabled(enabled[0]);
-				profilingPnl.setEnabled(enabled[1]);
-				setChildrenEnabled(profilingPnl, enabled[1]);
+                SpectralLibrarySettingsPanel.this.profilingPnl.setEnabled(enabled[1]);
+                SpectralLibrarySettingsPanel.this.setChildrenEnabled(SpectralLibrarySettingsPanel.this.profilingPnl, enabled[1]);
 			}
 		});
 
@@ -335,65 +336,65 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 		JPanel trafoPnl = new JPanel();
 		trafoPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p"));
 
-		trafoCbx = new JComboBox(new String[] { "None", "Square root",
+        this.trafoCbx = new JComboBox(new String[] { "None", "Square root",
 				"Logarithmic" });
-		trafoCbx.setSelectedIndex(1);
+        this.trafoCbx.setSelectedIndex(1);
 
 		trafoPnl.add(new JLabel("Transformation:"), cc.xy(1, 1));
-		trafoPnl.add(trafoCbx, cc.xy(3, 1));
+		trafoPnl.add(this.trafoCbx, cc.xy(3, 1));
 
 		// sub-panel for similarity scoring parameters
 		JPanel scoringPnl = new JPanel();
 		scoringPnl.setLayout(new FormLayout("p, 5dlu, p:g", "p, 5dlu, p"));
 
-		measureCbx = new DisableComboBox(new Object[] {
+        this.measureCbx = new DisableComboBox(new Object[] {
 				"Euclidean distance",
 				"Cosine correlation",
 				"Pearson's correlation",
 				"Cross-correlation" });
-		measureCbx.setSelectedIndex(1);
+        this.measureCbx.setSelectedIndex(1);
 
 		// sub-sub-panel for further scoring parameters
 		JPanel scorSubPnl = new JPanel();
 		scorSubPnl.setLayout(new FormLayout("5dlu:g, r:p, 2dlu, p, 2dlu, p",
 				"p, 5dlu, p"));
 
-		final JLabel xCorrOffLbl = new JLabel("Correlation Offsets  \u00b1"); // +/- as unicode
+		JLabel xCorrOffLbl = new JLabel("Correlation Offsets  \u00b1"); // +/- as unicode
 		xCorrOffLbl.setEnabled(false);
-		xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
-		xCorrOffSpn.setEnabled(false);
-		final JLabel xCorrOffLbl2 = new JLabel("Bins");
+        this.xCorrOffSpn = new JSpinner(new SpinnerNumberModel(75, 1, null, 1));
+        this.xCorrOffSpn.setEnabled(false);
+		JLabel xCorrOffLbl2 = new JLabel("Bins");
 		xCorrOffLbl2.setEnabled(false);
 
-		threshScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
-		threshScSpn.setPreferredSize(new Dimension((int) (threshScSpn
-				.getPreferredSize().width * 1.25), threshScSpn
+        this.threshScSpn = new JSpinner(new SpinnerNumberModel(0.5, null, null, 0.1));
+        this.threshScSpn.setPreferredSize(new Dimension((int) (this.threshScSpn
+				.getPreferredSize().width * 1.25), this.threshScSpn
 				.getPreferredSize().height));
-		threshScSpn.setEditor(new JSpinner.NumberEditor(threshScSpn, "0.00"));
+        this.threshScSpn.setEditor(new NumberEditor(this.threshScSpn, "0.00"));
 
 		scorSubPnl.add(xCorrOffLbl, cc.xy(2, 1));
-		scorSubPnl.add(xCorrOffSpn, cc.xy(4, 1));
+		scorSubPnl.add(this.xCorrOffSpn, cc.xy(4, 1));
 		scorSubPnl.add(xCorrOffLbl2, cc.xy(6, 1));
 		scorSubPnl.add(new JLabel("Score Threshold  \u2265"), cc.xy(2, 3)); // >= as unicode
-		scorSubPnl.add(threshScSpn, cc.xy(4, 3));
+		scorSubPnl.add(this.threshScSpn, cc.xy(4, 3));
 		scorSubPnl.setEnabled(false);
 
 		// add action listener to similarity measure combo box to disable/enable
 		// xcorr-specific elements
-		measureCbx.addActionListener(new ActionListener() {
+        this.measureCbx.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				switch (measureCbx.getSelectedIndex()) {
+				switch (SpectralLibrarySettingsPanel.this.measureCbx.getSelectedIndex()) {
 				case 0:		// euclidean distance
 				case 1:		// cosine correlation
 				case 2:		// pearson's correlation
 					xCorrOffLbl.setEnabled(false);
-					xCorrOffSpn.setEnabled(false);
+                    SpectralLibrarySettingsPanel.this.xCorrOffSpn.setEnabled(false);
 					xCorrOffLbl2.setEnabled(false);
 					break;
 				case 3:		// cross-correlation
 					xCorrOffLbl.setEnabled(true);
-					xCorrOffSpn.setEnabled(true);
+                    SpectralLibrarySettingsPanel.this.xCorrOffSpn.setEnabled(true);
 					xCorrOffLbl2.setEnabled(true);
 					break;
 				}
@@ -401,7 +402,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 		});
 
 		scoringPnl.add(new JLabel("Measure:"), cc.xy(1, 1));
-		scoringPnl.add(measureCbx, cc.xy(3, 1));
+		scoringPnl.add(this.measureCbx, cc.xy(3, 1));
 		scoringPnl.add(scorSubPnl, cc.xyw(1, 3, 3));
 
 		paramScPnl.add(vectPnl, cc.xy(2, 2));
@@ -411,9 +412,9 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 		paramScPnl.add(scoringPnl, cc.xy(2, 10));
 
 		// add everything to parent panel
-		this.add(paramDbPnl, cc.xy(2, 2));
+        add(paramDbPnl, cc.xy(2, 2));
 		// this.add(previewPnl, cc.xywh(4,2,1,5));
-		this.add(paramScPnl, cc.xy(2, 4));
+        add(paramScPnl, cc.xy(2, 4));
 
 	}
 
@@ -424,19 +425,19 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	 */
 	public SpecSimSettings gatherSpecSimSettings() {
 		SpecSimSettings settings = new SpecSimSettings();
-		settings.setExperimentID((expIdSpn.isEnabled()) ? (Long) expIdSpn.getValue() : 0L);
-		settings.setAnnotatedOnly(annotChk.isSelected());
-		settings.setTolMz((Double) tolMzSpn.getValue());
-		settings.setPickCount(pickSpn.isEnabled() ? (Integer) pickSpn.getValue() : 0);
-		settings.setThreshScore((Double) threshScSpn.getValue());
-		settings.setCompIndex(measureCbx.getSelectedIndex());
-		settings.setTrafoIndex(trafoCbx.getSelectedIndex());
-		settings.setVectIndex(vectMethodCbx.getSelectedIndex());
-		settings.setBinWidth((Double) binWidthSpn.getValue());
-		settings.setBinShift((Double) binShiftSpn.getValue());
-		settings.setProfileIndex(proMethodCbx.getSelectedIndex());
-		settings.setBaseWidth((Double) proBaseWidthSpn.getValue());
-		settings.setXCorrOffset((Integer) xCorrOffSpn.getValue());
+		settings.setExperimentID((this.expIdSpn.isEnabled()) ? (Long) this.expIdSpn.getValue() : 0L);
+		settings.setAnnotatedOnly(this.annotChk.isSelected());
+		settings.setTolMz((Double) this.tolMzSpn.getValue());
+		settings.setPickCount(this.pickSpn.isEnabled() ? (Integer) this.pickSpn.getValue() : 0);
+		settings.setThreshScore((Double) this.threshScSpn.getValue());
+		settings.setCompIndex(this.measureCbx.getSelectedIndex());
+		settings.setTrafoIndex(this.trafoCbx.getSelectedIndex());
+		settings.setVectIndex(this.vectMethodCbx.getSelectedIndex());
+		settings.setBinWidth((Double) this.binWidthSpn.getValue());
+		settings.setBinShift((Double) this.binShiftSpn.getValue());
+		settings.setProfileIndex(this.proMethodCbx.getSelectedIndex());
+		settings.setBaseWidth((Double) this.proBaseWidthSpn.getValue());
+		settings.setXCorrOffset((Integer) this.xCorrOffSpn.getValue());
 		return settings;
 	}
 	
@@ -446,11 +447,11 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	 */
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		setChildrenEnabled(this, enabled);
+        this.setChildrenEnabled(this, enabled);
 		if (enabled) {	// restore proper enabled state by enforcing listener events
-			vectMethodCbx.setSelectedIndex(vectMethodCbx.getSelectedIndex());
-			pickSpn.setEnabled(pickChk.isSelected());
-			measureCbx.setSelectedIndex(measureCbx.getSelectedIndex());
+            this.vectMethodCbx.setSelectedIndex(this.vectMethodCbx.getSelectedIndex());
+            this.pickSpn.setEnabled(this.pickChk.isSelected());
+            this.measureCbx.setSelectedIndex(this.measureCbx.getSelectedIndex());
 		}
 	}
 
@@ -464,7 +465,7 @@ public class SpectralLibrarySettingsPanel extends JPanel {
 	private void setChildrenEnabled(JComponent parent, boolean enabled) {
 		for (Component child : parent.getComponents()) {
 			if (child instanceof JComponent) {
-				setChildrenEnabled((JComponent) child, enabled);
+                this.setChildrenEnabled((JComponent) child, enabled);
 			}
 		}
 		if (!(parent instanceof SpectralLibrarySettingsPanel)) { // don't mess with SpecLibSearchPanels

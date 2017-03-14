@@ -14,11 +14,11 @@ import de.mpa.client.model.dbsearch.ProteinHit;
 public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 
 	// The NSAF
-	private double nSAF = 0.0;
+	private double nSAF;
 
 	@Override
 	public double getResult() {
-		return nSAF;
+		return this.nSAF;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,9 +52,9 @@ public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 		if (proteinHitOfInterest.getSequence() != null && proteinHitOfInterest.getSequence().length() > 0 ) {
 			protOfInterestSum /= proteinHitOfInterest.getSequence().length();
 			// Calculate  NSAF
-			nSAF = protOfInterestSum / protSum;
+            this.nSAF = protOfInterestSum / protSum;
 		}else{
-			nSAF = 0.0;
+            this.nSAF = 0.0;
 		}
 			
 		

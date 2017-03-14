@@ -1,36 +1,34 @@
 package de.mpa.io;
 
-import de.mpa.io.ResultExporter.ExportHeaderType;
-
 public class ExportHeader {
 	
 	/**
 	 * Header ID.
 	 */
-	private int id;
+	private final int id;
 	
 	/**
 	 * Header name.
 	 */
-	private String name;
+	private final String name;
 	
 	/**
 	 * Header type.
 	 */
-	private ExportHeaderType type;
-	
+	private ResultExporter.ExportHeaderType type;
+
 	/**
 	 * Constructs the ExportHeader
 	 * @param id Header ID.
 	 * @param name Header name.
 	 * @param type Header type.
 	 */
-	public ExportHeader(int id, String name, ExportHeaderType type) {
+	public ExportHeader(int id, String name, ResultExporter.ExportHeaderType type) {
 		this.id = id;
 		this.name = name;
 		this.type = type;
 	}
-	
+
 	/**
 	 * Returns the ExportHeader ID.
 	 * @return ExportHeader ID
@@ -38,7 +36,7 @@ public class ExportHeader {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Returns the ExportHeader name.
 	 * @return ExportHeader name
@@ -46,13 +44,13 @@ public class ExportHeader {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Returns the ExportHeader type.
 	 * @return ExportHeader type
 	 */
-	public ExportHeaderType getType() {
-		return type;
+	public ResultExporter.ExportHeaderType getType() {
+		return this.type;
 	}
 	
 	/**
@@ -63,17 +61,13 @@ public class ExportHeader {
 	public boolean equals(ExportHeader header) {
 		if (this == header)
 			return true;
-		else if (id == header.getId()
-				&& name.equalsIgnoreCase(header.getName())
-				&& type == header.getType()) {
-			return true;
-		} else {
-			return false;
-		}
+		else return this.id == header.getId()
+                && this.name.equalsIgnoreCase(header.getName())
+                && this.type == header.getType();
 	}
 
 	@Override
 	public String toString() {
-		return id + "_" + name + "_" + type.name();
+		return this.id + "_" + this.name + "_" + this.type.name();
 	}
 }

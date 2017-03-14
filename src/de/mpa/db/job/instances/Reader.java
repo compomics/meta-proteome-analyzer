@@ -20,22 +20,22 @@ public class Reader {
     /**
      * This Vector will hold all the spectrum files in the mergefile.
      */
-    protected List<SpectrumFile> spectrumFiles = null;
+    protected List<SpectrumFile> spectrumFiles;
 
     /**
      * The filename for this mergefile.
      */
-    protected String filename = null;
+    protected String filename;
 
     /**
      * This String holds the run identification for this mergefile.
      */
-    protected String runName = null;
+    protected String runName;
 
     /**
      * This String holds the comments located on top of the MascotGenericMergeFile.
      */
-    protected String comments = null;
+    protected String comments;
 
     /**
      * This method reports on the spectrum files currently held in this merge file.
@@ -43,7 +43,7 @@ public class Reader {
      * @return List with the currently held SpectrumFiles.
      */
     public List<SpectrumFile> getSpectrumFiles() {
-        return this.spectrumFiles;
+        return spectrumFiles;
     }
 
     /**
@@ -52,32 +52,32 @@ public class Reader {
      * @return String  with the filename.
      */
     public String getFilename() {
-        return this.filename;
+        return filename;
     }
 
     /**
      * This constructor opens the specified mergefile and maps it to memory.
      *
      * @param mgfFile The input MGF file
-     * @throws java.io.IOException when the file could not be read.
+     * @throws IOException when the file could not be read.
      */
     public Reader(File mgfFile) throws IOException {
-        this.load(mgfFile);
+        load(mgfFile);
     }
 
     /**
      * This method loads the specified file in this MergeFileReader.
      *
      * @param file File with the file to load.
-     * @throws java.io.IOException when the loading operation failed.
+     * @throws IOException when the loading operation failed.
      */
     public void load(File file) throws IOException {
-        spectrumFiles = new ArrayList<SpectrumFile>();
+        this.spectrumFiles = new ArrayList<SpectrumFile>();
         if (!file.exists()) {
             throw new IOException("Mergefile '" + file.getCanonicalPath() + "' could not be found!");
         } else {
             // Read the filename.
-            this.filename = file.getName();
+            filename = file.getName();
 
             BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -107,7 +107,7 @@ public class Reader {
                 // Comment lines.
                 else if (line.startsWith("#") && !inSpectrum) {
                     // First strip off the comment markings in a new String ('cleanLine').
-                    String cleanLine = this.cleanCommentMarks(line);
+                    String cleanLine = cleanCommentMarks(line);
                     // If cleanLine trimmed is empty String, it's an empty comment line
                     // and therefore skipped without counting.
                     String cleanLineTrimmed = cleanLine.trim();
@@ -122,7 +122,7 @@ public class Reader {
                         // See if it is the second non-empty comment line.
                         if (runnameNotYetFound && commentLineCounter >= 2 && cleanLineTrimmed.indexOf("Instrument:") < 0 && cleanLineTrimmed.indexOf("Manufacturer:") < 0) {
                             // This line contains the run name.
-                            this.runName = cleanLineTrimmed;
+                            runName = cleanLineTrimmed;
                             runnameNotYetFound = false;
                         }
                         // Every non-empty comment line is added to the tempComments
@@ -152,11 +152,11 @@ public class Reader {
                         spectrumCounter++;
                         // Create a filename for the spectrum, based on the filename of the mergefile, with
                         // an '_[spectrumCounter]' before the extension (eg., myParent.mgf --> myParent_1.mgf).
-                        String spectrumFilename = this.createSpectrumFilename(spectrumCounter);
+                        String spectrumFilename = createSpectrumFilename(spectrumCounter);
                         // Parse the contents of the spectrum StringBuffer into a MascotGenericFile.
                         SpectrumFile mgf = new SpectrumFile(spectrumFilename, spectrum.toString());
                         // Add it to the collection of SpectrumFiles.
-                        this.spectrumFiles.add(mgf);
+                        spectrumFiles.add(mgf);
                         // Reset the spectrum StringBuffer.
                         spectrum = new StringBuffer();
                     }
@@ -168,22 +168,22 @@ public class Reader {
                 }
             }
             // Initialize the comments.
-            this.comments = tempComments.toString();
+            comments = tempComments.toString();
 
             br.close();
         }
         // Set the filename as well!
-        this.filename = file.getName();
+        filename = file.getName();
 
         // If we do not have a run name by now, we just take the filename, minus the extension.
-        if (this.runName == null) {
+        if (runName == null) {
             // See if there is an extension,
             // and if there isn't, just take the filename as-is.
-            int location = this.filename.lastIndexOf(".");
+            int location = filename.lastIndexOf(".");
             if (location > 0) {
-                runName = this.filename.substring(0, location);
+                this.runName = filename.substring(0, location);
             } else {
-                runName = this.filename;
+                this.runName = filename;
             }
         }
     }
@@ -210,8 +210,8 @@ public class Reader {
      * @return String with a filename for this spectrumfile.
      */
     protected String createSpectrumFilename(int number) {
-        int extensionStart = this.filename.lastIndexOf(".");
-        return this.filename.substring(0, extensionStart) + "_" + number + this.filename.substring(extensionStart);
+        int extensionStart = filename.lastIndexOf(".");
+        return filename.substring(0, extensionStart) + "_" + number + filename.substring(extensionStart);
     }
 }
 

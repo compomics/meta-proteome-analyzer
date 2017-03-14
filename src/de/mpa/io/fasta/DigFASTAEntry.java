@@ -32,47 +32,47 @@ public class DigFASTAEntry {
 		 * @param dbStart
 		 */
 		Type(String dbStart) {
-			this.dbStartFlag = dbStart;
+            dbStartFlag = dbStart;
 		}
 	}
 	
 	/**
 	 * Identifier. Can be a multiples for in-silico peptide.
 	 */
-	private String identifier;
+	private final String identifier;
 
 	/**
 	 * Description of the protein entry
 	 */
-	private String description;
+	private final String description;
 	
 	/**
 	 * Header
 	 */
-	private String header;
+	private final String header;
 	
 	/**
 	 * Subheaders
 	 */
-	private List<String> subHeaderList;
+	private final List<String> subHeaderList;
 	
 	/**
 	 * The amino acid sequence of a database entry
 	 */
-	private String sequence;
+	private final String sequence;
 	
 	/**
 	 * The type of DB_Type
 	 */
-	private Type type;
+	private DigFASTAEntry.Type type;
 
 	/**
 	 * The type of DB_Type
 	 */
 	private long uniProtID = -1;
-	
+
 	/**
-	
+
 	 * @param identifier. The identifier of the database entry.
 	 * @param header. The header of a database entry.
 	 * @param sequence. The amino acid sequence of the database entry.
@@ -86,7 +86,7 @@ public class DigFASTAEntry {
 	 * @param type. The type of the database entry
 	 * @param subHeaderList. The subheaderlist of the database entry
 	 */
-	public DigFASTAEntry(String identifier, String header, String description, String sequence, Type type, List<String> subHeaderList){
+	public DigFASTAEntry(String identifier, String header, String description, String sequence, DigFASTAEntry.Type type, List<String> subHeaderList){
 		this.identifier 		= identifier;
 		this.header 			= header;
 		this.description		= description;
@@ -94,7 +94,7 @@ public class DigFASTAEntry {
 		this.type 				= type;
 		this.subHeaderList 		= subHeaderList;
 	}
-	
+
 	/**
 	 * Gets the list of subheaders (all Strings after the first resp. second "|")
 	 * @return The list of subheaders.
@@ -102,7 +102,7 @@ public class DigFASTAEntry {
 	public List<String> getSubHeader() {
 		return subHeaderList;
 	}
-	
+
 	/**
 	 * Gets the identifier of the database entry.
 	 * @return The identifier of the database entry.
@@ -127,12 +127,12 @@ public class DigFASTAEntry {
 		return sequence;
 	}
 
-	/** 
+	/**
 	 * Gets the type of protein entry.
 	 * @return. DB_Type. The type of the database entry.
 	 */
-	public Type getType() {
-		return type;
+	public DigFASTAEntry.Type getType() {
+		return this.type;
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class DigFASTAEntry {
 	 * @return. The description. The description of the fasta entry
 	 */
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 	
 	/**
@@ -148,7 +148,7 @@ public class DigFASTAEntry {
 	 * @return. The UniprotID
 	 */
 	public long getUniProtID() {
-		return uniProtID;
+		return this.uniProtID;
 	}
 
 	/**

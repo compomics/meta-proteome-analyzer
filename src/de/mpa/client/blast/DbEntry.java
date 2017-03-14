@@ -26,20 +26,20 @@ public class DbEntry {
 	/**
 	 * The type of DB_Type
 	 */
-	DB_Type type;
-	
+	DbEntry.DB_Type type;
+
 	/**
 	 * A list with subheaders of a FASTA-file
 	 */
 	List<String> subHeaderList;
-		
+
 	/**
 	 * Constructor for a database entry
 	 * @param identifier. The identifier of the database entry.
 	 * @param header. The header of a database entry.
 	 * @param sequence. The amino acid sequence of the database entry.
 	 */
-	public DbEntry(String identifier, String header, DB_Type type2, List<String> subHeaderList){
+	public DbEntry(String identifier, String header, DbEntry.DB_Type type2, List<String> subHeaderList){
 		this.identifier 		= identifier;
 		this.header 			= header;
 		this.type 				= type2;
@@ -86,12 +86,12 @@ public class DbEntry {
 		this.sequence = sequence;
 	}
 
-	/** 
+	/**
 	 * Gets the type of protein entry.
 	 * @return. DB_Type. The type of the database entry.
 	 */
-	public DB_Type getType() {
-		return type;
+	public DbEntry.DB_Type getType() {
+		return this.type;
 	}
 	
 	
@@ -117,7 +117,7 @@ public class DbEntry {
 		 * @param dbStart
 		 */
 		DB_Type(String dbStart) {
-			this.dbStartFlag = dbStart;
+            dbStartFlag = dbStart;
 		}
 	}
 

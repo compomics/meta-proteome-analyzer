@@ -21,12 +21,12 @@ public class StoreJob extends Job {
 	/**
 	 * Search engine type.
 	 */
-	private SearchEngineType searchEngineType;
+	private final SearchEngineType searchEngineType;
 
 	/**
 	 * The search engine result filename.
 	 */
-	private String resultFilename;
+	private final String resultFilename;
 
 	
 	/**
@@ -46,7 +46,7 @@ public class StoreJob extends Job {
 	 */
 	public StoreJob(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) {
 		try {
-			this.dbManager = DBManager.getInstance();
+            dbManager = DBManager.getInstance();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -54,8 +54,8 @@ public class StoreJob extends Job {
 		this.qValueFilename = qValueFilename;
 		this.searchEngineType = searchEngineType;
 		// Set the description
-		setFilename(resultFilename);
-		setDescription(searchEngineType.name().toUpperCase() + " RESULTS STORING");
+        this.setFilename(resultFilename);
+        this.setDescription(searchEngineType.name().toUpperCase() + " RESULTS STORING");
 	}
 	
 	@Override
@@ -63,9 +63,9 @@ public class StoreJob extends Job {
 		try {
 			// XXX: worst bug fix in the history of MPA
 			qValueFilename = qValueFilename.replaceAll("__", "_");
-			dbManager.storeDatabaseSearchResults(searchEngineType, resultFilename, qValueFilename);
+            this.dbManager.storeDatabaseSearchResults(this.searchEngineType, this.resultFilename, this.qValueFilename);
 		} catch (Exception e) {
-			setError(e);
+            this.setError(e);
 		}
 	}
 

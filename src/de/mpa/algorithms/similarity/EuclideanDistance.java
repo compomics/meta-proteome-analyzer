@@ -1,13 +1,12 @@
 package de.mpa.algorithms.similarity;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 public class EuclideanDistance implements SpectrumComparator {
 
-	private Vectorization vect;
-	private Transformation trafo;
+	private final Vectorization vect;
+	private final Transformation trafo;
 	private Map<Double, Double> peaksSrc;
 	private double magSrc;
 	private double similarity;
@@ -28,12 +27,12 @@ public class EuclideanDistance implements SpectrumComparator {
 	public void prepare(Map<Double, Double> inputPeaksSrc) {
 		
 		// bin source spectrum
-		peaksSrc = vect.vectorize(inputPeaksSrc, trafo);
+        this.peaksSrc = this.vect.vectorize(inputPeaksSrc, this.trafo);
 		
 		// calculate squared magnitude of source intensity vector
-		magSrc = 0.0;
-		for (double intenSrc : peaksSrc.values()) {
-			magSrc += intenSrc * intenSrc;
+        this.magSrc = 0.0;
+		for (double intenSrc : this.peaksSrc.values()) {
+            this.magSrc += intenSrc * intenSrc;
 		}
 	}
 
@@ -41,13 +40,13 @@ public class EuclideanDistance implements SpectrumComparator {
 	public void compareTo(Map<Double, Double> inputPeaksTrg) {
 
 		// bin target spectrum
-		Map<Double, Double> peaksTrg = vect.vectorize(inputPeaksTrg, trafo);
+		Map<Double, Double> peaksTrg = this.vect.vectorize(inputPeaksTrg, this.trafo);
 		
 		// calculate euclidean distance
-		double distance = magSrc;
-		for (Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
+		double distance = this.magSrc;
+		for (Map.Entry<Double, Double> peakTrg : peaksTrg.entrySet()) {
 			double intenTrg = peakTrg.getValue();
-			Double intenSrc = peaksSrc.get(peakTrg.getKey());
+			Double intenSrc = this.peaksSrc.get(peakTrg.getKey());
 			if (intenSrc == null) { 
 				intenSrc = 0.0;
 			} else {
@@ -56,23 +55,23 @@ public class EuclideanDistance implements SpectrumComparator {
 			double delta = intenTrg - intenSrc;
 			distance += delta * delta;
 		}
-		
-		this.similarity = Math.sqrt(distance);
+
+        similarity = Math.sqrt(distance);
 	}
 
 	@Override
 	public double getSimilarity() {
-		return similarity;
+		return this.similarity;
 	}
 
 	@Override
 	public Map<Double, Double> getSourcePeaks() {
-		return peaksSrc;
+		return this.peaksSrc;
 	}
 
 	@Override
 	public Vectorization getVectorization() {
-		return vect;
+		return this.vect;
 	}
 
 }

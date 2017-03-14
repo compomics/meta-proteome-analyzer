@@ -14,20 +14,20 @@ public class Database {
 	 */
 	private final List<Entry> entries;
 
-	public Database(final String filename, List<Entry> entries) {
+	public Database(String filename, List<Entry> entries) {
 		this.filename = filename;
 		this.entries = entries;
 	}
 
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 
 	public List<Entry> getEntries() {
-		return entries;
+		return this.entries;
 	}
 
-	public Entry getEntry(final int index) {
-		return entries.get(index);
+	public Entry getEntry(int index) {
+		return this.entries.get(index);
 	}
 }

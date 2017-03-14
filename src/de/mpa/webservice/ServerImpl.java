@@ -57,7 +57,7 @@ public class ServerImpl implements Server {
     /**
      * Message queue instance for communication between server and client.
      */
-    private MessageQueue msgQueue = MessageQueue.getInstance();
+    private final MessageQueue msgQueue = MessageQueue.getInstance();
 
 	/**
 	 * The DBManager instance.
@@ -83,12 +83,12 @@ public class ServerImpl implements Server {
     
 	@Override
 	public void receiveMessage(String msg) {
-		log.info("Received message: " + msg);
+        ServerImpl.log.info("Received message: " + msg);
 	}
 
 	@Override
 	public String sendMessage() {
-		String msg = msgQueue.poll();
+		String msg = this.msgQueue.poll();
 		return (msg == null) ? "" : msg;
 	}
 
@@ -144,7 +144,7 @@ public class ServerImpl implements Server {
 				fastaLoader.readIndexFile();
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(), e.getCause());
+            ServerImpl.log.error(e.getMessage(), e.getCause());
 			e.printStackTrace();
 		}
 		MapContainer.FastaLoader = fastaLoader;
@@ -158,50 +158,50 @@ public class ServerImpl implements Server {
 		// X!Tandem job
 		if (dbSearchSettings.isXTandem()) {
 			Job xTandemJob = new XTandemJob(file, searchDB, dbSearchSettings.getXtandemParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.TARGET);
-			jobManager.addJob(xTandemJob);
+            this.jobManager.addJob(xTandemJob);
 			// Decoy search only
 			if (dbSearchSettings.isDecoy()) {
 				// The X!Tandem decoy search is added here
 				Job xTandemDecoyJob = new XTandemJob(file, searchDB, dbSearchSettings.getXtandemParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.DECOY);
-				jobManager.addJob(xTandemDecoyJob);
+                this.jobManager.addJob(xTandemDecoyJob);
 
 				// The score job evaluates X!Tandem target + decoy results
 				Job xTandemScoreJob = new XTandemScoreJob(xTandemJob.getFilename(), xTandemDecoyJob.getFilename());
-				jobManager.addJob(xTandemScoreJob);
+                this.jobManager.addJob(xTandemScoreJob);
 				
 				// Add store job
-				jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename(), xTandemScoreJob.getFilename()));
+                this.jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename(), xTandemScoreJob.getFilename()));
 			} else {
 				// Add store job
-				jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename()));
+                this.jobManager.addJob(new StoreJob(SearchEngineType.XTANDEM, xTandemJob.getFilename()));
 			}
 			// Clear the folders
-			jobManager.addJob(new DeleteJob(xTandemJob.getFilename()));
+            this.jobManager.addJob(new DeleteJob(xTandemJob.getFilename()));
 		}
 		
 		// OMSSA job
 		if (dbSearchSettings.isOmssa()) {
 			Job omssaJob = new OmssaJob(file, searchDB, dbSearchSettings.getOmssaParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.TARGET);
-			jobManager.addJob(omssaJob);
+            this.jobManager.addJob(omssaJob);
 			
 			// Condition if decoy search is done here
 			if (dbSearchSettings.isDecoy()) {
 				// The Omssa decoy search is added here.
 				Job omssaDecoyJob = new OmssaJob(file, searchDB + "_decoy", dbSearchSettings.getOmssaParams(), fragIonTol, precIonTol, nMissedCleavages, isPrecIonTolPpm, SearchType.DECOY);
-				jobManager.addJob(omssaDecoyJob);
+                this.jobManager.addJob(omssaDecoyJob);
 				
 				// The score job evaluates Omssa target + decoy results.
 				Job omssaScoreJob = new OmssaScoreJob(omssaJob.getFilename(), omssaDecoyJob.getFilename());
-				jobManager.addJob(omssaScoreJob);
+                this.jobManager.addJob(omssaScoreJob);
 				
 				// Add store job.
-				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), omssaScoreJob.getFilename()));
+                this.jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename(), omssaScoreJob.getFilename()));
 			} else {
 				// Add store job.
-				jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename()));
+                this.jobManager.addJob(new StoreJob(SearchEngineType.OMSSA, omssaJob.getFilename()));
 			}
 			// Clear the folders
-			jobManager.addJob(new DeleteJob(omssaJob.getFilename()));
+            this.jobManager.addJob(new DeleteJob(omssaJob.getFilename()));
 		}
 		
 	}
@@ -241,14 +241,14 @@ public class ServerImpl implements Server {
 	public synchronized void runSearches(SearchSettings settings) {
 		
 		try {
-			runOptions = RunOptions.getInstance();
+            this.runOptions = RunOptions.getInstance();
 			// TODO: has commenting this out any unforseen consequences?
-//			if (!runOptions.hasRunAlready()) {
+//			if (!this.runOptions.hasRunAlready()) {
 				// DB Manager instance
-				dbManager = DBManager.getInstance();
+                this.dbManager = DBManager.getInstance();
 				
 				// Initialize the job manager
-				jobManager = JobManager.getInstance();
+                this.jobManager = JobManager.getInstance();
 				List<String> filenames = settings.getFilenames();
 				
 				// Iterate uploaded files
@@ -260,30 +260,30 @@ public class ServerImpl implements Server {
 					
 					// Repair spectra
 //					repairSpectra(file, dbManager.getConnection());
-					
-					dbManager.storeSpectra(file, settings.getExpID());
+
+                    this.dbManager.storeSpectra(file, settings.getExpID());
 
 					// Add search jobs to job manager queue
 					if (settings.isDatabase()) {
-						addDbSearchJobs(filename, settings.getDbss());
+                        this.addDbSearchJobs(filename, settings.getDbss());
 					}
 //					if (settings.isSpecSim()) {
 //						addSpecSimSearchJob(storager.getSpectra(), settings.getSss());
 //					}
 
-					msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
-					jobManager.run();
-					
-					msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), log);
+                    this.msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
+                    this.jobManager.run();
+
+                    this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
 					i++;
-					runOptions.setRunCount(1);
+                    this.runOptions.setRunCount(1);
 				}
-				jobManager.run();
+                this.jobManager.run();
 				System.out.println();
 //			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error(e.getMessage(), e.getCause());
+            ServerImpl.log.error(e.getMessage(), e.getCause());
 		}
 		
 		
@@ -298,7 +298,7 @@ public class ServerImpl implements Server {
 	 * @throws SQLException
 	 */
 	public static void repairSpectra(File file, Connection conn) throws IOException, SQLException {
-		repairSpectra(file, conn, file.getPath());
+        ServerImpl.repairSpectra(file, conn, file.getPath());
 	}
 
 	/**
@@ -318,7 +318,7 @@ public class ServerImpl implements Server {
 		List<Long> spectrumIDs = new ArrayList<Long>();
 		Iterator<MascotGenericFile> iterator = spectra.iterator();
 		while (iterator.hasNext()) {
-			MascotGenericFile mgf = (MascotGenericFile) iterator.next();
+			MascotGenericFile mgf = iterator.next();
 			if (mgf.getSpectrumID() != null) {
 				spectrumIDs.add(mgf.getSpectrumID());
 				iterator.remove();

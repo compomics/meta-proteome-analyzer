@@ -43,10 +43,10 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @param searchHits
 	 */
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
-		this.searchSpectrumID = spectrumid;
-		this.charge = (int) searchHit.getCharge();
-		this.searchHits = new HashMap<SearchEngineType, SearchHit>();
-		this.searchHits.put(searchHit.getType(), searchHit);
+        searchSpectrumID = spectrumid;
+        charge = (int) searchHit.getCharge();
+        searchHits = new HashMap<SearchEngineType, SearchHit>();
+        searchHits.put(searchHit.getType(), searchHit);
 	}
 	
 	/**
@@ -54,12 +54,12 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The single search hit.
 	 */
 	public SearchHit getSingleSearchHit() {
-		if (searchHits.size() > 1) {
+		if (this.searchHits.size() > 1) {
 			if (Client.isDebug()) {
 				System.err.println("PSM " + this + " already contains multiple search hits.");
 			}
 		}
-		return searchHits.values().iterator().next();
+		return this.searchHits.values().iterator().next();
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return the search hit or <code>null</code> if no such hit exists
 	 */
 	public SearchHit getSearchHit(SearchEngineType type) {
-		return searchHits.get(type);
+		return this.searchHits.get(type);
 	}
 	
 	/**
@@ -77,10 +77,10 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	@Override
 	public List<SearchHit> getSearchHits() {
-		if (visSearchHits == null) {
-			return new ArrayList<SearchHit>(searchHits.values());
+		if (this.visSearchHits == null) {
+			return new ArrayList<SearchHit>(this.searchHits.values());
 		}
-		return visSearchHits;
+		return this.visSearchHits;
 	}
 	
 	/**
@@ -89,8 +89,8 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	@Override
 	public void addSearchHit(SearchHit hit) {
-		if (!searchHits.containsValue(hit)) {
-			this.searchHits.put(hit.getType(), hit);
+		if (!this.searchHits.containsValue(hit)) {
+            searchHits.put(hit.getType(), hit);
 //			this.charge = (int) hit.getCharge();
 		} else {
 		}
@@ -101,7 +101,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The PSM charge.
 	 */
 	public int getCharge() {
-		return charge;
+		return this.charge;
 	}
 	
 	/**
@@ -109,7 +109,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @param c  The charge provided 
 	 */
 	public void setCharge(int c) {
-		this.charge = c;
+        charge = c;
 	}
 	
 	
@@ -118,7 +118,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 * @return The number of votes for the search engine hits.
 	 */
 	public int getVotes() {
-		return searchHits.size();
+		return this.searchHits.size();
 	}
 	
 	/**
@@ -127,10 +127,10 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visSearchHits = new ArrayList<SearchHit>();
-		for (SearchHit hit : this.searchHits.values()) {
+        visSearchHits = new ArrayList<SearchHit>();
+		for (SearchHit hit : searchHits.values()) {
 			if (hit.getQvalue().doubleValue() <= fdr) {
-				this.visSearchHits.add(hit);
+                visSearchHits.add(hit);
 			}
 		}
 	}
@@ -138,18 +138,18 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	@Override
 	public boolean isVisible() {
 		// If null initialize a new empty list
-		if (visSearchHits == null) {
-			visSearchHits = this.getSearchHits();
+		if (this.visSearchHits == null) {
+            this.visSearchHits = getSearchHits();
 		}
-		return !this.visSearchHits.isEmpty();
+		return !visSearchHits.isEmpty();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PeptideSpectrumMatch) {
 			PeptideSpectrumMatch that = (PeptideSpectrumMatch) obj;
-			if (this.getSearchSpectrumID() == that.getSearchSpectrumID()) {
-				return this.getSearchHits().containsAll(that.getSearchHits());
+			if (getSearchSpectrumID() == that.getSearchSpectrumID()) {
+				return getSearchHits().containsAll(that.getSearchHits());
 			}
 		}
 		return false;

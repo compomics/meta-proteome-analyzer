@@ -4,7 +4,7 @@ public enum OntologyProperty implements ElementProperty {
 	IDENTIFIER("Identifier"),
 	TYPE("Type");
 	
-	OntologyProperty(final String propertyName){
+	OntologyProperty(String propertyName){
 		this.propertyName = propertyName;
 	}
 	
@@ -12,6 +12,6 @@ public enum OntologyProperty implements ElementProperty {
 	
 	@Override
 	public String toString() {
-		return propertyName;
+		return this.propertyName;
 	}
 }

@@ -33,7 +33,7 @@ public class DigFASTAEntry {
 		 * @param dbStart
 		 */
 		Type(String dbStart) {
-			this.dbStartFlag = dbStart;
+            dbStartFlag = dbStart;
 		}
 
 	}
@@ -41,60 +41,60 @@ public class DigFASTAEntry {
 	/**
 	 * Identifier. Can be a multiples for in-silico peptide.
 	 */
-	private String identifier;
+	private final String identifier;
 	
 	/**
 	 * Header
 	 */
-	private String header;
+	private final String header;
 	
 	/**
 	 * Subheaders
 	 */
-	private List<String> subHeaderList;
+	private final List<String> subHeaderList;
 	
 	/**
 	 * The amino acid sequence of a database entry
 	 */
-	private String sequence;
+	private final String sequence;
 	
 	/**
 	 * The type of DB_Type
 	 */
-	private Type type;
-	
+	private DigFASTAEntry.Type type;
+
 	/**
 	 * Constructor for a database entry
 	 * @param identifier. The identifier of the database entry.
 	 * @param header. The header of a database entry.
 	 * @param sequence. The amino acid sequence of the database entry.
 	 */
-	public DigFASTAEntry(String identifier, String header, String sequence, Type type, List<String> subHeaderList){
+	public DigFASTAEntry(String identifier, String header, String sequence, DigFASTAEntry.Type type, List<String> subHeaderList){
 		this.identifier 		= identifier;
 		this.header 			= header;
 		this.sequence			= sequence;
 		this.type 				= type;
 		this.subHeaderList 		= subHeaderList;
 	}
-	
+
 	/**
 	 * Write a FASTA database entry.
 	 * @param bw. BufferedWriter that writes the data.
 	 * @throws IOException
 	 */
 	public void writeEntry(BufferedWriter bw) throws IOException {
-		
+
 		// Keep database Format
-		if (getType().equals(Type.UNIPROTSPROT)) {
+		if (getType().equals(DigFASTAEntry.Type.UNIPROTSPROT)) {
 			bw.write(getType().dbStartFlag + getIdentifier());
 			bw.write("|" + getSubHeader().get(1));
-		} else if (getType().equals(Type.SILICO_PEPTIDE)) {
+		} else if (getType().equals(DigFASTAEntry.Type.SILICO_PEPTIDE)) {
 			bw.write(">pep|"  + getIdentifier());
 		} else {
 			bw.write(">generic|"  + getIdentifier());
 			bw.write("|"  + "Metagenome unknown");
 		}
-		
+
 		// >generic_some_tag|proten_accession|a description for this protein
 
 		bw.newLine();
@@ -110,7 +110,7 @@ public class DigFASTAEntry {
 	public List<String> getSubHeader() {
 		return subHeaderList;
 	}
-	
+
 	/**
 	 * Gets the identifier of the database entry.
 	 * @return The identifier of the database entry.
@@ -135,12 +135,12 @@ public class DigFASTAEntry {
 		return sequence;
 	}
 
-	/** 
+	/**
 	 * Gets the type of protein entry.
 	 * @return. DB_Type. The type of the database entry.
 	 */
-	public Type getType() {
-		return type;
+	public DigFASTAEntry.Type getType() {
+		return this.type;
 	}
 	
 }

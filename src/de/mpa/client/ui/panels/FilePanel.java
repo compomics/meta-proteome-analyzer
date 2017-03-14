@@ -91,16 +91,13 @@ import de.mpa.client.model.AbstractExperiment;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.SpectrumFetchParameters;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
 import de.mpa.client.settings.SpectrumFilterParameters;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.CheckBoxTreeSelectionModel;
 import de.mpa.client.ui.CheckBoxTreeTable;
-import de.mpa.client.ui.CheckBoxTreeTable.IconCheckBox;
 import de.mpa.client.ui.CheckBoxTreeTableNode;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.FileChooserDecorationFactory;
-import de.mpa.client.ui.FileChooserDecorationFactory.DecorationType;
 import de.mpa.client.ui.MultiExtensionFileFilter;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.RolloverButtonUI;
@@ -109,7 +106,6 @@ import de.mpa.client.ui.SortableCheckBoxTreeTableNode;
 import de.mpa.client.ui.SortableTreeTableModel;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.chart.HistogramChart;
-import de.mpa.client.ui.chart.HistogramChart.HistogramChartType;
 import de.mpa.client.ui.chart.HistogramData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
@@ -128,135 +124,135 @@ public class FilePanel extends JPanel implements Busyable {
 	/**
 	 * File text field.
 	 */
-	private FileTextField filesTtf;
-	
+	private FilePanel.FileTextField filesTtf;
+
 	/**
 	 * Filter button.
 	 */
 	private JButton filterBtn;
-	
+
 	/**
 	 * Add from file button.
 	 */
 	private JButton addFromFileBtn;
-	
+
 	/**
 	 * Add from database button.
 	 */
 	private JButton addFromDbBtn;
-	
+
 	/**
 	 * Clear spectra from table button.
 	 */
-	private JButton clearBtn;	
-	
+	private JButton clearBtn;
+
 	/**
 	 * Tree table for the spectra.
 	 */
 	private CheckBoxTreeTable spectrumTreeTable;
-	
+
 	/**
 	 * Spectrum panel.
 	 */
 	private JPanel specPnl;
-	
+
 	/**
 	 * Spectrum histogram panel.
 	 */
 	private ChartPanel histPnl;
-	
+
 	/**
 	 * Spectrum histogram scroll bar.
 	 */
 	private JScrollBar histBar;
-	
+
 	/**
 	 * Splitpane instance.
 	 */
 	private JSplitPane splitPane;
-	
+
 	/**
 	 * The panel containing controls for manipulating search settings.
 	 */
 	private SettingsPanel settingsPnl;
-	
+
 	/**
 	 * Selected past of the .mgf or .dat File.
 	 */
-	private String selPath = Constants.DEFAULT_SPECTRA_PATH;
-	
+	private final String selPath = Constants.DEFAULT_SPECTRA_PATH;
+
 	/**
 	 * Button for the user to go to the next tab.
 	 */
 	private JButton nextBtn;
-	
+
 	/**
 	 * Button for the user to go to the previous tab.
 	 */
 	private JButton prevBtn;
-	
+
 	/**
 	 * Input file reader instance.
 	 */
 	private InputFileReader reader;
-	
+
 	/**
 	 * Mapping from spectrum file path to spectrum byte positions contained within the mapped file.
 	 */
-	private Map<String, List<Long>> specPosMap = new HashMap<String, List<Long>>();
-	
+	private final Map<String, List<Long>> specPosMap = new HashMap<String, List<Long>>();
+
 	/**
 	 * Flag denoting the busy state of the panel.
 	 */
 	private boolean busy;
-	
+
 	/**
 	 * List of spectrum TIC values.
 	 */
-	private ArrayList<Double> ticList = new ArrayList<Double>();
+	private final ArrayList<Double> ticList = new ArrayList<Double>();
 
 	/**
 	 * Holds the previous enable states of the client frame's tabs.
 	 */
 	private boolean[] tabEnabled;
-	
+
 	/**
 	 * Spectrum filter parameters.
 	 */
-	private ParameterMap filterParams = new SpectrumFilterParameters(); 
-	
+	private final ParameterMap filterParams = new SpectrumFilterParameters();
+
 	/**
 	 * Constructs a spectrum file selection and preview panel.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public FilePanel() {
-		this.initComponents();
+        initComponents();
 	}
-	
+
 	/**
 	 * Initializes the UI components.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void initComponents() {
-		final ClientFrame clientFrame = ClientFrame.getInstance();
-		
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
-		
+		ClientFrame clientFrame = ClientFrame.getInstance();
+
+        setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
+
 		// top panel containing buttons and spectrum tree table
 		JPanel topPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
-		
+
 		// button panel
 		JPanel buttonPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
-		
+
 		// Textfield displaying amount of selected files
-		filesTtf = new FileTextField();
+        this.filesTtf = new FilePanel.FileTextField();
 		
 		// button to display filter settings panel
-		filterBtn = new JButton("Filter settings...");
-		filterBtn.addActionListener(new ActionListener() {
+        this.filterBtn = new JButton("Filter settings...");
+        this.filterBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, filterParams);
+				int res = AdvancedSettingsDialog.showDialog(clientFrame, "Filter Settings", true, FilePanel.this.filterParams);
 				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
 					// TODO: re-filter table
 				}
@@ -264,24 +260,24 @@ public class FilePanel extends JPanel implements Busyable {
 		});
 		
 		// button to add spectra from a file
-		addFromFileBtn = new JButton("Add from File...");
+        this.addFromFileBtn = new JButton("Add from File...");
 		// button for downloading and appending mgf files from remote DB 
-		addFromDbBtn = new JButton("Add from DB...");
+        this.addFromDbBtn = new JButton("Add from DB...");
 		
 		// button to reset file tree contents
-		clearBtn = new JButton("Clear all");
-		clearBtn.setEnabled(false);
+        this.clearBtn = new JButton("Clear all");
+        this.clearBtn.setEnabled(false);
 		
 		// add components to button panel
 		buttonPnl.add(new JLabel("Spectrum Files:"), CC.xy(1, 1));
-		buttonPnl.add(filesTtf, CC.xy(3, 1));
-		buttonPnl.add(filterBtn, CC.xy(5, 1));
-		buttonPnl.add(addFromFileBtn, CC.xy(7, 1));
-		buttonPnl.add(addFromDbBtn, CC.xy(9, 1));
-		buttonPnl.add(clearBtn, CC.xy(11, 1));
+		buttonPnl.add(this.filesTtf, CC.xy(3, 1));
+		buttonPnl.add(this.filterBtn, CC.xy(5, 1));
+		buttonPnl.add(this.addFromFileBtn, CC.xy(7, 1));
+		buttonPnl.add(this.addFromDbBtn, CC.xy(9, 1));
+		buttonPnl.add(this.clearBtn, CC.xy(11, 1));
 		
 		// tree table containing spectrum details
-		final SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
+		SortableCheckBoxTreeTableNode treeRoot = new SortableCheckBoxTreeTableNode(
 				"no experiment selected", null, null, null, null) {
 			@Override
 			public Object getValueAt(int column) {
@@ -293,8 +289,8 @@ public class FilePanel extends JPanel implements Busyable {
 					return "no experiment selected";
 				} else if (column >= 2) {
 					double sum = 0.0;
-					for (int j = 0; j < getChildCount(); j++) {
-						sum += ((Number) getChildAt(j).getValueAt(column)).doubleValue();
+					for (int j = 0; j < this.getChildCount(); j++) {
+						sum += ((Number) this.getChildAt(j).getValueAt(column)).doubleValue();
 					}
 					return sum;
 				} else {
@@ -302,10 +298,9 @@ public class FilePanel extends JPanel implements Busyable {
 				}
 			}
 		};
-		final SortableTreeTableModel treeModel = new SortableTreeTableModel(treeRoot) {
-			{ 
-				this.setColumnIdentifiers(Arrays.asList(new String[] {
-						"Spectra", "Path / Title", "Peaks", "TIC", "SNR"}));
+		SortableTreeTableModel treeModel = new SortableTreeTableModel(treeRoot) {
+			{
+                setColumnIdentifiers(Arrays.asList("Spectra", "Path / Title", "Peaks", "TIC", "SNR"));
 			}
 			@Override
 			public Class<?> getColumnClass(int column) {
@@ -324,25 +319,25 @@ public class FilePanel extends JPanel implements Busyable {
 				// do nothing
 			}
 		};
-		
-		spectrumTreeTable = new SortableCheckBoxTreeTable(treeModel) {
+
+        this.spectrumTreeTable = new SortableCheckBoxTreeTable(treeModel) {
 			@Override
 			protected void initializeColumnWidths() {
 				TableConfig.setColumnWidths(this, new double[] { 2.5, 6.5, 1, 1, 1 });
 			}
 		};
-		spectrumTreeTable.setRootVisible(true);
-		spectrumTreeTable.getTableHeader().setReorderingAllowed(true);
-		spectrumTreeTable.setPreferredScrollableViewportSize(new Dimension(320, 200));
-		
-		spectrumTreeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        this.spectrumTreeTable.setRootVisible(true);
+        this.spectrumTreeTable.getTableHeader().setReorderingAllowed(true);
+        this.spectrumTreeTable.setPreferredScrollableViewportSize(new Dimension(320, 200));
+
+        this.spectrumTreeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent evt) {
-				refreshSpectrumPanel();
+                FilePanel.this.refreshSpectrumPanel();
 			}
 		});
 		
-		final CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
+		CheckBoxTreeSelectionModel cbtsm = this.spectrumTreeTable.getCheckBoxTreeSelectionModel();
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
@@ -357,7 +352,7 @@ public class FilePanel extends JPanel implements Busyable {
 						}
 					}
 				}
-				filesTtf.setSelectedCount(selLeaves);
+                FilePanel.this.filesTtf.setSelectedCount(selLeaves);
 			}
 		});
 		
@@ -376,10 +371,10 @@ public class FilePanel extends JPanel implements Busyable {
 		removePnl.add(removeBtn, BorderLayout.EAST);
 		
 		// install new tree cell editor, overlay remove button on top when highlighting file node
-		IconCheckBox editorBox = (IconCheckBox) spectrumTreeTable.getCellEditor(0, 0).getTableCellEditorComponent(
-				spectrumTreeTable, null, true, 0, 0);
+		CheckBoxTreeTable.IconCheckBox editorBox = (CheckBoxTreeTable.IconCheckBox) this.spectrumTreeTable.getCellEditor(0, 0).getTableCellEditorComponent(
+                this.spectrumTreeTable, null, true, 0, 0);
 		editorBox.add(removePnl, BorderLayout.CENTER);
-		spectrumTreeTable.setTreeCellEditor(spectrumTreeTable.new CheckBoxTreeCellEditor(editorBox) {
+        this.spectrumTreeTable.setTreeCellEditor(this.spectrumTreeTable.new CheckBoxTreeCellEditor(editorBox) {
 			@Override
 			public Component getTableCellEditorComponent(JTable table,
 					Object value, boolean isSelected, int row, int column) {
@@ -399,42 +394,42 @@ public class FilePanel extends JPanel implements Busyable {
 		editorTtf.setEditable(false);
 		editorTtf.setOpaque(false);
 		editorTtf.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		spectrumTreeTable.setDefaultEditor(String.class, new DefaultCellEditor(editorTtf));
-		spectrumTreeTable.setDefaultEditor(Number.class, new DefaultCellEditor(editorTtf));
+        this.spectrumTreeTable.setDefaultEditor(String.class, new DefaultCellEditor(editorTtf));
+        this.spectrumTreeTable.setDefaultEditor(Number.class, new DefaultCellEditor(editorTtf));
 		
 		// install action listener to remove file node on press
 		removeBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				// check whether the clicked file node is the last remaining one
-				if (((TreeNode) spectrumTreeTable.getTreeTableModel().getRoot()).getChildCount() == 1) {
+				if (((TreeNode) FilePanel.this.spectrumTreeTable.getTreeTableModel().getRoot()).getChildCount() == 1) {
 					// let clear button action handle the rest
-					clearBtn.doClick();
+                    FilePanel.this.clearBtn.doClick();
 				} else {
 					// get coordinates of button and convert them to table coordinates
 					Point point = SwingUtilities.convertPoint(
-							(Component) evt.getSource(), new Point(), spectrumTreeTable);
+							(Component) evt.getSource(), new Point(), FilePanel.this.spectrumTreeTable);
 					// determine tree path of cell containing the button
-					TreePath path = spectrumTreeTable.getPathForLocation(point.x, point.y);
+					TreePath path = FilePanel.this.spectrumTreeTable.getPathForLocation(point.x, point.y);
 
-					spectrumTreeTable.collapsePath(path);
+                    FilePanel.this.spectrumTreeTable.collapsePath(path);
 
 					// determine table row of cell containing the button
-					int row = spectrumTreeTable.getRowForPath(path);
-					if (row == spectrumTreeTable.getSelectedRow()) {
+					int row = FilePanel.this.spectrumTreeTable.getRowForPath(path);
+					if (row == FilePanel.this.spectrumTreeTable.getSelectedRow()) {
 						// select next row if clicked row was selected
-						spectrumTreeTable.getSelectionModel().setSelectionInterval(row + 1, row + 1);
+                        FilePanel.this.spectrumTreeTable.getSelectionModel().setSelectionInterval(row + 1, row + 1);
 					}
 					MutableTreeTableNode node = (MutableTreeTableNode) path.getLastPathComponent();
 
-					CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
+					CheckBoxTreeSelectionModel cbtsm = FilePanel.this.spectrumTreeTable.getCheckBoxTreeSelectionModel();
 
 					// remove TICs from cache, count selected children
 					int childCount = node.getChildCount();
 					for (int i = 0; i < childCount; i++) {
 						TreeTableNode childAt = node.getChildAt(i);
 						// remove value located in TIC column
-						ticList.remove(childAt.getValueAt(3));
+                        FilePanel.this.ticList.remove(childAt.getValueAt(3));
 					}
 
 					// change selection
@@ -448,18 +443,18 @@ public class FilePanel extends JPanel implements Busyable {
 					treeModel.removeNodeFromParent(node);
 
 					// refresh files text field
-					filesTtf.removeFiles(1, childCount);
+                    FilePanel.this.filesTtf.removeFiles(1, childCount);
 
 					// refresh histogram
-					if (ticList.isEmpty()) {
-						histBar.setValues(1, 0, 1, 1);
+					if (FilePanel.this.ticList.isEmpty()) {
+                        FilePanel.this.histBar.setValues(1, 0, 1, 1);
 					} else {
-						int size = ticList.size();
-						histBar.setValues(size, size / 10, 1, size);
+						int size = FilePanel.this.ticList.size();
+                        FilePanel.this.histBar.setValues(size, size / 10, 1, size);
 					}
 
 					// forcibly end editing mode
-					TableCellEditor editor = spectrumTreeTable.getCellEditor();
+					TableCellEditor editor = FilePanel.this.spectrumTreeTable.getCellEditor();
 					if (editor != null) {
 						editor.cancelCellEditing();
 					}
@@ -468,10 +463,10 @@ public class FilePanel extends JPanel implements Busyable {
 		});
 		
 		// modify column control button appearance
-		TableConfig.configureColumnControl(spectrumTreeTable);
+		TableConfig.configureColumnControl(this.spectrumTreeTable);
 		
 		// wrap tree table in scroll pane
-		JScrollPane treeScpn = new JScrollPane(spectrumTreeTable);
+		JScrollPane treeScpn = new JScrollPane(this.spectrumTreeTable);
 		
 		// add components to top panel
 		topPnl.add(buttonPnl, CC.xy(2, 2));
@@ -484,15 +479,15 @@ public class FilePanel extends JPanel implements Busyable {
 		// Spectrum panel containing spectrum viewer
 		JPanel specBorderPnl = new JPanel(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:0px:g, 5dlu"));
 		specBorderPnl.setName("Spectrum Viewer");
-		specPnl = createDefaultSpectrumPanel();
-		specBorderPnl.add(specPnl, CC.xy(2, 2));
+        this.specPnl = FilePanel.createDefaultSpectrumPanel();
+		specBorderPnl.add(this.specPnl, CC.xy(2, 2));
 		
 		// Panel containing histogram plot
 		JPanel histBorderPnl = new JPanel(new FormLayout("5dlu, 0px:g, 5dlu", "5dlu, f:0px:g, 5dlu"));
 		histBorderPnl.setName("Total Ion Current Histogram");
-		histPnl = createDefaultHistogramPanel();
+        this.histPnl = this.createDefaultHistogramPanel();
 		
-		JScrollPane histScp = new JScrollPane(histPnl,
+		JScrollPane histScp = new JScrollPane(this.histPnl,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		for (ChangeListener cl : histScp.getViewport().getChangeListeners()) {
@@ -501,31 +496,31 @@ public class FilePanel extends JPanel implements Busyable {
 		histScp.getViewport().setBackground(Color.WHITE);
 		histScp.setPreferredSize(new Dimension());
 
-		histBar = histScp.getVerticalScrollBar();
-		histBar.setValues(1, 0, 1, 1);
-		histBar.setBlockIncrement(36);
+        this.histBar = histScp.getVerticalScrollBar();
+        this.histBar.setValues(1, 0, 1, 1);
+        this.histBar.setBlockIncrement(36);
 		DefaultBoundedRangeModel histBarMdl =
-				(DefaultBoundedRangeModel) histBar.getModel();
+				(DefaultBoundedRangeModel) this.histBar.getModel();
 		ChangeListener[] cbcl = histBarMdl.getChangeListeners();
 		histBarMdl.removeChangeListener(cbcl[0]);
 
-		histBar.addAdjustmentListener(new AdjustmentListener() {
+        this.histBar.addAdjustmentListener(new AdjustmentListener() {
 			public void adjustmentValueChanged(AdjustmentEvent evt) {
-				JFreeChart chart = histPnl.getChart();
+				JFreeChart chart = FilePanel.this.histPnl.getChart();
 				if (chart != null) {
-					if (ticList.isEmpty()) {
-						Container cont = histPnl.getParent();
-						histPnl = createDefaultHistogramPanel();
+					if (FilePanel.this.ticList.isEmpty()) {
+						Container cont = FilePanel.this.histPnl.getParent();
+                        FilePanel.this.histPnl = FilePanel.this.createDefaultHistogramPanel();
 						cont.removeAll();
-						cont.add(histPnl, CC.xy(2, 2));
+						cont.add(FilePanel.this.histPnl, CC.xy(2, 2));
 						cont.validate();
 					} else {
 						int value = evt.getValue();
 						
-						Container cont = histPnl.getParent();
-						histPnl = createHistogramPanel(ticList, value);
+						Container cont = FilePanel.this.histPnl.getParent();
+                        FilePanel.this.histPnl = FilePanel.this.createHistogramPanel(FilePanel.this.ticList, value);
 						cont.removeAll();
-						cont.add(histPnl, CC.xy(2, 2));
+						cont.add(FilePanel.this.histPnl, CC.xy(2, 2));
 						cont.validate();
 					}
 				}
@@ -535,8 +530,8 @@ public class FilePanel extends JPanel implements Busyable {
 		histBorderPnl.add(histScp, CC.xy(2, 2));
 		
 		// wrap charts in card layout
-		final CardLayout chartLyt = new CardLayout();
-		final JPanel chartPnl = new JPanel(chartLyt);
+		CardLayout chartLyt = new CardLayout();
+		JPanel chartPnl = new JPanel(chartLyt);
 		chartPnl.setPreferredSize(new Dimension());
 		chartPnl.add(specBorderPnl, "spectrum");
 		chartPnl.add(histBorderPnl, "histogram");
@@ -548,7 +543,7 @@ public class FilePanel extends JPanel implements Busyable {
 		chartBtn.setPreferredSize(new Dimension(21, 20));
 		chartBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(chartBtn));
 		
-		final JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(specBorderPnl.getName(), chartPnl, null, chartBtn);
+		JXTitledPanel chartTtlPnl = PanelConfig.createTitledPanel(specBorderPnl.getName(), chartPnl, null, chartBtn);
 		chartTtlPnl.setMinimumSize(new Dimension(450, 350));
 
 		chartBtn.addActionListener(new ActionListener() {
@@ -566,32 +561,32 @@ public class FilePanel extends JPanel implements Busyable {
 		
 		JPanel btmPnl = new JPanel(new FormLayout("p:g, 5dlu, p", "f:p:g"));
 		btmPnl.add(chartTtlPnl, CC.xy(1, 1));
-		settingsPnl = new SettingsPanel();
-		btmPnl.add(settingsPnl, CC.xy(3, 1));
-		
-		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
-		splitPane.setBorder(null);
-		splitPane.setDividerSize(10);
-		((BasicSplitPaneUI) splitPane.getUI()).getDivider().setBorder(null);
+        this.settingsPnl = new SettingsPanel();
+		btmPnl.add(this.settingsPnl, CC.xy(3, 1));
+
+        this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
+        this.splitPane.setBorder(null);
+        this.splitPane.setDividerSize(10);
+		((BasicSplitPaneUI) this.splitPane.getUI()).getDivider().setBorder(null);
 		
 		// create panel containing navigation buttons
 		JPanel navPnl = new JPanel(new FormLayout("r:p:g, 5dlu, r:p", "b:p:g"));
 
-		prevBtn = clientFrame.createNavigationButton(false, true);
-		nextBtn = clientFrame.createNavigationButton(true, false);
+        this.prevBtn = clientFrame.createNavigationButton(false, true);
+        this.nextBtn = clientFrame.createNavigationButton(true, false);
 		
-		navPnl.add(prevBtn, CC.xy(1, 1));
-		navPnl.add(nextBtn, CC.xy(3, 1));
+		navPnl.add(this.prevBtn, CC.xy(1, 1));
+		navPnl.add(this.nextBtn, CC.xy(3, 1));
 		
 		// add everything to main panel
-		this.add(splitPane, CC.xy(2, 2));
-		this.add(navPnl, CC.xy(2, 4));
+        add(this.splitPane, CC.xy(2, 2));
+        add(navPnl, CC.xy(2, 4));
 		
 		// register listeners
-		addFromFileBtn.addActionListener(new ActionListener() {
+        this.addFromFileBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File startLocation = new File(selPath);
+				File startLocation = new File(FilePanel.this.selPath);
 				
 				JFileChooser fc = new JFileChooser(startLocation);
 				fc.setFileFilter(new MultiExtensionFileFilter(
@@ -603,7 +598,7 @@ public class FilePanel extends JPanel implements Busyable {
 				fc.setAcceptAllFileFilterUsed(false);
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				fc.setMultiSelectionEnabled(true);
-				FileChooserDecorationFactory.decorate(fc, DecorationType.TEXT_PREVIEW);
+				FileChooserDecorationFactory.decorate(fc, FileChooserDecorationFactory.DecorationType.TEXT_PREVIEW);
 				int result = fc.showOpenDialog(clientFrame);
 				if (result == JFileChooser.APPROVE_OPTION) {
 					new AddFileWorker(fc.getSelectedFiles()).execute();
@@ -611,15 +606,15 @@ public class FilePanel extends JPanel implements Busyable {
 				
 			}
 		});
-		
-		addFromDbBtn.addActionListener(new ActionListener() {
+
+        this.addFromDbBtn.addActionListener(new ActionListener() {
 			/** The spectrum database retrieval parameters. */
-			private ParameterMap fetchParams = new SpectrumFetchParameters();
+			private final ParameterMap fetchParams = new SpectrumFetchParameters();
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				int res = AdvancedSettingsDialog.showDialog(
-						clientFrame, "Fetch Spectra from Database", true, fetchParams);
+						clientFrame, "Fetch Spectra from Database", true, this.fetchParams);
 				if (res == AdvancedSettingsDialog.DIALOG_CHANGED_ACCEPTED) {
 					new FetchWorker().execute();
 				}
@@ -628,25 +623,25 @@ public class FilePanel extends JPanel implements Busyable {
 			class FetchWorker extends SwingWorker<File, Object> {
 				@Override
 				protected File doInBackground() throws Exception {
-					FilePanel.this.setBusy(true);
+                    setBusy(true);
 					
 					Client client = Client.getInstance();
 					client.firePropertyChange("indeterminate", false, true);
 					// extract settings from parameter map
 					Integer expIDval = (Integer) fetchParams.get("expID").getValue();					
-					AnnotationType annotMdl = AnnotationType.IGNORE_ANNOTATIONS;
+					SpectrumFetchParameters.AnnotationType annotMdl = SpectrumFetchParameters.AnnotationType.IGNORE_ANNOTATIONS;
 					String annotMdlstring =  fetchParams.get("annotated").getValue().toString();
 					if (annotMdlstring == "with annotations") {
-						annotMdl = AnnotationType.WITH_ANNOTATIONS;
+						annotMdl = SpectrumFetchParameters.AnnotationType.WITH_ANNOTATIONS;
 					} else if (annotMdlstring == "without annotations") {
-						annotMdl = AnnotationType.WITHOUT_ANNOTATIONS;
+						annotMdl = SpectrumFetchParameters.AnnotationType.WITHOUT_ANNOTATIONS;
 					} else if (annotMdlstring == "ignore annotations") {
-						annotMdl = AnnotationType.IGNORE_ANNOTATIONS;
+						annotMdl = SpectrumFetchParameters.AnnotationType.IGNORE_ANNOTATIONS;
 					}
 					Boolean s2fVal = (Boolean) fetchParams.get("saveToFile").getValue();
 					client.getConnection();					
 					List<MascotGenericFile> dlSpec = client.downloadSpectra(
-							expIDval.longValue(), (AnnotationType) annotMdl,
+							expIDval.longValue(), annotMdl,
 							false, s2fVal);
 					
 					File file = new File("experiment_" + expIDval + ".mgf");
@@ -666,47 +661,47 @@ public class FilePanel extends JPanel implements Busyable {
 				protected void done() {
 					try {
 						// Add downloaded file contents to tree
-						File file = this.get();
+						File file = get();
 						new AddFileWorker(new File[] { file }).execute();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					FilePanel.this.setBusy(false);
+                    setBusy(false);
 					Client.getInstance().firePropertyChange("indeterminate", true, false);
 				}
 			}
 		});
-		
-		clearBtn.addActionListener(new ActionListener() {
+
+        this.clearBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				TableConfig.clearTable(spectrumTreeTable);
-				spectrumTreeTable.getRowSorter().allRowsChanged();
-				spectrumTreeTable.getCheckBoxTreeSelectionModel().clearSelection();
+				TableConfig.clearTable(FilePanel.this.spectrumTreeTable);
+                FilePanel.this.spectrumTreeTable.getRowSorter().allRowsChanged();
+                FilePanel.this.spectrumTreeTable.getCheckBoxTreeSelectionModel().clearSelection();
 				
 				// reset text field
-				filesTtf.clear();
+                FilePanel.this.filesTtf.clear();
 				
 				// reset plots
-				Container specCont = specPnl.getParent();
+				Container specCont = FilePanel.this.specPnl.getParent();
 				// FIXME: NPE thrown here!
 				specCont.removeAll();
-				specCont.add(createDefaultSpectrumPanel(), CC.xy(2, 2));
+				specCont.add(FilePanel.createDefaultSpectrumPanel(), CC.xy(2, 2));
 				specCont.validate();
 
 				// XXX
-				histBar.setValues(1, 0, 1, 1);
-				Container cont = histPnl.getParent();
-				histPnl = createDefaultHistogramPanel();
+                FilePanel.this.histBar.setValues(1, 0, 1, 1);
+				Container cont = FilePanel.this.histPnl.getParent();
+                FilePanel.this.histPnl = FilePanel.this.createDefaultHistogramPanel();
 				cont.removeAll();
-				cont.add(histPnl, CC.xy(2, 2));
+				cont.add(FilePanel.this.histPnl, CC.xy(2, 2));
 				cont.validate();
-				
-				ticList.clear();
-				specPosMap.clear();
+
+                FilePanel.this.ticList.clear();
+                FilePanel.this.specPosMap.clear();
 				
 				// reset navigation button and search settings tab
-				nextBtn.setEnabled(false);
+                FilePanel.this.nextBtn.setEnabled(false);
 			}
 		});
 	}
@@ -721,14 +716,14 @@ public class FilePanel extends JPanel implements Busyable {
 	public MascotGenericFile getSpectrumForNode(CheckBoxTreeTableNode spectrumNode) throws IOException, SQLException {
 		CheckBoxTreeTableNode fileNode = (CheckBoxTreeTableNode) spectrumNode.getParent();
 		File file = (File) fileNode.getUserObject();
-		if ((reader != null) && (!reader.getFilename().equals(file.getName()))) {
+		if ((this.reader != null) && (!this.reader.getFilename().equals(file.getName()))) {
 			// TODO: process file switching using background worker linked to progress bar
-			reader = InputFileReader.createInputFileReader(file);
-			reader.survey();
+            this.reader = InputFileReader.createInputFileReader(file);
+            this.reader.survey();
 		}
 		int spectrumIndex = (Integer) spectrumNode.getUserObject() - 1;
 		
-		MascotGenericFile spectrum = reader.loadSpectrum(spectrumIndex);
+		MascotGenericFile spectrum = this.reader.loadSpectrum(spectrumIndex);
 		Long spectrumID = spectrum.getSpectrumID();
 		if (spectrumID != null) {
 			// this is just a dummy spectrum, fetch from database
@@ -742,17 +737,17 @@ public class FilePanel extends JPanel implements Busyable {
 	 */
 	protected void refreshSpectrumPanel() {
 		try {
-			TreePath path = spectrumTreeTable.getPathForRow(spectrumTreeTable.getSelectedRow());
+			TreePath path = this.spectrumTreeTable.getPathForRow(this.spectrumTreeTable.getSelectedRow());
 			if (path != null) {
 				CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) path.getLastPathComponent();
 				SpectrumPanel specPnl = null;
 				if (node.isLeaf() && (node.getParent() != null)) {
-						MascotGenericFile mgf = this.getSpectrumForNode(node);
+						MascotGenericFile mgf = getSpectrumForNode(node);
 						specPnl = new SpectrumPanel(mgf, false);
 						specPnl.setBorder(UIManager.getBorder("ScrollPane.border"));
 						specPnl.setShowResolution(false);
 				} else {
-					specPnl = createDefaultSpectrumPanel();
+					specPnl = FilePanel.createDefaultSpectrumPanel();
 				}
 				Container specCont = this.specPnl.getParent();
 				specCont.removeAll();
@@ -790,16 +785,16 @@ public class FilePanel extends JPanel implements Busyable {
 				super.paint(g);
 
 				g.setColor(new Color(255, 255, 255, 191));
-				Insets insets = getBorder().getBorderInsets(this);
+				Insets insets = this.getBorder().getBorderInsets(this);
 				g.fillRect(insets.left, insets.top,
-						getWidth() - insets.right - insets.left,
-						getHeight() - insets.top - insets.bottom);
+                        this.getWidth() - insets.right - insets.left,
+                        this.getHeight() - insets.top - insets.bottom);
 				String str = "no spectrum selected";
 				int strWidth = g2d.getFontMetrics().stringWidth(str);
 				int strHeight = g2d.getFontMetrics().getHeight();
-				int[] xData = iXAxisDataInPixels.get(0);
+				int[] xData = this.iXAxisDataInPixels.get(0);
 				float xOffset = xData[0] + (xData[xData.length - 1] - xData[0]) / 2.0f - strWidth / 2.0f;
-				float yOffset = getHeight() / 2.0f;
+				float yOffset = this.getHeight() / 2.0f;
 				g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
 				
 				g2d.setColor(Color.BLACK);
@@ -829,9 +824,9 @@ public class FilePanel extends JPanel implements Busyable {
 	 */
 	private ChartPanel createHistogramPanel(Collection<Double> values, int toIndex) {
 		return new HistogramPanel(new HistogramChart(
-				new HistogramData(values, 40, 0, toIndex), HistogramChartType.TOTAL_ION_HIST));
+				new HistogramData(values, 40, 0, toIndex), HistogramChart.HistogramChartType.TOTAL_ION_HIST));
 	}
-	
+
 	/**
 	 * Convenience method to create a default histogram panel displaying bars
 	 * following a bell curve shape and displaying a string notifying the user
@@ -845,15 +840,15 @@ public class FilePanel extends JPanel implements Busyable {
 		List<Double> ticList = new ArrayList<Double>();
 		for (int i = 0; i < binCount; i++) {
 			double x = i / (double) (binCount - 1);
-			long y = Math.round(100.0 * Math.pow(Math.exp(-(((x - mean) * (x - mean)) / 
+			long y = Math.round(100.0 * Math.pow(Math.exp(-(((x - mean) * (x - mean)) /
 					((2 * variance)))), 1 / (stdDeviation * Math.sqrt(2 * Math.PI))));
 			for (int j = 0; j < y; j++) {
-				ticList.add(x * binCount); 
+				ticList.add(x * binCount);
 			}
 		}
-		
+
 		return new HistogramPanel(new HistogramChart(new HistogramData(
-				ticList, binCount, 0, ticList.size()), HistogramChartType.TOTAL_ION_HIST)) {
+				ticList, binCount, 0, ticList.size()), HistogramChart.HistogramChartType.TOTAL_ION_HIST)) {
 			@Override
 			public void paint(Graphics g) {
 				super.paint(g);
@@ -863,7 +858,7 @@ public class FilePanel extends JPanel implements Busyable {
 				g.fillRect(insets.left, insets.top,
 						getWidth() - insets.right - insets.left,
 						getHeight() - insets.top - insets.bottom);
-				
+
 				Graphics2D g2d = (Graphics2D) g;
 				String str = "no file(s) added";
 				int strWidth = g2d.getFontMetrics().stringWidth(str);
@@ -872,7 +867,7 @@ public class FilePanel extends JPanel implements Busyable {
 				float xOffset = (float) (dataArea.getX() + dataArea.getWidth() / 2.1) - strWidth / 2.0f;
 				float yOffset = getHeight() / 2.0f;
 				g2d.fillRect((int) xOffset - 2, (int) yOffset - g2d.getFontMetrics().getAscent() - 1, strWidth + 4, strHeight + 4);
-				
+
 				g2d.setColor(Color.BLACK);
 				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -887,9 +882,9 @@ public class FilePanel extends JPanel implements Busyable {
 	 */
 	public List<File> getSelectedMascotFiles() {
 		List<File> mascotFiles = new ArrayList<>();
-		
+
 		CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
-		
+
 		TreeTableNode root = (TreeTableNode) spectrumTreeTable.getTreeTableModel().getRoot();
 		Enumeration<? extends TreeTableNode> fileNodes = root.children();
 		while (fileNodes.hasMoreElements()) {
@@ -907,7 +902,7 @@ public class FilePanel extends JPanel implements Busyable {
 		}
 		return mascotFiles;
 	}
-	
+
 	/**
 	 * Returns whether any files have been added to the panel.
 	 * @return
@@ -927,7 +922,7 @@ public class FilePanel extends JPanel implements Busyable {
 	public CheckBoxTreeTable getSpectrumTable() {
 		return spectrumTreeTable;
 	}
-	
+
 	/**
 	 * Returns the settings panel.
 	 * @return the settings panel
@@ -943,7 +938,7 @@ public class FilePanel extends JPanel implements Busyable {
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		clientFrame.setCursor(cursor);
 		if (splitPane.getCursor().getType() == Cursor.WAIT_CURSOR) splitPane.setCursor(null);
-		
+
 		if (tabEnabled == null) {
 			tabEnabled = new boolean[4];
 			tabEnabled[ClientFrame.INDEX_INPUT_PANEL] = true;
@@ -958,7 +953,7 @@ public class FilePanel extends JPanel implements Busyable {
 		for (int i = 0; i < clientFrame.getJMenuBar().getMenuCount(); i++) {
 			clientFrame.getJMenuBar().getMenu(i).setEnabled(!busy);
 		}
-		
+
 		// Enable/disable buttons
 		addFromFileBtn.setEnabled(!busy);
 		addFromDbBtn.setEnabled(!busy);
@@ -970,7 +965,7 @@ public class FilePanel extends JPanel implements Busyable {
 		}
 		prevBtn.setEnabled(!busy);
 		nextBtn.setEnabled(!busy);
-		
+
 	}
 
 	@Override
@@ -980,21 +975,21 @@ public class FilePanel extends JPanel implements Busyable {
 
 	/**
 		 * Worker class to add local files to the spectrum tree view.
-		 * 
+		 *
 		 * @author behne
 		 */
 		private class AddFileWorker extends SwingWorker<Boolean, Void> {
-			
+
 			/**
 			 * The spectrum files.
 			 */
 			private File[] files;
-			
+
 			/**
 			 * The total number of added spectra.
 			 */
 			private int specCount;
-			
+
 			/**
 			 * Constructs a worker instance for parsing the specified spectrum files
 			 * and inserting node representations of them into the spectrum tree
@@ -1004,31 +999,31 @@ public class FilePanel extends JPanel implements Busyable {
 			public AddFileWorker(File[] files) {
 				this.files = files;
 			}
-	
+
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
 				// appear busy
 				FilePanel.this.setBusy(true);
-				
+
 				final Client client = Client.getInstance();
-				
+
 				DefaultTreeTableModel treeModel = (DefaultTreeTableModel) spectrumTreeTable.getTreeTableModel();
 				CheckBoxTreeTableNode treeRoot = (CheckBoxTreeTableNode) treeModel.getRoot();
 				CheckBoxTreeSelectionModel cbtsm = spectrumTreeTable.getCheckBoxTreeSelectionModel();
-	
+
 				long totalSize = 0L;
 				for (File file : files) {
 					totalSize += file.length();
 				}
 				client.firePropertyChange("resetall", 0, totalSize);
-				
+
 				int i = 0;
 				for (File file : files) {
 					client.firePropertyChange("new message", null, "READING SPECTRUM FILE " + ++i + "/" + files.length);
-	
+
 					reader = InputFileReader.createInputFileReader(file);
-					
+
 					if (Constants.DAT_FILE_FILTER.accept(file)) {
 						DatabaseSearchSettingsPanel dbSettingsPnl =
 								ClientFrame.getInstance().getFilePanel().getSettingsPanel().getDatabaseSearchSettingsPanel();
@@ -1039,15 +1034,15 @@ public class FilePanel extends JPanel implements Busyable {
 						mascotParams.setValue("precTol", Double.valueOf(parameters.getTOL()));
 						mascotParams.setValue("fragTol", Double.valueOf(parameters.getITOL()));
 						mascotParams.setValue("missClv", Integer.valueOf(parameters.getPFA()));
-						
+
 						boolean decoy = (mascotDatfile.getDecoyQueryToPeptideMap() != null);
 						mascotParams.setDecoy(decoy);
 					}
-					
+
 					List<Long> positions = new ArrayList<Long>();
 					try {
 						client.firePropertyChange("resetcur", -1L, file.length());
-						
+
 						reader.addPropertyChangeListener(new PropertyChangeListener() {
 							@Override
 							public void propertyChange(PropertyChangeEvent pce) {
@@ -1057,13 +1052,13 @@ public class FilePanel extends JPanel implements Busyable {
 							}
 						});
 						reader.survey();
-						
+
 						positions.addAll(reader.getSpectrumPositions(false));
 						specPosMap.put(file.getAbsolutePath(), positions);
 						this.specCount += positions.size();
-	
+
 						client.firePropertyChange("new message", null, "BUILDING TREE NODE " + i + "/" + files.length);
-						
+
 						File parentFile = file.getParentFile();
 						if (parentFile == null) {
 							parentFile = file;
@@ -1085,14 +1080,14 @@ public class FilePanel extends JPanel implements Busyable {
 								}
 							}
 						};
-						
+
 						client.firePropertyChange("resetcur", -1L, positions.size());
-	
+
 						int index = 1;
 						List<TreePath> toBeAdded = new ArrayList<TreePath>();
 						for (int j = 0; j < positions.size(); j++) {
 							MascotGenericFile mgf = reader.loadSpectrum(index - 1);
-							
+
 							Long spectrumID = mgf.getSpectrumID();
 							if (spectrumID != null) {
 								// this is just a dummy spectrum, fetch from database
@@ -1100,7 +1095,7 @@ public class FilePanel extends JPanel implements Busyable {
 							}
 	//							totalSpectraList.add(mgf);
 							ticList.add(mgf.getTotalIntensity());
-	
+
 							// examine spectrum regarding filter criteria
 							int numPeaks = 0;
 							double noiseLvl = (Double) filterParams.get("noiselvl").getValue();
@@ -1111,7 +1106,7 @@ public class FilePanel extends JPanel implements Busyable {
 							}
 							double TIC = mgf.getTotalIntensity();
 							double SNR = mgf.getSNR(noiseLvl);
-	
+
 							// append new spectrum node to file node
 							SortableCheckBoxTreeTableNode spectrumNode = new SortableCheckBoxTreeTableNode(
 									index, mgf.getTitle(), numPeaks, TIC, SNR) {
@@ -1124,22 +1119,22 @@ public class FilePanel extends JPanel implements Busyable {
 								}
 							};
 							fileNode.add(spectrumNode);
-							
+
 							// check filter criteria
-							int minPeaks = (Integer) filterParams.get("minpeaks").getValue(); 
+							int minPeaks = (Integer) filterParams.get("minpeaks").getValue();
 							int minTIC = (Integer) filterParams.get("mintic").getValue();
 							double minSNR = (Double) filterParams.get("minsnr").getValue();
 							if ((numPeaks >= minPeaks) && (TIC >= minTIC) && (SNR >= minSNR)) {
 								toBeAdded.add(new TreePath(new Object[] {treeRoot, fileNode, spectrumNode}));
 							}
 							index++;
-							
+
 							client.firePropertyChange("progressmade", false, true);
 						}
-	
+
 						client.firePropertyChange("indeterminate", false, true);
 						client.firePropertyChange("new message", null, "INSERTING TREE NODE " + i + "/" + files.length);
-						
+
 						// append new file node to root and initially deselect it
 						if (fileNode.getChildCount() > 0) {
 							treeModel.insertNodeInto(fileNode, treeRoot, treeRoot.getChildCount());
@@ -1153,33 +1148,33 @@ public class FilePanel extends JPanel implements Busyable {
 								new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 						return false;
 					}
-					
+
 				}
 
-				
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				return true;
 			}
-			
+
 			@Override
 			protected void done() {
 				try {
 					// check result value
 					if (this.get().booleanValue()) {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) FINISHED");
-	
+
 						// update file text field
 						filesTtf.addFiles(this.files.length, this.specCount);
-						
+
 						// show histogram
 						if (!ticList.isEmpty()) {
 							int size = ticList.size();
 	//						// TODO: Currently the histogram is shown for all files... would be better to show only for selected files/spectra.
 							histBar.setValues(size, size / 10, 1, size);
 						}
-						
+
 						// enable navigation buttons and search settings tab
 						nextBtn.setEnabled(true);
 //						ClientFrame.getInstance().getTabbedPane().setEnabledAt(ClientFrame.SETTINGS_PANEL, true);
@@ -1187,13 +1182,13 @@ public class FilePanel extends JPanel implements Busyable {
 					} else {
 						Client.getInstance().firePropertyChange("new message", null, "READING SPECTRUM FILE(S) ABORTED");
 					}
-					
+
 					// expand tree table root
 					spectrumTreeTable.expandRow(0);
-					
+
 					// stop appearing busy
 					FilePanel.this.setBusy(false);
-					
+
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),
 							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -1203,52 +1198,52 @@ public class FilePanel extends JPanel implements Busyable {
 
 	/**
 	 * Convenience class for wrapping histogram charts in pre-configured panels.
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	private class HistogramPanel extends ChartPanel {
-	
+
 		public HistogramPanel(HistogramChart histogram) {
 			super(histogram.getChart());
-			
+
 			this.setPreferredSize(new Dimension(0, 0));
 			this.setBorder(BorderFactory.createEmptyBorder());
-			
+
 			addLogarithmicAxisWidget(histogram);
 		}
-	
+
 		/**
 		 * Convenience method to add widget to panel to choose between
 		 * logarithmic and linear y axis presentation
 		 * @param histogram the histogram reference
 		 */
 		private void addLogarithmicAxisWidget(final HistogramChart histogram) {
-			
+
 			this.setLayout(new FormLayout("3dlu, l:p, 0px:g", "0px:g, b:p, 2dlu"));
-			
+
 			JCheckBox logChk = new JCheckBox("logarithmic y axis", true);
 			logChk.setOpaque(false);
 			logChk.setFocusPainted(false);
-			
+
 			logChk.addItemListener(new ItemListener() {
 				private XYPlot plot = (XYPlot) histogram.getChart().getPlot();
 				@Override
 				public void itemStateChanged(ItemEvent evt) {
 					ValueAxis yAxis;
 					if (evt.getStateChange() == ItemEvent.SELECTED) {
-						yAxis = new LogarithmicAxis(HistogramChartType.TOTAL_ION_HIST.getYLabel());
+						yAxis = new LogarithmicAxis(HistogramChart.HistogramChartType.TOTAL_ION_HIST.getYLabel());
 				        ((LogarithmicAxis) yAxis).setAllowNegativesFlag(true);
 					} else {
-						yAxis = new NumberAxis(HistogramChartType.TOTAL_ION_HIST.getYLabel());
+						yAxis = new NumberAxis(HistogramChart.HistogramChartType.TOTAL_ION_HIST.getYLabel());
 						yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 					}
-					yAxis.setLabelFont(plot.getRangeAxis().getLabelFont());
-			        yAxis.setTickLabelFont(plot.getRangeAxis().getTickLabelFont());
-					plot.setRangeAxis(yAxis);
+					yAxis.setLabelFont(this.plot.getRangeAxis().getLabelFont());
+			        yAxis.setTickLabelFont(this.plot.getRangeAxis().getTickLabelFont());
+                    this.plot.setRangeAxis(yAxis);
 				}
 			});
-			
-			this.add(logChk, CC.xy(2, 2));
+
+            add(logChk, CC.xy(2, 2));
 		}
 		
 	}
@@ -1261,16 +1256,16 @@ public class FilePanel extends JPanel implements Busyable {
 	private class FileTextField extends JTextField {
 		
 		/** The number of files added. */
-		private int numFiles = 0;
+		private int numFiles;
 		/** The total number of spectra. */
-		private int numSpectra = 0;
+		private int numSpectra;
 		/** The number of selected spectra. */
-		private int numSelected = 0;
+		private int numSelected;
 		
 		/** Constructs a non-editable text field with the default text '0 files added' */
 		public FileTextField() {
 			super("0 files added");
-			this.setEditable(false);
+            setEditable(false);
 		}
 
 		/**
@@ -1281,8 +1276,8 @@ public class FilePanel extends JPanel implements Busyable {
 		public void addFiles(int numFiles, int numSpectra) {
 			this.numFiles += numFiles;
 			this.numSpectra += numSpectra;
-			this.clampValues();
-			this.setText(this.createText());
+            clampValues();
+            setText(createText());
 		}
 
 		/**
@@ -1291,47 +1286,47 @@ public class FilePanel extends JPanel implements Busyable {
 		 * @param numSpectra the total number of spectra removed
 		 */
 		public void removeFiles(int numFiles, int numSpectra) {
-			this.addFiles(-numFiles, -numSpectra);
+            addFiles(-numFiles, -numSpectra);
 		}
 		
 		/** Resets the text field to its default (empty) value. */
 		public void clear() {
-			this.removeFiles(this.numFiles, this.numSpectra);
+            removeFiles(numFiles, numSpectra);
 		}
 
 		/** Convenience method to sanitize fields */
 		private void clampValues() {
-			if (this.numFiles < 0) {
-				this.numFiles = 0;
+			if (numFiles < 0) {
+                numFiles = 0;
 			}
-			if (this.numSpectra < 0) {
-				this.numSpectra = 0;
+			if (numSpectra < 0) {
+                numSpectra = 0;
 			}
-			if (this.numSelected < 0) {
-				this.numSelected = 0;
+			if (numSelected < 0) {
+                numSelected = 0;
 			}
 		}
 		
 		/** Convenience method to return a string containing file, spectrum and selection counts */
 		private String createText() {
 			// Return default string when no files were added
-			if (this.numFiles == 0) {
+			if (numFiles == 0) {
 				return "0 files added";
 			}
 			// Determine plural/singular forms
-			String file = (this.numFiles == 1) ? "file" : "files";
-			String spec = (this.numSpectra == 1) ? "spectrum" : "spectra";
-			String sel = (this.numSelected == 1) ? "spectrum" : "spectra";
+			String file = (numFiles == 1) ? "file" : "files";
+			String spec = (numSpectra == 1) ? "spectrum" : "spectra";
+			String sel = (numSelected == 1) ? "spectrum" : "spectra";
 			// Return concatenated values
-			return "" + this.numFiles + " " + file + " added, "
-					+ this.numSpectra + " " + spec + " total, "
-					+ this.numSelected + " " + sel + " selected";
+			return "" + numFiles + " " + file + " added, "
+					+ numSpectra + " " + spec + " total, "
+					+ numSelected + " " + sel + " selected";
 		}
 		
 		/** Setter for the selection count. */
 		public void setSelectedCount(int numSelected) {
 			this.numSelected = numSelected;
-			this.setText(this.createText());
+            setText(createText());
 		}
 		
 	}

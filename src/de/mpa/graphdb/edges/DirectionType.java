@@ -5,19 +5,19 @@ public enum DirectionType {
 	OUT("-","->"),
 	BOTH("-","-");
 	
-	private String left;
-	private String right;
+	private final String left;
+	private final String right;
 
-	private DirectionType(String left, String right) {
+	DirectionType(String left, String right) {
 		this.left = left;
 		this.right = right;
 	}
 	
 	public String getLeft() {
-		return left;
+		return this.left;
 	}
 	
 	public String getRight() {
-		return right;
+		return this.right;
 	}
 }

@@ -37,7 +37,7 @@ public class MascotDatFileReader extends InputFileReader {
 	 */
 	public MascotDatFileReader(File file) throws IOException {
 		super(file);
-		this.raf = new RandomAccessFile(file, "r");
+        raf = new RandomAccessFile(file, "r");
 	}
 
 	/**
@@ -47,11 +47,11 @@ public class MascotDatFileReader extends InputFileReader {
 	public MascotGenericFile loadSpectrum(int index) throws IOException {
 		
 		// Determine start and end positions
-    	long summaryPos = spectrumPositions.get(index);
-    	long queryPos = queryPositions.get(index);
+    	long summaryPos = this.spectrumPositions.get(index);
+    	long queryPos = this.queryPositions.get(index);
 //    	System.out.println(summaryPos);
 //    	System.out.println(queryPos);
-    	return loadSpectrum(index, summaryPos, queryPos);
+    	return this.loadSpectrum(index, summaryPos, queryPos);
 	}
 
 	@Override
@@ -60,15 +60,15 @@ public class MascotDatFileReader extends InputFileReader {
 		String[] split;
 		
 		// Skip to specified summary line
-    	raf.seek(summaryPos);
+        this.raf.seek(summaryPos);
     	
     	// Read first summary line of query, e.g. qexp1=336.205400,2+
     	
-    	line = raf.readLine();
+    	line = this.raf.readLine();
     	// Proteome discoverer needs a further read line to get the right row, but ProteinScape not... 
     	// maybe some differences in the linebreak
     	if (line == null || line.length() == 0) {
-    		line = raf.readLine();
+    		line = this.raf.readLine();
 		}
     	split = line.split("=");
     	split = split[1].split(",");
@@ -76,23 +76,23 @@ public class MascotDatFileReader extends InputFileReader {
     	int precursorCharge = Integer.parseInt(split[1].substring(0, 1));
     	
     	// Read second summary line of query, e.g. qintensity1=201964.0000
-    	line = raf.readLine();
+    	line = this.raf.readLine();
     	split = line.split("=");
     	double precursorInt = Double.parseDouble(split[1]);
     	
     	// Skip to specified query line
-    	raf.seek(queryPos);
+        this.raf.seek(queryPos);
     	
     	// Read first query line, e.g. title=Cmpd%20839%2c%20%2bMSn%28336%2e2054%29%2c%2017%2e0%20min
-    	line = raf.readLine();
+    	line = this.raf.readLine();
     	if (line == null || line.length() == 0) {
-    		line = raf.readLine();
+    		line = this.raf.readLine();
 		}
     	split = line.split("=");
     	String title = URLDecoder.decode(split[1], "UTF-8");
     	
     	// Skip the next lines until one starts with "Ions1"
-    	while (!(line = raf.readLine()).startsWith("Ions1")) {
+    	while (!(line = this.raf.readLine()).startsWith("Ions1")) {
     		// do nothing
     	}
     	
@@ -107,16 +107,16 @@ public class MascotDatFileReader extends InputFileReader {
 			ions.put(Double.parseDouble(ionSplit[0]), Double.parseDouble(ionSplit[1]));
 		}
 		
-		return new MascotGenericFile(getFilename(), title, ions, precursorMz, precursorInt, precursorCharge);
+		return new MascotGenericFile(this.getFilename(), title, ions, precursorMz, precursorInt, precursorCharge);
 	}
 
 	@Override
 	public void survey() throws IOException {
-		spectrumPositions = new ArrayList<Long>();
-		queryPositions = new ArrayList<Long>();
+        this.spectrumPositions = new ArrayList<Long>();
+        this.queryPositions = new ArrayList<Long>();
 
 		// Instantiate forward-only buffered reader for lightning-fast parsing to determine spectrum positions
-        BufferedReader br = new BufferedReader(new FileReader(file));
+        BufferedReader br = new BufferedReader(new FileReader(this.file));
         
         String line = null;
         long oldPos = 0L;
@@ -129,7 +129,7 @@ public class MascotDatFileReader extends InputFileReader {
         while ((line = br.readLine()) != null) {
         	oldPos = newPos;
         	
-    		newPos += line.getBytes().length + newlineCharCount;
+    		newPos += line.getBytes().length + this.newlineCharCount;
     		
     		if (summary) {
             	if (line.startsWith("qmass")) {
@@ -137,7 +137,7 @@ public class MascotDatFileReader extends InputFileReader {
 //                		System.out.println("new Pos: " + newPos);
                 		first = true;
                 	}
-            		spectrumPositions.add(newPos);
+                    this.spectrumPositions.add(newPos);
             	}
             	
             	if (line.startsWith("num_hits")) {
@@ -149,7 +149,7 @@ public class MascotDatFileReader extends InputFileReader {
     				queryPos = oldPos;
     			}
     			if (line.startsWith("Ions1")) {
-    				queryPositions.add(queryPos);
+                    this.queryPositions.add(queryPos);
     			}
     			if (line.startsWith("parameters")) {
     				break;
@@ -166,19 +166,19 @@ public class MascotDatFileReader extends InputFileReader {
 
 	@Override
 	public void close() throws IOException {
-		raf.close();
+        this.raf.close();
 	}
 	
 	@Override
 	public List<Long> getSpectrumPositions(boolean doClose) {
 		if (doClose) {
 			try {
-				this.close();
+                close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		return this.queryPositions;
+		return queryPositions;
 	}
 	
 }

@@ -8,20 +8,20 @@ import com.tinkerpop.frames.VertexFrame;
 public interface Ontology extends VertexFrame {
 
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("DESCRIPTION")
-	public String getDescription();
+    String getDescription();
 	
 	@Adjacency(label="INVOLVED_IN_BIOPROCESS", direction=Direction.IN)
-	public Iterable<Protein> getBiologicalProcessProteins();
+    Iterable<Protein> getBiologicalProcessProteins();
 	
 	@Adjacency(label="CONTAINED_IN_COMPONENT", direction=Direction.IN)
-	public Iterable<Protein> getCellularComponentProteins();
+    Iterable<Protein> getCellularComponentProteins();
 	
 	@Adjacency(label="HAS_MOLECULAR_FUNCTION", direction=Direction.IN)
-	public Iterable<Protein> getMolecularFunctionProteins();
+    Iterable<Protein> getMolecularFunctionProteins();
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 }

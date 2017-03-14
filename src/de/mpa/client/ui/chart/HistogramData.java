@@ -25,22 +25,22 @@ public class HistogramData implements ChartData {
 	/**
 	 * The array of values backing the dataset.
 	 */
-	private double[] values;
+	private final double[] values;
 	
 	/**
 	 * The number of bins to be displayed in the histogram.
 	 */
-	private int binCount;
+	private final int binCount;
 	
 	/**
 	 * The index marking the lower boundary of a values sub-array.
 	 */
-	private int fromIndex;
+	private final int fromIndex;
 	
 	/**
 	 * The index marking the upper (exclusive) boundary of a values sub-array.
 	 */
-	private int toIndex;
+	private final int toIndex;
 
 //	/**
 //	 * Creates a histogram data object from the total ion currents stored in the
@@ -92,13 +92,13 @@ public class HistogramData implements ChartData {
 		this.binCount = binCount;
 		this.fromIndex = fromIndex;
 		this.toIndex = toIndex;
-		
-		init();
+
+        this.init();
 	}
 
 	@Override
 	public Dataset getDataset() {
-		return histDataset;
+		return this.histDataset;
 	}
 
 	@Override
@@ -110,18 +110,18 @@ public class HistogramData implements ChartData {
 	@SuppressWarnings("serial")
 	@Override
 	public void init() {
-		Arrays.sort(values);
+		Arrays.sort(this.values);
 		
 		double[] values;
-		if ((fromIndex > 0) || (toIndex < this.values.length)) {
-			int length = toIndex - fromIndex;
+		if ((this.fromIndex > 0) || (this.toIndex < this.values.length)) {
+			int length = this.toIndex - this.fromIndex;
 			values = new double[length];
-			System.arraycopy(this.values, fromIndex, values, 0, length);
+			System.arraycopy(this.values, this.fromIndex, values, 0, length);
 		} else {
 			values = this.values;
 		}
-		
-		histDataset = new HistogramDataset() {
+
+        this.histDataset = new HistogramDataset() {
 			/*
 			 * Overrides as workaround for when only a single bar is to be
 			 * painted which would otherwise have zero width
@@ -131,7 +131,7 @@ public class HistogramData implements ChartData {
 				double startXValue = super.getStartXValue(series, item);
 				double endXValue = super.getEndXValue(series, item);
 				if ((endXValue - startXValue) < 1.0) {
-					return startXValue - (0.5 / binCount);
+					return startXValue - (0.5 / HistogramData.this.binCount);
 				}
 				return startXValue;
 			}
@@ -140,13 +140,13 @@ public class HistogramData implements ChartData {
 				double startXValue = super.getStartXValue(series, item);
 				double endXValue = super.getEndXValue(series, item);
 				if ((endXValue - startXValue) < 1.0) {
-					return endXValue + (0.5 / binCount);
+					return endXValue + (0.5 / HistogramData.this.binCount);
 				}
 				return endXValue;
 			}
 		};
-		
-		histDataset.addSeries("key", values, binCount);
+
+        this.histDataset.addSeries("key", values, this.binCount);
 	}
 
 }

@@ -18,13 +18,10 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Index;
 import com.tinkerpop.blueprints.IndexableGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
-import com.tinkerpop.blueprints.TransactionalGraph.Conclusion;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 
 import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.UniProtUtilities.Keyword;
-import de.mpa.analysis.UniProtUtilities.KeywordCategory;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
@@ -64,22 +61,22 @@ public class GraphDatabaseHandler {
 	/**
 	 * By default, the first operation on a TransactionalGraph will start a transaction automatically.
 	 */
-	private TransactionalGraph graph;
+	private final TransactionalGraph graph;
 	
 	/**
 	 *  An IndexableGraph is a graph that supports the manual indexing of its elements.
 	 */
-	private IndexableGraph indexGraph;
+	private final IndexableGraph indexGraph;
 	
 	/**
 	 * Graph database instance.
 	 */
-	private GraphDatabase graphDb;
+	private final GraphDatabase graphDb;
 	
 	/**
 	 * Graph database execution engine.
 	 */
-	private ExecutionEngine engine;
+	private final ExecutionEngine engine;
 	
 	/*
 	 * Graph database indices.
@@ -106,10 +103,10 @@ public class GraphDatabaseHandler {
 	public GraphDatabaseHandler(GraphDatabase graphDb) {
 		this.graphDb = graphDb;
 		GraphDatabaseService service = graphDb.getService();
-		engine = new ExecutionEngine(service);
-		indexGraph = new Neo4jGraph(service);
-		graph = new Neo4jGraph(service);		
-		this.setupIndices();
+        this.engine = new ExecutionEngine(service);
+        this.indexGraph = new Neo4jGraph(service);
+        this.graph = new Neo4jGraph(service);
+        setupIndices();
 	}
 	
 	/**
@@ -121,7 +118,7 @@ public class GraphDatabaseHandler {
 		client.firePropertyChange("new message", null, "EXPORTING GRAPHML FILE");
 		client.firePropertyChange("indeterminate", false, true);
 		try {
-			GraphMLHandler.exportGraphML(graph, outputFile);
+			GraphMLHandler.exportGraphML(this.graph, outputFile);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -142,10 +139,10 @@ public class GraphDatabaseHandler {
 		client.firePropertyChange("resetall", -1L, Long.valueOf(proteinHits.size()));
 		
 		// Add experiment
-		this.addExperiment(data.getExperimentTitle(), data.getProjectTitle());
+        addExperiment(data.getExperimentTitle(), data.getProjectTitle());
 		// Add protein hits
 		for (ProteinHit proteinHit : proteinHits) {
-			this.addProtein(proteinHit);
+            addProtein(proteinHit);
 			client.firePropertyChange("progressmade", -1L, 0L);
 		}
 		// Add meta-proteins for processed results
@@ -156,14 +153,14 @@ public class GraphDatabaseHandler {
 				MetaProteinHit metaProtein = proteinHit.getMetaProteinHit();
 				// Only add "real" meta-proteins to the list
 				if (metaProtein.getProteinHitList().size() > 0)
-					this.addMetaprotein(metaProtein);
+                    addMetaprotein(metaProtein);
 				client.firePropertyChange("progressmade", -1L, 0L);
 			}
 		}
 		client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
 		
 		// Stop the transaction
-		this.stopTransaction();
+        stopTransaction();
 		
 	}
 	
@@ -173,13 +170,13 @@ public class GraphDatabaseHandler {
 	 * @param projectTitle Title of the project.
 	 */
 	private void addExperiment(String experimentTitle, String projectTitle) {
-		currentExperimentVertex = graph.addVertex(null);
-		
-		currentExperimentVertex.setProperty(ExperimentProperty.IDENTIFIER.toString(), experimentTitle);
-		currentExperimentVertex.setProperty(ExperimentProperty.PROJECTTITLE.toString(), projectTitle);
+        this.currentExperimentVertex = this.graph.addVertex(null);
+
+        this.currentExperimentVertex.setProperty(ExperimentProperty.IDENTIFIER.toString(), experimentTitle);
+        this.currentExperimentVertex.setProperty(ExperimentProperty.PROJECTTITLE.toString(), projectTitle);
 		
 		// Index the experiments by their title.
-		experimentIndex.put(ProteinProperty.IDENTIFIER.toString(), experimentTitle, currentExperimentVertex);
+        this.experimentIndex.put(ProteinProperty.IDENTIFIER.toString(), experimentTitle, this.currentExperimentVertex);
 		
 		
 	}
@@ -193,11 +190,11 @@ public class GraphDatabaseHandler {
 		String accession = protHit.getAccession();
 		
 		Vertex proteinVertex = null;	
-		Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), accession).iterator();
+		Iterator<Vertex> proteinIterator = this.proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), accession).iterator();
 		if (proteinIterator.hasNext()) {
 			proteinVertex = proteinIterator.next();
 		} else {
-			proteinVertex = graph.addVertex(null);
+			proteinVertex = this.graph.addVertex(null);
 		}
 
 		proteinVertex.setProperty(ProteinProperty.IDENTIFIER.toString(), accession);
@@ -208,16 +205,16 @@ public class GraphDatabaseHandler {
 		proteinVertex.setProperty(ProteinProperty.SPECTRALCOUNT.toString(), protHit.getSpectralCount());		
 		
 		// Index the proteins by their accession
-		proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, proteinVertex);
+        this.proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, proteinVertex);
 		
 		// Connect protein node to experiment node.
-		addEdge(proteinVertex, currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
+        this.addEdge(proteinVertex, this.currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
 		
 		// Add taxonomy
-		this.addTaxonomy(protHit, proteinVertex);
+        addTaxonomy(protHit, proteinVertex);
 		
 		// Add peptides
-		this.addPeptides(protHit.getPeptideHitList(), proteinVertex);
+        addPeptides(protHit.getPeptideHitList(), proteinVertex);
 		
 		// Add enzyme numbers
 		UniProtEntryMPA uniprotEntry = protHit.getUniProtEntry();
@@ -225,14 +222,14 @@ public class GraphDatabaseHandler {
 		if (uniprotEntry != null) {
 			
 			List<String> ecNumbers = uniprotEntry.getEcnumbers();
-			this.addEnzymeNumbers(ecNumbers, proteinVertex);
+            addEnzymeNumbers(ecNumbers, proteinVertex);
 			
 			// Add pathways.		
 			List<String> koNumbers = uniprotEntry.getKonumbers();
-			this.addPathways(koNumbers, proteinVertex);
+            addPathways(koNumbers, proteinVertex);
 			
 			// Add ontologies
-			this.addOntologies(protHit, proteinVertex);
+            addOntologies(protHit, proteinVertex);
 		}
 	}
 	
@@ -248,7 +245,7 @@ public class GraphDatabaseHandler {
 		
 		// Iterate the proteins to see whether there are already assigned meta-proteins.
 		for (ProteinHit proteinHit : proteinHits) {
-			Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
+			Iterator<Vertex> proteinIterator = this.proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
 			if (proteinIterator.hasNext()) {
 				proteinVertex = proteinIterator.next();
 			}
@@ -263,7 +260,7 @@ public class GraphDatabaseHandler {
 		
 		// Case 2: No meta-protein vertex has been existing: create a new one.
 		if (metaProteinVertex == null) {
-			metaProteinVertex =  graph.addVertex(null);
+			metaProteinVertex = this.graph.addVertex(null);
 			String accession = metaProteinHit.getAccession();
 			String description = metaProteinHit.getDescription();
 			int index = description.indexOf("OS=");
@@ -279,20 +276,20 @@ public class GraphDatabaseHandler {
 			metaProteinVertex.setProperty(ProteinProperty.PROTEINCOUNT.toString(), metaProteinHit.getProteinSet().size());
 			
 			// Index the proteins by their accession.
-			proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);	
+            this.proteinIndex.put(ProteinProperty.IDENTIFIER.toString(), accession, metaProteinVertex);
 		}	
 		
 		// Iterate the proteins again to connect the edges.
 		for (ProteinHit proteinHit : proteinHits) {
-			Iterator<Vertex> proteinIterator = proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
+			Iterator<Vertex> proteinIterator = this.proteinIndex.get(ProteinProperty.IDENTIFIER.toString(), proteinHit.getAccession()).iterator();
 			if (proteinIterator.hasNext()) {
 				proteinVertex = proteinIterator.next();
 			}
 			// Add edge between meta-protein and protein.
-			addEdge(metaProteinVertex, proteinVertex, RelationType.IS_METAPROTEIN_OF);
+            this.addEdge(metaProteinVertex, proteinVertex, RelationType.IS_METAPROTEIN_OF);
 		}
 		// Connect meta-protein node to experiment node.
-		addEdge(metaProteinVertex, currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
+        this.addEdge(metaProteinVertex, this.currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
 	}
 	
 	/**
@@ -304,20 +301,20 @@ public class GraphDatabaseHandler {
 		TaxonomyNode childNode = proteinHit.getTaxonomyNode();
 		String species = childNode.toString();
 		Vertex childVertex = null;
-		Iterator<Vertex> taxonomyIterator = taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
+		Iterator<Vertex> taxonomyIterator = this.taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), species).iterator();
 		if (taxonomyIterator.hasNext()) {
 			childVertex = taxonomyIterator.next();
 		} else {
 			// Create new vertex.
-			childVertex = graph.addVertex(null);
+			childVertex = this.graph.addVertex(null);
 			childVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), species);
 			childVertex.setProperty(TaxonProperty.TAXID.toString(), childNode.getID());
 			childVertex.setProperty(TaxonProperty.RANK.toString(), childNode.getRank().toString());
 			// Index the species by the species name.
-			taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), species, childVertex);
+            this.taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), species, childVertex);
 		}		
 		// Add edge between protein and species.
-		addEdge(proteinVertex, childVertex, RelationType.BELONGS_TO_TAXONOMY);
+        this.addEdge(proteinVertex, childVertex, RelationType.BELONGS_TO_TAXONOMY);
 		
 		Vertex parentVertex = null;	
 		// Add complete taxonomy path.
@@ -325,21 +322,21 @@ public class GraphDatabaseHandler {
 		StringBuilder builder = new StringBuilder();
 		for (int i = path.length-2; i >= 0; i--) {
 			String taxon = path[i].toString();
-			builder.append(path[i].toString()+" :: ");
-			Iterator<Vertex> iterator = taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), taxon).iterator();
+			builder.append(path[i] +" :: ");
+			Iterator<Vertex> iterator = this.taxonomyIndex.get(TaxonProperty.IDENTIFIER.toString(), taxon).iterator();
 			if (iterator.hasNext()) {
 				parentVertex = iterator.next();
 			} else {
 				// Create new vertex.
-				parentVertex = graph.addVertex(null);
+				parentVertex = this.graph.addVertex(null);
 				parentVertex.setProperty(TaxonProperty.IDENTIFIER.toString(), taxon);
 				parentVertex.setProperty(TaxonProperty.TAXID.toString(), path[i].getID());
 				parentVertex.setProperty(TaxonProperty.RANK.toString(), path[i].getRank().toString());
 				// Index the species by the species name.
-				taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
+                this.taxonomyIndex.put(TaxonProperty.IDENTIFIER.toString(), taxon, parentVertex);
 			}		
 			// Add edge between parent and child vertex
-			addEdge(parentVertex, childVertex, RelationType.IS_ANCESTOR_OF);
+            this.addEdge(parentVertex, childVertex, RelationType.IS_ANCESTOR_OF);
 //			System.out.println(parentVertex.getProperty("Rank")+"-[:IS_ANCESTOR_OF]->"+childVertex.getProperty("Rank"));
 			childVertex = parentVertex;
 		}
@@ -355,7 +352,7 @@ public class GraphDatabaseHandler {
 		Vertex enzymeVertex = null;
 		for (String ecNumber : ecNumbers) {
 			Iterator<Vertex> vertexIterator =
-					enzymeIndex.get(EnzymeProperty.IDENTIFIER.toString(), ecNumber).iterator();
+                    this.enzymeIndex.get(EnzymeProperty.IDENTIFIER.toString(), ecNumber).iterator();
 			if (vertexIterator.hasNext()) {
 				enzymeVertex = vertexIterator.next();
 			} else {
@@ -373,26 +370,26 @@ public class GraphDatabaseHandler {
 						ecFragment += "." + ((j <= i) ? ecTokens[j] : "-");
 					}
 					// Get existing vertex for (partial) E.C. number...
-					Vertex temp = graph.getVertex(ecFragment);
+					Vertex temp = this.graph.getVertex(ecFragment);
 					if (temp == null) {
 						// ... or create new vertex.
-						temp = graph.addVertex(ecFragment);
+						temp = this.graph.addVertex(ecFragment);
 						temp.setProperty(EnzymeProperty.IDENTIFIER.toString(), ecFragment);
 						// TODO set description property, fetch from intenz.xml (ftp://ftp.ebi.ac.uk/pub/databases/intenz/xml/)
 					}
 					// Index vertex by E.C. Number.
-					enzymeIndex.put(EnzymeProperty.IDENTIFIER.toString(), ecFragment, temp);
+                    this.enzymeIndex.put(EnzymeProperty.IDENTIFIER.toString(), ecFragment, temp);
 					
 					// Link enzyme vertices
 					if (i > 0) {
-						addEdge(enzymeVertex, temp, RelationType.IS_SUPERGROUP_OF);
+                        this.addEdge(enzymeVertex, temp, RelationType.IS_SUPERGROUP_OF);
 					}
 					
 					enzymeVertex = temp;
 				}
 			}
 			// Add edge between protein and enzyme number.
-			addEdge(proteinVertex, enzymeVertex, RelationType.BELONGS_TO_ENZYME);
+            this.addEdge(proteinVertex, enzymeVertex, RelationType.BELONGS_TO_ENZYME);
 		}
 	}
 	
@@ -404,19 +401,19 @@ public class GraphDatabaseHandler {
 	private void addPathways(List<String> koNumbers, Vertex proteinVertex) {
 		Vertex pathwayVertex = null;
 		for (String koNumber : koNumbers) {
-			Iterator<Vertex> pathwayIterator = pathwayIndex.get(PathwayProperty.IDENTIFIER.toString(), koNumber).iterator();
+			Iterator<Vertex> pathwayIterator = this.pathwayIndex.get(PathwayProperty.IDENTIFIER.toString(), koNumber).iterator();
 			if (pathwayIterator.hasNext()) {
 				pathwayVertex = pathwayIterator.next();
 			} else {
 				// Create new vertex.
-				pathwayVertex = graph.addVertex(null);
+				pathwayVertex = this.graph.addVertex(null);
 				pathwayVertex.setProperty(PathwayProperty.IDENTIFIER.toString(), koNumber);
 				//TODO: Add KEGG description + KEGG Number!
 				// Index the pathway by the ID.
-				pathwayIndex.put(PathwayProperty.IDENTIFIER.toString(), koNumber, pathwayVertex);
+                this.pathwayIndex.put(PathwayProperty.IDENTIFIER.toString(), koNumber, pathwayVertex);
 			}
 			// Add edge between protein and pathway.
-			addEdge(proteinVertex, pathwayVertex, RelationType.BELONGS_TO_PATHWAY);
+            this.addEdge(proteinVertex, pathwayVertex, RelationType.BELONGS_TO_PATHWAY);
 		}
 	}
 	
@@ -426,7 +423,7 @@ public class GraphDatabaseHandler {
 	 * @param proteinVertex
 	 */
 	private void addOntologies(ProteinHit protHit, Vertex proteinVertex) {
-		Map<String, Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
+		Map<String, UniProtUtilities.Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		UniProtEntryMPA entry = protHit.getUniProtEntry();
 		Vertex ontologyVertex = null;
 		
@@ -435,36 +432,36 @@ public class GraphDatabaseHandler {
 			List<String> keywords = entry.getKeywords();			
 			for (String keyword : keywords) {
 				if (ontologyMap.containsKey(keyword)) {
-					KeywordCategory type = KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
+					UniProtUtilities.KeywordCategory type = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
 					
 					// Check if peptide is already contained in the graph.
 					Iterator<Vertex> ontologyIterator =
-							ontologyIndex.get(OntologyProperty.IDENTIFIER.toString(), keyword).iterator();
+                            this.ontologyIndex.get(OntologyProperty.IDENTIFIER.toString(), keyword).iterator();
 					if (ontologyIterator.hasNext()) {
 						ontologyVertex = ontologyIterator.next();
 					} else {
 						// Create new vertex.
-						ontologyVertex = graph.addVertex(null);
+						ontologyVertex = this.graph.addVertex(null);
 						ontologyVertex.setProperty(OntologyProperty.IDENTIFIER.toString(), keyword);
 						ontologyVertex.setProperty(OntologyProperty.TYPE.toString(), type.toString());
 						
 						// Index the proteins by their accession.
-						ontologyIndex.put(OntologyProperty.IDENTIFIER.toString(), keyword, ontologyVertex);
+                        this.ontologyIndex.put(OntologyProperty.IDENTIFIER.toString(), keyword, ontologyVertex);
 					}			
 					
 					// Add edge between protein and ontology.
 					switch (type) {
 					case BIOLOGICAL_PROCESS:
-						addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
+                        this.addEdge(proteinVertex, ontologyVertex, RelationType.INVOLVED_IN_BIOPROCESS);
 						break;
 					case CELLULAR_COMPONENT:
-						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_CELL_COMP);
+                        this.addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO_CELL_COMP);
 						break;
 					case MOLECULAR_FUNCTION:
-						addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);
+                        this.addEdge(proteinVertex, ontologyVertex, RelationType.HAS_MOLECULAR_FUNCTION);
 						break;	
 					default:
-						addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO);
+                        this.addEdge(proteinVertex, ontologyVertex, RelationType.BELONGS_TO);
 						break;
 					}
 					
@@ -483,12 +480,12 @@ public class GraphDatabaseHandler {
 			
 			Vertex peptideVertex = null;
 			// Check if peptide is already contained in the graph.
-			Iterator<Vertex> peptideIterator = peptideIndex.get(PeptideProperty.IDENTIFIER.toString(), sequence).iterator();
+			Iterator<Vertex> peptideIterator = this.peptideIndex.get(PeptideProperty.IDENTIFIER.toString(), sequence).iterator();
 			if (peptideIterator.hasNext()) {
 				peptideVertex = peptideIterator.next();
 			} else {
 				// Create new vertex.
-				peptideVertex = graph.addVertex(null);
+				peptideVertex = this.graph.addVertex(null);
 				peptideVertex.setProperty(PeptideProperty.IDENTIFIER.toString(), sequence);
 				String description = "Start: " + peptideHit.getStart() + " End: " + peptideHit.getEnd();
 				peptideVertex.setProperty(PeptideProperty.DESCRIPTION.toString(), description);
@@ -501,20 +498,20 @@ public class GraphDatabaseHandler {
 				peptideVertex.setProperty(PeptideProperty.PROTEINCOUNT.toString(), peptideHit.getProteinCount());
 				
 				// Index the proteins by their accession.
-				peptideIndex.put(PeptideProperty.IDENTIFIER.toString(), sequence, peptideVertex);
+                this.peptideIndex.put(PeptideProperty.IDENTIFIER.toString(), sequence, peptideVertex);
 			}			
 			
 			// Add edge between peptide and protein.
-			addEdge(proteinVertex, peptideVertex, RelationType.HAS_PEPTIDE);
+            this.addEdge(proteinVertex, peptideVertex, RelationType.HAS_PEPTIDE);
 		    
 			// Connect peptide taxon node name to peptide vertex.
 //			addSpecies(peptideHit.getTaxonomyNode().getName(), peptideVertex);
 			
 			// Add PSMs.
-			addPeptideSpectrumMatches(peptideHit.getSpectrumMatches(), peptideVertex);
+            this.addPeptideSpectrumMatches(peptideHit.getSpectrumMatches(), peptideVertex);
 			
 			// Connect peptide node to experiment node.
-			addEdge(peptideVertex, currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
+            this.addEdge(peptideVertex, this.currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
 		}
 	}
 	
@@ -530,12 +527,12 @@ public class GraphDatabaseHandler {
 			long spectrumID = psm.getSearchSpectrumID();
 			
 			// Check if PSM is already contained in the graph.
-			Iterator<Vertex> psmIterator = psmIndex.get(PsmProperty.SPECTRUMID.toString(), spectrumID).iterator();
+			Iterator<Vertex> psmIterator = this.psmIndex.get(PsmProperty.SPECTRUMID.toString(), spectrumID).iterator();
 			if (psmIterator.hasNext()) {
 				psmVertex = psmIterator.next();
 			} else {
 				// Create new vertex.
-				psmVertex = graph.addVertex(null);
+				psmVertex = this.graph.addVertex(null);
 //				psmVertex.setProperty(PsmProperty.SPECTRUMID.toString(), spectrumID);
 				psmVertex.setProperty(PsmProperty.TITLE.toString(), psm.getTitle());
 				psmVertex.setProperty(PsmProperty.VOTES.toString(), psm.getVotes());
@@ -543,12 +540,12 @@ public class GraphDatabaseHandler {
 				psmVertex.setProperty(PsmProperty.IDENTIFIER.toString(), spectrumID);
 				
 				// Index the proteins by their accession.
-				psmIndex.put(PsmProperty.SPECTRUMID.toString(), spectrumID, psmVertex);
-			}	
-			addEdge(psmVertex, peptideVertex, RelationType.IS_MATCH_IN);
+                this.psmIndex.put(PsmProperty.SPECTRUMID.toString(), spectrumID, psmVertex);
+			}
+            this.addEdge(psmVertex, peptideVertex, RelationType.IS_MATCH_IN);
 			
 			// Connect PSM node to experiment node.
-			addEdge(psmVertex, currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
+            this.addEdge(psmVertex, this.currentExperimentVertex, RelationType.BELONGS_TO_EXPERIMENT);
 		}
 	}
 	
@@ -559,13 +556,13 @@ public class GraphDatabaseHandler {
 	 * @param inVertex The incoming vertex.
 	 * @param label The edge label.
 	 */
-	private void addEdge(final Vertex outVertex, final Vertex inVertex, final RelationType relType) {		
+	private void addEdge(Vertex outVertex, Vertex inVertex, RelationType relType) {
 		String id = outVertex.getId()+ "_" + inVertex.getId();
 		// Check if edge is not already contained in the graph.
-		if (!edgeIndex.get(EdgeProperty.ID.toString(), id).iterator().hasNext()) {
-			Edge edge = graph.addEdge(id, outVertex, inVertex, relType.name());
+		if (!this.edgeIndex.get(EdgeProperty.ID.toString(), id).iterator().hasNext()) {
+			Edge edge = this.graph.addEdge(id, outVertex, inVertex, relType.name());
 			edge.setProperty(EdgeProperty.LABEL.name(), relType.name());
-			edgeIndex.put(EdgeProperty.ID.toString(), id, edge);
+            this.edgeIndex.put(EdgeProperty.ID.toString(), id, edge);
 		} 
 	}
 	
@@ -574,75 +571,75 @@ public class GraphDatabaseHandler {
 	 */
 	public void setupIndices() {
 		// Experiment index
-		experimentIndex = indexGraph.getIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
-		if (experimentIndex == null) {
-			experimentIndex = indexGraph.createIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+        this.experimentIndex = this.indexGraph.getIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
+		if (this.experimentIndex == null) {
+            this.experimentIndex = this.indexGraph.createIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
+			((TransactionalGraph) this.indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Protein index
 		proteinIndex = indexGraph.getIndex(NodeType.PROTEINS.toString(), Vertex.class);
-		
+
 		// If not existent, create a new index.
 		if (proteinIndex == null) {
 			proteinIndex = indexGraph.createIndex(NodeType.PROTEINS.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Peptide Index
 		peptideIndex = indexGraph.getIndex(NodeType.PEPTIDES.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (peptideIndex == null) {
 			peptideIndex = indexGraph.createIndex(NodeType.PEPTIDES.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// PSM index
 		psmIndex = indexGraph.getIndex(NodeType.PSMS.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (psmIndex == null) {
 			psmIndex = indexGraph.createIndex(NodeType.PSMS.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Species index
 		taxonomyIndex = indexGraph.getIndex(NodeType.TAXA.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (taxonomyIndex == null) {
-			taxonomyIndex = indexGraph.createIndex(NodeType.TAXA.toString(), Vertex.class);			
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			taxonomyIndex = indexGraph.createIndex(NodeType.TAXA.toString(), Vertex.class);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Enzyme index
 		enzymeIndex = indexGraph.getIndex(NodeType.ENZYMES.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (enzymeIndex == null) {
 			enzymeIndex = indexGraph.createIndex(NodeType.ENZYMES.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Pathway index
 		pathwayIndex = indexGraph.getIndex(NodeType.PATHWAYS.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (pathwayIndex == null) {
 			pathwayIndex = indexGraph.createIndex(NodeType.PATHWAYS.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Ontology index
 		ontologyIndex = indexGraph.getIndex(NodeType.ONTOLOGIES.toString(), Vertex.class);
 		// If not existent, create a new index.
 		if (ontologyIndex == null) {
 			ontologyIndex = indexGraph.createIndex(NodeType.ONTOLOGIES.toString(), Vertex.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
-		
+
 		// Edge index
 		edgeIndex = indexGraph.getIndex("edges", Edge.class);
 		// If not existent, create a new index.
 		if (edgeIndex == null) {
 			edgeIndex = indexGraph.createIndex("edges", Edge.class);
-			((TransactionalGraph) indexGraph).stopTransaction(Conclusion.SUCCESS);
+			((TransactionalGraph) indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
 	}
 
@@ -652,13 +649,13 @@ public class GraphDatabaseHandler {
 	 */
 	public GraphDatabaseService getGraphDatabaseService() {
 		return graphDb.getService();
-	}	
-	
+	}
+
 	/**
 	 * Executes a cypher query {@link CypherQuery}.
 	 * @param cypherQuery {@link CypherQuery}
 	 * @return {@link ExecutionResult}
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public ExecutionResult executeCypherQuery(CypherQuery cypherQuery) throws Exception {
 		// Validate query
@@ -673,8 +670,8 @@ public class GraphDatabaseHandler {
 	 * Stops the transaction of a graph database.
 	 */
 	public void stopTransaction() {
-		graph.stopTransaction(Conclusion.SUCCESS);
-		((TransactionalGraph)indexGraph).stopTransaction(Conclusion.SUCCESS);
+		graph.stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
+		((TransactionalGraph)indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		
 	}
 	
@@ -682,7 +679,7 @@ public class GraphDatabaseHandler {
 	 * Shuts down the graph database.
 	 */
 	public void shutDown() {
-		graphDb.shutDown();
+        this.graphDb.shutDown();
 	}
 	
 }

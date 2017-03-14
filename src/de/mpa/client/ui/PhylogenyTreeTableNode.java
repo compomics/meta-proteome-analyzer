@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import de.mpa.analysis.MetaProteinFactory;
 import org.apache.commons.lang3.ObjectUtils;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
-import de.mpa.analysis.MetaProteinFactory.ClusterRule;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.Client;
 import de.mpa.client.model.SpectrumMatch;
@@ -43,12 +43,12 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	
 	@Override
 	public Object getValueAt(int column) {
-		if (this.isProtein()) {
-			ProteinHit ph = (ProteinHit) userObject;
+		if (isProtein()) {
+			ProteinHit ph = (ProteinHit) this.userObject;
 			if (ph instanceof MetaProteinHit) {
 				switch (column) {
 				case ProteinTreeTables.ACCESSION_COLUMN:
-					return this.toString();
+					return toString();
 				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					return ph.getDescription();
 				case ProteinTreeTables.TAXONOMY_COLUMN:
@@ -62,7 +62,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			} else {
 				switch (column) {
 				case ProteinTreeTables.ACCESSION_COLUMN:
-					return this.toString();
+					return toString();
 				case ProteinTreeTables.DESCRIPTION_COLUMN:
 					String description = ph.getDescription();
 					if (description == null) {
@@ -85,9 +85,9 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 						return null;
 					}
 					ResultParameters parameters =
-							(ResultParameters) Client.getInstance().getResultParameters();
-					ClusterRule clusterRule =
-							(ClusterRule) parameters.get("clusterRule").getValue();
+                            Client.getInstance().getResultParameters();
+					MetaProteinFactory.ClusterRule clusterRule =
+							(MetaProteinFactory.ClusterRule) parameters.get("clusterRule").getValue();
 					switch (clusterRule) {
 						case UNIREF100:
 							return ph.getUniProtEntry().getUniRefMPA().getUniRef100();
@@ -118,8 +118,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 					return super.getValueAt(column);
 				}
 			}
-		} else if (this.isTaxonomy()) {
-			TaxonomyNode tn = (TaxonomyNode) userObject;
+		} else if (isTaxonomy()) {
+			TaxonomyNode tn = (TaxonomyNode) this.userObject;
 			switch (column) {
 			case 0:
 				return tn.getName();
@@ -128,11 +128,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			default:
 				return super.getValueAt(column);
 			}
-		} else if (this.isPeptide()) {
-			PeptideHit ph = (PeptideHit) userObject;
+		} else if (isPeptide()) {
+			PeptideHit ph = (PeptideHit) this.userObject;
 			switch (column) {
 			case 0:
-				return this.toString();
+				return toString();
 			case 1:
 				return ph.getProteinHits().size();
 			case 2:
@@ -147,7 +147,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 							accessions += ", ";
 						}
 					}
-					this.setValueAt(accessions, 2);
+                    setValueAt(accessions, 2);
 					value = accessions;
 				}
 				return value;
@@ -158,8 +158,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			default:
 				return super.getValueAt(column);
 			}
-		} else if (this.isSpectrumMatch()) {
-			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) userObject;
+		} else if (isSpectrumMatch()) {
+			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) this.userObject;
 			SearchHit searchHit;
 			switch (column) {
 			case 0:
@@ -178,7 +178,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 							sequences += ", ";
 						}
 					}
-					this.setValueAt(sequences, 2);
+                    setValueAt(sequences, 2);
 					value = sequences;
 				}
 				return value;
@@ -207,8 +207,8 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	
 	@Override
 	public Collection<?> getValuesAt(int column) {
-		if (this.isProtein()) {
-			ProteinHit ph = (ProteinHit) userObject;
+		if (isProtein()) {
+			ProteinHit ph = (ProteinHit) this.userObject;
 			switch (column) {
 				case ProteinTreeTables.PEPTIDE_COUNT_COLUMN:
 					return ph.getPeptideHitList();
@@ -222,10 +222,10 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	@Override
 	public void setValueAt(Object aValue, int column) {
 		// obligatory range check
-		if (column < getColumnCount()) {
+		if (column < this.getColumnCount()) {
 			// pad user objects array with nulls if it is too small
-			if (column >= userObjects.length) {
-				this.userObjects = Arrays.copyOf(userObjects, column + 1);
+			if (column >= this.userObjects.length) {
+                userObjects = Arrays.copyOf(this.userObjects, column + 1);
 			}
 			super.setValueAt(aValue, column);
 		}
@@ -237,7 +237,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isMetaProtein() {
-		return (userObject instanceof MetaProteinHit);
+		return (this.userObject instanceof MetaProteinHit);
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isProtein() {
-		return (userObject instanceof ProteinHit);
+		return (this.userObject instanceof ProteinHit);
 	}
 	
 	/**
@@ -255,7 +255,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isPeptide() {
-		return (userObject instanceof PeptideHit);
+		return (this.userObject instanceof PeptideHit);
 	}
 	
 	/**
@@ -264,7 +264,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isSpectrumMatch() {
-		return (userObject instanceof SpectrumMatch);
+		return (this.userObject instanceof SpectrumMatch);
 	}
 	
 	/**
@@ -273,7 +273,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>false</code> otherwise
 	 */
 	public boolean isTaxonomy() {
-		return (this.userObject instanceof TaxonomyNode);
+		return (userObject instanceof TaxonomyNode);
 	}
 	
 	/**
@@ -284,7 +284,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 * <code>null</code> if no such child exists.
 	 */
 	public MutableTreeTableNode getChildByName(String name) {
-		for (MutableTreeTableNode child : children) {
+		for (MutableTreeTableNode child : this.children) {
 			if (child.toString().equals(name)) {
 				return child;
 			}
@@ -300,7 +300,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	 *  <code>null</code> if no such child exists.
 	 */
 	public MutableTreeTableNode getChildByUserObject(Object usrObj) {
-		for (MutableTreeTableNode child : children) {
+		for (MutableTreeTableNode child : this.children) {
 			if (child.getUserObject().equals(usrObj)) {
 				return child;
 			}
@@ -310,20 +310,20 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 	
 	@Override
 	public PhylogenyTreeTableNode clone() {
-		PhylogenyTreeTableNode clone = new PhylogenyTreeTableNode(userObjects);
-		clone.setURI(this.getURI());
+		PhylogenyTreeTableNode clone = new PhylogenyTreeTableNode(this.userObjects);
+		clone.setURI(getURI());
 		return clone;
 	}
 	
 	@Override
 	public String toString() {
-		if (isProtein()) {
-			return ((ProteinHit) userObject).getAccession();
+		if (this.isProtein()) {
+			return ((ProteinHit) this.userObject).getAccession();
 		}
 		return super.toString();
-	};
-	
-	@SuppressWarnings("deprecation")
+	}
+
+    @SuppressWarnings("deprecation")
 	@Override
 	public boolean equals(Object obj) {
 		// check whether the other object inherits from CheckBoxTreeTableNode
@@ -331,11 +331,11 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 		if (res) {
 			// check whether both objects have the same number of columns
 			CheckBoxTreeTableNode that = (CheckBoxTreeTableNode) obj;
-			res = (this.getColumnCount() == that.getColumnCount());
+			res = (getColumnCount() == that.getColumnCount());
 			if (res) {
 				// check whether all column values match
-				for (int i = 0; i < this.getColumnCount(); i++) {
-					res &= ObjectUtils.equals(this.getValueAt(i), that.getValueAt(i));
+				for (int i = 0; i < getColumnCount(); i++) {
+					res &= ObjectUtils.equals(getValueAt(i), that.getValueAt(i));
 					if (!res) {
 						// abort
 						break;

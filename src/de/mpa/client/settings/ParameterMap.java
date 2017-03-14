@@ -16,7 +16,7 @@ public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	 * Constructs a parameter map initialized with default values.
 	 */
 	public ParameterMap() {
-		this.initDefaults();
+        initDefaults();
 	}
 	
 	/**
@@ -25,7 +25,7 @@ public abstract class ParameterMap extends LinkedHashMap<String, Parameter> {
 	 * @param value the value to set
 	 */
 	public void setValue(String key, Object value) {
-		Parameter parameter = this.get(key);
+		Parameter parameter = get(key);
 		if (parameter != null) {
 			parameter.setValue(value);
 		}

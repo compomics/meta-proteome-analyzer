@@ -69,7 +69,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	/**
 	 * GraphDatabaseResultPanel instance.
 	 */
-	private GraphDatabaseResultPanel resultDatabaseResultPnl;
+	private final GraphDatabaseResultPanel resultDatabaseResultPnl;
 	
 	/**
 	 * Column identifiers.
@@ -79,7 +79,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	/**
 	 * Last chosen CypherQuery.
 	 */
-	private CypherQuery lastCypherQuery = null;
+	private CypherQuery lastCypherQuery;
 	
 	/**
 	 * Export query results button.
@@ -91,8 +91,8 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * @param clientFrame The client frame.
 	 */
 	public GraphDatabaseResultPanel() {
-		this.resultDatabaseResultPnl = this;
-		initComponents();
+        resultDatabaseResultPnl = this;
+        this.initComponents();
 	}
 	
 	/**
@@ -100,7 +100,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 */
 	private void initComponents() {
 		CellConstraints cc = new CellConstraints();
-		this.setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p, 5dlu"));
+        setLayout(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p, 5dlu"));
 		
         // Build the spectrum overview panel
         JPanel graphDbPanel = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
@@ -108,50 +108,50 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		JXTitledPanel graphDbTtlPnl = PanelConfig.createTitledPanel("GraphDB Query Results", graphDbPanel);
 		
 		// Setup the table
-		setupQueryResultsTable();
+        this.setupQueryResultsTable();
 		
 		JPanel buttonPnl = new JPanel(new FormLayout("p, c:5dlu, p, 3dlu", "f:20px"));
 		buttonPnl.setOpaque(false);
-		
-		exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
-		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
-		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
-		exportBtn.setToolTipText("Export Table Contents");
-		exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(exportBtn));
-		
-		exportBtn.addActionListener(new ActionListener() {			
+
+        this.exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
+        this.exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
+        this.exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
+        this.exportBtn.setToolTipText("Export Table Contents");
+        this.exportBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(this.exportBtn));
+
+        this.exportBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportQueryResultsButtonTriggered();
+                GraphDatabaseResultPanel.this.exportQueryResultsButtonTriggered();
 			}
 		});
-		exportBtn.setEnabled(false);
-		
-		queryBtn = new JButton(IconConstants.GO_DB_ICON);
-		queryBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
-		queryBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
-		queryBtn.setToolTipText("Perform Graph Database Query");
-		queryBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(queryBtn));
-		
-		queryBtn.addActionListener(new ActionListener() {			
+        this.exportBtn.setEnabled(false);
+
+        this.queryBtn = new JButton(IconConstants.GO_DB_ICON);
+        this.queryBtn.setRolloverIcon(IconConstants.GO_DB_ROLLOVER_ICON);
+        this.queryBtn.setPressedIcon(IconConstants.GO_DB_PRESSED_ICON);
+        this.queryBtn.setToolTipText("Perform Graph Database Query");
+        this.queryBtn.setUI((RolloverButtonUI) RolloverButtonUI.createUI(this.queryBtn));
+
+        this.queryBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				new GraphQueryDialog(ClientFrame.getInstance(), resultDatabaseResultPnl, "GraphDB Query Dialog", true);
+				new GraphQueryDialog(ClientFrame.getInstance(), GraphDatabaseResultPanel.this.resultDatabaseResultPnl, "GraphDB Query Dialog", true);
 			}
 		});
 		
-		buttonPnl.add(exportBtn, CC.xy(1, 1));
+		buttonPnl.add(this.exportBtn, CC.xy(1, 1));
 		buttonPnl.add(new JSeparator(SwingConstants.VERTICAL), CC.xy(2, 1));
-		buttonPnl.add(queryBtn, CC.xy(3, 1));
+		buttonPnl.add(this.queryBtn, CC.xy(3, 1));
 		
 		graphDbTtlPnl.setRightDecoration(buttonPnl);
-		JScrollPane firstDimResultsTblScp = new JScrollPane(resultsTreeTbl);
+		JScrollPane firstDimResultsTblScp = new JScrollPane(this.resultsTreeTbl);
 		firstDimResultsTblScp.setPreferredSize(new Dimension(400, 210));
 		
 		firstDimResultsTblScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		graphDbPanel.add(firstDimResultsTblScp,cc.xy(2, 2));
-		
-	    this.add(graphDbTtlPnl, cc.xyw(2, 2, 3));
+
+        add(graphDbTtlPnl, cc.xyw(2, 2, 3));
 	}
 	
     /**
@@ -173,7 +173,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 						if (!filePath.toLowerCase().endsWith(".tsv")) {
 							filePath += ".tsv";
 						}
-						exportQueryResults(filePath);
+                        GraphDatabaseResultPanel.this.exportQueryResults(filePath);
 					}
 				}
 				return null;
@@ -186,13 +186,13 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * @param filePath Path to export TSV file.
 	 * @throws IOException
 	 */
-	private void exportQueryResults(String filePath) throws IOException {
+	private void exportQueryResults(String filePath) {
 		Client client = Client.getInstance();
 		String status = "FINISHED";
 		client.firePropertyChange("new message", null, "EXPORTING QUERY RESULTS FILE");
 		client.firePropertyChange("indeterminate", false, true);
 		try {
-			QueryResultExporter.exportResults(filePath,	resultsTreeTbl);
+			QueryResultExporter.exportResults(filePath, this.resultsTreeTbl);
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			status = "FAILED";
@@ -206,24 +206,24 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
      */
     private void setupQueryResultsTable() {
         // Initialize query results tree table.
-		resultsTreeTbl = new SortableCheckBoxTreeTable(
+        this.resultsTreeTbl = new SortableCheckBoxTreeTable(
 				new SortableTreeTableModel(new SortableCheckBoxTreeTableNode()) {
 					{
-						setColumnIdentifiers(Arrays
-								.asList(new String[] { " " }));
+                        this.setColumnIdentifiers(Arrays
+								.asList(" "));
 					}
 				});
         
         // Single selection only
-        resultsTreeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        resultsTreeTbl.setSelectionBackground(new Color(130, 207, 250));
+        this.resultsTreeTbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.resultsTreeTbl.setSelectionBackground(new Color(130, 207, 250));
 
         // Add nice striping effect
-        resultsTreeTbl.addHighlighter(TableConfig.getSimpleStriping());
-        resultsTreeTbl.getTableHeader().setReorderingAllowed(true);
+        this.resultsTreeTbl.addHighlighter(TableConfig.getSimpleStriping());
+        this.resultsTreeTbl.getTableHeader().setReorderingAllowed(true);
         
         // Enables column control
-        TableConfig.configureColumnControl(resultsTreeTbl);
+        TableConfig.configureColumnControl(this.resultsTreeTbl);
     }
 
     /**
@@ -234,7 +234,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
         SortableCheckBoxTreeTableNode root = new SortableCheckBoxTreeTableNode();
 
     	List<String> resultColumns = result.columns();
-    	columnIdentifiers = new ArrayList<String>();
+        this.columnIdentifiers = new ArrayList<String>();
     	
 		boolean first = true;
 		boolean isEmpty = true;
@@ -245,8 +245,8 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     			for (String col : resultColumns) {
     				Node graphNode = (Node) map.get(col);
     				for (String key : graphNode.getPropertyKeys()) {
-    					if (!columnIdentifiers.contains(key)) {
-        					columnIdentifiers.add(key);
+    					if (!this.columnIdentifiers.contains(key)) {
+                            this.columnIdentifiers.add(key);
     					}
     				}
 				}
@@ -256,7 +256,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     		SortableCheckBoxTreeTableNode parentNode = null;
     		for (String col : resultColumns) {
 				Node graphNode = (Node) map.get(col);
-    			SortableCheckBoxTreeTableNode childNode = this.convertGraphToTreeNode(graphNode);
+    			SortableCheckBoxTreeTableNode childNode = convertGraphToTreeNode(graphNode);
     			if (parentNode != null) {
     				parentNode.add(childNode);
     			}
@@ -269,7 +269,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
     		
 			// find node in existing tree to which (part of) the node chain shall be added
 			CheckBoxTreeTableNode insertionNode =
-					(CheckBoxTreeTableNode) this.findInsertionNode(root, (TreeTableNode) newChild);
+					(CheckBoxTreeTableNode) findInsertionNode(root, (TreeTableNode) newChild);
     		
     		// determine insertion depth
     		int depth = insertionNode.getPath().getPathCount() - 1;
@@ -283,24 +283,24 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		if (!isEmpty) {
 			
 			// force root to have a column count equal to the number of column identifiers
-			root.setUserObjects(columnIdentifiers.toArray());
+			root.setUserObjects(this.columnIdentifiers.toArray());
 			
 			// create new model using collected column identifiers
 			SortableTreeTableModel model = new SortableTreeTableModel(root);
-			model.setColumnIdentifiers(columnIdentifiers);
+			model.setColumnIdentifiers(this.columnIdentifiers);
 			
 			// insert model into table
-	    	resultsTreeTbl.setTreeTableModel(model);
+            this.resultsTreeTbl.setTreeTableModel(model);
 	    	
 	    	// Enable results export
-	    	exportBtn.setEnabled(true);
+            this.exportBtn.setEnabled(true);
 	        
 		} else {
 			// Display notification that no results have been found
 			JOptionPane.showMessageDialog(ClientFrame.getInstance(), "Found no results for query.");
 			
 			// Disable results export.
-			exportBtn.setEnabled(false);
+            this.exportBtn.setEnabled(false);
 		}
 	}
     
@@ -318,7 +318,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 			TreeTableNode treeChild = parent.getChildAt(i);
 			// FIXME: exception is thrown, if child count == 0
 			if (treeChild.equals(child2find) && child2find.getChildCount() > 0) {
-				return findInsertionNode(treeChild, child2find.getChildAt(0));
+				return this.findInsertionNode(treeChild, child2find.getChildAt(0));
 			}
 		}
     	return parent;
@@ -330,9 +330,9 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
      * @return {@link SortableCheckBoxTreeTableNode}
      */
 	private SortableCheckBoxTreeTableNode convertGraphToTreeNode(Node node) {
-		Object[] values = new Object[columnIdentifiers.size()];
+		Object[] values = new Object[this.columnIdentifiers.size()];
 		for (String key : node.getPropertyKeys()) {
-			int index = columnIdentifiers.indexOf(key);
+			int index = this.columnIdentifiers.indexOf(key);
 			values[index] = node.getProperty(key);
 		}
 		SortableCheckBoxTreeTableNode tableNode = new SortableCheckBoxTreeTableNode(values) {
@@ -341,8 +341,8 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 				if (obj instanceof TreeTableNode && obj != null) {
 					TreeTableNode that = (TreeTableNode) obj;	
 					//TODO: Check if this works correctly.
-					if (this.getValueAt(0) != null) {
-						return this.getValueAt(0).equals(that.getValueAt(0));
+					if (getValueAt(0) != null) {
+						return getValueAt(0).equals(that.getValueAt(0));
 					}
 				}
 				return false;
@@ -355,7 +355,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * This method sets the enabled state of the get results button.
 	 */
 	public void setResultsButtonEnabled(boolean enabled) {
-		queryBtn.setEnabled(enabled);
+        this.queryBtn.setEnabled(enabled);
 	}
 	
 	/**
@@ -363,7 +363,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 	 * @return Last chosen CypherQuery
 	 */
 	public CypherQuery getLastCypherQuery() {
-		return lastCypherQuery;
+		return this.lastCypherQuery;
 	}
 	
 	/**
@@ -382,7 +382,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 
 	@Override
 	public void setBusy(boolean busy) {
-		ButtonTabbedPane tabPane = (ButtonTabbedPane) this.getParent();
+		ButtonTabbedPane tabPane = (ButtonTabbedPane) getParent();
 		int index = tabPane.indexOfComponent(this);
 		tabPane.setBusyAt(index, busy);
 		tabPane.setEnabledAt(index, !busy);
@@ -417,7 +417,7 @@ public class GraphDatabaseResultPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// stop appearing busy
-			GraphDatabaseResultPanel.this.setBusy(false);
+            setBusy(false);
 		}
 		
 	}

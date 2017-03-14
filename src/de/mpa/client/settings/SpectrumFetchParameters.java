@@ -3,10 +3,6 @@ package de.mpa.client.settings;
 import java.io.File;
 import java.io.IOException;
 
-import de.mpa.client.settings.Parameter.BooleanParameter;
-import de.mpa.client.settings.Parameter.NumberParameter;
-import de.mpa.client.settings.Parameter.OptionParameter;
-
 /**
  * Parameter settings for spectrum database retrieval in File Panel.
  * 
@@ -25,29 +21,29 @@ public class SpectrumFetchParameters extends ParameterMap {
 		IGNORE_ANNOTATIONS("ignore annotations");
 		
 		/** The name. */
-		private String name;
+		private final String name;
 
 		/**
 		 * Constructs an annotation type from the specified name.
 		 * @param name the name
 		 */
-		private AnnotationType(String name) {
+        AnnotationType(String name) {
 			this.name = name;
 		}
 		
 		@Override
 		public String toString() {
-			return name;
+			return this.name;
 		}
 	}
 
 	@Override
 	public void initDefaults() {
 //		this.put("library", new Parameter("Fetch from Spectral Library", false, "Database Fetching", "Choose whether spectra shall be fetched from the spectral library."));
-		
-		this.put("expID", new NumberParameter(1, 1, null, "Experiment ID", "The database ID of the experiment to fetch spectra from.", "Database Fetching"));
-		this.put("annotated", new OptionParameter(AnnotationType.values(), 0, "Fetch Spectra", "Choose whether fetched spectra shall have annotations.", "Database Fetching"));
-		this.put("saveToFile", new BooleanParameter(false, "Save Peak Lists to Spectrum File", "Choose whether fetched spectrum file should contain peak lists.", "Database Fetching"));
+
+        put("expID", new Parameter.NumberParameter(1, 1, null, "Experiment ID", "The database ID of the experiment to fetch spectra from.", "Database Fetching"));
+        put("annotated", new Parameter.OptionParameter(SpectrumFetchParameters.AnnotationType.values(), 0, "Fetch Spectra", "Choose whether fetched spectra shall have annotations.", "Database Fetching"));
+        put("saveToFile", new Parameter.BooleanParameter(false, "Save Peak Lists to Spectrum File", "Choose whether fetched spectrum file should contain peak lists.", "Database Fetching"));
 	}
 
 	@Override

@@ -20,7 +20,7 @@ public class SixtyFourBitStringSupport {
 	 * @return a peak map
 	 */
 	public static HashMap<Double, Double> buildPeakMap(String mzArray, String inArray) {
-		return buildPeakMap(decodeBase64StringToDoubles(mzArray), decodeBase64StringToDoubles(inArray));
+		return SixtyFourBitStringSupport.buildPeakMap(SixtyFourBitStringSupport.decodeBase64StringToDoubles(mzArray), SixtyFourBitStringSupport.decodeBase64StringToDoubles(inArray));
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class SixtyFourBitStringSupport {
 	 * @return a double array
 	 */
 	public static double[] decodeBase64StringToDoubles(String encodedString) {
-		return decodeBase64StringToDoubles(encodedString, ByteOrder.BIG_ENDIAN);
+		return SixtyFourBitStringSupport.decodeBase64StringToDoubles(encodedString, ByteOrder.BIG_ENDIAN);
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class SixtyFourBitStringSupport {
 	 * @return an int array
 	 */
 	public static int[] decodeBase64StringToInts(String encodedString) {
-		return decodeBase64StringToInts(encodedString, ByteOrder.BIG_ENDIAN);
+		return SixtyFourBitStringSupport.decodeBase64StringToInts(encodedString, ByteOrder.BIG_ENDIAN);
 	}
 	
 	/**

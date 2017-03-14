@@ -34,7 +34,7 @@ public class UpdateNcbiTaxDialog extends JDialog {
 	/**
 	 * The ClientFrame
 	 */
-	private ClientFrame owner;
+	private final ClientFrame owner;
 	
 	/**
 	 * @param owner. The owner of the dialog.
@@ -43,8 +43,8 @@ public class UpdateNcbiTaxDialog extends JDialog {
 	public UpdateNcbiTaxDialog(ClientFrame owner, String title) {
 		super(owner, title);
 		this.owner = owner;
-		initComponents();
-		showDialog();
+        this.initComponents();
+        this.showDialog();
 	}
 	/**
 	 * Method to build the dialog
@@ -74,8 +74,8 @@ public class UpdateNcbiTaxDialog extends JDialog {
 				okBtn.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						updateNcbiTax();
-						close();
+                        UpdateNcbiTaxDialog.this.updateNcbiTax();
+                        UpdateNcbiTaxDialog.this.close();
 					}
 				});
 				
@@ -87,14 +87,14 @@ public class UpdateNcbiTaxDialog extends JDialog {
 				cancelBtn.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-					close();
+                        UpdateNcbiTaxDialog.this.close();
 					}
 				});
 				
 				updateNcbiTaxDlgPnl.add(updateNcbiTaxPnl, CC.xyw(2, 2,3));
 				updateNcbiTaxDlgPnl.add(okBtn,CC.xy(2, 4) );
 				updateNcbiTaxDlgPnl.add(cancelBtn,CC.xy(4, 4) );
-				Container cp = this.getContentPane();		
+				Container cp = getContentPane();
 				cp.setLayout(new FormLayout("5dlu, r:p, 5dlu", "5dlu, f:p:g, 5dlu"));
 				cp.add(updateNcbiTaxDlgPnl, CC.xy(2,  2));		
 				
@@ -105,19 +105,19 @@ public class UpdateNcbiTaxDialog extends JDialog {
 	 */
 	private void showDialog() {
 		// Configure size and position
-		this.pack();
-		this.setResizable(false);
+        pack();
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 	
 	/**
 	 * Close method for the dialog.
 	 */
 	private void close() {
-		dispose();
+        this.dispose();
 	}
 	
 	/**
@@ -138,7 +138,7 @@ public class UpdateNcbiTaxDialog extends JDialog {
 		// Get file of the names.dmp file
 		JFileChooser namesChooser = new JFileChooser();
 		namesChooser.setFileFilter(Constants.NCBINAMES_FILE_FILTER);
-		int returnVal = namesChooser.showOpenDialog(owner);
+		int returnVal = namesChooser.showOpenDialog(this.owner);
 		namesChooser.setAcceptAllFileFilterUsed(false);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			namesFile = namesChooser.getSelectedFile();
@@ -146,7 +146,7 @@ public class UpdateNcbiTaxDialog extends JDialog {
 		// Get file of the nodes.dmp file
 		JFileChooser nodesChooser = new JFileChooser();
 		nodesChooser.setFileFilter(Constants.NCBINODES_FILE_FILTER);
-		int returnVal2 = nodesChooser.showOpenDialog(owner);
+		int returnVal2 = nodesChooser.showOpenDialog(this.owner);
 		nodesChooser.setAcceptAllFileFilterUsed(false);
 		if (returnVal2 == JFileChooser.APPROVE_OPTION) {
 			nodesFile = nodesChooser.getSelectedFile();

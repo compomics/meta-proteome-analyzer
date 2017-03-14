@@ -42,7 +42,7 @@ public class SpectrumStorager extends BasicStorager {
     /**
      * The experiment's ID.
      */
-    private long experimentid;
+    private final long experimentid;
 
     /**
      * The list of spectra.
@@ -70,7 +70,7 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void load() {
         try {
-            reader = new MascotGenericFileReader(file);
+            this.reader = new MascotGenericFileReader(this.file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,25 +84,25 @@ public class SpectrumStorager extends BasicStorager {
      */
     public void store() throws IOException, SQLException {
         // Get all spectra from the reader.
-        spectra = reader.getSpectrumFiles();
+        this.spectra = this.reader.getSpectrumFiles();
         // reopen connection
-        if (conn.isClosed()) {
-        	conn = Client.getInstance().getConnection();
+        if (this.conn.isClosed()) {
+            this.conn = Client.getInstance().getConnection();
         }
         // Init cache maps.
-        title2SearchIdMap = new HashMap<String, Long>();
-        fileName2IdMap = new HashMap<String, Long>();
+        this.title2SearchIdMap = new HashMap<String, Long>();
+        this.fileName2IdMap = new HashMap<String, Long>();
         
         // Iterate over all spectra.
-        for (MascotGenericFile mgf : spectra) {
+        for (MascotGenericFile mgf : this.spectra) {
             // The filename, remove leading and trailing whitespace.
             String title = mgf.getTitle();
-            Spectrum query =  Spectrum.findFromTitleQuicker(title, conn);
+            Spectrum query =  Spectrum.findFromTitleQuicker(title, this.conn);
             Long searchspectrumid;
 			if (query == null) {
 				/* New spectrum section */
 				// generate a new query 
-				query = generateQuery(mgf);
+				query = this.generateQuery(mgf);
 	            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
             
 	            // The spectrum title
@@ -146,7 +146,7 @@ public class SpectrumStorager extends BasicStorager {
 
                 // Create the database object.
                 query = new Spectrum(data);
-                query.persist(conn);
+                query.persist(this.conn);
 
                 // Get the spectrumid from the generated keys.
                 Long spectrumid = (Long) query.getGeneratedKeys()[0];
@@ -155,10 +155,10 @@ public class SpectrumStorager extends BasicStorager {
                 HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
 
                 searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
-                searchData.put(Searchspectrum.FK_EXPERIMENTID, experimentid);
+                searchData.put(Searchspectrum.FK_EXPERIMENTID, this.experimentid);
 
                 Searchspectrum searchSpectrum = new Searchspectrum(searchData);
-                searchSpectrum.persist(conn);
+                searchSpectrum.persist(this.conn);
 
                 // Get the search spectrum id from the generated keys.
                 searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
@@ -168,16 +168,16 @@ public class SpectrumStorager extends BasicStorager {
             	long spectrumid = query.getSpectrumid();
             	
             	// Find possibly already existing search spectrum for this experiment
-                Searchspectrum searchspectrum = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumid, experimentid, conn);
+                Searchspectrum searchspectrum = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumid, this.experimentid, this.conn);
                 
 				if (searchspectrum == null) {
                     /* Searchspectrum storager*/
 					// No search spectrum exists for this query, generate a new one
                     HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
                     searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
-                    searchData.put(Searchspectrum.FK_EXPERIMENTID, experimentid);
+                    searchData.put(Searchspectrum.FK_EXPERIMENTID, this.experimentid);
                     Searchspectrum searchSpectrum = new Searchspectrum(searchData);
-                    searchSpectrum.persist(conn);
+                    searchSpectrum.persist(this.conn);
                     
                     // Get the search spectrum id from the generated keys.
                     searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
@@ -189,14 +189,14 @@ public class SpectrumStorager extends BasicStorager {
                 
             }
             // Fill the cache maps
-            title2SearchIdMap.put(query.getTitle(), searchspectrumid);
-            fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
-            conn.commit();			
+            this.title2SearchIdMap.put(query.getTitle(), searchspectrumid);
+            this.fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
+            this.conn.commit();
         }
-        MapContainer.SpectrumTitle2IdMap = title2SearchIdMap;
-        log.debug("No. of spectra: " + title2SearchIdMap.size());
-        MapContainer.FileName2IdMap = fileName2IdMap;
-        reader.close();
+        MapContainer.SpectrumTitle2IdMap = this.title2SearchIdMap;
+        this.log.debug("No. of spectra: " + this.title2SearchIdMap.size());
+        MapContainer.FileName2IdMap = this.fileName2IdMap;
+        this.reader.close();
     }
 
 	/**
@@ -204,7 +204,7 @@ public class SpectrumStorager extends BasicStorager {
 	 * @return the spectra
 	 */
 	public List<MascotGenericFile> getSpectra() {
-		return spectra;
+		return this.spectra;
 	}
 
 	/**
@@ -227,20 +227,20 @@ public class SpectrumStorager extends BasicStorager {
 	
 	@Override
 	public void run() {
-		this.load();
+        load();
 		try {
-			this.store();
+            store();
 		} catch (Exception e) {
 			try {
-				conn.rollback();
+                this.conn.rollback();
 			} catch (SQLException e1) {
-				log.error("Could not perform rollback. Error message: " + e.getMessage());
+                this.log.error("Could not perform rollback. Error message: " + e.getMessage());
 				e1.printStackTrace();
 			}
-			log.error("Spectrum storing error message: " + e.getMessage());
+            this.log.error("Spectrum storing error message: " + e.getMessage());
 			e.printStackTrace();
 		}
-		log.info("Spectra stored to the DB.");
+        this.log.info("Spectra stored to the DB.");
 	}
 
 }

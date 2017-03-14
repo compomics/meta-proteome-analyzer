@@ -338,7 +338,7 @@ public class ECReader {
 					// check whether line starts with specific key tokens
 					if (line.startsWith("ID")) {
 						// insert node using previously stored data, if it exists
-						ECReader.insertNode(root, new ECNode(id, desc, comments));
+						insertNode(root, new ECNode(id, desc, comments));
 						
 						// assign identifier
 						id = value;
@@ -359,7 +359,7 @@ public class ECReader {
 				}
 			}
 			// insert final node
-			ECReader.insertNode(root, new ECNode(id, desc, comments));
+			insertNode(root, new ECNode(id, desc, comments));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -375,7 +375,7 @@ public class ECReader {
 		String id = newChild.getIdentifier();
 		if (id != null) {
 			// identify parent node
-			ECNode parent = getNode(root, id);
+			ECNode parent = ECReader.getNode(root, id);
 			if (parent != null) {
 				// insert child node into tree structure
 				parent.add(newChild);
@@ -391,12 +391,12 @@ public class ECReader {
 	 */
 	@SuppressWarnings("unchecked")
 	private static ECNode getNode(ECNode parent, String identifier) {
-		short[] ecNums = ECReader.toArray(identifier);
+		short[] ecNums = toArray(identifier);
 		int depth = parent.getLevel() + 1;
 		for (int i = depth; i < 5; i++) {
 			// set out-of-depth levels to zero
 			short[] ecTmp = Arrays.copyOf(Arrays.copyOf(ecNums, i), 4);
-			String idTmp = ECReader.toString(ecTmp);
+			String idTmp = toString(ecTmp);
 			Enumeration<ECNode> children = parent.children();
 			while (children.hasMoreElements()) {
 				ECNode child = children.nextElement();
@@ -442,7 +442,7 @@ public class ECReader {
 	 *  <code>null</code> if no such path exists
 	 */
 	public static ECNode[] getPath(ECNode parent, String identifier) {
-		ECNode node = ECReader.getNode(parent, identifier);
+		ECNode node = getNode(parent, identifier);
 		if (node != null) {
 			TreeNode[] path = node.getPath();
 			ECNode[] res = new ECNode[path.length];

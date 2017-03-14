@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,12 +38,12 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable tracks changes to the object.
 	 */
-	protected boolean iUpdated = false;
+	protected boolean iUpdated;
 
 	/**
 	 * This variable can hold generated primary key columns.
 	 */
-	protected Object[] iKeys = null;
+	protected Object[] iKeys;
 
 	/**
 	 * This variable represents the contents for the 'spectrumid' column.
@@ -53,19 +54,19 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'title' column.
 	 */
-	protected String iTitle = null;
+	protected String iTitle;
 
 
 	/**
 	 * This variable represents the contents for the 'precursor_mz' column.
 	 */
-	protected Number iPrecursor_mz = null;
+	protected Number iPrecursor_mz;
 
 
 	/**
 	 * This variable represents the contents for the 'precursor_int' column.
 	 */
-	protected Number iPrecursor_int = null;
+	protected Number iPrecursor_int;
 
 
 	/**
@@ -77,43 +78,43 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This variable represents the contents for the 'mzarray' column.
 	 */
-	protected String iMzarray = null;
+	protected String iMzarray;
 
 
 	/**
 	 * This variable represents the contents for the 'intarray' column.
 	 */
-	protected String iIntarray = null;
+	protected String iIntarray;
 
 
 	/**
 	 * This variable represents the contents for the 'chargearray' column.
 	 */
-	protected String iChargearray = null;
+	protected String iChargearray;
 
 
 	/**
 	 * This variable represents the contents for the 'total_int' column.
 	 */
-	protected Number iTotal_int = null;
+	protected Number iTotal_int;
 
 
 	/**
 	 * This variable represents the contents for the 'maximum_int' column.
 	 */
-	protected Number iMaximum_int = null;
+	protected Number iMaximum_int;
 
 
 	/**
 	 * This variable represents the contents for the 'creationdate' column.
 	 */
-	protected java.sql.Timestamp iCreationdate = null;
+	protected Timestamp iCreationdate;
 
 
 	/**
 	 * This variable represents the contents for the 'modificationdate' column.
 	 */
-	protected java.sql.Timestamp iModificationdate = null;
+	protected Timestamp iModificationdate;
 
 
 	/**
@@ -192,43 +193,43 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
 	 */
 	public SpectrumTableAccessor(@SuppressWarnings("rawtypes") HashMap aParams) {
-		if(aParams.containsKey(SPECTRUMID)) {
-			this.iSpectrumid = ((Long)aParams.get(SPECTRUMID)).longValue();
+		if(aParams.containsKey(SpectrumTableAccessor.SPECTRUMID)) {
+            iSpectrumid = ((Long)aParams.get(SpectrumTableAccessor.SPECTRUMID)).longValue();
 		}
-		if(aParams.containsKey(TITLE)) {
-			this.iTitle = (String)aParams.get(TITLE);
+		if(aParams.containsKey(SpectrumTableAccessor.TITLE)) {
+            iTitle = (String)aParams.get(SpectrumTableAccessor.TITLE);
 		}
-		if(aParams.containsKey(PRECURSOR_MZ)) {
-			this.iPrecursor_mz = (Number)aParams.get(PRECURSOR_MZ);
+		if(aParams.containsKey(SpectrumTableAccessor.PRECURSOR_MZ)) {
+            iPrecursor_mz = (Number)aParams.get(SpectrumTableAccessor.PRECURSOR_MZ);
 		}
-		if(aParams.containsKey(PRECURSOR_INT)) {
-			this.iPrecursor_int = (Number)aParams.get(PRECURSOR_INT);
+		if(aParams.containsKey(SpectrumTableAccessor.PRECURSOR_INT)) {
+            iPrecursor_int = (Number)aParams.get(SpectrumTableAccessor.PRECURSOR_INT);
 		}
-		if(aParams.containsKey(PRECURSOR_CHARGE)) {
-			this.iPrecursor_charge = ((Long)aParams.get(PRECURSOR_CHARGE)).longValue();
+		if(aParams.containsKey(SpectrumTableAccessor.PRECURSOR_CHARGE)) {
+            iPrecursor_charge = ((Long)aParams.get(SpectrumTableAccessor.PRECURSOR_CHARGE)).longValue();
 		}
-		if(aParams.containsKey(MZARRAY)) {
-			this.iMzarray = (String)aParams.get(MZARRAY);
+		if(aParams.containsKey(SpectrumTableAccessor.MZARRAY)) {
+            iMzarray = (String)aParams.get(SpectrumTableAccessor.MZARRAY);
 		}
-		if(aParams.containsKey(INTARRAY)) {
-			this.iIntarray = (String)aParams.get(INTARRAY);
+		if(aParams.containsKey(SpectrumTableAccessor.INTARRAY)) {
+            iIntarray = (String)aParams.get(SpectrumTableAccessor.INTARRAY);
 		}
-		if(aParams.containsKey(CHARGEARRAY)) {
-			this.iChargearray = (String)aParams.get(CHARGEARRAY);
+		if(aParams.containsKey(SpectrumTableAccessor.CHARGEARRAY)) {
+            iChargearray = (String)aParams.get(SpectrumTableAccessor.CHARGEARRAY);
 		}
-		if(aParams.containsKey(TOTAL_INT)) {
-			this.iTotal_int = (Number)aParams.get(TOTAL_INT);
+		if(aParams.containsKey(SpectrumTableAccessor.TOTAL_INT)) {
+            iTotal_int = (Number)aParams.get(SpectrumTableAccessor.TOTAL_INT);
 		}
-		if(aParams.containsKey(MAXIMUM_INT)) {
-			this.iMaximum_int = (Number)aParams.get(MAXIMUM_INT);
+		if(aParams.containsKey(SpectrumTableAccessor.MAXIMUM_INT)) {
+            iMaximum_int = (Number)aParams.get(SpectrumTableAccessor.MAXIMUM_INT);
 		}
-		if(aParams.containsKey(CREATIONDATE)) {
-			this.iCreationdate = (java.sql.Timestamp)aParams.get(CREATIONDATE);
+		if(aParams.containsKey(SpectrumTableAccessor.CREATIONDATE)) {
+            iCreationdate = (Timestamp)aParams.get(SpectrumTableAccessor.CREATIONDATE);
 		}
-		if(aParams.containsKey(MODIFICATIONDATE)) {
-			this.iModificationdate = (java.sql.Timestamp)aParams.get(MODIFICATIONDATE);
+		if(aParams.containsKey(SpectrumTableAccessor.MODIFICATIONDATE)) {
+            iModificationdate = (Timestamp)aParams.get(SpectrumTableAccessor.MODIFICATIONDATE);
 		}
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -240,20 +241,20 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @exception	SQLException	when the ResultSet could not be read.
 	 */
 	public SpectrumTableAccessor(ResultSet aResultSet) throws SQLException {
-		this.iSpectrumid = aResultSet.getLong("spectrumid");
-		this.iTitle = (String)aResultSet.getObject("title");
-		this.iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
-		this.iPrecursor_int = (Number)aResultSet.getObject("precursor_int");
-		this.iPrecursor_charge = aResultSet.getLong("precursor_charge");
-		this.iMzarray = (String)aResultSet.getObject("mzarray");
-		this.iIntarray = (String)aResultSet.getObject("intarray");
-		this.iChargearray = (String)aResultSet.getObject("chargearray");
-		this.iTotal_int = (Number)aResultSet.getObject("total_int");
-		this.iMaximum_int = (Number)aResultSet.getObject("maximum_int");
-		this.iCreationdate = (java.sql.Timestamp)aResultSet.getObject("creationdate");
-		this.iModificationdate = (java.sql.Timestamp)aResultSet.getObject("modificationdate");
+        iSpectrumid = aResultSet.getLong("spectrumid");
+        iTitle = (String)aResultSet.getObject("title");
+        iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
+        iPrecursor_int = (Number)aResultSet.getObject("precursor_int");
+        iPrecursor_charge = aResultSet.getLong("precursor_charge");
+        iMzarray = (String)aResultSet.getObject("mzarray");
+        iIntarray = (String)aResultSet.getObject("intarray");
+        iChargearray = (String)aResultSet.getObject("chargearray");
+        iTotal_int = (Number)aResultSet.getObject("total_int");
+        iMaximum_int = (Number)aResultSet.getObject("maximum_int");
+        iCreationdate = (Timestamp)aResultSet.getObject("creationdate");
+        iModificationdate = (Timestamp)aResultSet.getObject("modificationdate");
 
-		this.iUpdated = true;
+        iUpdated = true;
 	}
 
 
@@ -263,7 +264,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Spectrumid column.
 	 */
 	public long getSpectrumid() {
-		return this.iSpectrumid;
+		return iSpectrumid;
 	}
 
 	/**
@@ -272,7 +273,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Title column.
 	 */
 	public String getTitle() {
-		return this.iTitle;
+		return iTitle;
 	}
 
 	/**
@@ -281,7 +282,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Precursor_mz column.
 	 */
 	public Number getPrecursor_mz() {
-		return this.iPrecursor_mz;
+		return iPrecursor_mz;
 	}
 
 	/**
@@ -290,7 +291,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Precursor_int column.
 	 */
 	public Number getPrecursor_int() {
-		return this.iPrecursor_int;
+		return iPrecursor_int;
 	}
 
 	/**
@@ -299,7 +300,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	long	with the value for the Precursor_charge column.
 	 */
 	public long getPrecursor_charge() {
-		return this.iPrecursor_charge;
+		return iPrecursor_charge;
 	}
 
 	/**
@@ -308,7 +309,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Mzarray column.
 	 */
 	public String getMzarray() {
-		return this.iMzarray;
+		return iMzarray;
 	}
 
 	/**
@@ -317,7 +318,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Intarray column.
 	 */
 	public String getIntarray() {
-		return this.iIntarray;
+		return iIntarray;
 	}
 
 	/**
@@ -326,7 +327,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	String	with the value for the Chargearray column.
 	 */
 	public String getChargearray() {
-		return this.iChargearray;
+		return iChargearray;
 	}
 
 	/**
@@ -335,7 +336,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Total_int column.
 	 */
 	public Number getTotal_int() {
-		return this.iTotal_int;
+		return iTotal_int;
 	}
 
 	/**
@@ -344,7 +345,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Number	with the value for the Maximum_int column.
 	 */
 	public Number getMaximum_int() {
-		return this.iMaximum_int;
+		return iMaximum_int;
 	}
 
 	/**
@@ -352,8 +353,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Creationdate column.
 	 */
-	public java.sql.Timestamp getCreationdate() {
-		return this.iCreationdate;
+	public Timestamp getCreationdate() {
+		return iCreationdate;
 	}
 
 	/**
@@ -361,8 +362,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @return	java.sql.Timestamp	with the value for the Modificationdate column.
 	 */
-	public java.sql.Timestamp getModificationdate() {
-		return this.iModificationdate;
+	public Timestamp getModificationdate() {
+		return iModificationdate;
 	}
 
 	/**
@@ -371,8 +372,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aSpectrumid	long with the value for the Spectrumid column.
 	 */
 	public void setSpectrumid(long aSpectrumid) {
-		this.iSpectrumid = aSpectrumid;
-		this.iUpdated = true;
+        iSpectrumid = aSpectrumid;
+        iUpdated = true;
 	}
 
 	/**
@@ -381,8 +382,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aTitle	String with the value for the Title column.
 	 */
 	public void setTitle(String aTitle) {
-		this.iTitle = aTitle;
-		this.iUpdated = true;
+        iTitle = aTitle;
+        iUpdated = true;
 	}
 
 	/**
@@ -391,8 +392,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPrecursor_mz	Number with the value for the Precursor_mz column.
 	 */
 	public void setPrecursor_mz(Number aPrecursor_mz) {
-		this.iPrecursor_mz = aPrecursor_mz;
-		this.iUpdated = true;
+        iPrecursor_mz = aPrecursor_mz;
+        iUpdated = true;
 	}
 
 	/**
@@ -401,8 +402,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPrecursor_int	Number with the value for the Precursor_int column.
 	 */
 	public void setPrecursor_int(Number aPrecursor_int) {
-		this.iPrecursor_int = aPrecursor_int;
-		this.iUpdated = true;
+        iPrecursor_int = aPrecursor_int;
+        iUpdated = true;
 	}
 
 	/**
@@ -411,8 +412,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aPrecursor_charge	long with the value for the Precursor_charge column.
 	 */
 	public void setPrecursor_charge(long aPrecursor_charge) {
-		this.iPrecursor_charge = aPrecursor_charge;
-		this.iUpdated = true;
+        iPrecursor_charge = aPrecursor_charge;
+        iUpdated = true;
 	}
 
 	/**
@@ -421,8 +422,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aMzarray	String with the value for the Mzarray column.
 	 */
 	public void setMzarray(String aMzarray) {
-		this.iMzarray = aMzarray;
-		this.iUpdated = true;
+        iMzarray = aMzarray;
+        iUpdated = true;
 	}
 
 	/**
@@ -431,8 +432,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aIntarray	String with the value for the Intarray column.
 	 */
 	public void setIntarray(String aIntarray) {
-		this.iIntarray = aIntarray;
-		this.iUpdated = true;
+        iIntarray = aIntarray;
+        iUpdated = true;
 	}
 
 	/**
@@ -441,8 +442,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aChargearray	String with the value for the Chargearray column.
 	 */
 	public void setChargearray(String aChargearray) {
-		this.iChargearray = aChargearray;
-		this.iUpdated = true;
+        iChargearray = aChargearray;
+        iUpdated = true;
 	}
 
 	/**
@@ -451,8 +452,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aTotal_int	Number with the value for the Total_int column.
 	 */
 	public void setTotal_int(Number aTotal_int) {
-		this.iTotal_int = aTotal_int;
-		this.iUpdated = true;
+        iTotal_int = aTotal_int;
+        iUpdated = true;
 	}
 
 	/**
@@ -461,8 +462,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param	aMaximum_int	Number with the value for the Maximum_int column.
 	 */
 	public void setMaximum_int(Number aMaximum_int) {
-		this.iMaximum_int = aMaximum_int;
-		this.iUpdated = true;
+        iMaximum_int = aMaximum_int;
+        iUpdated = true;
 	}
 
 	/**
@@ -470,9 +471,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aCreationdate	java.sql.Timestamp with the value for the Creationdate column.
 	 */
-	public void setCreationdate(java.sql.Timestamp aCreationdate) {
-		this.iCreationdate = aCreationdate;
-		this.iUpdated = true;
+	public void setCreationdate(Timestamp aCreationdate) {
+        iCreationdate = aCreationdate;
+        iUpdated = true;
 	}
 
 	/**
@@ -480,9 +481,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * 
 	 * @param	aModificationdate	java.sql.Timestamp with the value for the Modificationdate column.
 	 */
-	public void setModificationdate(java.sql.Timestamp aModificationdate) {
-		this.iModificationdate = aModificationdate;
-		this.iUpdated = true;
+	public void setModificationdate(Timestamp aModificationdate) {
+        iModificationdate = aModificationdate;
+        iUpdated = true;
 	}
 
 
@@ -495,7 +496,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM spectrum WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
+		lStat.setLong(1, this.iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
 		return result;
@@ -510,30 +511,30 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void retrieve(Connection aConn, @SuppressWarnings("rawtypes") HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(SPECTRUMID)) {
+		if(!aKeys.containsKey(SpectrumTableAccessor.SPECTRUMID)) {
 			throw new IllegalArgumentException("Primary key field 'SPECTRUMID' is missing in HashMap!");
 		} else {
-			iSpectrumid = ((Long)aKeys.get(SPECTRUMID)).longValue();
+            this.iSpectrumid = ((Long)aKeys.get(SpectrumTableAccessor.SPECTRUMID)).longValue();
 		}
 		// In getting here, we probably have all we need to continue. So let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM spectrum WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
+		lStat.setLong(1, this.iSpectrumid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
 		while(lRS.next()) {
 			hits++;
-			iSpectrumid = lRS.getLong("spectrumid");
-			iTitle = (String)lRS.getObject("title");
-			iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
-			iPrecursor_int = (Number)lRS.getObject("precursor_int");
-			iPrecursor_charge = lRS.getLong("precursor_charge");
-			iMzarray = (String)lRS.getObject("mzarray");
-			iIntarray = (String)lRS.getObject("intarray");
-			iChargearray = (String)lRS.getObject("chargearray");
-			iTotal_int = (Number)lRS.getObject("total_int");
-			iMaximum_int = (Number)lRS.getObject("maximum_int");
-			iCreationdate = (java.sql.Timestamp)lRS.getObject("creationdate");
-			iModificationdate = (java.sql.Timestamp)lRS.getObject("modificationdate");
+            this.iSpectrumid = lRS.getLong("spectrumid");
+            this.iTitle = (String)lRS.getObject("title");
+            this.iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
+            this.iPrecursor_int = (Number)lRS.getObject("precursor_int");
+            this.iPrecursor_charge = lRS.getLong("precursor_charge");
+            this.iMzarray = (String)lRS.getObject("mzarray");
+            this.iIntarray = (String)lRS.getObject("intarray");
+            this.iChargearray = (String)lRS.getObject("chargearray");
+            this.iTotal_int = (Number)lRS.getObject("total_int");
+            this.iMaximum_int = (Number)lRS.getObject("maximum_int");
+            this.iCreationdate = (Timestamp)lRS.getObject("creationdate");
+            this.iModificationdate = (Timestamp)lRS.getObject("modificationdate");
 		}
 		lRS.close();
 		lStat.close();
@@ -562,7 +563,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	public static ArrayList<SpectrumTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
 		ArrayList<SpectrumTableAccessor>  entities = new ArrayList<SpectrumTableAccessor>();
 		Statement stat = aConn.createStatement();
-		ResultSet rs = stat.executeQuery(getBasicSelect());
+		ResultSet rs = stat.executeQuery(SpectrumTableAccessor.getBasicSelect());
 		while(rs.next()) {
 			entities.add(new SpectrumTableAccessor(rs));
 		}
@@ -580,25 +581,25 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!this.iUpdated) {
+		if(!iUpdated) {
 			return 0;
 		}
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, title = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, total_int = ?, maximum_int = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
-		lStat.setLong(1, iSpectrumid);
-		lStat.setObject(2, iTitle);
-		lStat.setObject(3, iPrecursor_mz);
-		lStat.setObject(4, iPrecursor_int);
-		lStat.setLong(5, iPrecursor_charge);
-		lStat.setObject(6, iMzarray);
-		lStat.setObject(7, iIntarray);
-		lStat.setObject(8, iChargearray);
-		lStat.setObject(9, iTotal_int);
-		lStat.setObject(10, iMaximum_int);
-		lStat.setObject(11, iCreationdate);
-		lStat.setLong(12, iSpectrumid);
+		lStat.setLong(1, this.iSpectrumid);
+		lStat.setObject(2, this.iTitle);
+		lStat.setObject(3, this.iPrecursor_mz);
+		lStat.setObject(4, this.iPrecursor_int);
+		lStat.setLong(5, this.iPrecursor_charge);
+		lStat.setObject(6, this.iMzarray);
+		lStat.setObject(7, this.iIntarray);
+		lStat.setObject(8, this.iChargearray);
+		lStat.setObject(9, this.iTotal_int);
+		lStat.setObject(10, this.iMaximum_int);
+		lStat.setObject(11, this.iCreationdate);
+		lStat.setLong(12, this.iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -612,55 +613,55 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement(
 				"INSERT INTO spectrum (spectrumid, title, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
-		if(iSpectrumid == Long.MIN_VALUE) {
+		if(this.iSpectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
-			lStat.setLong(1, iSpectrumid);
+			lStat.setLong(1, this.iSpectrumid);
 		}
-		if(iTitle == null) {
+		if(this.iTitle == null) {
 			lStat.setNull(2, 12);
 		} else {
-			lStat.setObject(2, iTitle);
+			lStat.setObject(2, this.iTitle);
 		}
-		if(iPrecursor_mz == null) {
+		if(this.iPrecursor_mz == null) {
 			lStat.setNull(3, 3);
 		} else {
-			lStat.setObject(3, iPrecursor_mz);
+			lStat.setObject(3, this.iPrecursor_mz);
 		}
-		if(iPrecursor_int == null) {
+		if(this.iPrecursor_int == null) {
 			lStat.setNull(4, 3);
 		} else {
-			lStat.setObject(4, iPrecursor_int);
+			lStat.setObject(4, this.iPrecursor_int);
 		}
-		if(iPrecursor_charge == Long.MIN_VALUE) {
+		if(this.iPrecursor_charge == Long.MIN_VALUE) {
 			lStat.setNull(5, 4);
 		} else {
-			lStat.setLong(5, iPrecursor_charge);
+			lStat.setLong(5, this.iPrecursor_charge);
 		}
-		if(iMzarray == null) {
+		if(this.iMzarray == null) {
 			lStat.setNull(6, -1);
 		} else {
-			lStat.setObject(6, iMzarray);
+			lStat.setObject(6, this.iMzarray);
 		}
-		if(iIntarray == null) {
+		if(this.iIntarray == null) {
 			lStat.setNull(7, -1);
 		} else {
-			lStat.setObject(7, iIntarray);
+			lStat.setObject(7, this.iIntarray);
 		}
-		if(iChargearray == null) {
+		if(this.iChargearray == null) {
 			lStat.setNull(8, -1);
 		} else {
-			lStat.setObject(8, iChargearray);
+			lStat.setObject(8, this.iChargearray);
 		}
-		if(iTotal_int == null) {
+		if(this.iTotal_int == null) {
 			lStat.setNull(9, 3);
 		} else {
-			lStat.setObject(9, iTotal_int);
+			lStat.setObject(9, this.iTotal_int);
 		}
-		if(iMaximum_int == null) {
+		if(this.iMaximum_int == null) {
 			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(10, iMaximum_int);
+			lStat.setObject(10, this.iMaximum_int);
 		}
 		int result = lStat.executeUpdate();
 
@@ -668,22 +669,22 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-		iKeys = new Object[colCount];
+        this.iKeys = new Object[colCount];
 		while(lrsKeys.next()) {
-			for(int i=0;i<iKeys.length;i++) {
-				iKeys[i] = lrsKeys.getObject(i+1);
+			for(int i = 0; i< this.iKeys.length; i++) {
+                this.iKeys[i] = lrsKeys.getObject(i+1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(iKeys != null && iKeys.length == 1 && iKeys[0] != null) {
+		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-			iSpectrumid = ((Number) iKeys[0]).longValue();
+            this.iSpectrumid = ((Number) this.iKeys[0]).longValue();
 		}
-		this.iUpdated = false;
+        iUpdated = false;
 		return result;
 	}
 
@@ -694,7 +695,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @return	Object[]	with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
-		return this.iKeys;
+		return iKeys;
 	}
 
 }

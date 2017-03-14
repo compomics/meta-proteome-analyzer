@@ -36,34 +36,34 @@ import de.mpa.graphdb.io.UserQueries;
 @SuppressWarnings("serial")
 public class SaveQueryDialog extends JDialog {
 	
-	private GraphQueryDialog owner;
+	private final GraphQueryDialog owner;
 	private JTextField queryNameTtf;
 	private JTextArea queryTextTta;
 	
 	public SaveQueryDialog(GraphQueryDialog owner, String title, boolean modal) {
 		super(owner, title, modal);
 		this.owner = owner;
-		setTitle(title);
-		initComponents();
-		showDialog();
+        this.setTitle(title);
+        this.initComponents();
+        this.showDialog();
 	}
 
 	private void initComponents() {
-		Container cp = this.getContentPane();		
+		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, p, 15dlu, p, 5dlu, p, 15dlu, p, 5dlu"));
 		
 		JLabel queryNameLbl = new JLabel("Query Name:");
-		queryNameTtf = new JTextField(25);
+        this.queryNameTtf = new JTextField(25);
 		
 		JLabel queryTextLbl = new JLabel("Query Text:");
-		queryTextTta = new JTextArea(4, 0);
-		queryTextTta.setEditable(false);
-		queryTextTta.setFont(new Font("Courier", queryTextTta.getFont().getStyle(), 12));		
+        this.queryTextTta = new JTextArea(4, 0);
+        this.queryTextTta.setEditable(false);
+        this.queryTextTta.setFont(new Font("Courier", this.queryTextTta.getFont().getStyle(), 12));
 
-		JScrollPane queryTextScp = new JScrollPane(queryTextTta);
+		JScrollPane queryTextScp = new JScrollPane(this.queryTextTta);
 		queryTextScp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		queryTextScp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		queryTextTta.setText(owner.getSelectedQuery().toString());
+        this.queryTextTta.setText(this.owner.getSelectedQuery().toString());
 		
 		// Configure button panel containing 'OK' and 'Cancel' options
 		FormLayout layout = new FormLayout("p, 5dlu, p", "p");
@@ -90,7 +90,7 @@ public class SaveQueryDialog extends JDialog {
 		cancelBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				close();
+                SaveQueryDialog.this.close();
 			}
 		});		
 		cancelBtn.setPreferredSize(cancelBtn.getPreferredSize());		
@@ -98,7 +98,7 @@ public class SaveQueryDialog extends JDialog {
 		buttonPnl.add(cancelBtn, CC.xy(3,  1));
 		
 		cp.add(queryNameLbl, CC.xy(2, 2));
-		cp.add(queryNameTtf, CC.xy(2, 4));
+		cp.add(this.queryNameTtf, CC.xy(2, 4));
 		cp.add(queryTextLbl, CC.xy(2, 6));
 		cp.add(queryTextScp, CC.xy(2, 8));
 		cp.add(buttonPnl, CC.xy(2, 10));
@@ -110,12 +110,12 @@ public class SaveQueryDialog extends JDialog {
 	 */
 	private void showDialog() {
 		// Configure size and position
-		this.pack();
-		this.setResizable(false);
+        pack();
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 		
 		// Show dialog
-		this.setVisible(true);
+        setVisible(true);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class SaveQueryDialog extends JDialog {
 	 */
 	private void close() {
 		// Save the export headers
-		dispose();
+        this.dispose();
 	}
 	
 	/**
@@ -133,32 +133,32 @@ public class SaveQueryDialog extends JDialog {
 	 */
 	@SuppressWarnings("rawtypes")
 	private class SaveTask extends SwingWorker {
-		boolean success = false;
+		boolean success;
 		@Override
 		protected Object doInBackground() {
 			
 			try {
-				File queryFile = new File(this.getClass().getResource(Constants.CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
-				UserQueries userQueries = owner.getUserQueries();
-				CypherQuery userQuery = owner.getSelectedQuery();
-				userQuery.setTitle(queryNameTtf.getText());
+				File queryFile = new File(getClass().getResource(Constants.CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
+				UserQueries userQueries = SaveQueryDialog.this.owner.getUserQueries();
+				CypherQuery userQuery = SaveQueryDialog.this.owner.getSelectedQuery();
+				userQuery.setTitle(SaveQueryDialog.this.queryNameTtf.getText());
 				userQueries.addQuery(userQuery);
 				QueryHandler.exportUserQueries(userQueries, queryFile);
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-			success = true;
+            this.success = true;
 			return 0;
 		}		
 		
 		/**
 		 * Continues when the results retrieval has finished.
 		 */
-		public void done() {			
-			owner.updateUserQueries();
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			close();
-			if(success) JOptionPane.showMessageDialog(owner, "Cypher Query has been saved.");
+		public void done() {
+            SaveQueryDialog.this.owner.updateUserQueries();
+            SaveQueryDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            SaveQueryDialog.this.close();
+			if(this.success) JOptionPane.showMessageDialog(SaveQueryDialog.this.owner, "Cypher Query has been saved.");
 		}
 	}
 

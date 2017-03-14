@@ -24,10 +24,7 @@ import java.util.List;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.PieSectionEntity;
 import org.jfree.chart.labels.PieToolTipGenerator;
-import org.jfree.chart.plot.PiePlot3D;
-import org.jfree.chart.plot.PiePlotState;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.PlotState;
+import org.jfree.chart.plot.*;
 import org.jfree.data.KeyedValues;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.general.PieDataset;
@@ -50,7 +47,7 @@ public class PiePlot3DExt extends PiePlot3D {
 	/**
 	 * The maximum relative amount a pie section can extend from the pie center.
 	 */
-	private double maximumExplodePercent = 0.0;
+	private double maximumExplodePercent;
 
 	/**
 	 * Constructs an extend 3D pie plot using the specified dataset and maximum explode ratio.
@@ -59,12 +56,12 @@ public class PiePlot3DExt extends PiePlot3D {
 	 */
 	public PiePlot3DExt(PieDataset dataset, double maximumExplodePercent) {
 		super(dataset);
-		setMaximumExplodePercent(maximumExplodePercent);
+        this.setMaximumExplodePercent(maximumExplodePercent);
 	}
 	
 	@Override
 	public double getMaximumExplodePercent() {
-		return maximumExplodePercent;
+		return this.maximumExplodePercent;
 	}
 	
 	/**
@@ -95,7 +92,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			PlotRenderingInfo info) {
 
 		// adjust for insets...
-		RectangleInsets insets = getInsets();
+		RectangleInsets insets = this.getInsets();
 		insets.trim(plotArea);
 
 		Rectangle2D originalPlotArea = (Rectangle2D) plotArea.clone();
@@ -104,14 +101,14 @@ public class PiePlot3DExt extends PiePlot3D {
 			info.setDataArea(plotArea);
 		}
 
-		drawBackground(g2, plotArea);
+        this.drawBackground(g2, plotArea);
 
 		Shape savedClip = g2.getClip();
 		g2.clip(plotArea);
 
 		Graphics2D savedG2 = g2;
 		BufferedImage dataImage = null;
-		if (this.getShadowGenerator() != null) {
+		if (getShadowGenerator() != null) {
 			dataImage = new BufferedImage((int) plotArea.getWidth(),
 					(int) plotArea.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			g2 = dataImage.createGraphics();
@@ -120,10 +117,10 @@ public class PiePlot3DExt extends PiePlot3D {
 			originalPlotArea = (Rectangle2D) plotArea.clone();
 		}
 		// adjust the plot area by the interior spacing value
-		double gapPercent = this.getInteriorGap();
+		double gapPercent = getInteriorGap();
 		double labelPercent = 0.0;
-		if (getLabelGenerator() != null) {
-			labelPercent = this.getLabelGap() + this.getMaximumLabelWidth();
+		if (this.getLabelGenerator() != null) {
+			labelPercent = getLabelGap() + getMaximumLabelWidth();
 		}
 		double gapHorizontal = plotArea.getWidth() * (gapPercent + labelPercent) * 2.0;
 		double gapVertical = plotArea.getHeight() * gapPercent * 2.0;
@@ -134,7 +131,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		double linkH = plotArea.getHeight() - gapVertical;
 
 		// make the link area a square if the pie chart is to be circular...
-		if (isCircular()) { // is circular?
+		if (this.isCircular()) { // is circular?
 			double min = Math.min(linkW, linkH) / 2;
 			linkX = (linkX + linkX + linkW) / 2 - min;
 			linkY = (linkY + linkY + linkH) / 2 - min;
@@ -142,28 +139,28 @@ public class PiePlot3DExt extends PiePlot3D {
 			linkH = 2 * min;
 		}
 
-		state = this.initialise(g2, plotArea, this, null, info);
+        this.state = initialise(g2, plotArea, this, null, info);
 
 		// the link area defines the dog leg points for the linking lines to
 		// the labels
 		Rectangle2D linkAreaXX = new Rectangle2D.Double(
-				linkX, linkY, linkW, linkH * (1 - getDepthFactor()));
-		state.setLinkArea(linkAreaXX);
+				linkX, linkY, linkW, linkH * (1 - this.getDepthFactor()));
+        this.state.setLinkArea(linkAreaXX);
 
 		// the explode area defines the max circle/ellipse for the exploded pie
 		// sections.
 		// it is defined by shrinking the linkArea by the linkMargin factor.
-		double hh = linkW * getLabelLinkMargin();
-		double vv = linkH * getLabelLinkMargin();
+		double hh = linkW * this.getLabelLinkMargin();
+		double vv = linkH * this.getLabelLinkMargin();
 		Rectangle2D explodedArea = new Rectangle2D.Double(
 				linkX + hh / 2.0, linkY + vv / 2.0, linkW - hh, linkH - vv);
 
-		state.setExplodedPieArea(explodedArea);
+        this.state.setExplodedPieArea(explodedArea);
 
 		// the pie area defines the circle/ellipse for regular pie sections.
 		// it is defined by shrinking the explodeArea by the explodeMargin
 		// factor.
-		double maximumExplodePercent = this.getMaximumExplodePercent();
+		double maximumExplodePercent = getMaximumExplodePercent();
 		double percent = maximumExplodePercent / (1.0 + maximumExplodePercent);
 
 		double h1 = explodedArea.getWidth() * percent;
@@ -174,29 +171,29 @@ public class PiePlot3DExt extends PiePlot3D {
 
 		// the link area defines the dog-leg point for the linking lines to
 		// the labels
-		int depth = (int) (pieArea.getHeight() * getDepthFactor());
+		int depth = (int) (pieArea.getHeight() * this.getDepthFactor());
 		Rectangle2D linkArea = new Rectangle2D.Double(
 				linkX, linkY, linkW, linkH - depth);
-		state.setLinkArea(linkArea);
+        this.state.setLinkArea(linkArea);
 
-		state.setPieArea(pieArea);
-		state.setPieCenterX(pieArea.getCenterX());
-		state.setPieCenterY(pieArea.getCenterY() - depth / 2.0);
-		state.setPieWRadius(pieArea.getWidth() / 2.0);
-		state.setPieHRadius((pieArea.getHeight() - depth) / 2.0);
+        this.state.setPieArea(pieArea);
+        this.state.setPieCenterX(pieArea.getCenterX());
+        this.state.setPieCenterY(pieArea.getCenterY() - depth / 2.0);
+        this.state.setPieWRadius(pieArea.getWidth() / 2.0);
+        this.state.setPieHRadius((pieArea.getHeight() - depth) / 2.0);
 
 		// get the data source - return if null;
-		PieDataset dataset = this.getDataset();
+		PieDataset dataset = getDataset();
 		if (DatasetUtilities.isEmptyOrNull(dataset)) {
-			this.drawNoDataMessage(g2, plotArea);
+            drawNoDataMessage(g2, plotArea);
 			g2.setClip(savedClip);
-			this.drawOutline(g2, plotArea);
+            drawOutline(g2, plotArea);
 			return;
 		}
 
 		// if too any elements
 		if (dataset.getKeys().size() > plotArea.getWidth()) {
-			String text = localizationResources.getString("Too_many_elements");
+			String text = PiePlot.localizationResources.getString("Too_many_elements");
 			Font sfont = new Font("dialog", Font.BOLD, 10);
 			g2.setFont(sfont);
 			FontMetrics fm = g2.getFontMetrics(sfont);
@@ -210,7 +207,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		// if we are drawing a perfect circle, we need to readjust the top left
 		// coordinates of the drawing area for the arcs to arrive at this
 		// effect.
-		if (isCircular()) {
+		if (this.isCircular()) {
 			double min = Math.min(plotArea.getWidth(), plotArea.getHeight()) / 2;
 			plotArea = new Rectangle2D.Double(
 					plotArea.getCenterX() - min, plotArea.getCenterY() - min, 2 * min, 2 * min);
@@ -230,7 +227,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		//g2.clip(clipArea);
 		Composite originalComposite = g2.getComposite();
 		g2.setComposite(AlphaComposite.getInstance(
-				AlphaComposite.SRC_OVER, this.getForegroundAlpha()));
+				AlphaComposite.SRC_OVER, getForegroundAlpha()));
 
 		double totalValue = DatasetUtilities.calculatePieDatasetTotal(dataset);
 		double runningTotal = 0;
@@ -243,8 +240,8 @@ public class PiePlot3DExt extends PiePlot3D {
 		while (iterator.hasNext()) {
 
 			Comparable currentKey = (Comparable) iterator.next();
-			
-			this.lookupSectionPaint(currentKey);
+
+            lookupSectionPaint(currentKey);
 			
 			Number dataValue = dataset.getValue(currentKey);
 			if (dataValue == null) {
@@ -256,16 +253,16 @@ public class PiePlot3DExt extends PiePlot3D {
 				arcList.add(null);
 				continue;
 			}
-			double startAngle = this.getStartAngle();
-			double direction = this.getDirection().getFactor();
+			double startAngle = getStartAngle();
+			double direction = getDirection().getFactor();
 			double arcStartAngle = startAngle + (direction * (runningTotal * 360))
 					/ totalValue;
 			double arcAngleExtent = direction * value / totalValue * 360.0;
-			if (Math.abs(arcAngleExtent) > this.getMinimumArcAngleToDraw()) {
-				double expPercent = this.getExplodePercent(currentKey);
+			if (Math.abs(arcAngleExtent) > getMinimumArcAngleToDraw()) {
+				double expPercent = getExplodePercent(currentKey);
 				double centerAngle = Math.toRadians(arcStartAngle + arcAngleExtent / 2.0);
-				double xOffset = expPercent * state.getPieWRadius() * Math.cos(centerAngle);
-				double yOffset = expPercent * state.getPieHRadius() * Math.sin(centerAngle);
+				double xOffset = expPercent * this.state.getPieWRadius() * Math.cos(centerAngle);
+				double yOffset = expPercent * this.state.getPieHRadius() * Math.sin(centerAngle);
 
 				Arc2D arc = new Arc2D.Double(arcX + xOffset, arcY - yOffset + depth,
 						pieArea.getWidth(), pieArea.getHeight() - depth,
@@ -286,10 +283,10 @@ public class PiePlot3DExt extends PiePlot3D {
 			if (arc == null) {
 				continue;
 			}
-			Comparable key = this.getSectionKey(categoryIndex);
-			Paint sectionPaint = this.lookupSectionPaint(key);
-			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
-			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
+			Comparable key = getSectionKey(categoryIndex);
+			Paint sectionPaint = lookupSectionPaint(key);
+			Paint outlinePaint = lookupSectionOutlinePaint(key);
+			Stroke outlineStroke = lookupSectionOutlineStroke(key);
 			
 			g2.setPaint(sectionPaint);
 			
@@ -305,12 +302,12 @@ public class PiePlot3DExt extends PiePlot3D {
 			if (arc == null) {
 				continue;
 			}
-			Comparable key = this.getSectionKey(categoryIndex);
-			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
-			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
+			Comparable key = getSectionKey(categoryIndex);
+			Paint outlinePaint = lookupSectionOutlinePaint(key);
+			Stroke outlineStroke = lookupSectionOutlineStroke(key);
 			
 			// shade mantle back face
-			Shape backMantle = this.getArcMantleBackArea(arc, depth);
+			Shape backMantle = getArcMantleBackArea(arc, depth);
 			
 			g2.setPaint(Color.GRAY);
 			g2.fill(backMantle);
@@ -321,7 +318,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		}
 		
 		// build lists of faces
-		List<IndexedFace> faces = new ArrayList<IndexedFace>();
+		List<PiePlot3DExt.IndexedFace> faces = new ArrayList<PiePlot3DExt.IndexedFace>();
 		for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
 			Arc2D arc = arcList.get(categoryIndex);
 			if (arc == null) {
@@ -333,9 +330,9 @@ public class PiePlot3DExt extends PiePlot3D {
 		}
 		// sort faces
 		Collections.sort(faces);
-		
+
 		// paint faces
-		for (IndexedFace face : faces) {
+		for (PiePlot3DExt.IndexedFace face : faces) {
 			int categoryIndex = face.getIndex();
 			Shape shape = face.getShape();
 
@@ -343,7 +340,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			Paint sectionPaint = (face.isBackFace()) ? Color.GRAY : this.lookupSectionPaint(key);
 			Paint outlinePaint = this.lookupSectionOutlinePaint(key);
 			Stroke outlineStroke = this.lookupSectionOutlineStroke(key);
-			
+
 			if (face.isMantleFace()) {
 				g2.setPaint(Color.GRAY);
 				g2.fill(shape);
@@ -355,7 +352,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			g2.setPaint(outlinePaint);
 			g2.draw(shape);
 		}
-		
+
 		g2.setClip(oldClip);
 
 		// draw the sections at the top of the pie (and set up tooltips)...
@@ -417,12 +414,12 @@ public class PiePlot3DExt extends PiePlot3D {
 //		setInteriorGap(gapPercent);
 
 		if (getShadowGenerator() != null) {
-			BufferedImage shadowImage 
+			BufferedImage shadowImage
 			= getShadowGenerator().createDropShadow(dataImage);
 			g2 = savedG2;
-			g2.drawImage(shadowImage, (int) plotArea.getX() 
+			g2.drawImage(shadowImage, (int) plotArea.getX()
 					+ getShadowGenerator().calculateOffsetX(),
-					(int) plotArea.getY() 
+					(int) plotArea.getY()
 					+ getShadowGenerator().calculateOffsetY(), null);
 			g2.drawImage(dataImage, (int) plotArea.getX(),
 					(int) plotArea.getY(), null);
@@ -441,23 +438,23 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @return The back-facing mantle area.
 	 */
 	protected Shape getArcMantleBackArea(Arc2D arc, float depth) {
-		
+
 		Point2D startPoint = arc.getStartPoint();
 		Point2D endPoint = arc.getEndPoint();
-	
+
 		float startX = (float) startPoint.getX();
 		float startY = (float) startPoint.getY();
 		float endX = (float) endPoint.getX();
 		float endY = (float) (endPoint.getY());
-		
+
 		double start = arc.getAngleStart();
 		double extent = Math.abs(arc.getAngleExtent());
-	
+
 		float cx = (float) arc.getCenterX();
 		float cy = (float) arc.getCenterY();
 		float rx = (float) state.getPieWRadius();
 		float ry = (float) state.getPieHRadius();
-		
+
 		GeneralPathExt path = new GeneralPathExt();
 		path.moveTo(startX, startY - depth);
 		if (start > 180.0) {
@@ -537,56 +534,55 @@ public class PiePlot3DExt extends PiePlot3D {
 				path.closePath();
 			}
 		}
-		
+
 		return path;
 	}
 
 	/**
 	 * TODO: API
-	 * @param segment
 	 * @param depth
 	 * @return
 	 */
-	protected List<IndexedFace> getArcInnerBackFaces(int index, Arc2D arc, float depth) {
+	protected List<PiePlot3DExt.IndexedFace> getArcInnerBackFaces(int index, Arc2D arc, float depth) {
 		// TODO: add a few comments
 		Point2D startPoint = arc.getStartPoint();
 		Point2D endPoint = arc.getEndPoint();
-	
+
 		float startX = (float) startPoint.getX();
 		float startY = (float) startPoint.getY();
 		float endX = (float) endPoint.getX();
 		float endY = (float) (endPoint.getY());
-		
+
 		double start = arc.getAngleStart();
 		double extent = Math.abs(arc.getAngleExtent());
 		double end = start + arc.getAngleExtent();
-	
+
 		float cx = (float) arc.getCenterX();
 		float cy = (float) arc.getCenterY();
-		
-		List<IndexedFace> faces = new ArrayList<IndexedFace>();
-		
+
+		List<PiePlot3DExt.IndexedFace> faces = new ArrayList<PiePlot3DExt.IndexedFace>();
+
 		// TODO: simplify structure
 		if (start < -270.0) {
 			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
 			double delta = Math.abs(-270.0 - start);
-			faces.add(new IndexedFace(index, face, delta, true));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 		} else if (start < -90.0) {
 			if (extent < (start + 270.0)) {
 				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
 				double delta = Math.abs(-270.0 - end);
-				faces.add(new IndexedFace(index, face, delta, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			}
 		} else if (start < 90.0) {
 			// start face in right half
 			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
 			double delta = Math.abs(90.0 - start);
-			faces.add(new IndexedFace(index, face, delta, true));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			if ((end < -90.0) && (end > -270.0)) {
 				// end face in left half
 				face = this.createInnerFace(depth, endX, endY, cx, cy);
 				delta = Math.abs(-270.0 - end);
-				faces.add(new IndexedFace(index, face, delta, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			}
 		} else if (start < 270.0) {
 			// start face in left half
@@ -594,19 +590,19 @@ public class PiePlot3DExt extends PiePlot3D {
 				// end face also in left half
 				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
 				double delta = (end > 90.0) ? Math.abs(90.0 - end) : Math.abs(-270.0 - end);
-				faces.add(new IndexedFace(index, face, delta, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			}
 		} else {
 			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
 			double delta = Math.abs(-270.0 - start);
-			faces.add(new IndexedFace(index, face, delta, true));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			if (extent < (start - 90.0)) {
 				face = this.createInnerFace(depth, endX, endY, cx, cy);
 				delta = Math.abs(-270.0 - end);
-				faces.add(new IndexedFace(index, face, delta, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, true));
 			}
 		}
-		
+
 		return faces;
 	}
 
@@ -616,24 +612,24 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @param depth
 	 * @return
 	 */
-	protected List<IndexedFace> getArcInnerFrontFaces(int index, Arc2D arc, float depth) {
+	protected List<PiePlot3DExt.IndexedFace> getArcInnerFrontFaces(int index, Arc2D arc, float depth) {
 		// TODO: add a few comments
 		Point2D startPoint = arc.getStartPoint();
 		Point2D endPoint = arc.getEndPoint();
-	
+
 		float startX = (float) startPoint.getX();
 		float startY = (float) startPoint.getY();
 		float endX = (float) endPoint.getX();
 		float endY = (float) (endPoint.getY());
-		
+
 		double start = arc.getAngleStart();
 		double end = start + arc.getAngleExtent();
-	
+
 		float cx = (float) arc.getCenterX();
 		float cy = (float) arc.getCenterY();
-		
-		List<IndexedFace> faces = new ArrayList<IndexedFace>();
-		
+
+		List<PiePlot3DExt.IndexedFace> faces = new ArrayList<PiePlot3DExt.IndexedFace>();
+
 		// TODO: simplify cases
 		if (start > 270.0) {
 			// start face in right half
@@ -641,18 +637,18 @@ public class PiePlot3DExt extends PiePlot3D {
 				// end face also in right half
 				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
 				double delta = Math.abs(90.0 - end);
-				faces.add(new IndexedFace(index, face, delta, false));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			}
 		} else if (start > 90.0) {
 			// start face in left half
 			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
 			double delta = Math.abs(90.0 - start);
-			faces.add(new IndexedFace(index, face, delta, false));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			if ((end < 90.0) && (end > -90.0)) {
 				// end face in right half
 				face = this.createInnerFace(depth, endX, endY, cx, cy);
 				delta = Math.abs(90.0 - end);
-				faces.add(new IndexedFace(index, face, delta, false));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			}
 		} else if (start > -90.0) {
 			// start face in right half
@@ -660,26 +656,26 @@ public class PiePlot3DExt extends PiePlot3D {
 				// end face in top right quadrant
 				Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
 				double delta = (end < -270.0) ? Math.abs(-270.0 - end) : Math.abs(90.0 - end);
-				faces.add(new IndexedFace(index, face, delta, false));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			}
 		} else if (start > -270.0) {
 			// start face in left half
 			Shape face = this.createInnerFace(depth, startX, startY, cx, cy);
 			double delta = Math.abs(-270.0 - start);
-			faces.add(new IndexedFace(index, face, delta, false));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			if (end < -270.0) {
 				// end face in right half
 				face = this.createInnerFace(depth, endX, endY, cx, cy);
 				delta = Math.abs(-270.0 - end);
-				faces.add(new IndexedFace(index, face, delta, false));
+				faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 			}
 		} else {
 			// ??
 			Shape face = this.createInnerFace(depth, endX, endY, cx, cy);
 			double delta = Math.abs(-270.0 - end);
-			faces.add(new IndexedFace(index, face, delta, false));
+			faces.add(new PiePlot3DExt.IndexedFace(index, face, delta, false));
 		}
-		
+
 		return faces;
 	}
 
@@ -700,7 +696,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		path.lineTo(x, y);
 		path.lineTo(cx, cy);
 		path.closePath();
-		
+
 		return path;
 	}
 
@@ -710,8 +706,8 @@ public class PiePlot3DExt extends PiePlot3D {
 	 * @param depth The pie's extrusion height.
 	 * @return The front-facing mantle area.
 	 */
-	protected List<IndexedFace> getArcMantleFrontFaces(int index, Arc2D arc, float depth) {
-		
+	protected List<PiePlot3DExt.IndexedFace> getArcMantleFrontFaces(int index, Arc2D arc, float depth) {
+
 		Point2D startPoint = arc.getStartPoint();
 		Point2D endPoint = arc.getEndPoint();
 
@@ -719,7 +715,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		float startY = (float) startPoint.getY();
 		float endX = (float) endPoint.getX();
 		float endY = (float) (endPoint.getY());
-		
+
 		double start = arc.getAngleStart();
 		double extent = Math.abs(arc.getAngleExtent());
 		double end = start + arc.getAngleExtent();
@@ -728,9 +724,9 @@ public class PiePlot3DExt extends PiePlot3D {
 		float cy = (float) arc.getCenterY();
 		float rx = (float) state.getPieWRadius();
 		float ry = (float) state.getPieHRadius();
-		
-		List<IndexedFace> faces = new ArrayList<IndexedFace>();
-		
+
+		List<PiePlot3DExt.IndexedFace> faces = new ArrayList<PiePlot3DExt.IndexedFace>();
+
 		// TODO: simplify pathing by using path.append() instead of path.arcTo()
 		if (start > 180.0) {
 			// start face in bottom half
@@ -743,7 +739,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
 				double delta = (start > 270.0) ? 180.0 : 90.0 + (start - 180.0) / 2.0;
-				faces.add(new IndexedFace(index, path, delta, false, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 				if (extent > start) {
 					// also crossing right boundary from the back
 					path = new GeneralPathExt();
@@ -753,7 +749,7 @@ public class PiePlot3DExt extends PiePlot3D {
 					path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
 					path.closePath();
 					delta = (end < -90.0) ? 180.0 : 90.0 - (end / 2.0);
-					faces.add(new IndexedFace(index, path, delta, false, true));
+					faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 				}
 			} else {
 				// arc ends before left boundary
@@ -764,7 +760,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
 				double delta = (end < 270.0) ? 180.0 : Math.abs(90.0 - (start + arc.getAngleExtent() / 2.0));
-				faces.add(new IndexedFace(index, path, delta, false, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 			}
 		} else if (start > 0.0) {
 			// start face in top half
@@ -786,7 +782,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				}
 				path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
 				path.closePath();
-				faces.add(new IndexedFace(index, path, delta, false, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 			}
 		} else if (start > -180.0) {
 			// start face in bottom half
@@ -799,7 +795,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				path.arcTo(rx, ry, 0, false, false, startX, startY);
 				path.closePath();
 				double delta = (start > -90) ? 180.0 : 90.0 + (start + 180.0) / 2.0;
-				faces.add(new IndexedFace(index, path, delta, false, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 				if (end < -360.0) {
 					// also crossing right boundary from the back
 					path = new GeneralPathExt();
@@ -809,7 +805,7 @@ public class PiePlot3DExt extends PiePlot3D {
 					path.arcTo(rx, ry, 0, false, false, cx + rx, cy);
 					path.closePath();
 					delta = 90.0 - ((end + 360.0) / 2.0);
-					faces.add(new IndexedFace(index, path, delta, false, true));
+					faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 				}
 			} else {
 				// arc ends before left boundary
@@ -821,13 +817,13 @@ public class PiePlot3DExt extends PiePlot3D {
 				path.closePath();
 				double delta = ((start > -90.0) && (end < -90.0)) ? 180.0 :
 					180.0 - Math.abs(-90.0 - (start + arc.getAngleExtent() / 2.0));
-				faces.add(new IndexedFace(index, path, delta, false, true));
+				faces.add(new PiePlot3DExt.IndexedFace(index, path, delta, false, true));
 			}
 		}
-		
+
 		return faces;
 	}
-	
+
 	/**
 	 * Returns the key of the pie section at the specified point.
 	 * @param point the point
@@ -847,17 +843,17 @@ public class PiePlot3DExt extends PiePlot3D {
 		if (!explodedEllipse.contains(point)) {
 			return null;
 		}
-		
+
 		Point2D center = new Point2D.Double(state.getPieCenterX(), state.getPieCenterY());
 		Vector delta = new Vector(center.getX() - point.getX(), center.getY() - point.getY());
 		double theta = (Math.atan2(-delta.getY(), delta.getX()) / Math.PI - 1.0) * 180.0;
-		
+
 		theta -= getStartAngle();
-		
+
 		if (theta < -360.0) {
 			theta += 360.0;
 		}
-		
+
 		PieDataset dataset = getDataset();
 		double totalValue = DatasetUtilities.calculatePieDatasetTotal(dataset);
 		double runningTotal = 0.0;
@@ -876,7 +872,7 @@ public class PiePlot3DExt extends PiePlot3D {
 				runningTotal += value.doubleValue();
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -887,7 +883,7 @@ public class PiePlot3DExt extends PiePlot3D {
 //		this.setSectionPaint("Unknown", Color.CYAN);
 		this.setSectionPaint("Others", Color.LIGHT_GRAY);
 	}
-	
+
 	/**
 	 * {@inheritDoc}<p>
 	 * Overridden to prevent line wrapping.
@@ -898,7 +894,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			PiePlotState state) {
 		super.drawLeftLabels(leftKeys, g2, plotArea, linkArea, Float.MAX_VALUE, state);
 	}
-	
+
 	/**
 	 * {@inheritDoc}<p>
 	 * Overridden to prevent line wrapping.
@@ -909,23 +905,23 @@ public class PiePlot3DExt extends PiePlot3D {
 			PiePlotState state) {
 		super.drawRightLabels(keys, g2, plotArea, linkArea, Float.MAX_VALUE, state);
 	}
-	
+
 	/**
 	 * Convenience wrapper class for a face shape associated with a category index.
 	 * @author A. Behne
 	 */
-	private class IndexedFace implements Comparable<IndexedFace> {
-		
+	private class IndexedFace implements Comparable<PiePlot3DExt.IndexedFace> {
+
 		/**
 		 * The category index.
 		 */
 		private int index;
-		
+
 		/**
 		 * The wrapped face shape.
 		 */
 		private Shape shape;
-		
+
 		/**
 		 * The angle delta of the face to the top of the pie.
 		 */
@@ -935,12 +931,12 @@ public class PiePlot3DExt extends PiePlot3D {
 		 * Flag indicating whether the wrapped face is back-facing.
 		 */
 		private boolean backFace;
-		
+
 		/**
 		 * Flag indicating whether the wrapped face is a mantle face.
 		 */
 		private boolean mantle;
-		
+
 		/**
 		 * Constructs a face wrapper using the specified category index, face shape, angle delta and back-facing flag.
 		 * @param index the category index
@@ -992,7 +988,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		public boolean isBackFace() {
 			return backFace;
 		}
-		
+
 		/**
 		 * Returns the mantle flag.
 		 * @return <code>true</code> if the face is a mantle face, <code>false</code> otherwise
@@ -1002,7 +998,7 @@ public class PiePlot3DExt extends PiePlot3D {
 		}
 
 		@Override
-		public int compareTo(IndexedFace that) {
+		public int compareTo(PiePlot3DExt.IndexedFace that) {
 			// backfaces always after frontfaces
 			if (this.backFace != that.backFace) {
 				return (this.backFace) ? -1 : 1;
@@ -1010,15 +1006,15 @@ public class PiePlot3DExt extends PiePlot3D {
 			// faces closer to the top before lower ones
 			return Double.compare(this.delta, that.delta);
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
-			if (obj instanceof IndexedFace) {
-				IndexedFace that = (IndexedFace) obj;
-				if (this.backFace != that.backFace) {
+			if (obj instanceof PiePlot3DExt.IndexedFace) {
+				PiePlot3DExt.IndexedFace that = (PiePlot3DExt.IndexedFace) obj;
+				if (backFace != that.backFace) {
 					return false;
 				}
-				return (this.delta == that.delta);
+				return (delta == that.delta);
 			}
 			return false;
 		}
@@ -1051,12 +1047,12 @@ public class PiePlot3DExt extends PiePlot3D {
 		public void arcTo(float rx, float ry, float theta, boolean largeArcFlag, boolean sweepFlag, float x, float y) {
 			// Ensure radii are valid
 			if (rx == 0 || ry == 0) {
-				this.lineTo(x, y);
+                lineTo(x, y);
 				return;
 			}
 		
 			// Get the current (x, y) coordinates of the path
-			Point2D p2d = this.getCurrentPoint();
+			Point2D p2d = getCurrentPoint();
 			float x0 = (float) p2d.getX();
 			float y0 = (float) p2d.getY();
 			// Compute the half distance between the current and the final point
@@ -1134,7 +1130,7 @@ public class PiePlot3DExt extends PiePlot3D {
 			arc.height = ry * 2.0f;
 			arc.start = -angleStart;
 			arc.extent = -angleExtent;
-			this.append(arc, true);
+            append(arc, true);
 		}
 		
 	}

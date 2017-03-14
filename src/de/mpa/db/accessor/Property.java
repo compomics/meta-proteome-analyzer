@@ -11,8 +11,7 @@ import java.util.List;
 public class Property extends PropertyTableAccessor {
 
 	public Property() {
-		super();
-	}
+    }
 	
 	/**
 	 * Calls the super class.
@@ -36,10 +35,9 @@ public class Property extends PropertyTableAccessor {
 	 * @param value
 	 */
 	public Property(long projectID, String name, String value) {
-		super();
-		this.setFk_projectid(projectID);
-		this.setName(name);
-		this.setValue(value);
+        setFk_projectid(projectID);
+        setName(name);
+        setValue(value);
 	}
 
 	/**
@@ -51,7 +49,7 @@ public class Property extends PropertyTableAccessor {
 	 */
 	public static Property findPropertyFromTitle(String title, Connection aConn) throws SQLException {
 		Property temp = null;
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() + " where title = ?");
+		PreparedStatement ps = aConn.prepareStatement(PropertyTableAccessor.getBasicSelect() + " where title = ?");
 		ps.setString(1, title);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
@@ -70,7 +68,7 @@ public class Property extends PropertyTableAccessor {
 	 */
 	public static Property findPropertyFromPropertyID(long propertyid, Connection aConn) throws SQLException {
 		Property temp = null;
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
+		PreparedStatement ps = aConn.prepareStatement(PropertyTableAccessor.getBasicSelect() +
 													" where propertyid = ? ");
 		ps.setLong(1, propertyid);
 		ResultSet rs = ps.executeQuery();
@@ -92,7 +90,7 @@ public class Property extends PropertyTableAccessor {
 	 */
 	public static List<Property> findAllPropertiesOfProject(long fk_projectid, Connection aConn) throws SQLException {
 		ArrayList<Property> temp = new ArrayList<Property>();
-		PreparedStatement ps = aConn.prepareStatement(getBasicSelect()+ " where fk_projectid = ?");
+		PreparedStatement ps = aConn.prepareStatement(PropertyTableAccessor.getBasicSelect()+ " where fk_projectid = ?");
 		ps.setLong(1, fk_projectid);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {

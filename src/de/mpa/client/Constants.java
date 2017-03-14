@@ -23,7 +23,7 @@ import javax.swing.filechooser.FileFilter;
 
 import com.thoughtworks.xstream.XStream;
 
-import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
 import de.mpa.client.model.AbstractProject;
 import de.mpa.client.ui.DelegateColor;
@@ -62,12 +62,12 @@ public class Constants {
 	/**
 	 * The application title.
 	 */
-	public final static String APPTITLE = "MetaProteomeAnalyzer (Development)";
+    public static final String APPTITLE = "MetaProteomeAnalyzer (Development)";
 
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.3.0";
+    public static final String VER_NUMBER = "1.3.0";
 
 	/**
 	 * The client frame minimum width in pixels.
@@ -88,7 +88,7 @@ public class Constants {
 	 * The application splash screen image
 	 * <img src="../resources/images/mpa.png">
 	 */
-	public static final String SPLASHSCREEN_IMAGE_LOCATION = DIR + SEP + "metaprot/software/";
+	public static final String SPLASHSCREEN_IMAGE_LOCATION = Constants.DIR + Constants.SEP + "metaprot/software/";
 //	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP
 //			+ "images" + SEP + "mpa.png";
 
@@ -140,13 +140,13 @@ public class Constants {
 	 * build.<br>
 	 * <i>conf</i>
 	 */
-	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP
-			+ "MPApackage" + SEP + "conf"; 
+	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "software" + Constants.SEP
+			+ "MPApackage" + Constants.SEP + "conf";
 
 	/**
 	 * Path string of folder containing spectrum resources.
 	 */
-	public static final String DEFAULT_SPECTRA_PATH = "test" + SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP;
+	public static final String DEFAULT_SPECTRA_PATH = "test" + Constants.SEP + "de" + Constants.SEP + "mpa" + Constants.SEP + "resources" + Constants.SEP;
 
 	/**
 	 * Path string of the temporary backup database search result object.
@@ -156,31 +156,31 @@ public class Constants {
 	/**
 	 * Path of the FASTA directory
 	 */
-	public static final String FASTA_PATHS = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP;
+	public static final String FASTA_PATHS = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "fasta" + Constants.SEP;
 
 	/**
 	 * Path of the fastaformater script
 	 */
-	public static final String FASTA_FORMATER_PATH = FASTA_PATHS + "fastaformat.sh";
+	public static final String FASTA_FORMATER_PATH = Constants.FASTA_PATHS + "fastaformat.sh";
 
 	/**
 	 * This constant is used for database backups, the executable file is used
 	 * to run mysql-scripts for restoring databases
 	 */
-	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "dump_database.sh";
+	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "dump_database.sh";
 
 	/**
 	 * This constant is used for database backups, the Sql-Query file is run by
 	 * the sh script DB_DUMPER_SH_PATH
 	 */
-	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "dump_database.sql";
+	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "dump_database.sql";
 
 	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
 	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree());
 
-	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
+	public static final ECNode ENZYME_ROOT = createEnzymeTree();
 
 	/**
 	 * Units for precurcor and MS/MS tolerance
@@ -212,11 +212,12 @@ public class Constants {
 	public static final String CSV_FILE_SEPARATOR = ",";
 	public static final String TSV_FILE_SEPARATOR = "\t";
 
-	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "none");
+	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, UniProtUtilities.TaxonomyRank.NO_RANK, "none");
 
 	// Get constants for BLAST
 	// Check for OS
 	public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
+	
 	/**
 	 * Database for BLAST queries
 	 */
@@ -225,17 +226,17 @@ public class Constants {
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "software" + SEP + "blast" + SEP + "bin" + SEP + "blastp";
+	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "software" + Constants.SEP + "blast" + Constants.SEP + "bin" + Constants.SEP + "blastp";
 
 	/**
 	 * File for a dummy fasta for each BLAST query
 	 */
-	public static final String BLAST_DUMMY_FASTA_FILE = DIR + SEP + "out" + SEP + "dummy.fasta";
+	public static final String BLAST_DUMMY_FASTA_FILE = Constants.DIR + Constants.SEP + "out" + Constants.SEP + "dummy.fasta";
 
 	/**
 	 * Output file for the results of each BLAST query
 	 */
-	public static final String BLAST_OUTPUT_XML = DIR + SEP + "out" + SEP + "output.xml";
+	public static final String BLAST_OUTPUT_XML = Constants.DIR + Constants.SEP + "out" + Constants.SEP + "output.xml";
 
 	/**
 	 * Evalue for the BLAST query
@@ -262,7 +263,7 @@ public class Constants {
 	 *             if the file could not be found
 	 */
 	public static File getUserQueriesFile() throws URISyntaxException {
-		return new File(Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
+		return new File(Constants.class.getResource(CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
 	}
 
 	/**
@@ -274,11 +275,11 @@ public class Constants {
 	 */
 	public static File getProjectsFile() throws Exception {
 		File projectsFile;
-		URL resource = Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR + "projects.xml");
+		URL resource = Constants.class.getResource(CONFIGURATION_PATH_JAR + "projects.xml");
 		if (resource != null) {
 			projectsFile = new File(resource.toURI());
 		} else {
-			File confFolder = new File(Constants.class.getResource(Constants.CONFIGURATION_PATH_JAR).toURI());
+			File confFolder = new File(Constants.class.getResource(CONFIGURATION_PATH_JAR).toURI());
 			projectsFile = new File(confFolder, "projects.xml");
 		}
 		if (!projectsFile.exists()) {
@@ -379,12 +380,12 @@ public class Constants {
 		/**
 		 * The <code>UIManager</code> key.
 		 */
-		private String key;
+		private final String key;
 
 		/**
 		 * The descriptive string.
 		 */
-		private String description;
+		private final String description;
 
 		/**
 		 * The associated default color.
@@ -405,17 +406,17 @@ public class Constants {
 		 * @param description
 		 *            the descriptive string
 		 */
-		private UIColor(String key, String description) {
+        UIColor(String key, String description) {
 			this.key = key;
 			this.description = description;
-			this.reset();
+            reset();
 		}
 
 		/**
 		 * Resets the associated color to its default value.
 		 */
 		public void reset() {
-			this.setColor(this.defaultColor);
+            setColor(defaultColor);
 		}
 
 		/**
@@ -424,7 +425,7 @@ public class Constants {
 		 * @return the key
 		 */
 		public String getKey() {
-			return key;
+			return this.key;
 		}
 
 		/**
@@ -433,7 +434,7 @@ public class Constants {
 		 * @return the color
 		 */
 		public Color getColor() {
-			return UIManager.getColor(this.getKey());
+			return UIManager.getColor(getKey());
 		}
 
 		/**
@@ -442,10 +443,10 @@ public class Constants {
 		 * @return the delegate color
 		 */
 		public DelegateColor getDelegateColor() {
-			if (delegate == null) {
-				delegate = new DelegateColor(this);
+			if (this.delegate == null) {
+                this.delegate = new DelegateColor(this);
 			}
-			return delegate;
+			return this.delegate;
 		}
 
 		/**
@@ -455,7 +456,7 @@ public class Constants {
 		 *            the color to set
 		 */
 		public void setColor(Color color) {
-			UIManager.put(this.getKey(), color);
+			UIManager.put(getKey(), color);
 		}
 
 		/**
@@ -470,7 +471,7 @@ public class Constants {
 
 		@Override
 		public String toString() {
-			return description;
+			return this.description;
 		}
 	}
 
@@ -482,7 +483,7 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-	public static final String THEME_FOLDER_JAR = Constants.CONFIGURATION_PATH_JAR + SEP + "themes" + SEP;
+	public static final String THEME_FOLDER_JAR = CONFIGURATION_PATH_JAR + Constants.SEP + "themes" + Constants.SEP;
 
 	/**
 	 * The name of the default theme.
@@ -494,47 +495,47 @@ public class Constants {
 	 * is missing.
 	 */
 	@SuppressWarnings("serial")
-	public static final UITheme DEFAULT_THEME = new UITheme(DEFAULT_THEME_NAME, new Color(195, 212, 232),
-			new HashMap<UIColor, Color>() {
+	public static final Constants.UITheme DEFAULT_THEME = new Constants.UITheme(Constants.DEFAULT_THEME_NAME, new Color(195, 212, 232),
+			new HashMap<Constants.UIColor, Color>() {
 				{
-					put(UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
-					put(UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
-					put(UIColor.TEXT_SELECTION_BACKGROUND_COLOR, new Color(195, 212, 232));
-					put(UIColor.TITLED_PANEL_START_COLOR, new Color(166, 202, 240));
-					put(UIColor.TITLED_PANEL_END_COLOR, new Color(107, 147, 193));
-					put(UIColor.TITLED_PANEL_FONT_COLOR, new Color(255, 255, 255));
-					put(UIColor.TASK_PANE_BACKGROUND_COLOR, new Color(195, 212, 232));
-					put(UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR, new Color(0, 127, 0));
-					put(UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR, new Color(127, 255, 127));
-					put(UIColor.BAR_CHART_PANEL_BACKGROUND_START_COLOR, new Color(64, 64, 64));
-					put(UIColor.BAR_CHART_PANEL_BACKGROUND_END_COLOR, new Color(192, 192, 192));
-					put(UIColor.SCROLLBAR_THUMB_COLOR, new Color(195, 212, 232));
-					put(UIColor.TABLE_SELECTION_COLOR, new Color(195, 212, 232));
-					put(UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR, new Color(166, 202, 240));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(127, 0, 0));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(255, 127, 127));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(127, 63, 0));
-					put(UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(255, 191, 127));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(0, 127, 127));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(127, 255, 255));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(0, 0, 127));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(127, 127, 255));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR, new Color(127, 0, 127));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
-					put(UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
-					put(UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
+					put(Constants.UIColor.TEXT_SELECTION_BACKGROUND_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.TITLED_PANEL_START_COLOR, new Color(166, 202, 240));
+					put(Constants.UIColor.TITLED_PANEL_END_COLOR, new Color(107, 147, 193));
+					put(Constants.UIColor.TITLED_PANEL_FONT_COLOR, new Color(255, 255, 255));
+					put(Constants.UIColor.TASK_PANE_BACKGROUND_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.BAR_CHART_PANEL_FOREGROUND_START_COLOR, new Color(0, 127, 0));
+					put(Constants.UIColor.BAR_CHART_PANEL_FOREGROUND_END_COLOR, new Color(127, 255, 127));
+					put(Constants.UIColor.BAR_CHART_PANEL_BACKGROUND_START_COLOR, new Color(64, 64, 64));
+					put(Constants.UIColor.BAR_CHART_PANEL_BACKGROUND_END_COLOR, new Color(192, 192, 192));
+					put(Constants.UIColor.SCROLLBAR_THUMB_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.TABLE_SELECTION_COLOR, new Color(195, 212, 232));
+					put(Constants.UIColor.TABLE_FOCUS_HIGHLIGHT_COLOR, new Color(166, 202, 240));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(127, 0, 0));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(255, 127, 127));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(127, 63, 0));
+					put(Constants.UIColor.HORZ_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(255, 191, 127));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_START_COLOR, new Color(0, 127, 0));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_A_END_COLOR, new Color(127, 255, 127));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_START_COLOR, new Color(0, 127, 127));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_B_END_COLOR, new Color(127, 255, 255));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_START_COLOR, new Color(0, 0, 127));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_C_END_COLOR, new Color(127, 127, 255));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_START_COLOR, new Color(127, 0, 127));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_D_END_COLOR, new Color(255, 127, 255));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_START_COLOR, new Color(127, 0, 0));
+					put(Constants.UIColor.VERT_BAR_CHART_HIGHLIGHTER_E_END_COLOR, new Color(255, 127, 127));
+					put(Constants.UIColor.PROGRESS_BAR_FOREGROUND_COLOR, new Color(195, 212, 232));
 				}
 			});
 
 	/**
 	 * The list of UI themes.
 	 */
-	public static List<UITheme> THEMES = new ArrayList<UITheme>(); // is
+	public static List<Constants.UITheme> THEMES = new ArrayList<Constants.UITheme>(); // is
 																	// finalized
 																	// in
 																	// starter
@@ -542,7 +543,7 @@ public class Constants {
 
 	/**
 	 * Class for parsing and storing UI themes.
-	 * 
+	 *
 	 * @author A. Behne
 	 */
 	public static class UITheme {
@@ -560,15 +561,15 @@ public class Constants {
 		/**
 		 * Map for storing colors and their respective UI enum.
 		 */
-		private Map<UIColor, Color> colorMap;
+		private Map<Constants.UIColor, Color> colorMap;
 
 		/**
 		 * Constructs a theme using the specified color map.
-		 * 
+		 *
 		 * @param colorMap
 		 *            the color map
 		 */
-		public UITheme(String title, Color prototypeColor, Map<UIColor, Color> colorMap) {
+		public UITheme(String title, Color prototypeColor, Map<Constants.UIColor, Color> colorMap) {
 			this.title = title;
 			this.prototypeColor = prototypeColor;
 			this.colorMap = colorMap;
@@ -576,26 +577,26 @@ public class Constants {
 
 		/**
 		 * Constructs a theme by parsing the specified theme file.
-		 * 
+		 *
 		 * @param path
 		 *            the theme file
 		 */
 		public UITheme(File file) {
-			colorMap = new LinkedHashMap<UIColor, Color>();
+			colorMap = new LinkedHashMap<Constants.UIColor, Color>();
 			this.parse(file);
 		}
 
 		/**
 		 * Convenience method to get a theme by its name;
-		 * 
+		 *
 		 * @param title
 		 *            the theme title
 		 * @return the desired theme or <code>null</code> if no theme with the
 		 *         specified name exists
 		 */
-		public static UITheme valueOf(String title) {
+		public static Constants.UITheme valueOf(String title) {
 			if (title != null) {
-				for (UITheme theme : THEMES) {
+				for (Constants.UITheme theme : THEMES) {
 					if (title.equals(theme.getTitle())) {
 						return theme;
 					}
@@ -607,7 +608,7 @@ public class Constants {
 		/**
 		 * Parses the theme file located at the specified path and stores its
 		 * values.
-		 * 
+		 *
 		 * @param path
 		 *            the path to the theme file
 		 */
@@ -631,7 +632,7 @@ public class Constants {
 				while ((line = br.readLine()) != null) {
 					split = line.split(",");
 					// Extract UI color reference and default color
-					UIColor uiColor = UIColor.valueOf(split[0]);
+					Constants.UIColor uiColor = Constants.UIColor.valueOf(split[0]);
 					Color color = new Color(Integer.valueOf(split[1]), Integer.valueOf(split[2]),
 							Integer.valueOf(split[3]));
 					// Map UI color reference to default color
@@ -648,8 +649,8 @@ public class Constants {
 		 * Applies the colors stored in this theme.
 		 */
 		public void applyTheme() {
-			for (Entry<UIColor, Color> entry : colorMap.entrySet()) {
-				UIColor uiColor = entry.getKey();
+			for (Entry<Constants.UIColor, Color> entry : colorMap.entrySet()) {
+				Constants.UIColor uiColor = entry.getKey();
 				Color color = entry.getValue();
 				uiColor.setDefaultColor(color);
 				uiColor.reset();
@@ -658,7 +659,7 @@ public class Constants {
 
 		/**
 		 * Writes a theme configuration to the specified file.
-		 * 
+		 *
 		 * @param file
 		 *            the theme file
 		 */
@@ -671,7 +672,7 @@ public class Constants {
 						+ protoCol.getBlue());
 				bw.newLine();
 				// write color constants
-				for (Entry<UIColor, Color> entry : colorMap.entrySet()) {
+				for (Entry<Constants.UIColor, Color> entry : colorMap.entrySet()) {
 					Color col = entry.getValue();
 					bw.write(entry.getKey().name() + "," + col.getRed() + "," + col.getGreen() + "," + col.getBlue());
 					bw.newLine();
@@ -685,7 +686,7 @@ public class Constants {
 
 		/**
 		 * Returns the title of the theme.
-		 * 
+		 *
 		 * @return the theme title.
 		 */
 		public String getTitle() {
@@ -694,28 +695,28 @@ public class Constants {
 
 		/**
 		 * Returns the prototype color of this theme.
-		 * 
+		 *
 		 * @return the prototype color
 		 */
 		public Color getPrototypeColor() {
 			if (this.prototypeColor == null) {
-				return this.colorMap.get(UIColor.TEXT_SELECTION_BACKGROUND_COLOR);
+				return this.colorMap.get(Constants.UIColor.TEXT_SELECTION_BACKGROUND_COLOR);
 			}
 			return this.prototypeColor;
 		}
 
 		/**
 		 * Returns the color mappings.
-		 * 
+		 *
 		 * @return the color map
 		 */
-		public Map<UIColor, Color> getColorMap() {
-			return this.colorMap;
+		public Map<Constants.UIColor, Color> getColorMap() {
+			return colorMap;
 		}
 
 		@Override
 		public String toString() {
-			return this.getTitle();
+			return getTitle();
 		}
 
 	}

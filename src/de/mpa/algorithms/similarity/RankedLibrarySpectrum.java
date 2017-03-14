@@ -8,7 +8,7 @@ import de.mpa.io.MascotGenericFile;
 
 public class RankedLibrarySpectrum extends LibrarySpectrum {
 	
-	private double score;
+	private final double score;
 	
 	public RankedLibrarySpectrum(MascotGenericFile spectrumFile, long spectrumID, String sequence, List<Protein> annotations, double score) {
 		super(spectrumFile, spectrumID, sequence, annotations);
@@ -26,7 +26,7 @@ public class RankedLibrarySpectrum extends LibrarySpectrum {
 	}
 
 	public double getScore() {
-		return score;
+		return this.score;
 	}
 
 }

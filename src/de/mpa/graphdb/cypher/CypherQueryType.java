@@ -92,13 +92,13 @@ public enum CypherQueryType {
 	/**
 	 * A descriptive string for the query type.
 	 */
-	private String description;
+	private final String description;
 	
 	/**
 	 * Creates a Cypher query type enum member by the provided description.
 	 * @param description the description string
 	 */
-	private CypherQueryType(String description) {
+    CypherQueryType(String description) {
 		this.description = description;
 	}
 	
@@ -114,7 +114,7 @@ public enum CypherQueryType {
 	 */
 	@Override
 	public String toString() {
-		return description;
+		return this.description;
 	}
 	
 }

@@ -19,8 +19,7 @@ public class ConfirmFileChooser extends JFileChooser {
 	 * default directory.
 	 */
 	public ConfirmFileChooser() {
-		super();
-	}
+    }
 
 	/**
 	 * Constructs a <code>ConfirmFileChooser</code> using the given path.
@@ -35,15 +34,15 @@ public class ConfirmFileChooser extends JFileChooser {
 
 	@Override
 	public void approveSelection() {
-		if (getDialogType() == SAVE_DIALOG) {
-			File selFile = this.getSelectedFile();
+		if (this.getDialogType() == JFileChooser.SAVE_DIALOG) {
+			File selFile = getSelectedFile();
 			// check whether an extension is required
-			if (this.getFileFilter() instanceof ExtensionFileFilter) {
-				ExtensionFileFilter filter = (ExtensionFileFilter) this.getFileFilter();
+			if (getFileFilter() instanceof ExtensionFileFilter) {
+				ExtensionFileFilter filter = (ExtensionFileFilter) getFileFilter();
 				if (!filter.accept(selFile)) {
 					// append extension
 					selFile = new File(selFile + filter.getExtension());
-					this.setSelectedFile(selFile);
+                    setSelectedFile(selFile);
 				}
 			}
 			// check whether selected file descriptor points to an existing file
@@ -57,7 +56,7 @@ public class ConfirmFileChooser extends JFileChooser {
 				case 1:
 					return;
 				case 2:
-					super.cancelSelection();
+					cancelSelection();
 					return;
 				}
 			}

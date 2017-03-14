@@ -19,18 +19,18 @@ public enum NodeType {
 	/**
 	 * A descriptive string for the node type.
 	 */
-	private String description;
+	private final String description;
 
 	/**
 	 * Constructs a node type enum member from the specified description.
 	 * @param description the description
 	 */
-	private NodeType(String description) {
+    NodeType(String description) {
 		this.description = description;
 	}
 	
 	@Override
 	public String toString() {
-		return description;
+		return this.description;
 	}
 }

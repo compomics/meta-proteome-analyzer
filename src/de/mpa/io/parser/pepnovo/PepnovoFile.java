@@ -37,7 +37,7 @@ public class PepnovoFile {
 	 * @return filename String
 	 */
 	public String getFilename() {
-		return filename;
+		return this.filename;
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public class PepnovoFile {
 	 * @return entryList List<PepnovoEntry>
 	 */
 	public List<PepnovoEntry> getEntryList() {
-		return entryList;
+		return this.entryList;
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class PepnovoFile {
 	 * @return numberSpectra
 	 */
 	public int getNumberSpectra() {
-		return numberSpectra;
+		return this.numberSpectra;
 	}
 	
 	/**

@@ -50,7 +50,7 @@ public class DBManager {
 	 * @throws SQLException
 	 */
     private DBManager() throws SQLException {
-		init();
+        this.init();
 	}
     
     /**
@@ -59,10 +59,10 @@ public class DBManager {
      * @throws SQLException
      */
     public static DBManager getInstance() throws SQLException {
-    	if (instance == null) {
-    		instance = new DBManager();
+    	if (DBManager.instance == null) {
+            DBManager.instance = new DBManager();
     	}
-		return instance;
+		return DBManager.instance;
     }
     
     /**
@@ -71,14 +71,14 @@ public class DBManager {
      */
 	private void init() throws SQLException {	
 		// The database configuration.
-		if (conn == null || !conn.isValid(0)) {
+		if (this.conn == null || !this.conn.isValid(0)) {
 			// connect to database
-			if (connectionParams == null) {
-				connectionParams = new ConnectionParameters();
+			if (this.connectionParams == null) {
+                this.connectionParams = new ConnectionParameters();
 			}
 
-			DBConfiguration dbconfig = new DBConfiguration(connectionParams);
-			this.conn = dbconfig.getConnection();
+			DBConfiguration dbconfig = new DBConfiguration(this.connectionParams);
+            conn = dbconfig.getConnection();
 		}
     }
 	
@@ -91,10 +91,10 @@ public class DBManager {
 	 */
 	public SpectrumStorager storeSpectra(File spectrumFile, long experimentid) throws IOException, SQLException, InterruptedException {
 		// Store the spectra from the spectrum file for a given experiment.	
-		SpectrumStorager specStorager = new SpectrumStorager(conn, spectrumFile, experimentid);
-		spectraThread = new Thread(specStorager);
-		spectraThread.start();
-		spectraThread.join();
+		SpectrumStorager specStorager = new SpectrumStorager(this.conn, spectrumFile, experimentid);
+        this.spectraThread = new Thread(specStorager);
+        this.spectraThread.start();
+        this.spectraThread.join();
 		return specStorager;
 	}
 	
@@ -108,22 +108,22 @@ public class DBManager {
 	 */
 	public void storeDatabaseSearchResults(SearchEngineType searchEngineType, String resultFilename, String qValueFilename) throws InterruptedException, SQLException {
 		// Wait for spectra to be stored to the database.
-		spectraThread.join();
+        this.spectraThread.join();
 		Storager storager = null;
-		if (conn.isClosed()) {
-			conn = Client.getInstance().getConnection();
+		if (this.conn.isClosed()) {
+            this.conn = Client.getInstance().getConnection();
 		}
 		
 		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
 			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";
-			storager = new XTandemStorager(conn, new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
+			storager = new XTandemStorager(this.conn, new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
 		}
-		else if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
+		else if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename == null) storager = new XTandemStorager(this.conn, new File(resultFilename));
 		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename != null) {
-			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
-			storager = new OmssaStorager(conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
+			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";
+            storager = new OmssaStorager(this.conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
 		}
-		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
+		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(this.conn, new File(resultFilename));
 		storager.run();
 	}
 
@@ -133,7 +133,7 @@ public class DBManager {
 	 * @throws InterruptedException 
 	 */
 	public void storeSpecSimResults(List<SpectrumSpectrumMatch> results) throws InterruptedException {
-		SpecSimStorager storager = new SpecSimStorager(conn, results);
+		SpecSimStorager storager = new SpecSimStorager(this.conn, results);
 		Thread thread = new Thread(storager);
 		thread.start();
 		thread.join();
@@ -182,6 +182,6 @@ public class DBManager {
 	 * @return
 	 */
 	public Connection getConnection() {
-		return conn;
+		return this.conn;
 	}
 }

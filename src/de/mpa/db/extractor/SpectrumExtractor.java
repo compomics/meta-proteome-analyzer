@@ -13,8 +13,9 @@ import java.util.Map;
 import de.mpa.algorithms.Interval;
 import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.specsim.SpectralSearchCandidate;
-import de.mpa.client.settings.SpectrumFetchParameters.AnnotationType;
+import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.SpectrumTableAccessor;
 import de.mpa.io.MascotGenericFile;
 
 public class SpectrumExtractor {
@@ -22,7 +23,7 @@ public class SpectrumExtractor {
 	/**
 	 * Connection instance.
 	 */
-	private Connection conn;
+	private final Connection conn;
 	
 	/**
 	 * Constructor for the SpectrumExtractor.
@@ -40,7 +41,7 @@ public class SpectrumExtractor {
 	 * @throws SQLException when the retrieval did not succeed.
 	 * @throws IOException when the file could not be built.
 	 */
-	public static MascotGenericFile getMascotGenericFile(long spectrumID, Connection conn) throws SQLException, IOException{
+	public static MascotGenericFile getMascotGenericFile(long spectrumID, Connection conn) throws SQLException {
 		Spectrum spectrum = Spectrum.findFromSpectrumID(spectrumID, conn);
 		MascotGenericFile res = null;
 		
@@ -59,7 +60,7 @@ public class SpectrumExtractor {
 	 */
 	public static MascotGenericFile getMascotGenericFileFromTitle(String title, Connection conn) throws SQLException {
 		Spectrum spectrum = Spectrum.findFromTitle(title, conn);
-		Spectrum.getBasicSelect();
+        SpectrumTableAccessor.getBasicSelect();
 		MascotGenericFile res = null;
 		
 		if (spectrum != null){
@@ -100,7 +101,7 @@ public class SpectrumExtractor {
 	public List<SpectralSearchCandidate> getCandidatesFromExperiment(long experimentID) throws SQLException {
 		ArrayList<Interval> precIntervals = new ArrayList<Interval>();
 		precIntervals.add(new Interval(0.0, Double.MAX_VALUE));
-		return getCandidatesFromExperiment(precIntervals, experimentID);
+		return this.getCandidatesFromExperiment(precIntervals, experimentID);
 	}
 	
 	/**
@@ -133,7 +134,7 @@ public class SpectrumExtractor {
 		}
 		
 		// execute SQL statement and build result list
-		PreparedStatement ps = conn.prepareStatement(sb.toString());
+		PreparedStatement ps = this.conn.prepareStatement(sb.toString());
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             res.add(new SpectralSearchCandidate(rs));
@@ -166,7 +167,7 @@ public class SpectrumExtractor {
 			}
 			for (int i = 0; i < 3; i++, sb.deleteCharAt(sb.length()-1)) {}	// remove last "OR "
 			
-			PreparedStatement ps = conn.prepareStatement(sb.toString());
+			PreparedStatement ps = this.conn.prepareStatement(sb.toString());
 			ResultSet rs = ps.executeQuery();
 	        while (rs.next()) {
 	            res.put(rs.getLong(1), rs.getString(2));
@@ -190,13 +191,13 @@ public class SpectrumExtractor {
 	 * @return List of MGF objects.
 	 * @throws SQLException if a database error occurs
 	 */
-	public List<MascotGenericFile> getSpectraByExperimentID(long experimentID, AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws SQLException {
+	public List<MascotGenericFile> getSpectraByExperimentID(long experimentID, SpectrumFetchParameters.AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws SQLException {
 		List<MascotGenericFile> res = new ArrayList<MascotGenericFile>();
 
 		String statement = "SELECT s.* FROM spectrum s ";
-		if (annotType == AnnotationType.WITH_ANNOTATIONS) {
+		if (annotType == SpectrumFetchParameters.AnnotationType.WITH_ANNOTATIONS) {
 			statement += "INNER JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid ";
-		} else if (annotType == AnnotationType.WITHOUT_ANNOTATIONS) {
+		} else if (annotType == SpectrumFetchParameters.AnnotationType.WITHOUT_ANNOTATIONS) {
 			statement += "LEFT JOIN spec2pep s2p ON s.spectrumid = s2p.fk_spectrumid ";
 		}
 		if (fromLibrary) {
@@ -206,12 +207,12 @@ public class SpectrumExtractor {
 			statement += "INNER JOIN searchspectrum ss ON s.spectrumid = ss.fk_spectrumid " +
 				"WHERE ss.fk_experimentid = ? ";
 		}
-		if (annotType == AnnotationType.WITHOUT_ANNOTATIONS) {
+		if (annotType == SpectrumFetchParameters.AnnotationType.WITHOUT_ANNOTATIONS) {
 			statement += "AND s2p.fk_spectrumid IS NULL ";
 		}
 		statement += "GROUP BY s.spectrumid";
 		
-		PreparedStatement ps = conn.prepareStatement(statement, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		PreparedStatement ps = this.conn.prepareStatement(statement, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		ps.setLong(1, experimentID);
 		ps.setFetchSize(Integer.MIN_VALUE);
 		
@@ -242,7 +243,7 @@ public class SpectrumExtractor {
 	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
 		MascotGenericFile res = null;
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum s " +
 				"WHERE s.spectrumid = ?");
 		ps.setLong(1, spectrumID);
@@ -275,7 +276,7 @@ public class SpectrumExtractor {
 		// replace last comma with closing bracket
 		clause.setCharAt(clause.length() - 1, ')');
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray, spectrumid FROM spectrum " +
 				"WHERE spectrum.spectrumid IN " + clause);
 		for (int i = 0; i < spectrumIDs.size(); i++) {
@@ -309,7 +310,7 @@ public class SpectrumExtractor {
 	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
 		MascotGenericFile res = null;
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray FROM searchspectrum " +
 				"INNER JOIN spectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid " +
 				"WHERE searchspectrum.searchspectrumid = ?");
@@ -332,7 +333,7 @@ public class SpectrumExtractor {
 	public MascotGenericFile getSpectrumByLibSpectrumID(long libspectrumID) throws SQLException {
 		MascotGenericFile res = null;
 		
-		PreparedStatement ps = conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
+		PreparedStatement ps = this.conn.prepareStatement("SELECT title, precursor_mz, precursor_int, " +
 				"precursor_charge, mzarray, intarray, chargearray FROM libspectrum ls " +
 				"INNER JOIN spectrum s on ls.fk_spectrumid = s.spectrumid " +
 				"WHERE ls.libspectrumid = ?");

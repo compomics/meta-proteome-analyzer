@@ -6,12 +6,12 @@ import com.tinkerpop.frames.VertexFrame;
 public interface KeggPathway extends VertexFrame {
 	
 	@Property("IDENTIFIER")
-	public String getIdentifier();
+    String getIdentifier();
 	
 	@Property("DESCRIPTION")
-	public String getDescription();
+    String getDescription();
 	
 	@Property("IDENTIFIER")
-	public String toString();
+    String toString();
 
 }

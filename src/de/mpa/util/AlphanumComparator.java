@@ -53,10 +53,10 @@ public class AlphanumComparator implements Comparator {
 	 */
 	public static AlphanumComparator getInstance() {
 		// Not strictly the singleton pattern, but sharing an instance seems sensible
-		if (instance == null) {
-			instance = new AlphanumComparator();
+		if (AlphanumComparator.instance == null) {
+            AlphanumComparator.instance = new AlphanumComparator();
 		}
-		return instance;
+		return AlphanumComparator.instance;
 	}
 	
 	/** Returns whether the specified char is a numerical digit **/
@@ -70,10 +70,10 @@ public class AlphanumComparator implements Comparator {
 		char c = s.charAt(marker);
 		chunk.append(c);
 		marker++;
-		if (isDigit(c)) {
+		if (this.isDigit(c)) {
 			while (marker < slength) {
 				c = s.charAt(marker);
-				if (!isDigit(c))
+				if (!this.isDigit(c))
 					break;
 				chunk.append(c);
 				marker++;
@@ -81,7 +81,7 @@ public class AlphanumComparator implements Comparator {
 		} else {
 			while (marker < slength) {
 				c = s.charAt(marker);
-				if (isDigit(c))
+				if (this.isDigit(c))
 					break;
 				chunk.append(c);
 				marker++;
@@ -104,15 +104,15 @@ public class AlphanumComparator implements Comparator {
         int s2Length = s2.length();
 
 		while (thisMarker < s1Length && thatMarker < s2Length) {
-			String thisChunk = getChunk(s1, s1Length, thisMarker);
+			String thisChunk = this.getChunk(s1, s1Length, thisMarker);
 			thisMarker += thisChunk.length();
 
-			String thatChunk = getChunk(s2, s2Length, thatMarker);
+			String thatChunk = this.getChunk(s2, s2Length, thatMarker);
             thatMarker += thatChunk.length();
 
             // If both chunks contain numeric characters, sort them numerically
             int result = 0;
-			if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
+			if (this.isDigit(thisChunk.charAt(0)) && this.isDigit(thatChunk.charAt(0))) {
                 // Simple chunk comparison by length.
                 int thisChunkLength = thisChunk.length();
                 result = thisChunkLength - thatChunk.length();
