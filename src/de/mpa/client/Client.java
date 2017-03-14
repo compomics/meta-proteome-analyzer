@@ -382,7 +382,6 @@ public class Client {
 			}
 			try {
 				server.runSearches(settings);
-				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
@@ -740,7 +739,6 @@ public class Client {
 		} catch (IOException e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
-			System.out.println("THis Error");
 		}
 	}
 	

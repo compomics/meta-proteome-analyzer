@@ -423,11 +423,12 @@ public class SettingsPanel extends JPanel {
 					}
 				}
 				
-				// quicksearch code start
+				// quicksearch code start __qvalued
 				
-				List<String> filenames = new ArrayList<String>();
+				
 				for (Entry<Long, File> fileEntry : expFileMap.entrySet()) {
 					if (fileEntry.getValue().getName().contains(".mgf")) {
+						List<String> filenames = new ArrayList<String>();
 						settings.setExpID(fileEntry.getKey());
 						String mgffilename = fileEntry.getValue().getName();
 						FileOutputStream fos = null;
@@ -442,7 +443,7 @@ public class SettingsPanel extends JPanel {
 						long packageSize = databasePnl.getPackageSize();
 						client.firePropertyChange("resetall", 0L, maxSpectra);
 						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-						// iterate over all spectra
+						// iterate over all spectra BATCH SEARCH
 						File batchFile = null;
 						for (int j = 0; j < positions.size(); j++) {
 							if ((numSpectra % packageSize) == 0) {
@@ -475,8 +476,7 @@ public class SettingsPanel extends JPanel {
 					}
 				}
 				return null;
-				
-				
+								
 				// quicksearch code end
 				
 				

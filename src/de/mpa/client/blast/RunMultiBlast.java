@@ -108,6 +108,8 @@ public class RunMultiBlast {
 		
 		blastQuery.trimToSize();
 
+		System.out.println("Database: " + database);
+		
 		// Construct Process
 		Process process = null;
 		try {
@@ -196,6 +198,7 @@ public class RunMultiBlast {
 		List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
 		if (experimentID == -1L) {
 			proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(conn);
+//			proteins = ProteinAccessor.findAllProteinAccessors(conn);
 		}else{
 			// gather all proteins from the experiment
 			List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(experimentID, conn);

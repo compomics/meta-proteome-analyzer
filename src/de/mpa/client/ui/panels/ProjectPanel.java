@@ -1005,6 +1005,8 @@ public class ProjectPanel extends JPanel {
 			project.delete();
 			selectedProject = null;
 			selectedExperiment = null;
+			projectTbl.clearSelection();
+			experimentTbl.clearSelection();
 			refreshProjectTable();
 			return 0;
 		}

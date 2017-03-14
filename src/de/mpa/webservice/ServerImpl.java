@@ -242,8 +242,8 @@ public class ServerImpl implements Server {
 		
 		try {
 			runOptions = RunOptions.getInstance();
-			
-			if (!runOptions.hasRunAlready()) {
+			// TODO: has commenting this out any unforseen consequences?
+//			if (!runOptions.hasRunAlready()) {
 				// DB Manager instance
 				dbManager = DBManager.getInstance();
 				
@@ -280,7 +280,7 @@ public class ServerImpl implements Server {
 				}
 				jobManager.run();
 				System.out.println();
-			}
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.error(e.getMessage(), e.getCause());

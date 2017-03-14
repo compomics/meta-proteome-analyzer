@@ -25,6 +25,7 @@ public class PropertyLoader {
 	// fasta settings
 	public static final String FILES_FASTA = "file.fastalist";
 	public static final String PATH_FASTA = "path.fasta";
+	public static final String BLAST_DB = "path.blastdb";
 
 	// connection-settings
 	public static final String DB_ADRESS = "dbAddress";

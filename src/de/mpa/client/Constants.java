@@ -220,7 +220,7 @@ public class Constants {
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + "uniprot_sprot.fasta";
+	public static final String BLAST_UNIPROT_DB = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + PropertyLoader.getProperty(PropertyLoader.BLAST_DB);
 
 	/**
 	 * File of the BLAST algorithm

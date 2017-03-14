@@ -113,10 +113,9 @@ public class DBManager {
 		if (conn.isClosed()) {
 			conn = Client.getInstance().getConnection();
 		}
-		System.out.println("new connection: " + conn.isClosed());
 		
 		if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename != null) {
-			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";;
+			String targetScoreFilename = qValueFilename.substring(0, qValueFilename.lastIndexOf("_qvalued")) + "_target.out";
 			storager = new XTandemStorager(conn, new File(resultFilename), new File(targetScoreFilename), new File(qValueFilename));
 		}
 		else if (searchEngineType == SearchEngineType.XTANDEM && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
@@ -125,9 +124,7 @@ public class DBManager {
 			storager = new OmssaStorager(conn, new File(resultFilename), new File (targetScoreFilename), new File(qValueFilename));
 		}
 		else if (searchEngineType == SearchEngineType.OMSSA && qValueFilename == null) storager = new XTandemStorager(conn, new File(resultFilename));
-		System.out.println("new connection: " + conn.isClosed());
 		storager.run();
-		System.out.println("new connection: " + conn.isClosed());
 	}
 
 	/**

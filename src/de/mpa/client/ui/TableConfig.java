@@ -102,8 +102,8 @@ public class TableConfig {
 	 * @param table The JTable component.
 	 */
 	public static void clearTable(JTable table) {
-		table.clearSelection();
 		if (table instanceof JXTreeTable) {
+			table.clearSelection();
 			// get model and root instances
 			DefaultTreeTableModel model =
 				(DefaultTreeTableModel) ((JXTreeTable) table).getTreeTableModel();
@@ -113,9 +113,9 @@ public class TableConfig {
 			if (root instanceof CheckBoxTreeTableNode) {
 				((CheckBoxTreeTableNode) root).removeAllChildren();
 			} else {
-//				for (int i = root.getChildCount() - 1; i >= 0; i--) {
-//					root.remove(i);
-//				}
+				//				for (int i = root.getChildCount() - 1; i >= 0; i--) {
+				//					root.remove(i);
+				//				}
 				Enumeration<? extends MutableTreeTableNode> children = root.children();
 				while (children.hasMoreElements()) {
 					MutableTreeTableNode child = (MutableTreeTableNode) children.nextElement();
