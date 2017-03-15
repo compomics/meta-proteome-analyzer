@@ -61,8 +61,6 @@ public class StoreJob extends Job {
 	@Override
 	public void run() {
 		try {
-			// XXX: worst bug fix in the history of MPA
-			qValueFilename = qValueFilename.replaceAll("__", "_");
             this.dbManager.storeDatabaseSearchResults(this.searchEngineType, this.resultFilename, this.qValueFilename);
 		} catch (Exception e) {
             this.setError(e);

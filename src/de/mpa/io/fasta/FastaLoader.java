@@ -470,14 +470,14 @@ public class FastaLoader {
 	 * @throws IOException 
 	 * @throws SQLException 
 	 */
-	public static void addFastaDatabases(File fastaFile, File outpath, boolean mascotFlag, int batchSize) throws IOException, SQLException {
+	public static void addFastaDatabases(File fastaFile, String dbName, int batchSize) throws IOException, SQLException {
 
         FastaLoader.sql_fail_count = 0L;
 		// Instance of the Buffered Reader
 		BufferedReader br = null;
 
 		// Name and directory of the new fasta
-		File outputFastaFile =  new File(Constants.FASTA_PATHS + outpath.getName());
+		File outputFastaFile =  new File(Constants.FASTA_PATHS + dbName + ".fasta");
 
 		// Open buffered writer to write new database.
 		BufferedWriter bw = new BufferedWriter(new FileWriter(outputFastaFile));
@@ -532,8 +532,8 @@ public class FastaLoader {
 			}
 		}
 		conn.commit();
-		*/
 		
+		*/
 
 		// Initialize a list of FASTA entries to store them as bulk
 		ArrayList<DigFASTAEntry> fastaEntryList  = new ArrayList<DigFASTAEntry>(); 
@@ -616,16 +616,18 @@ public class FastaLoader {
 		outputFastaFile.setWritable(true);
 
 		// Create a *.fasta for the mascot searches in the specified directory
-		if (mascotFlag) {
-			Files.copy(outputFastaFile.toPath(), outpath.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-			// Client.getInstance().firePropertyChange("new message", null, "Creating fasta copy for Mascot");
-		}
+		// XXX: this should be handled differently
+//		if (mascotFlag) {
+//			Files.copy(outputFastaFile.toPath(), outpath.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+//			// Client.getInstance().firePropertyChange("new message", null, "Creating fasta copy for Mascot");
+//		}
+		
 		// Runs the fastaformater script
 		RunFastaFormater fastaFromater = new RunFastaFormater();
 		fastaFromater.formatFastaDatabase(outputFastaFile.toPath().toString());
 
 		// Add *.fasta filename to the client settings.
-        FastaLoader.addFastaTotheClientSetting(outputFastaFile.getName());
+        FastaLoader.addFastaTotheClientSetting(dbName);
 
 		// create peptide fasta
 		String pep_out = outputFastaFile.getAbsolutePath().substring(outputFastaFile.getAbsolutePath().lastIndexOf("/"), outputFastaFile.getAbsolutePath().lastIndexOf(".")) + ".pep";

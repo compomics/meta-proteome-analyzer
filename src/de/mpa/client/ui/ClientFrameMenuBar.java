@@ -340,7 +340,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		addFastaDbItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			new AddFastaDialog(ClientFrameMenuBar.this.clientFrame, "Add further FASTA-Database");
+			new AddFastaDialog(ClientFrameMenuBar.this.clientFrame, "Add FASTA-Protein-Database");
 			}
 		});
 		

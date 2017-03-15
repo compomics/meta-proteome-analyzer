@@ -27,7 +27,7 @@ public class XTandemScoreJob extends Job {
 		this.decoyFile = decoyFile;
 		
 		// Set the description
-        this.filename = new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out";
+        this.filename = (new File(targetFile).getAbsolutePath().substring(0, targetFile.lastIndexOf("_target")) + "_qvalued.out").replaceAll("__", "_");
         this.setFilename(this.filename);
         this.setDescription("X!TANDEM QVALUES");
 	}

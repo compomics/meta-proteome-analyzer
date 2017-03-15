@@ -34,7 +34,7 @@ public class CreateProteinAndUniProtEntryTable extends TestCase {
 		
 		// Add the FASTA information to the SQL DB
 		try {
-			FastaLoader.addFastaDatabases(file, new File("/home/robbie/Desktop/uniprot_sprot.fasta"), true, UniProtUtilities.BATCH_SIZE);
+			FastaLoader.addFastaDatabases(file, "UniprotSwissprot", UniProtUtilities.BATCH_SIZE);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
