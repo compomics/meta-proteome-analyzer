@@ -663,6 +663,7 @@ public class UniProtUtilities {
 					}
 				} catch (NumberFormatException e1) {
 					System.out.println("NumberFormatException: " + e1.getMessage() + " " + uniRefs.getUniRef100() + " " + uniRefs.getUniRef90() + " " + uniRefs.getUniRef50());
+					e1.printStackTrace();
 					break;
 				} catch (Exception e2) {
 					e2.printStackTrace();

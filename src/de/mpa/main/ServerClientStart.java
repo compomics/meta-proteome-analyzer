@@ -13,6 +13,7 @@ public class ServerClientStart {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws InterruptedException {
+		
 		// starts the MPA-Server
 		WSPublisher.main(args);
 		

@@ -6,9 +6,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.EventListener;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,6 +23,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
@@ -54,6 +59,9 @@ public class AddFastaDialog extends JDialog {
 	 * FASTA file-String selected
 	 */
 	private File fastaFile;
+	
+	
+	private final Long x = 1L;
 	
 	/**
 	 * DB-Name
@@ -102,21 +110,30 @@ public class AddFastaDialog extends JDialog {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					fastaFile = fastaChooser.getSelectedFile();
 				}
-				fileTextField.setText(fastaFile.getAbsolutePath().toString());
+				if (fastaFile != null) {
+					fileTextField.setText(fastaFile.getAbsolutePath().toString());
+				}
 			}
 		});
 		
 		// add textbox for name
 		JTextField dbNameTextField = new JTextField();
 		dbNameTextField.setText("ProteinDatabase");
-		dbNameTextField.addActionListener(new ActionListener() {
+		dbNameTextField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void removeUpdate(DocumentEvent e) {
 				dbName = dbNameTextField.getText();
-				System.out.println(dbName);
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				dbName = dbNameTextField.getText();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				dbName = dbNameTextField.getText();
 			}
 		});
-	
+		
 		// ok button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -127,7 +144,7 @@ public class AddFastaDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				AddFastaDialog.this.close();
-				if (fastaFile.exists()) {
+				if (fastaFile != null && fastaFile.exists()) {
 					Client.getInstance().firePropertyChange("indeterminate", false, true);
 					// Start generation of a new fasta database
 					try {
@@ -135,6 +152,8 @@ public class AddFastaDialog extends JDialog {
 						Client.getInstance().firePropertyChange("indeterminate", false, true);
 						// deal with uninitialized variables
 						if (dbName == null || dbName == "") {
+							JOptionPane.showMessageDialog(ClientFrame.getInstance(), "No Database Name selected, database name set to 'ProteinDatabase'",
+									"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
 							dbName = "ProteinDatabase";
 						}
 						FastaLoader.addFastaDatabases(fastaFile, dbName, UniProtUtilities.BATCH_SIZE);
@@ -152,6 +171,9 @@ public class AddFastaDialog extends JDialog {
 						err.printStackTrace();
 					}
 					Client.getInstance().firePropertyChange("indeterminate", true, false);
+				} else {
+					JOptionPane.showMessageDialog(ClientFrame.getInstance(), "No FASTA file selected",
+							"About " + Constants.APPTITLE, JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 		});
@@ -174,17 +196,18 @@ public class AddFastaDialog extends JDialog {
 		addFastaDlgPnl.add(fileTextField, CC.xy(1, 5));
 		addFastaDlgPnl.add(browseButton, CC.xy(3, 5));
 		addFastaDlgPnl.add(dbNameTextField, CC.xy(1, 7));
-		addFastaDlgPnl.add(okBtn, CC.xy(1, 9));
-		addFastaDlgPnl.add(cancelBtn, CC.xy(3, 9) );
+
+		// make button panel 
+		JPanel buttonPanel = new JPanel(new FormLayout("pref, 5px, pref",
+				  "pref"));
+		buttonPanel.add(okBtn, CC.xy(1, 1));
+		buttonPanel.add(cancelBtn, CC.xy(3, 1) );
 		
 		// embed in nice container
 		Container cp = getContentPane();
-		cp.setLayout(new FormLayout("10px, pref, 10px", "10px, pref, 10px"));
+		cp.setLayout(new FormLayout("10px, pref, 10px", "10px, pref, 10px, pref, 10px"));
 		cp.add(addFastaDlgPnl, CC.xy(2, 2));
-		
-		
-		
-//
+		cp.add(buttonPanel, CC.xy(2, 4));
 
 //
 //		// Lable for the description of the dialog
@@ -225,7 +248,7 @@ public class AddFastaDialog extends JDialog {
 	private void showDialog() {
 		// Configure size and position
         pack();
-        setResizable(true);
+        setResizable(false);
 		ScreenConfig.centerInScreen(this);
 		// Show dialog
         setVisible(true);

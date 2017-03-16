@@ -464,12 +464,22 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	}
 	
 	public static ArrayList<Long> find_uniprot_proteins_without_upentry(Connection conn) throws SQLException {
+		
 		ArrayList<Long> protein_ids = new ArrayList<Long>();
 		PreparedStatement ps = conn.prepareStatement("SELECT protein.proteinid FROM protein "
 				+ "WHERE protein.fk_uniprotentryid = ? AND protein.source = ?");
 		ps.setLong(1, -1L);
 		ps.setString(2, Type.UNIPROTSPROT.toString());
 		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			protein_ids.add(rs.getLong("protein.proteinid"));
+		}
+		
+		ps = conn.prepareStatement("SELECT protein.proteinid FROM protein "
+				+ "WHERE protein.fk_uniprotentryid = ? AND protein.source = ?");
+		ps.setLong(1, -1L);
+		ps.setString(2, Type.UNIPROTTREMBL.toString());
+		rs = ps.executeQuery();
 		while (rs.next()) {
 			protein_ids.add(rs.getLong("protein.proteinid"));
 		}

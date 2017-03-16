@@ -59,7 +59,11 @@ import de.mpa.util.PropertyLoader;
 public class FastaLoader {
 	
 	
-	private static Long sql_fail_count = 0L;  
+	
+	/**
+	 * Counts the occurences of Uniprot webservice fails
+	 */
+	private static Long uniprot_webservice_fail_count = 0L;
 	
 	/**
 	 * The accession-to-position map.
@@ -472,7 +476,7 @@ public class FastaLoader {
 	 */
 	public static void addFastaDatabases(File fastaFile, String dbName, int batchSize) throws IOException, SQLException {
 
-        FastaLoader.sql_fail_count = 0L;
+        FastaLoader.uniprot_webservice_fail_count = 0L;
 		// Instance of the Buffered Reader
 		BufferedReader br = null;
 
@@ -593,22 +597,18 @@ public class FastaLoader {
 			System.out.println("Fasta File is formatted wrong");
 		}
 		
-		
-		
-		
 		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
         FastaLoader.createNewUniprotEntries(empty_up, conn);
 		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 		for (Long protid : empty_up) {
 			ProteinAccessor protein = ProteinAccessor.findFromID(protid, conn);
 			protein.delete(conn);
+            FastaLoader.uniprot_webservice_fail_count++;
 		}
 		conn.commit();
 		br.close();
 		bw.flush();
 		bw.close();
-		
-		System.out.println("Fails: " + FastaLoader.sql_fail_count);
 		
 		// Add permissions to the new *.fasta file
 		outputFastaFile.setExecutable(true);
@@ -634,7 +634,7 @@ public class FastaLoader {
 		PeptideDigester digester = new PeptideDigester();
 		digester.createPeptidDB(outputFastaFile.getAbsolutePath(), pep_out, 1, 5, 50);
 		
-		conn.close();
+		System.out.println("Uniprot Fails: " + uniprot_webservice_fail_count);
 	}
 
 	/**
@@ -680,7 +680,6 @@ public class FastaLoader {
 					System.out.println("Retry: " + e.getMessage());
 					// try again
 					uniprotentries = utils.processBatch(accessions, true);
-                    FastaLoader.sql_fail_count++;
 				}
 				if (uniprotentries != null) {
 					for (String protein : uniprotentries.keySet()) {
