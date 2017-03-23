@@ -57,13 +57,16 @@ public class Taxonomy extends TaxonomyTableAccessor {
 	 */
 	public static Map<Long, Taxonomy> retrieveTaxonomyMap(Connection conn) throws SQLException {
 		Map<Long, Taxonomy>  taxonomies = new HashMap<Long, Taxonomy>();
-		Statement stat = conn.createStatement();
-		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());
+		PreparedStatement ps = conn.prepareStatement("SELECT * FROM taxonomy");
+//		Statement stat = conn.createStatement();
+//		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());
+		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			taxonomies.put(rs.getLong("taxonomyid"), new Taxonomy(rs));
 		}
+		ps.close();
 		rs.close();
-		stat.close();
+//		stat.close();
 		return taxonomies;
 	}
    

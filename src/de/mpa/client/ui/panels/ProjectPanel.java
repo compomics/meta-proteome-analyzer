@@ -385,7 +385,8 @@ public class ProjectPanel extends JPanel {
 				// disable navigation buttons
 				skipBtn.setEnabled(false);
 				skipBtn.setToolTipText(null);
-				nextBtn.setEnabled(false);
+				// TODO: next button should be enabled as long as a project is selected 
+				nextBtn.setEnabled(true);
 			}
 		});
 		

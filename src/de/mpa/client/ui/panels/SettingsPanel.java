@@ -384,6 +384,7 @@ public class SettingsPanel extends JPanel {
 		protected Object doInBackground() {
 			Client client = Client.getInstance();
             SettingsPanel.this.searchBtn.setEnabled(false);
+            SettingsPanel.this.batchBtn.setEnabled(false);
 			ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			try {
 				// Pack and send files.
@@ -421,10 +422,7 @@ public class SettingsPanel extends JPanel {
 						}
 					}
 				}
-
-				// quicksearch code start __qvalued
-				
-
+				// process mgf-files
 				for (Map.Entry<Long, File> fileEntry : this.expFileMap.entrySet()) {
 					if (fileEntry.getValue().getName().contains(".mgf")) {
 						List<String> filenames = new ArrayList<String>();
@@ -475,73 +473,6 @@ public class SettingsPanel extends JPanel {
 					}
 				}
 				return null;
-								
-				// quicksearch code end
-
-
-
-				// TODO: CODE for runnning mulitiple database search jobs .... not working yet
-				// Start database searches
-//				if (dbss.isXTandem() || dbss.isOmssa() || dbss.isCrux() || dbss.isInspect()) {
-//					int i = 0;
-//					for (Entry<Long, File> mgfSearch : expFileMap.entrySet()) {
-//						client.firePropertyChange("new message", null, "Start Database Search " + ++i + "/" + expFileMap.size() +" " + mgfSearch.getValue().getAbsolutePath());
-//						settings.setExpID(mgfSearch.getKey());
-//						// pack and send the files to the server
-//						List<String> mgfFileNames = new ArrayList<String>();
-//						FileOutputStream fos = null;
-//						client.firePropertyChange("indeterminate", false, true);
-//						client.firePropertyChange("new message", null, "READING SPECTRUM FILE");
-//						MascotGenericFileReader reader = new MascotGenericFileReader(mgfSearch.getValue(), LoadMode.SURVEY);
-//						client.firePropertyChange("indeterminate", true, false);
-//						client.firePropertyChange("new message", null, "READING SPECTRUM FILE FINISHED");
-//						List<Long> positions = reader.getSpectrumPositions(false);
-//						long numSpectra = 0L;
-//						long maxSpectra = (long) positions.size();
-//						long packageSize = databasePnl.getPackageSize();
-//						client.firePropertyChange("resetall", 0L, maxSpectra);
-//						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-//						// iterate over all spectra
-//						File batchFile = null;
-//						for (int j = 0; j < positions.size(); j++) {
-//
-//							if ((numSpectra % packageSize) == 0) {
-//								System.out.println("first if");
-//								if (fos != null) {
-//									System.out.println("2nd if");
-//									fos.close();
-//									client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-//									batchFile.delete();
-//								}
-//								batchFile = new File("quick_batch" + (numSpectra/packageSize) + ".mgf");
-//								mgfFileNames.add(batchFile.getName());
-//								fos = new FileOutputStream(batchFile);
-//								long remaining = maxSpectra - numSpectra;
-//								firePropertyChange("resetcur", 0L, (remaining > packageSize) ? packageSize : remaining);
-//							}
-//
-//							MascotGenericFile mgf = reader.loadSpectrum((int) numSpectra);
-//							mgf.writeToStream(fos);
-//							fos.flush();
-//							firePropertyChange("progressmade", 0L, ++numSpectra);
-//						}
-//						fos.close();
-//						client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
-//						batchFile.delete();
-//						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
-//						for (String str : mgfFileNames) {
-//							System.out.println("RunSearches on Files>" +str +" " + settings.getExpID());
-//						}
-//						//client.runSearches(mgfFileNames, settings);
-//
-//						//////////////////
-//						// Update expFileMap to the sended filename of the server
-//						expFileMap.put(mgfSearch.getKey(), mgfSearch.getValue());
-//					}
-//				client.firePropertyChange("new message", null, "SEARCHES RUNNING");
-//				// dispatch search request
-//				//client.runSearches(expFileMap, settings);
-//				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -552,6 +483,7 @@ public class SettingsPanel extends JPanel {
 		public void done() {
 			ClientFrame.getInstance().setCursor(null);
 			searchBtn.setEnabled(true);
+			batchBtn.setEnabled(true);
 		}
 	}
 

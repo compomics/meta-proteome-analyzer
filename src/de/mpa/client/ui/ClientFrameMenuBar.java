@@ -261,11 +261,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 		// Update Menu
 		JMenu updateMenu = new JMenu();		
 		updateMenu.setText("Update");
-
+		
 		// Find unreferenced UniProt entries in the database and try to fill them
 		JMenuItem updateEmptyUniProtItem = new JMenuItem();
 		updateEmptyUniProtItem.setText("Update empty UniProt Entries");
 		updateEmptyUniProtItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
+		// XXX: button disabled for now
+		updateEmptyUniProtItem.setEnabled(false);
 		updateEmptyUniProtItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new SwingWorker<Object, Object>() {
@@ -274,11 +276,13 @@ public class ClientFrameMenuBar extends JMenuBar {
 						UniProtUtilities uniprotweb = new UniProtUtilities();
 						// find all proteins in the database and pass them to BLAST
 						// TODO: fix this method -> tries to find all proteins with upid = -1 (should only check swissprot and trembl)
-						List<ProteinAccessor> proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(Client.getInstance().getConnection());
+						
+						// XXX: temporary solution: button removed
+//						List<ProteinAccessor> proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(Client.getInstance().getConnection());
 						// update uniprot for each proteinaccessor
-						for (ProteinAccessor prot : proteins) {
-							prot.updateUniprotForProtein(Client.getInstance().getConnection());
-						}
+//						for (ProteinAccessor prot : proteins) {
+//							prot.updateUniprotForProtein(Client.getInstance().getConnection());
+//						}
 						Client.getInstance().firePropertyChange("new message", null, "UPDATING UNIPROT ENTRIES FINISHED");
 						Client.getInstance().firePropertyChange("indeterminate", true,	false);
 						return null;

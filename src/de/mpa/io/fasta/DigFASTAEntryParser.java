@@ -23,10 +23,9 @@ public class DigFASTAEntryParser {
 	 *            . The FASTA file.
 	 * @return The number of entries.
 	 */
-	public static int countEntries(String file) {
-
+	public static Long countEntries(String file) {
 		BufferedReader reader;
-		int entryNumber = 0;
+		Long entryNumber = 0L;
 
 		try {
 			reader = new BufferedReader(new FileReader(new File(file)));

@@ -62,12 +62,12 @@ public class Constants {
 	/**
 	 * The application title.
 	 */
-    public static final String APPTITLE = "MetaProteomeAnalyzer (Development)";
+    public static final String APPTITLE = PropertyLoader.getProperty(PropertyLoader.APPTITLE);
 
 	/**
 	 * The application version number.
 	 */
-    public static final String VER_NUMBER = "1.3.0";
+    public static final String VER_NUMBER = PropertyLoader.getProperty(PropertyLoader.VERSION);
 
 	/**
 	 * The client frame minimum width in pixels.

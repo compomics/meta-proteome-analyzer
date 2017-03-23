@@ -16,8 +16,10 @@ public class PropertyLoader {
 
 	private static Properties props;
 
-	//
+	// OS and version
 	public static final String OS = System.getProperty("os.name").toLowerCase();
+	public static final String VERSION = "version";
+	public static final String APPTITLE = "apptitle";
 
 	// central place to change property names
 	public static final String BASE_PATH = "base_path";

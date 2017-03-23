@@ -500,7 +500,7 @@ public class FastaLoader {
 		filename = filename.split("[.]")[0];
 
 		// Get total number of FASTA entries
-		int totalCountEntries = DigFASTAEntryParser.countEntries(filePath);
+		Long totalCountEntries = DigFASTAEntryParser.countEntries(filePath);
 
 		// Initialize the buffered reader
 		br = new BufferedReader(new FileReader(fastaFile));

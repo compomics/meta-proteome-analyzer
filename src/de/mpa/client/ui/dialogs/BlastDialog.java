@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -57,7 +58,17 @@ public class BlastDialog extends JDialog {
 	 * The experiment ID for the BLAST
 	 */
 	private JTextField expTxt;
+	
+	/**
+	 * Checkbox to set BLAST to "all proteins" or "only proteins identified" 
+	 */
+	private JCheckBox allProteinsCheckbox;
 
+	/**
+	 * BLAST everything checkbox-value
+	 */
+	private boolean allProteinsCBValue = false;
+	
 	/**
 	 * The result option checkbox
 	 */
@@ -114,19 +125,39 @@ public class BlastDialog extends JDialog {
 
 		// Create BLAST dialog
 		JPanel blastDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
-		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
+		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
 		JLabel blastLbl 		= new JLabel("Path of the BLAST Algorithms");
 		blastTxt = new JTextField(Constants.BLAST_FILE);
+		// BLAST db path - the database against which you perform the BLAST (must be a uniprot)
 		JLabel dbLbl 			= new JLabel("Path of the preformatted db (See BLAST Manual");
 		dbTxt = new JTextField(Constants.BLAST_UNIPROT_DB);
+		// Textfield for the userinput: evalue
 		JLabel eValueLbl 		= new JLabel("E-Value cut-off");
 		eValueTxt = new JTextField("" + Constants.BLAST_EVALUE);
+		// Textfield to get user input: experimentID which should be blasted, where -1 means ALL experiments
 		JLabel expLbl 		= new JLabel("Choose experiment ID (-1 for all)");
 		expTxt = new JTextField("-1");
+		// Combobox for the BLAST result-evaluation method + textfield 
 		JLabel resultOptionLbl = new JLabel("Select the option for hit selection");
 		BlastDialog.BlastResultOption[] items = BlastDialog.BlastResultOption.values();
 		resultOptionCbx = new JComboBox<BlastDialog.BlastResultOption>(items);
-
+		// checkbox to denote if all proteins are blasted or only those that were identified by a protein search 
+		allProteinsCheckbox = new JCheckBox("Global BLAST");
+		allProteinsCheckbox.setSelected(false);
+		allProteinsCheckbox.setToolTipText("BLAST all proteins in the database, including those that were not found in a protein search.");
+		allProteinsCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (allProteinsCheckbox.isSelected()) {
+					expTxt.setEnabled(false);
+					allProteinsCBValue = true;
+				} else {
+					expTxt.setEnabled(true);
+					allProteinsCBValue = false;
+				}
+			}
+		});
+		
 		// Add Components to the BLAST panel
 		blastSettingsPnl.add(blastLbl, 	CC.xy(2, 2));
 		blastSettingsPnl.add(blastTxt, 	CC.xy(2, 4));
@@ -136,8 +167,9 @@ public class BlastDialog extends JDialog {
 		blastSettingsPnl.add(eValueTxt, CC.xy(2, 12));
 		blastSettingsPnl.add(expLbl, 	CC.xy(2, 14));
 		blastSettingsPnl.add(expTxt, 	CC.xy(2, 16));
-		blastSettingsPnl.add(resultOptionLbl,	CC.xy(2, 18));
-		blastSettingsPnl.add(resultOptionCbx, 	CC.xy(2, 20));
+		blastSettingsPnl.add(allProteinsCheckbox, 	CC.xy(2, 18));
+		blastSettingsPnl.add(resultOptionLbl,	CC.xy(2, 20));
+		blastSettingsPnl.add(resultOptionCbx, 	CC.xy(2, 22));
 
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
@@ -199,17 +231,9 @@ public class BlastDialog extends JDialog {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), (BlastDialog.BlastResultOption) BlastDialog.this.resultOptionCbx.getSelectedItem());
-//			UniProtUtilities uniprotweb = new UniProtUtilities();
-			// filter list to proteins for blast
-			
-			
-//			
-//			List<ProteinAccessor> blast_list = uniprotweb.find_proteins_for_blast(proteins);
-//			// do blast from proteinlist
-//			Map<String, List<Long>> new_proteins = uniprotweb.perform_blast(blast_list, blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()));
-//			// make uniprotentries from proteinlist
-//			uniprotweb.make_uniprot_entries(new_proteins);
+			// TODO: Manage malformed user input
+			// just run the static method for BLAST searches and finished
+			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), BlastDialog.this.allProteinsCBValue, (BlastDialog.BlastResultOption) BlastDialog.this.resultOptionCbx.getSelectedItem());
 			return null;
 		}
 		

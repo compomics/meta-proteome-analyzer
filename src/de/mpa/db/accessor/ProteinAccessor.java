@@ -313,19 +313,47 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	/** 
 	 * Static method to retrieve all proteins that do not have a uniprotentry associated to them 
 	 * 
-	 * @param conn. Connection to SQL
+	 * @param conn 		-- Connection to SQL
+	 * @param limit 	-- batchsize for sql resultset
+	 * @param offset	-- offset for sql batches (equivalent to batch number
+	 * 
 	 * @return return_list. List of ProteinAccessor Objects for the proteins
 	 * @throws SQLException
 	 */
-	public static List<ProteinAccessor> getAllProteinsWithoutUniProtEntry(Connection conn) throws SQLException {
+	public static List<ProteinAccessor> getAllProteinsWithoutUniProtEntry(Connection conn, Long limit, Long offset) throws SQLException {
 		List<ProteinAccessor> return_list = new ArrayList<ProteinAccessor>();
-		PreparedStatement ps = conn.prepareStatement("SELECT * FROM protein WHERE fk_uniprotentryid = -1");
+		try {
+		
+		PreparedStatement ps = conn.prepareStatement("SELECT * FROM protein WHERE fk_uniprotentryid = -1 LIMIT ? OFFSET ?");
+		ps.setLong(1, limit);
+		ps.setLong(2, offset);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			ProteinAccessor this_accessor = new ProteinAccessor(rs);
 			return_list.add(this_accessor);
 		}
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return return_list; 
+	}
+	
+	/** 
+	 * Static method to retrieve the count of all proteins without uniprotentry 
+	 * 
+	 * @param conn 		-- Connection to SQL
+	 * 
+	 * @return return_list. List of ProteinAccessor Objects for the proteins
+	 * @throws SQLException
+	 */
+	public static Long getCountOfAllProteinsWithoutUniProtEntry(Connection conn) throws SQLException {
+		Long count = 0L;
+		PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM protein WHERE fk_uniprotentryid = -1");
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		count = rs.getLong(1);
+		return count; 
 	}
 
 	/** 

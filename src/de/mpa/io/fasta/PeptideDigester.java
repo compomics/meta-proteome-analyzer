@@ -408,8 +408,8 @@ public class PeptideDigester {
 
         this.log.info("Parsing and processing sequences ..");
 		// Count the number of protein entries
-        this.proteinNumber.set(this.proteinNumber.get()
-				+ DigFASTAEntryParser.countEntries(inFile));
+        this.proteinNumber.set((int) (this.proteinNumber.get()
+				+ DigFASTAEntryParser.countEntries(inFile)));
         this.log.info("  parsed " + this.proteinNumber.get() + " protein entries.");
 
 		try {

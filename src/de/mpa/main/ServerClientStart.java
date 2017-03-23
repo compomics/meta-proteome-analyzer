@@ -7,6 +7,7 @@ public class ServerClientStart {
 	/**
 	 * Main method, starts the application
 	 * 
+	 * 
 	 *  
 	 * @author K.Schallert, rzoun
 	 * @param args

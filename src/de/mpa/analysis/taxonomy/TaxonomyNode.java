@@ -1,11 +1,14 @@
 package de.mpa.analysis.taxonomy;
 
 import de.mpa.analysis.UniProtUtilities;
+import de.mpa.db.accessor.Taxonomy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 
 
 /**
@@ -64,6 +67,20 @@ public class TaxonomyNode implements Comparable, Serializable {
 		this.taxRank = rank;
 		this.taxName = taxName;
 		this.parentNode = parentNode;
+	}
+	
+	
+	/**
+	 * Constructs taxonomy node from DB-taxonomy
+	 * 
+	 * @param taxonomy
+	 */
+	public TaxonomyNode(Taxonomy taxonomy) {
+		this.taxId = (int) taxonomy.getTaxonomyid();
+		this.taxRank = UniProtUtilities.TAXONOMY_RANKS_MAP.get(taxonomy.getRank());
+		this.taxName = taxonomy.getDescription();
+		// no parent for now
+//		this.parentNode = new TaxonomyNode(taxonomy.getParentid());
 	}
 
 	/**

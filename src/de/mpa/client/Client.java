@@ -193,7 +193,7 @@ public class Client {
 	 */
 	public Connection getConnection() throws SQLException {
 		// check whether connection is valid
-		if (this.conn == null || !this.conn.isValid(0)) {
+		if (this.conn == null || !this.conn.isValid(0) || this.conn.isClosed()) {
 			// connect to database
 			if (this.connectionParams == null) {
 				this.connectionParams = new ConnectionParameters();
