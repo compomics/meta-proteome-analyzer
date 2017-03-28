@@ -231,6 +231,9 @@ public class FilePanel extends JPanel implements Busyable {
 
 	/**
 	 * Initializes the UI components.
+	 * 
+	 * The TOP and BOTTOM panels are now switched
+	 * 
 	 * @throws IOException
 	 */
 	private void initComponents() {
@@ -238,8 +241,8 @@ public class FilePanel extends JPanel implements Busyable {
 
         setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, p, 5dlu"));
 
-		// top panel containing buttons and spectrum tree table
-		JPanel topPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p, 5dlu, f:p:g, 5dlu"));
+		// top panel containing buttons and spectrum tree table 
+		JPanel topPnl = new JPanel(new FormLayout("5dlu, fill:pref:g, 5dlu", "5dlu, f:p:g, 5dlu, 40px, 5dlu"));
 
 		// button panel
 		JPanel buttonPnl = new JPanel(new FormLayout("p, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p", "p"));
@@ -469,8 +472,8 @@ public class FilePanel extends JPanel implements Busyable {
 		JScrollPane treeScpn = new JScrollPane(this.spectrumTreeTable);
 		
 		// add components to top panel
-		topPnl.add(buttonPnl, CC.xy(2, 2));
-		topPnl.add(treeScpn, CC.xy(2, 4));
+		topPnl.add(buttonPnl, CC.xy(2, 4));
+		topPnl.add(treeScpn, CC.xy(2, 2));
 		
 		// wrap top panel in titled panel
 		JXTitledPanel topTtlPnl = PanelConfig.createTitledPanel("File input", topPnl);
@@ -559,14 +562,18 @@ public class FilePanel extends JPanel implements Busyable {
 			}
 		});
 		
-		JPanel btmPnl = new JPanel(new FormLayout("p:g, 5dlu, p", "f:p:g"));
-		btmPnl.add(chartTtlPnl, CC.xy(1, 1));
+//		JPanel btmPnl = new JPanel(new FormLayout("p:g, 5dlu, p", "f:p:g"));
+		JPanel btmPnl = new JPanel(new FormLayout("pref, 5dlu, p:g", "fill:pref"));
+		btmPnl.add(chartTtlPnl, CC.xy(3, 1));
         this.settingsPnl = new SettingsPanel();
-		btmPnl.add(this.settingsPnl, CC.xy(3, 1));
+		btmPnl.add(this.settingsPnl, CC.xy(1, 1));
 
-        this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
+		// The TOP and BOTTOM Panels have been switched!
+//        this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, topTtlPnl, btmPnl);
+		this.splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, btmPnl, topTtlPnl);
         this.splitPane.setBorder(null);
         this.splitPane.setDividerSize(10);
+        this.splitPane.setDividerLocation(-1);
 		((BasicSplitPaneUI) this.splitPane.getUI()).getDivider().setBorder(null);
 		
 		// create panel containing navigation buttons

@@ -146,13 +146,17 @@ public class ExperimentComparison {
 											+ "|"
 											+ prot.getTaxonomyNode()
 													.getName() + "|");
-									for (String str : prot.getUniProtEntry().getEcnumbers()) {
-										build.append(str + ";");
+									if (prot.getUniProtEntry() != null) {
+										for (String str : prot.getUniProtEntry().getEcnumbers()) {
+											build.append(str + ";");
+										}
 									}
 									build.deleteCharAt(build.length() - 1);
 									build.append("|");
-									for (String str : prot.getUniProtEntry().getKonumbers()) {
-										build.append(str + ";");
+									if (prot.getUniProtEntry() != null) {
+										for (String str : prot.getUniProtEntry().getKonumbers()) {
+											build.append(str + ";");
+										}
 									}
 									build.deleteCharAt(build.length() - 1);
 									key = build.toString();

@@ -588,7 +588,7 @@ public class ComparePanel extends JPanel {
 			}
             fillTable(projTbl, titles);
 		
-			@SuppressWarnings("serial") JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)){
+			@SuppressWarnings("serial") JTable expTbl = new JTable(new DefaultTableModel(new Object[] {"Experiments"}, 0)) {
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -694,6 +694,10 @@ public class ComparePanel extends JPanel {
 
 		@Override
 		protected Object doInBackground() throws Exception {
+			
+			
+			
+			// TODO: make this work for big datasets ....
 			try {
 				Client client = Client.getInstance();
 				client.firePropertyChange("new message", null, "STARTING COMPARISON AND FETCHING DATA");

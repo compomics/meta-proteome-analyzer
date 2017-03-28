@@ -69,7 +69,7 @@ public class DBManager {
      * Initialize the database manager.
      * @throws SQLException
      */
-	private void init() throws SQLException {	
+	private void init() throws SQLException {
 		// The database configuration.
 		if (this.conn == null || !this.conn.isValid(0)) {
 			// connect to database

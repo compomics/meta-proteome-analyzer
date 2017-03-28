@@ -93,7 +93,7 @@ public class ServerImpl implements Server {
 	}
 
 	@Override
-	public File downloadFile(String filename) { 
+	public File downloadFile(String filename) {
 		File file = new File(filename);		
 		return file; 
 	}
@@ -254,6 +254,9 @@ public class ServerImpl implements Server {
 				// Iterate uploaded files
 				int i = 1;
 				for (String filename : filenames) {
+					
+					System.out.println("File: " + filename);
+					
 					// Store uploaded spectrum files to DB
 					String pathTransfer = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_TRANSFER);
 					File file = new File(pathTransfer + filename);
@@ -275,10 +278,10 @@ public class ServerImpl implements Server {
                     this.jobManager.run();
 
                     this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
-                    this.runOptions.setRunCount(i);
+                    this.runOptions.setRunCount(1);
                     i++;
 				}
-                this.jobManager.run();
+//                this.jobManager.run();
 //			}
 		} catch (Exception e) {
 			e.printStackTrace();

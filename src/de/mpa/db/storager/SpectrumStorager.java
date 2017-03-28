@@ -93,6 +93,9 @@ public class SpectrumStorager extends BasicStorager {
         this.title2SearchIdMap = new HashMap<String, Long>();
         this.fileName2IdMap = new HashMap<String, Long>();
         
+        int countNewSpectra = 0;
+        int countDuplicates = 0;
+        
         // Iterate over all spectra.
         for (MascotGenericFile mgf : this.spectra) {
             // The filename, remove leading and trailing whitespace.
@@ -100,6 +103,7 @@ public class SpectrumStorager extends BasicStorager {
             Spectrum query =  Spectrum.findFromTitleQuicker(title, this.conn);
             Long searchspectrumid;
 			if (query == null) {
+				countNewSpectra++;
 				/* New spectrum section */
 				// generate a new query 
 				query = this.generateQuery(mgf);
@@ -164,6 +168,7 @@ public class SpectrumStorager extends BasicStorager {
                 searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
                 
             } else {
+            	countDuplicates++;
             	/* Redundant spectrum section */
             	long spectrumid = query.getSpectrumid();
             	
@@ -188,11 +193,16 @@ public class SpectrumStorager extends BasicStorager {
                 }
                 
             }
+			
             // Fill the cache maps
             this.title2SearchIdMap.put(query.getTitle(), searchspectrumid);
             this.fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
             this.conn.commit();
         }
+        
+        System.out.println("new: " + countNewSpectra);
+		System.out.println("dup: " + countDuplicates);
+        
         MapContainer.SpectrumTitle2IdMap = this.title2SearchIdMap;
         this.log.debug("No. of spectra: " + this.title2SearchIdMap.size());
         MapContainer.FileName2IdMap = this.fileName2IdMap;

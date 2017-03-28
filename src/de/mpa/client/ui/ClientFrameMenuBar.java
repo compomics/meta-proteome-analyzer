@@ -31,6 +31,7 @@ import de.mpa.client.ui.dialogs.ExportCombinedExpMetaproteins;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.client.ui.dialogs.ExportSeparateExpMetaproteins;
 import de.mpa.client.ui.dialogs.MetaproteinExportDialog;
+import de.mpa.client.ui.dialogs.SearchFileDialog;
 import de.mpa.client.ui.dialogs.UpdateNcbiTaxDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.DBDumper;

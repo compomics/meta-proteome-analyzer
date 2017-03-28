@@ -377,9 +377,10 @@ public class Client {
 	 */
 	public void runSearches(List<String> filenames, SearchSettings settings) throws SQLException {
 		if (filenames != null) {
-			for (int i = 0; i < filenames.size(); i++) {
-				settings.getFilenames().add(filenames.get(i));
-			}
+			settings.setFilenames(filenames);
+//			for (int i = 0; i < filenames.size(); i++) {
+//				settings.getFilenames().add(filenames.get(i));
+//			}
 			try {
 				this.server.runSearches(settings);
 			} catch (Exception e) {

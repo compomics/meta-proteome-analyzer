@@ -316,7 +316,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 //			}
 //		});
 
-        this.mascotChk = new JCheckBox("Mascot", false);
+        this.mascotChk = new JCheckBox("Mascot", true);
         this.mascotChk.setIconTextGap(10);
 		JButton mascotSetBtn = createSettingsButton();
 		mascotSetBtn.addActionListener(new ActionListener() {

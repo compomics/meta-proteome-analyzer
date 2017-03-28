@@ -23,10 +23,15 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -46,9 +51,13 @@ import de.mpa.client.model.DatabaseExperiment;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.ui.CheckBoxTreeTable;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.ConfirmFileChooser;
 import de.mpa.client.ui.MultiExtensionFileFilter;
 import de.mpa.client.ui.PanelConfig;
+import de.mpa.client.ui.dialogs.BlastDialog;
+import de.mpa.client.ui.dialogs.SearchFileDialog;
+import de.mpa.client.ui.dialogs.BlastDialog.BlastWorker;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.db.storager.MascotStorager;
 import de.mpa.io.MascotGenericFile;
@@ -170,63 +179,8 @@ public class SettingsPanel extends JPanel {
         this.batchBtn.setToolTipText("Press button to select and process several .mgf or .dat files" +
 				" and store each file in a separate experiment.");
         this.batchBtn.addActionListener(new ActionListener() {
-
 			public void actionPerformed(ActionEvent evt) {
-				JFileChooser fc = new JFileChooser();
-				fc.setFileFilter(new MultiExtensionFileFilter(
-						"All supported formats (*.mgf, *.dat)",
-						Constants.MGF_FILE_FILTER,
-						Constants.DAT_FILE_FILTER));
-				fc.setAcceptAllFileFilterUsed(false);
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.setMultiSelectionEnabled(true);
-				int result = fc.showOpenDialog(ClientFrame.getInstance());
-				if (result == JFileChooser.APPROVE_OPTION) {
-					File[] selectedFiles = fc.getSelectedFiles();
-					// reset progress
-					Client client = Client.getInstance();
-					// appear busy
-                    SettingsPanel.this.firePropertyChange("progress", null, 0);
-                    SettingsPanel.this.batchBtn.setEnabled(false);
-//					quickBtn.setEnabled(false);
-                    SettingsPanel.this.searchBtn.setEnabled(false);
-					// Disable further actions until loading is finished
-					ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					// Get selected experiment
-					AbstractExperiment selExp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-					client.firePropertyChange("new message", null, "Creating experiment:");
-					LinkedHashMap<Long, File> expFileMap = new LinkedHashMap<Long, File>();
-					for (File selectedFile : selectedFiles) {
-						// Create experiment map 
-						// pre-create experiment using current project as parent
-						AbstractProject selProject = ClientFrame.getInstance().getProjectPanel().getSelectedProject();
-						AbstractExperiment experiment;
-						if (Client.isViewer()) {
-							experiment = new FileExperiment();
-						} else {
-							experiment = new DatabaseExperiment();
-						}
-						// Create Experiment
-						experiment.setProject(selProject);
-						experiment.persist(selExp.getTitle() +"_"+ selectedFile.getName(), new TreeMap<String, String>() );
-						ClientFrame.getInstance().getProjectPanel().refreshProjectTable();
-						try {
-							client.getConnection().commit();
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-						Long expId = experiment.getID();
-						expFileMap.put(expId, selectedFile);
-					}
-					// Start searches in a worker
-					new BatchProcessWorker(expFileMap).execute();
-					
-					
-					// Delete old experiment name
-//					selExp.delete();
-					
-					//	new QuickSearchWorker(fc.getSelectedFile()).execute();
-				}
+				new SearchFileDialog(ClientFrame.getInstance(), "Search File selection Dialog", SettingsPanel.this);
 			}
 		});
 
@@ -274,6 +228,49 @@ public class SettingsPanel extends JPanel {
 		JXTitledPanel dbTtlPnl = PanelConfig.createTitledPanel("Search Settings", settingsPnl);
         add(dbTtlPnl, BorderLayout.CENTER);
 	}
+	
+	public void performBatchSearch(File[] selectedFiles, boolean singleExperiment, String mascotFile) {
+		// reset progress
+		Client client = Client.getInstance();
+		// appear busy
+        SettingsPanel.this.firePropertyChange("progress", null, 0);
+        SettingsPanel.this.batchBtn.setEnabled(false);
+        SettingsPanel.this.searchBtn.setEnabled(false);
+		// Disable further actions until loading is finished
+		ClientFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		// Get selected experiment
+		AbstractExperiment selExp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+		client.firePropertyChange("new message", null, "Creating experiment:");
+		LinkedHashMap<Long, File> expFileMap = new LinkedHashMap<Long, File>();
+		for (File selectedFile : selectedFiles) {
+			// Create experiment map 
+			// pre-create experiment using current project as parent
+			AbstractProject selProject = ClientFrame.getInstance().getProjectPanel().getSelectedProject();
+			AbstractExperiment experiment;
+			if (Client.isViewer()) {
+				experiment = new FileExperiment();
+			} else {
+				experiment = new DatabaseExperiment();
+			}
+			// Create Experiments if necessary
+			if (singleExperiment) {
+				expFileMap.put(selExp.getID(), selectedFile);
+			} else {
+				experiment.setProject(selProject);
+				experiment.persist(selectedFile.getName(), new TreeMap<String, String>() );
+				ClientFrame.getInstance().getProjectPanel().refreshProjectTable();
+				try {
+					client.getConnection().commit();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				Long expId = experiment.getID();
+				expFileMap.put(expId, selectedFile);
+			}
+		}
+		// Start searches in a worker
+		new BatchProcessWorker(expFileMap, mascotFile).execute();
+	}
 
 	/**
 	 * Worker class for packing/sending input files and dispatching search requests to the server instance.
@@ -310,14 +307,13 @@ public class SettingsPanel extends JPanel {
 						FastaLoader fastaLoader = FastaLoader.getInstance();
 						String fastaFilePath = SettingsPanel.this.getFastaPath();
 						if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
-
 							fastaLoader.setFastaFile(new File(fastaFilePath));
 //							try {
 //								fastaLoader.loadFastaFile();
 //							} catch (FileNotFoundException e) {
 //								e.printStackTrace();
 //							}
-						}else{
+						} else {
 							fastaLoader = null;
 						}
 						List<File> datFiles = ClientFrame.getInstance().getFilePanel().getSelectedMascotFiles();
@@ -371,14 +367,20 @@ public class SettingsPanel extends JPanel {
 		/**
 		 * Map with experiments and the associated files.
 		 */
-		private final LinkedHashMap<Long, File>expFileMap;
+		private final LinkedHashMap<Long, File> expFileMap;
+		
+		/**
+		 * The FASTA used to match mascot results to it
+		 */
+		private final String mascotFastaFile;
 
 		/**
 		 * Constructor for a batch with a map of experiments and files
 		 * @param expFileMap
 		 */
-		public BatchProcessWorker(LinkedHashMap<Long, File> expFileMap) {
+		public BatchProcessWorker(LinkedHashMap<Long, File> expFileMap, String mascotFile) {
 			this.expFileMap = expFileMap;
+			this.mascotFastaFile = mascotFile;
 		}
 
 		protected Object doInBackground() {
@@ -400,7 +402,8 @@ public class SettingsPanel extends JPanel {
 				if (dbss.isMascot()) {
 					// Get Instance of a fastaLoader
 					FastaLoader fastaLoader = FastaLoader.getInstance();
-					String fastaFilePath = SettingsPanel.this.getFastaPath();
+					String fastaFilePath = Constants.FASTA_PATHS + Constants.SEP + this.mascotFastaFile + ".fasta";
+//					String fastaFilePath = SettingsPanel.this.getFastaPath();
 					if (fastaFilePath != null && !fastaFilePath.isEmpty()) {
 						// we only need to point to the correct file, the rest is now done during parsing
 						fastaLoader.setFastaFile(new File(fastaFilePath));
@@ -414,7 +417,6 @@ public class SettingsPanel extends JPanel {
 							client.firePropertyChange("new message", null, "STORING MASCOT FILE " + ++i + "/" + expFileMap.size());
 							// Store Mascot results
 							settings.setExpID(datFileEntry.getKey());
-
 							MascotStorager storager = new MascotStorager(Client.getInstance().getDatabaseConnection(),
 									datFileEntry.getValue(), settings, databasePnl.getMascotParameterMap(), fastaLoader);
 							storager.run();
@@ -440,7 +442,7 @@ public class SettingsPanel extends JPanel {
 						long packageSize = databasePnl.getPackageSize();
 						client.firePropertyChange("resetall", 0L, maxSpectra);
 						client.firePropertyChange("new message", null, "PACKING AND SENDING FILES");
-						// iterate over all spectra BATCH SEARCH
+						// iterate over all spectra 
 						File batchFile = null;
 						for (int j = 0; j < positions.size(); j++) {
 							if ((numSpectra % packageSize) == 0) {
@@ -594,4 +596,5 @@ public class SettingsPanel extends JPanel {
 		}
 		return fastaFilePath;
 	}
+	
 }
