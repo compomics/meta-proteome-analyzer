@@ -1,7 +1,6 @@
 package de.mpa.client.ui;
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -36,7 +35,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -80,6 +78,7 @@ import de.mpa.io.parser.ec.ECReader;
 import de.mpa.io.parser.kegg.KEGGNode;
 import de.mpa.io.parser.kegg.KEGGOrthologyNode;
 import de.mpa.util.ColorUtils;
+import de.mpa.util.URLstarter;
 
 /**
  * Enumeration holding protein tree table identifiers.
@@ -1219,7 +1218,7 @@ public enum ProteinTreeTables {
 				String url = menuItem.getClientProperty("url").toString();
 				try {
 					if (url != null) {
-						Desktop.getDesktop().browse(new URI(url));
+						URLstarter.openURL(url);
 					}
 				} catch (Exception e) {
 					JXErrorPane.showDialog(ClientFrame.getInstance(),

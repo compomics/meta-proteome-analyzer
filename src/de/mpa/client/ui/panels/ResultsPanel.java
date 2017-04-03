@@ -2,14 +2,12 @@ package de.mpa.client.ui.panels;
 
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,8 +37,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
-import de.mpa.client.ui.chart.OntologyChart;
-import de.mpa.client.ui.chart.TaxonomyChart;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
@@ -60,9 +56,6 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.analysis.MetaProteinFactory;
-import de.mpa.analysis.MetaProteinFactory.ClusterRule;
-import de.mpa.analysis.MetaProteinFactory.PeptideRule;
-import de.mpa.analysis.MetaProteinFactory.TaxonomyRule;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.dbsearch.DbSearchResult;
@@ -70,7 +63,6 @@ import de.mpa.client.model.dbsearch.MetaProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.model.dbsearch.UniProtEntryMPA;
-import de.mpa.client.settings.Parameter.OptionParameter;
 import de.mpa.client.ui.Busyable;
 import de.mpa.client.ui.ButtonTabbedPane;
 import de.mpa.client.ui.ClientFrame;
@@ -84,13 +76,16 @@ import de.mpa.client.ui.chart.ChartType;
 import de.mpa.client.ui.chart.HeatMapData;
 import de.mpa.client.ui.chart.HeatMapPane;
 import de.mpa.client.ui.chart.HierarchyLevel;
+import de.mpa.client.ui.chart.OntologyChart;
 import de.mpa.client.ui.chart.OntologyData;
 import de.mpa.client.ui.chart.ScrollableChartPane;
+import de.mpa.client.ui.chart.TaxonomyChart;
 import de.mpa.client.ui.chart.TaxonomyData;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.dialogs.SelectExperimentDialog;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.io.parser.kegg.KEGGNode;
+import de.mpa.util.URLstarter;
 
 /**
  * Panel providing overview information about fetched results in the form of
@@ -106,7 +101,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 	 */
 	private ButtonTabbedPane resultsTpn;
 
-	/**
+	/** 
 	 * The database search results sub-panel.
 	 */
 	private final DbSearchResultPanel dbPnl;
@@ -723,6 +718,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
 			public void actionPerformed(ActionEvent ev) {
 				try {
+					System.out.println("click on hyperlink in ResultPanel");
 					if (target.matches("^\\d*$")) {
 						// if target contains only numerical characters it's probably an NCBI accession,
 						// try to use accession of corresponding UniProt entry (if possible)
@@ -736,8 +732,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 					} else if (target.startsWith("Meta-Protein")) {
 						return;
 					}
-					Desktop.getDesktop().browse(
-							new URI("http://www.uniprot.org/uniprot/" + target));
+					URLstarter.openURL("http://www.uniprot.org/uniprot/" + target);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -754,6 +750,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 								table, value, isSelected, hasFocus, row, column);
 						JXRendererHyperlink hyperlink = (JXRendererHyperlink) comp;
 						hyperlink.setHorizontalAlignment(SwingConstants.CENTER);
+						
 						return hyperlink;
 					}
 				});
