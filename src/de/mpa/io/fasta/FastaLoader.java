@@ -679,7 +679,11 @@ public class FastaLoader {
 				} catch (Exception e) {
 					System.out.println("Retry: " + e.getMessage());
 					// try again
-					uniprotentries = utils.processBatch(accessions, true);
+					try{
+						uniprotentries = utils.processBatch(accessions, true);
+					}catch(Exception e1){
+						e1.printStackTrace();
+					}
 				}
 				if (uniprotentries != null) {
 					for (String protein : uniprotentries.keySet()) {
