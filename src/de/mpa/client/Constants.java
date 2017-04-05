@@ -67,7 +67,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-    public static final String VER_NUMBER = PropertyLoader.getProperty(PropertyLoader.VERSION);
+    public static final String VER_NUMBER = "2-beta11";
 
 	/**
 	 * The client frame minimum width in pixels.

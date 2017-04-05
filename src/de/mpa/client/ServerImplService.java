@@ -13,6 +13,7 @@ import javax.xml.ws.WebServiceFeature;
 
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
+import de.mpa.util.PropertyLoader;
 
 
 /**
@@ -37,6 +38,7 @@ public class ServerImplService
             ParameterMap params = Client.getInstance().getConnectionParameters();  
 			Object address = params.get("srvAddress").getValue();
             Object srvPort = params.get("srvPort").getValue();
+            srvPort = PropertyLoader.getProperty(PropertyLoader.APP_PORT);
 			url = new URL("http://" + address +":" + srvPort + "/WS/Server?wsdl");
         } catch (MalformedURLException ex) {
             throw new WebServiceException(ex);

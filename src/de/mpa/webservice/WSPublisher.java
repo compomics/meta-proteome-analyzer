@@ -14,7 +14,7 @@ public class WSPublisher {
 	 * @param port The local port.
 	 */
 	public static void start(String host, String port) {
-		Endpoint.publish("http://" + host + ":" + port + "/WS/Server", new ServerImpl());
+		Endpoint.publish("http://" + host + ":" + PropertyLoader.getProperty(PropertyLoader.APP_PORT) + "/WS/Server", new ServerImpl());
 	}
 	
 	/**

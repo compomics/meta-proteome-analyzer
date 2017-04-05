@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import de.mpa.client.Constants;
+import de.mpa.util.PropertyLoader;
 
 /**
  * Class to run the fastaformat script
@@ -35,6 +36,8 @@ public class RunFastaFormater {
 
 		// May not include ".fasta"
 		fastaFormatQuery.add(fastaPath.split("[.]")[0]);
+		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
+		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
 
 		// Add database 
 		fastaFormatQuery.trimToSize();
@@ -48,7 +51,6 @@ public class RunFastaFormater {
 		Process process = null;
 		try {
 			ProcessBuilder builder = new ProcessBuilder(fastaFormatQuery);
-			
 			builder.redirectErrorStream(true);
 			process = builder.start();
 			
