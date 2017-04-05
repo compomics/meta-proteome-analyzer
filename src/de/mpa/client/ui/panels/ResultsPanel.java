@@ -718,7 +718,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		final AbstractHyperlinkAction<String> linkAction = new AbstractHyperlinkAction<String>() {
 			public void actionPerformed(ActionEvent ev) {
 				try {
-					System.out.println("click on hyperlink in ResultPanel");
+//					System.out.println("click on hyperlink in ResultPanel");
 					if (target.matches("^\\d*$")) {
 						// if target contains only numerical characters it's probably an NCBI accession,
 						// try to use accession of corresponding UniProt entry (if possible)

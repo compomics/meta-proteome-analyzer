@@ -20,7 +20,8 @@ public class DigFASTAEntry {
 		METAGENOME1 	(">generic|"),
 		SILICO_PEPTIDE	(">pep|"),
 		METAGENOME2 	(">|"),
-		METAGENOME3 	(">");
+		METAGENOME3 	(">"),
+		METAGENOME4 	(">mg|");
 
 		/**
 		 * String of header begin.

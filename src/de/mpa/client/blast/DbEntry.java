@@ -105,7 +105,8 @@ public class DbEntry {
 		NCBIGENBANK 	(">gi|"), 
 		NCBIREFERENCE 	(">ref|"),
 		METAGENOME1 	(">|"),
-		METAGENOME2 	(">");
+		METAGENOME2 	(">"),
+		METAGENOME3 	(">mg|");
 
 		/**
 		 * String of header begin.

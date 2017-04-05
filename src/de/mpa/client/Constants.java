@@ -67,7 +67,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-    public static final String VER_NUMBER = "2-beta11";
+    public static final String VER_NUMBER = "2-beta12";
 
 	/**
 	 * The client frame minimum width in pixels.
@@ -77,7 +77,7 @@ public class Constants {
 	/**
 	 * The client frame minimum height in pixels.
 	 */
-	public static final int MAINFRAME_HEIGHT = 800;
+	public static final int MAINFRAME_HEIGHT = 700;
 
 	/**
 	 * The default tooltip initial delay.

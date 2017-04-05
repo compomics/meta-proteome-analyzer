@@ -17,7 +17,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneLayout;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
@@ -167,9 +169,18 @@ public class ClientFrame extends JFrame {
 
 		// Build Components
         initComponents();
-		
+//		System.out.println("initComponents");
 		// Get the content pane
-		Container cp = getContentPane();
+//        Container component = getContentPane();
+        
+        Container cp = new Container();
+        
+        JScrollPane scrollPane = new JScrollPane(cp);
+        scrollPane.setLayout(new ScrollPaneLayout());
+        scrollPane.setPreferredSize(new Dimension(Constants.MAINFRAME_WIDTH, Constants.MAINFRAME_HEIGHT));
+        setContentPane(scrollPane);
+        
+//		Container cp = getContentPane();
 		cp.setLayout(new BorderLayout());
 
 		// Store tab icons, titles and corresponding panels in arrays

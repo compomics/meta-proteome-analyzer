@@ -20,7 +20,9 @@ import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.EventObject;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -41,6 +43,8 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
+import org.jdesktop.swingx.hyperlink.HyperlinkAction;
 import org.jdesktop.swingx.renderer.CellContext;
 import org.jdesktop.swingx.renderer.ComponentProvider;
 import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
@@ -50,8 +54,10 @@ import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
 
+import de.mpa.util.URLstarter;
+
 /**
- * A specialized {@link JXTreeTable tree table} containing checkboxes and 
+ * A specialized {@link JXTreeTable tree table} containing checkboxes and
  * hyperlinks in its hierarchical column.
  * 
  * @author A. Behne
@@ -63,24 +69,25 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	 * The tree table instance.
 	 */
 	private final JXTreeTable treeTable = this;
-	
+
 	/**
 	 * The tree inside the hierarchical column of this tree table.
 	 */
 	private final JXTree tree;
-	
+
 	/**
 	 * The selection model for the checkboxes inside the hierarchical column.
 	 */
 	private CheckBoxTreeSelectionModel cbtsm;
-	
+
 	/**
 	 * The editor instance for the hierarchical column.
 	 */
 	private CheckBoxTreeTable.CheckBoxTreeCellEditor cbtce;
 
 	/**
-	 * An additional margin between a tree cell's expansion handle and the checkbox part inside the hierarchical column.
+	 * An additional margin between a tree cell's expansion handle and the
+	 * checkbox part inside the hierarchical column.
 	 */
 	private int indent;
 
@@ -95,14 +102,17 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	private final Highlighter disabledHighlighter;
 
 	/**
-	 * A data structure allowing storage of context-sensitive icons inside the hierarchical column.
+	 * A data structure allowing storage of context-sensitive icons inside the
+	 * hierarchical column.
 	 */
 	private IconValue iconValue;
 
 	/**
-	 * Convenience constructor to create a checkbox tree table from a
-	 * specified root tree node.
-	 * @param rootNode The root node of the tree table.
+	 * Convenience constructor to create a checkbox tree table from a specified
+	 * root tree node.
+	 * 
+	 * @param rootNode
+	 *            The root node of the tree table.
 	 */
 	public CheckBoxTreeTable(TreeTableNode rootNode) {
 		this(new DefaultTreeTableModel(rootNode));
@@ -110,12 +120,14 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Constructs a checkbox tree table from a specified tree table model.
-	 * @param treeModel The tree table model.
+	 * 
+	 * @param treeModel
+	 *            The tree table model.
 	 */
 	public CheckBoxTreeTable(TreeTableModel treeModel) {
 		super(treeModel);
 
-        this.tree = (JXTree) getCellRenderer(-1, getHierarchicalColumn());
+		this.tree = (JXTree) getCellRenderer(-1, getHierarchicalColumn());
 
 		CheckBoxTreeTable.IconCheckBox editorBox = new CheckBoxTreeTable.IconCheckBox();
 		editorBox.addActionListener(new ActionListener() {
@@ -133,16 +145,19 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			}
 		});
 
-		// Install mouse adapter on editor component to capture selection dragging
+		// Install mouse adapter on editor component to capture selection
+		// dragging
 		MouseAdapter ma = new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent evt) {
 				this.forwardEvent(evt);
 			}
+
 			@Override
 			public void mouseReleased(MouseEvent evt) {
 				this.forwardEvent(evt);
 			}
+
 			@Override
 			public void mouseDragged(MouseEvent evt) {
 				this.forwardEvent(evt);
@@ -153,9 +168,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				CheckBoxTreeTable treeTbl = CheckBoxTreeTable.this;
 				if (evt.getSource() != treeTbl) {
 					Rectangle bounds = editorComp.getBounds();
-					treeTbl.dispatchEvent(new MouseEvent(treeTbl,
-							evt.getID(), evt.getWhen(), evt.getModifiers(), bounds.x, bounds.y + evt.getY(),
-							evt.getClickCount(), evt.isPopupTrigger(), evt.getButton()));
+					treeTbl.dispatchEvent(
+							new MouseEvent(treeTbl, evt.getID(), evt.getWhen(), evt.getModifiers(), bounds.x,
+									bounds.y + evt.getY(), evt.getClickCount(), evt.isPopupTrigger(), evt.getButton()));
 				}
 			}
 		};
@@ -174,24 +189,22 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			public void mouseDragged(MouseEvent evt) {
 				CheckBoxTreeTable treeTbl = CheckBoxTreeTable.this;
 				if (treeTbl.isEditing()) {
-		            Point p = evt.getPoint();
-		            int row = treeTbl.rowAtPoint(p);
-		            int column = treeTbl.columnAtPoint(p);
-		            if ((column == -1) || (row == -1)) {
-		                return;
-		            }
-		            treeTbl.changeSelection(row, column,
-		                    this.isMenuShortcutKeyDown(evt), true);
+					Point p = evt.getPoint();
+					int row = treeTbl.rowAtPoint(p);
+					int column = treeTbl.columnAtPoint(p);
+					if ((column == -1) || (row == -1)) {
+						return;
+					}
+					treeTbl.changeSelection(row, column, this.isMenuShortcutKeyDown(evt), true);
 
-		            Rectangle bounds = editorComp.getBounds();
-					prepareEditor(cellEditor,
-							treeTbl.rowAtPoint(new Point(bounds.x, bounds.y)), column);
-	            }
+					Rectangle bounds = editorComp.getBounds();
+					prepareEditor(cellEditor, treeTbl.rowAtPoint(new Point(bounds.x, bounds.y)), column);
+				}
 			}
+
 			private boolean isMenuShortcutKeyDown(InputEvent event) {
-		        return (event.getModifiers() &
-		                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
-		    }
+				return (event.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+			}
 		});
 
 		// Install checkbox selection model
@@ -217,8 +230,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 						CheckBoxTreeTable.this.cbtce.cancelCellEditing();
 					}
 				} else {
-					// TODO: null means we're either inside one of the editor's sub-components or outside the table - how to distinguish one from the other?
-//					cbtce.cancelCellEditing();
+					// TODO: null means we're either inside one of the editor's
+					// sub-components or outside the table - how to distinguish
+					// one from the other?
+					// cbtce.cancelCellEditing();
 				}
 			}
 		});
@@ -230,8 +245,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			public void mousePressed(MouseEvent me) {
 				if (treeTable.columnAtPoint(me.getPoint()) == treeTable.getHierarchicalColumn()) {
 					// force re-creation of editor on click
-					editCellAt(getRowForPath(getPathForLocation(me.getX(), me.getY())),
-							getHierarchicalColumn());
+					editCellAt(getRowForPath(getPathForLocation(me.getX(), me.getY())), getHierarchicalColumn());
 				}
 			}
 		});
@@ -247,7 +261,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		treeTable.setRowMargin(1);
 		treeTable.setShowGrid(true);
 		treeTable.getTableHeader().setReorderingAllowed(false);
-//		treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		// treeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		treeTable.setLargeModel(true);
 	}
 
@@ -259,7 +273,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	@Override
 	public void editingStopped(ChangeEvent ce) {
 		if (editingColumn == getHierarchicalColumn()) {
-			// avoid calling setValueAt(), hierarchical column is not editable per se
+			// avoid calling setValueAt(), hierarchical column is not editable
+			// per se
 			removeEditor();
 		} else {
 			super.editingStopped(ce);
@@ -291,7 +306,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Installs the specified checkbox tree cell editor.
-	 * @param cbtce the tree cell editor
+	 * 
+	 * @param cbtce
+	 *            the tree cell editor
 	 */
 	public void setTreeCellEditor(CheckBoxTreeTable.CheckBoxTreeCellEditor cbtce) {
 		this.cbtce = cbtce;
@@ -299,9 +316,15 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Convenience method to set the hierarchical column's child indents.
-	 * @param left The pixel distance between the center of the node handle and the parent's left side.
-	 * @param right The pixel distance between the center of the node handle and this node's left side.
-	 * @param margin An additional pixel margin to the right of the handle.
+	 * 
+	 * @param left
+	 *            The pixel distance between the center of the node handle and
+	 *            the parent's left side.
+	 * @param right
+	 *            The pixel distance between the center of the node handle and
+	 *            this node's left side.
+	 * @param margin
+	 *            An additional pixel margin to the right of the handle.
 	 */
 	public void setIndents(int left, int right, int margin) {
 		((BasicTreeUI) tree.getUI()).setLeftChildIndent(left);
@@ -313,6 +336,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Returns the checkbox selection model.
+	 * 
 	 * @return The selection model
 	 */
 	public CheckBoxTreeSelectionModel getCheckBoxTreeSelectionModel() {
@@ -321,7 +345,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Sets the checkbox selection model.
-	 * @param selectionModel The selection model to set
+	 * 
+	 * @param selectionModel
+	 *            The selection model to set
 	 */
 	public void setCheckBoxTreeSelectionModel(CheckBoxTreeSelectionModel selectionModel) {
 		this.cbtsm = selectionModel;
@@ -329,6 +355,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Gets the value-to-icon converter of this tree table.
+	 * 
 	 * @return the iconValue
 	 */
 	public IconValue getIconValue() {
@@ -337,7 +364,9 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Sets the value-to-icon converter for this tree table.
-	 * @param iconValue the iconValue to set
+	 * 
+	 * @param iconValue
+	 *            the iconValue to set
 	 */
 	public void setIconValue(IconValue iconValue) {
 		this.iconValue = iconValue;
@@ -348,30 +377,25 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		protected NodeDimensions createNodeDimensions() {
 			return new NodeDimensionsHandler() {
 				@Override
-				public Rectangle getNodeDimensions(
-						Object value, int row, int depth, boolean expanded,
-						Rectangle size) {
-					Rectangle dimensions = super.getNodeDimensions(value, row,
-							depth, expanded, size);
-					dimensions.width =
-							tree.getWidth() - getRowX(row, depth) - 1;
+				public Rectangle getNodeDimensions(Object value, int row, int depth, boolean expanded, Rectangle size) {
+					Rectangle dimensions = super.getNodeDimensions(value, row, depth, expanded, size);
+					dimensions.width = tree.getWidth() - getRowX(row, depth) - 1;
 					return dimensions;
 				}
 			};
 		}
-		@Override
-		protected void paintHorizontalLine(Graphics g, JComponent c,
-				int y, int left, int right) { } // do nothing
-		@Override
-		protected void paintVerticalLine(Graphics g, JComponent c, int x,
-				int top, int bottom) { } // do nothing
 
 		@Override
-		protected void drawCentered(Component c, Graphics graphics, Icon icon,
-				int x, int y) {
-			icon.paintIcon(c, graphics,
-					x - icon.getIconWidth() / 2 - 1,
-					y - icon.getIconHeight() / 2);
+		protected void paintHorizontalLine(Graphics g, JComponent c, int y, int left, int right) {
+		} // do nothing
+
+		@Override
+		protected void paintVerticalLine(Graphics g, JComponent c, int x, int top, int bottom) {
+		} // do nothing
+
+		@Override
+		protected void drawCentered(Component c, Graphics graphics, Icon icon, int x, int y) {
+			icon.paintIcon(c, graphics, x - icon.getIconWidth() / 2 - 1, y - icon.getIconHeight() / 2);
 
 		}
 	}
@@ -402,7 +426,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				checkBox.setFixed(node.isFixed());
 				checkBox.setURI(node.getURI());
 
-//				checkBox.setText(getValueAsString(context));
+				// checkBox.setText(getValueAsString(context));
 				checkBox.setText(node.getValueAt(0).toString());
 				if (iconValue != null) {
 					checkBox.setIcon(iconValue.getIcon(context));
@@ -412,8 +436,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 				checkBox.setEnabled(treeTable.isEnabled());
 
 				// inherit visuals from respective table row
-				CheckBoxTreeTable.this.getCompoundHighlighter().highlight(
-						checkBox, getComponentAdapter(context.getRow(), context.getColumn()));
+				CheckBoxTreeTable.this.getCompoundHighlighter().highlight(checkBox,
+						getComponentAdapter(context.getRow(), context.getColumn()));
 			}
 		}
 
@@ -431,10 +455,10 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 	/**
 	 * Custom tree cell editor for checkbox trees.
+	 * 
 	 * @author A. Behne
 	 */
-	public class CheckBoxTreeCellEditor extends AbstractCellEditor implements
-			TableCellEditor {
+	public class CheckBoxTreeCellEditor extends AbstractCellEditor implements TableCellEditor {
 
 		/**
 		 * The renderer component.
@@ -448,6 +472,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 
 		/**
 		 * Creates a tree cell editor for checkbox tree tables.
+		 * 
 		 * @param checkBox
 		 */
 		public CheckBoxTreeCellEditor(CheckBoxTreeTable.IconCheckBox checkBox) {
@@ -460,32 +485,34 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+				int column) {
 
 			JXTree tree = (JXTree) table.getCellRenderer(-1, ((JXTreeTable) table).getHierarchicalColumn());
 
 			CheckBoxTreeTableNode node = (CheckBoxTreeTableNode) tree.getPathForRow(row).getLastPathComponent();
 
-			CheckBoxTreeTable.IconCheckBox rendererChk = (CheckBoxTreeTable.IconCheckBox) tree.getCellRenderer().getTreeCellRendererComponent(
-					tree, node, isSelected, tree.isExpanded(row), node.isLeaf(), row, true);
+			CheckBoxTreeTable.IconCheckBox rendererChk = (CheckBoxTreeTable.IconCheckBox) tree.getCellRenderer()
+					.getTreeCellRendererComponent(tree, node, isSelected, tree.isExpanded(row), node.isLeaf(), row,
+							true);
 
-            this.checkBox.setURI(node.getURI());
-            this.checkBox.setIcon(rendererChk.getIcon());
-            this.checkBox.setText(rendererChk.getText());
-            this.checkBox.setSelected(rendererChk.isSelected());
-            this.checkBox.setEnabled(rendererChk.isEnabled());
-            this.checkBox.setFixed(rendererChk.isFixed());
+			this.checkBox.setURI(node.getURI());
+			this.checkBox.setIcon(rendererChk.getIcon());
+			this.checkBox.setText(rendererChk.getText());
+			this.checkBox.setSelected(rendererChk.isSelected());
+			this.checkBox.setEnabled(rendererChk.isEnabled());
+			this.checkBox.setFixed(rendererChk.isFixed());
 
-			// inherit visuals from respective table row by applying highlighters
+			// inherit visuals from respective table row by applying
+			// highlighters
 			ComponentAdapter adapter = CheckBoxTreeTable.this.getComponentAdapter(row, column);
-            getCompoundHighlighter().highlight(this.checkBox, adapter);
+			getCompoundHighlighter().highlight(this.checkBox, adapter);
 			Highlighter[] highlighters = getColumnExt(column).getHighlighters();
 			new CompoundHighlighter(highlighters).highlight(this.checkBox, adapter);
 
 			Rectangle cellRect = table.getCellRect(0, column, false);
 			Rectangle nodeRect = tree.getRowBounds(row);
-//			int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
+			// int nodeStart = 1 + indent + cellRect.x + nodeRect.x;
 			int nodeStart = CheckBoxTreeTable.this.indent + 1;
 			nodeStart += cellRect.x;
 			if (nodeRect != null) {
@@ -499,7 +526,7 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			} else {
 				border = BorderFactory.createEmptyBorder(1, nodeStart, 0, 1);
 			}
-            this.checkBox.setBorder(border);
+			this.checkBox.setBorder(border);
 
 			return this.checkBox;
 		}
@@ -512,7 +539,8 @@ public class CheckBoxTreeTable extends JXTreeTable {
 	}
 
 	/**
-	 * Helper class for displaying a three-state check box with an additional image label.
+	 * Helper class for displaying a three-state check box with an additional
+	 * image label.
 	 *
 	 * @author A. Behne
 	 */
@@ -529,104 +557,119 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		private final JXHyperlink hyperlink;
 
 		/**
-		 * The selection state of this component. <code>null</code> denotes indeterminate
-		 * state.
+		 * The selection state of this component. <code>null</code> denotes
+		 * indeterminate state.
 		 */
 		private Boolean selected;
 
 		/**
-		 * The flag denoting whether the selection state of this component cannot be changed.
+		 * The flag denoting whether the selection state of this component
+		 * cannot be changed.
 		 */
 		private boolean fixed;
 
 		/**
-		 * Constructs a checkbox panel containing a tri-state checkbox and a hyperlink label,
-		 * capable of bearing an icon.
+		 * Constructs a checkbox panel containing a tri-state checkbox and a
+		 * hyperlink label, capable of bearing an icon.
 		 */
 		public IconCheckBox() {
 			this(0);
 		}
 
 		/**
-		 * Constructs a checkbox panel containing a tri-state checkbox and a hyperlink label,
-		 * capable of bearing an icon.
-		 * @param vOffset a vertical pixel offset for painting the indeterminate state
+		 * Constructs a checkbox panel containing a tri-state checkbox and a
+		 * hyperlink label, capable of bearing an icon.
+		 * 
+		 * @param vOffset
+		 *            a vertical pixel offset for painting the indeterminate
+		 *            state
 		 */
 		public IconCheckBox(int vOffset) {
 
-            setLayout(new BorderLayout());
-            setOpaque(false);
+			setLayout(new BorderLayout());
+			setOpaque(false);
 
 			// top checkbox with tri-state visuals
-            this.checkBox = new TriStateCheckBox() {
+			this.checkBox = new TriStateCheckBox() {
 				@Override
 				public boolean isPartiallySelected() {
 					return (CheckBoxTreeTable.IconCheckBox.this.selected == null);
 				}
 			};
 
-            this.checkBox.setOpaque(false);
-            this.checkBox.setBorder(BorderFactory.createEmptyBorder(2, 0 + CheckBoxTreeTable.this.indent, 1, 4));
-			
-			// icon-bearing hyperlink label, uninstall button UI to make it look like a plain label
-            this.hyperlink = new JXHyperlink();
-            this.hyperlink.setBackground(Color.WHITE);
-            this.hyperlink.getUI().uninstallUI(this.hyperlink);
-            this.hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
-            this.hyperlink.setOpaque(true);
-            this.hyperlink.setVerticalTextPosition(SwingConstants.TOP);
+			this.checkBox.setOpaque(false);
+			this.checkBox.setBorder(BorderFactory.createEmptyBorder(2, 0 + CheckBoxTreeTable.this.indent, 1, 4));
 
-            this.hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
-			
+			// icon-bearing hyperlink label, uninstall button UI to make it look
+			// like a plain label
+			this.hyperlink = new JXHyperlink();
+			this.hyperlink.setBackground(Color.WHITE);
+			this.hyperlink.getUI().uninstallUI(this.hyperlink);
+			this.hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
+			this.hyperlink.setOpaque(true);
+			this.hyperlink.setVerticalTextPosition(SwingConstants.TOP);
+
+			this.hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
+
+			// TODO hyperlink should use URLstarter.openURL(url);
+
 			// lay out components
-            add(this.checkBox, BorderLayout.WEST);
-            add(this.hyperlink, BorderLayout.CENTER);
+			add(this.checkBox, BorderLayout.WEST);
+			add(this.hyperlink, BorderLayout.CENTER);
 		}
 
 		/**
 		 * Adds an actionlistener to the checkbox sub-component.
-		 * @param l the <code>ActionListener</code> to be added
+		 * 
+		 * @param l
+		 *            the <code>ActionListener</code> to be added
 		 */
 		public void addActionListener(ActionListener l) {
-            this.checkBox.addActionListener(l);
+			this.checkBox.addActionListener(l);
 		}
-		
+
 		/**
 		 * Returns the icon of the hyperlink sub-component.
+		 * 
 		 * @return the hyperlink <code>Icon</code>
 		 */
 		public Icon getIcon() {
 			return this.hyperlink.getIcon();
 		}
-		
+
 		/**
 		 * Defines the icon the hyperlink sub-component will display.
-		 * @param icon the <code>Icon</code> to be displayed. Use <code>null</code> 
-		 * to display no icon.
+		 * 
+		 * @param icon
+		 *            the <code>Icon</code> to be displayed. Use
+		 *            <code>null</code> to display no icon.
 		 */
 		public void setIcon(Icon icon) {
-            this.hyperlink.setIcon(icon);
+			this.hyperlink.setIcon(icon);
 		}
-		
+
 		/**
 		 * Returns the text of the hyperlink sub-component.
+		 * 
 		 * @return
 		 */
 		public String getText() {
 			return this.hyperlink.getText();
 		}
-		
+
 		/**
 		 * Defines the single line of text this component will display.<br>
-		 * If the value of text is null or an empty string, nothing is displayed.
+		 * If the value of text is null or an empty string, nothing is
+		 * displayed.
+		 * 
 		 * @param text
 		 */
 		public void setText(String text) {
-            this.hyperlink.setText(text);
-            this.hyperlink.setToolTipText(text);
-            this.checkBox.setToolTipText(text);
+			this.hyperlink.setText(text);
+			this.hyperlink.setToolTipText(text);
+			this.checkBox.setToolTipText(text);
 		}
-		
+
 		@Override
 		public Color getBackground() {
 			Color background = null;
@@ -638,63 +681,76 @@ public class CheckBoxTreeTable extends JXTreeTable {
 			}
 			return background;
 		}
-		
+
 		@Override
 		public void setBackground(Color bg) {
 			if ((this.hyperlink != null) && (bg != null)) {
-                this.hyperlink.setBackground(bg);
+				this.hyperlink.setBackground(bg);
 			}
 		}
-		
+
 		@Override
 		public Font getFont() {
 			Font font = null;
 			if (this.hyperlink != null) {
-                this.hyperlink.getFont();
+				this.hyperlink.getFont();
 			}
 			if (font == null) {
 				font = super.getFont();
 			}
 			return font;
 		}
-		
+
 		@Override
 		public void setFont(Font font) {
 			if ((this.hyperlink != null) && (font != null)) {
-                this.hyperlink.setFont(font);
+				this.hyperlink.setFont(font);
 			}
 		}
-		
+
 		/**
 		 * Sets the URI the hyperlink label shall direct to.<br>
 		 * Note, that this resets the text and icon properties of the label.
-		 * @param uri The URI to be set.
+		 * 
+		 * @param uri
+		 *            The URI to be set.
 		 */
 		public void setURI(URI uri) {
 			// install/uninstall UI depending on new and old values
 			if (uri == null) {
 				if (this.hyperlink.getAction() != null) {
-                    this.hyperlink.getUI().uninstallUI(this.hyperlink);
-                    this.hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
-                    this.hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
+					this.hyperlink.getUI().uninstallUI(this.hyperlink);
+					this.hyperlink.setUnclickedColor(UIManager.getColor("Label.foreground"));
+					this.hyperlink.setBorder(BorderFactory.createEmptyBorder(0, 1, -1, 0));
 				}
-                this.hyperlink.setAction(null);
+				this.hyperlink.setAction(null);
 			} else {
 				if (this.hyperlink.getAction() == null) {
-                    this.hyperlink.getUI().installUI(this.hyperlink);
+
+					this.hyperlink.getUI().installUI(this.hyperlink);
 				}
-                this.hyperlink.setURI(uri);
+
+				this.hyperlink.setAction(new AbstractHyperlinkAction<String>() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						URLstarter.openURL(uri.toString());
+					}
+				});
+				// this.hyperlink.setURI(uri);
 			}
 		}
-		
+
 		/**
-		 * Returns <code>true</code> whether checkbox is selected else <code>false</code>.
+		 * Returns <code>true</code> whether checkbox is selected else
+		 * <code>false</code>.
+		 * 
 		 * @return the checkbox selection state
 		 */
 		public boolean isCheckBoxSelected() {
 			return this.checkBox.isSelected();
 		}
-		
+
 		/**
 		 * 
 		 * @return
@@ -702,76 +758,87 @@ public class CheckBoxTreeTable extends JXTreeTable {
 		public Boolean isSelected() {
 			return this.selected;
 		}
-		
+
 		/**
 		 * Sets the selection state of this component's checkbox.
-		 * @param selected <code>true</code> if the button is selected, 
-		 * <code>false</code> if not selected, <code>null</code> if indeterminate
+		 * 
+		 * @param selected
+		 *            <code>true</code> if the button is selected,
+		 *            <code>false</code> if not selected, <code>null</code> if
+		 *            indeterminate
 		 */
 		public void setSelected(Boolean selected) {
 			if (selected != this.isSelected()) {
 				this.selected = selected;
 				if (selected == null) {
-                    this.checkBox.setSelected(false);
+					this.checkBox.setSelected(false);
 				} else {
-                    this.checkBox.setSelected(selected);
+					this.checkBox.setSelected(selected);
 				}
 			}
 		}
-		
+
 		/**
 		 * Sets the enabled state of this component.
-		 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
+		 * 
+		 * @param enabled
+		 *            <code>true</code> if enabled, <code>false</code> otherwise
 		 */
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
-            this.checkBox.setEnabled(enabled);
-            this.hyperlink.setEnabled(enabled);
+			this.checkBox.setEnabled(enabled);
+			this.hyperlink.setEnabled(enabled);
 		}
-		
+
 		public boolean isFixed() {
 			return this.fixed;
 		}
-		
+
 		/**
 		 * Sets the fixed state of this component's checkbox.
-		 * @param fixed <code>true</code> if the selection state of the checkbox 
-		 * cannot be changed, <code>false</code> otherwise
+		 * 
+		 * @param fixed
+		 *            <code>true</code> if the selection state of the checkbox
+		 *            cannot be changed, <code>false</code> otherwise
 		 */
 		public void setFixed(boolean fixed) {
 			this.fixed = fixed;
-            this.checkBox.setEnabled(isEnabled() && !fixed);
+			this.checkBox.setEnabled(isEnabled() && !fixed);
 		}
-		
+
 		@Override
 		public synchronized void addMouseListener(MouseListener l) {
-            this.hyperlink.addMouseListener(l);
+			this.hyperlink.addMouseListener(l);
 		}
-		
+
 		@Override
 		public synchronized void removeMouseListener(MouseListener l) {
-            this.hyperlink.removeMouseListener(l);
+			this.hyperlink.removeMouseListener(l);
 		}
-		
+
 		@Override
 		public synchronized void addMouseMotionListener(MouseMotionListener l) {
-            this.hyperlink.addMouseMotionListener(l);
+			this.hyperlink.addMouseMotionListener(l);
 		}
-		
+
 		@Override
 		public synchronized void removeMouseMotionListener(MouseMotionListener l) {
-            this.hyperlink.removeMouseMotionListener(l);
+			this.hyperlink.removeMouseMotionListener(l);
 		}
-		
+
 	}
-	
+
 	/**
-	 * Updates the highlighters of the column corresponding to the specified model index.
-	 * @param column the column model index
-	 * @param params the parameters for configuring the highlighters
+	 * Updates the highlighters of the column corresponding to the specified
+	 * model index.
+	 * 
+	 * @param column
+	 *            the column model index
+	 * @param params
+	 *            the parameters for configuring the highlighters
 	 */
 	public void updateHighlighters(int column, Object... params) {
 		// do nothing by default, let overrides handle behavior
 	}
-	
+
 }
