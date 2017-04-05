@@ -151,6 +151,7 @@ public class ClientFrame extends JFrame {
 	private ClientFrame(boolean viewer, boolean debug, boolean fast_results) {
 		// Configure main frame
 		super(Constants.APPTITLE + " " + Constants.VER_NUMBER);
+		setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		Client.init(viewer, debug, fast_results);
         addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
