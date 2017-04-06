@@ -25,8 +25,8 @@ import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.XtandemhitTableAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
-import de.mpa.fastadigest.DigFASTAEntry;
-import de.mpa.fastadigest.DigFASTAEntryParser;
+import de.mpa.io.fasta.DigFASTAEntry;
+import de.mpa.io.fasta.DigFASTAEntryParser;
 import de.mpa.io.fasta.FastaLoader;
 import de.proteinms.xtandemparser.xtandem.Domain;
 import de.proteinms.xtandemparser.xtandem.Peptide;
@@ -167,7 +167,7 @@ public class XTandemStorager extends BasicStorager {
                                 hitdata.put(XtandemhitTableAccessor.DOMAINID, domainID);
                                 domain.getProteinKey();
                                 // parse the FASTA header
-                                DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" + protMap.getProtein(domain.getProteinKey()).getLabel(), "", 0L);
+                                DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" + protMap.getProtein(domain.getProteinKey()).getLabel(), "");
                                 String accession =  entry.getIdentifier();
                                 
                                 hitdata.put(XtandemhitTableAccessor.START, Long.valueOf(domain.getDomainStart()));

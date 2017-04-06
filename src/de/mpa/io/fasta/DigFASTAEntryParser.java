@@ -48,8 +48,8 @@ public class DigFASTAEntryParser {
 	 * 
 	 * @param header
 	 *            . first line of FASTA entry.
-	 * @param body
-	 *            . Subsequent lines of FASTA entry.
+	 * @param sequence
+	 *            . Protein Sequence
 	 * @return database entry object
 	 */
 	public static DigFASTAEntry parseEntry(String header, String sequence) {

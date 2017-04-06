@@ -15,13 +15,13 @@ public class DigFASTAEntry {
 		UNIPROTSPROT 	(">sp|"),
 		UNIPROTTREMBL 	(">tr|"),
 		NCBIGENBANK 	(">gi|"), 
-//		NCBIREFERENCE 	(">ref|"),
+		NCBIREFERENCE 	(">ref|"),
 		Database		(">DB|"),
-		METAGENOME1 	(">generic|"),
 		SILICO_PEPTIDE	(">pep|"),
+		METAGENOME1 	(">generic|"),
 		METAGENOME2 	(">|"),
-		METAGENOME3 	(">"),
-		METAGENOME4 	(">mg|");
+		METAGENOME3 	(">mg|"),
+		METAGENOME4 	(">");
 
 		/**
 		 * String of header begin.

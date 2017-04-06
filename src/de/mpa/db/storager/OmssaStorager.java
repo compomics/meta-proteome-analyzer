@@ -19,8 +19,8 @@ import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.OmssahitTableAccessor;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.job.scoring.ValidatedPSMScore;
-import de.mpa.fastadigest.DigFASTAEntry;
-import de.mpa.fastadigest.DigFASTAEntryParser;
+import de.mpa.io.fasta.DigFASTAEntry;
+import de.mpa.io.fasta.DigFASTAEntryParser;
 import de.mpa.io.fasta.FastaLoader;
 import de.proteinms.omxparser.OmssaOmxFile;
 import de.proteinms.omxparser.util.MSHitSet;
@@ -158,7 +158,7 @@ public class OmssaStorager extends BasicStorager {
                         storeSpec2Pep(searchspectrumID, peptideID);
 
 						// Parse the FASTA header
-						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "", 0L);
+						DigFASTAEntry entry = DigFASTAEntryParser.parseEntry(">" +pepHit.MSPepHit_defline, "");
 						String accession = entry.getIdentifier();
 
 						// Scan for additional protein hits
