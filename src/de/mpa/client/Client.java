@@ -119,8 +119,11 @@ public class Client {
 	public void runSearches(DbSearchSettings settings) throws IOException, ClassNotFoundException  {
 		// The FASTA loader
 		FastaLoader fastaLoader = FastaLoader.getInstance();
-		fastaLoader.setFastaFile(new File(settings.getFastaFilePath()));
+		File fastaFile = new File(settings.getFastaFilePath());
+		fastaLoader.setFastaFile(fastaFile);
 		
+		// Add fasta file to the Sequence factory
+		GenericContainer.SeqFactory.loadFastaFile(fastaFile);
 		File indexFile = new File(settings.getFastaFilePath() + ".fb");
 		if (indexFile.exists()) {
 			fastaLoader.setIndexFile(indexFile);
@@ -130,6 +133,7 @@ public class Client {
 		}
 		
 		GenericContainer.FastaLoader = fastaLoader;
+		
 		if (mgfFiles != null) {
 			TaskManager taskManager = TaskManager.getInstance();
 			// Clear the task manager to account for unfinished jobs in the queue.

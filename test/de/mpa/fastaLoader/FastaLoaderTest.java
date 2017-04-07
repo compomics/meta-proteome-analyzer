@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.compomics.util.protein.Protein;
 
 import de.mpa.io.fasta.FastaLoader;
-import gnu.trove.map.TObjectLongMap;
 import junit.framework.TestCase;
 import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
 
@@ -31,21 +30,8 @@ public class FastaLoaderTest extends TestCase {
 		}
 	}
 	
-	@Test 
-	public void testLoadFastaFile() {
-		try {
-			TObjectLongMap<String> indexMap1 = fastaLoader.getIndexMap();
-			fastaLoader.writeIndexFile();
-			fastaLoader.readIndexFile();
-			TObjectLongMap<String> indexMap2 = fastaLoader.getIndexMap();
-			assertEquals(indexMap1, indexMap2);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	@Test
-	public void testgetProteinFromFasta() throws ServiceException {
+	public void testGetProteinFromFasta() throws ServiceException {
 		File indexFile = new File(file.getAbsolutePath() + ".fb");
 
 		try {
@@ -54,21 +40,11 @@ public class FastaLoaderTest extends TestCase {
 				fastaLoader.readIndexFile();
 			}
 			
-			Protein proteinFirst = fastaLoader.getProteinFromFasta("Q6GZX4");
-			Protein proteinMiddle = fastaLoader.getProteinFromFasta("Q91G56");
-			Protein proteinLast = fastaLoader.getProteinFromFasta("Q197A7");
+			Protein proteinFirst = fastaLoader.getProteinFromFasta("Q8U4R3");
 			
 			// ProteinFirst
-			assertEquals("001R_FRG3G Putative transcription factor 001R OS=Frog virus 3 (isolate Goorha) GN=FV3-001R PE=4 SV=1", proteinFirst.getHeader().getDescription());
-			assertEquals("MAFSAEDVLKEYDRRRRMEALLLSLYYPNDRKLLDYKEWSPPRVQVECPKAPVEWNNPPSEKGLIVGHFSGIKYKGEKAQASEVDVNKMCCWVSKFKDAMRRYQGIQTCKIPGKVLSDLDAKIKAYNLTVEGVEGFVRYSRVTKQHVAAFLKELRHSKQYENVNLIHYILTDKRVDIQHLEKDLVKDFKALVESAHRMRQGHMINVKYILYQLLKKHGHGPDGPDILTVKTGSKGVLYDDSFRKIYTDLGWKFTPL", proteinFirst.getSequence().getSequence());
+			assertEquals("1A1D_PYRFU Putative 1-aminocyclopropane-1-carboxylate deaminase OS=Pyrococcus furiosus (strain ATCC 43587 / DSM 3638 / JCM 8422 / Vc1) GN=PF0010 PE=3 SV=2", proteinFirst.getHeader().getDescription());
 			
-			// ProteinMiddle
-			assertEquals("042R_IIV6 Uncharacterized protein 042R OS=Invertebrate iridescent virus 6 GN=IIV6-042R PE=4 SV=1", proteinMiddle.getHeader().getDescription());
-			assertEquals("MATLQQAQQQNNQLTQQNNQLTQQNNQLTQRVNELTRFLEDANRKIQIKENVIKSSEAENRKNLAEINRLHSENHRLIQQSTRTICQKCSMRSN", proteinMiddle.getSequence().getSequence());
-			
-			// ProteinLast
-			assertEquals("053L_IIV3 Uncharacterized protein 053L OS=Invertebrate iridescent virus 3 GN=IIV3-053L PE=4 SV=1", proteinLast.getHeader().getDescription());
-			assertEquals("MEQYLQAFEFVEEMVVLPKYLSWELYHHLAVLLREKYPKTYKNKGYIFNIKVKSILDNRITPTGQIVLVVMFQSDLYVPQVGHVFTERIRVNSVDDRYQWITIEPLTVFLRSNIPYKPNTLVTVQICSIKMDNTLCFGTILD", proteinLast.getSequence().getSequence());
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}

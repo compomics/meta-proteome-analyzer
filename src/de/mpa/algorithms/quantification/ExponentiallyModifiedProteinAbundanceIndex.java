@@ -1,8 +1,9 @@
 package de.mpa.algorithms.quantification;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.compomics.util.experiment.biology.Enzyme;
+import com.compomics.util.experiment.biology.EnzymeFactory;
 
 import de.mpa.client.model.dbsearch.ProteinHit;
 
@@ -26,18 +27,18 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 		// 4. restrictionBefore, amino-acids which should not be found before the cleavage
 		// 5. aminoAcidAfter, the amino-acids which should be found after the cleavage
 		// 6. restrictionAfter, the amino-acids which should not be found after the cleavage
-		Enzyme trypsin = new Enzyme(1, "Trypsin", "RK" , "", "", "P");
-
+		EnzymeFactory factory = EnzymeFactory.getInstance();
+		Enzyme enzyme = factory.getEnzyme("Trypsin");
 		// Call digest
 		// @param sequence              the protein sequence
 		// @param nMissedCleavages      the allowed number of missed cleavages
 		// @param nMin                  the minimal size for a peptide
 		// @param nMax                  the maximal size for a peptide
-		ArrayList<String> insilicoPeptides = new ArrayList<String>();
+		HashSet<String> insilicoPeptides = new HashSet<String>();
 		//TODO: missed cleavages has to be taken from search parameters to avoid misscalculations 
 		//		or remove misscleaved peptides from calculation.
 		if (proteinHit.getSequence() != null && proteinHit.getSequence().length() >0) {
-			insilicoPeptides= trypsin.digest(proteinHit.getSequence(), 0, 4, 1000);
+			insilicoPeptides= enzyme.digest(proteinHit.getSequence(), 0, 4, 1000);
 			double pAI;
 			double peptideObserved = proteinHit.getPeptideCount();
 			//TODO Control PeptideCount to misscleavages

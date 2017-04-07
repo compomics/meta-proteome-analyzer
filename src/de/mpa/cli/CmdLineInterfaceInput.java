@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import com.compomics.software.cli.CommandLineUtils;
 
-import com.compomics.software.CommandLineUtils;
 
 /**
  * This class provides command line options for the MPA CLI application.

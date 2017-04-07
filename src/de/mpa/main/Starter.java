@@ -170,9 +170,11 @@ public class Starter {
 				try {
 					// Set the look&feel
 					setLookAndFeel();
+					
 					// Default = no debug mode.
 					ClientFrame clientFrame = ClientFrame.getInstance(false);
 					clientFrame.toFront();
+
 					splashScreen.close();
 				} catch (Exception e) {
 					JXErrorPane.showDialog(null, new ErrorInfo("Error", "The application could not be launched due to an error.", e.getMessage(), null, e, Level.SEVERE, null));

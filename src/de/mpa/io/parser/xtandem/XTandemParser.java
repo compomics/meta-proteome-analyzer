@@ -87,7 +87,6 @@ public class XTandemParser extends GenericContainer {
             long spectrumId = (long) spectrum.getSpectrumId();
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
-            List<String> peptides = new ArrayList<String>();
             
             // Iterate over all peptide identifications aka. domains
             for (Peptide peptide : pepList) {
@@ -96,55 +95,52 @@ public class XTandemParser extends GenericContainer {
             	for (Domain domain : domains) {
                    	String sequence = domain.getDomainSequence();
                    	
-					if (!peptides.contains(sequence)) {
-                	    // Only store if the search spectrum id is referenced.
-						if (SpectrumId2TitleMap.containsKey(spectrumId)) {
-							
-                	    	String spectrumTitle = SpectrumId2TitleMap.get(spectrumId);
-                	    	spectrumTitle = formatSpectrumTitle(spectrumTitle);
-                	    	String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
-                	    	
-                	    	double qValue = targetDecoyAnalysis.getQValue((float) domain.getDomainHyperScore());
-            	            Double pep = 1.0;
-            	    	    	
-            				if (qValue < 0.1) {
-            					XTandemHit hit = new XTandemHit();
-        						hit.setSpectrumId(spectrumId);
-                     	    	hit.setSpectrumFilename(spectrumFilename);  
-                     	    	hit.setSpectrumTitle(spectrumTitle);
-                     	    	
-                                // parse the FASTA header
-                                Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
-                                String accession = header.getAccession();
-                                hit.setAccession(accession);
-                                hit.setScore(domain.getDomainHyperScore());                
-                                hit.setPep(pep);
-                                hit.setQValue(qValue);
-                                hit.setType(searchEngineType);
-       						
-                                // Get and store the peptide.
-                                hit.setPeptideSequence(sequence);
-                                hit.setCharge(xTandemFile.getSupportData(spectrumNumber).getFragIonCharge());
-        						
-        						// Store peptide-spectrum association
-                                Protein protein;
-								try {
-									protein = FastaLoader.getProteinFromFasta(accession);
-									String description = protein.getHeader().getDescription();
-	                                hit.setProteinSequence(protein.getSequence().getSequence());
-	                                hit.setProteinDescription(description);
-	                                
-	                        		// Add protein for UniProt storing.
-	                        		UniprotQueryProteins.put(accession, null);
-	                                nHits++;
-	                                peptides.add(sequence);
-	                                SearchHits.add(hit);
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-            				}
-                	    }
-					}
+            	    // Only store if the search spectrum id is referenced.
+					if (SpectrumId2TitleMap.containsKey(spectrumId)) {
+						
+            	    	String spectrumTitle = SpectrumId2TitleMap.get(spectrumId);
+            	    	spectrumTitle = formatSpectrumTitle(spectrumTitle);
+            	    	String spectrumFilename = SpectrumTitle2FilenameMap.get(spectrumTitle);
+            	    	
+            	    	double qValue = targetDecoyAnalysis.getQValue((float) domain.getDomainHyperScore());
+        	            Double pep = 1.0;
+        	    	    	
+        				if (qValue < 0.1) {
+                            // Parse the FASTA header.
+        					Header header = Header.parseFromFASTA(protMap.getProtein(domain.getProteinKey()).getLabel());
+        					String accession = header.getAccession();
+                            
+        					XTandemHit hit = new XTandemHit();
+    						hit.setSpectrumId(spectrumId);
+                 	    	hit.setSpectrumFilename(spectrumFilename);  
+                 	    	hit.setSpectrumTitle(spectrumTitle);
+                            hit.setAccession(accession);
+                            hit.setScore(domain.getDomainHyperScore());                
+                            hit.setPep(pep);
+                            hit.setQValue(qValue);
+                            hit.setType(searchEngineType);
+   						
+                            // Get and store the peptide.
+                            hit.setPeptideSequence(sequence);
+                            hit.setCharge(xTandemFile.getSupportData(spectrumNumber).getFragIonCharge());
+    						
+    						// Store peptide-spectrum association
+                            Protein protein;
+							try {
+								protein = FastaLoader.getProteinFromFasta(accession);
+								String description = protein.getHeader().getDescription();
+                                hit.setProteinSequence(protein.getSequence().getSequence());
+                                hit.setProteinDescription(description);
+                                
+                        		// Add protein for UniProt storing.
+                        		UniprotQueryProteins.put(accession, null);
+                                nHits++;
+                                SearchHits.add(hit);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+        				}
+            	    }
 				}
             }      
         }

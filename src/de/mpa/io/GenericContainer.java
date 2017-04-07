@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.compomics.util.experiment.identification.protein_sequences.SequenceFactory;
+
 import de.mpa.analysis.TargetDecoyAnalysis;
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
@@ -54,9 +56,9 @@ public class GenericContainer {
 	public static Set<String> ProteinAccs = new HashSet<String>();
 	
 	/**
-	 * The absolute path to the created FASTA file.
+	 * In-memory FASTA database.
 	 */
-	public static String CreatedFastaFilePath;
+	public static SequenceFactory SeqFactory = SequenceFactory.getInstance();
 	
 	/**
 	 * Number of total spectra.

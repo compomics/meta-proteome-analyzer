@@ -1,6 +1,5 @@
 package de.mpa.client.model;
 
-import java.awt.Cursor;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.jdesktop.swingx.JXErrorPane;
@@ -34,9 +32,6 @@ import de.mpa.client.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.graphdb.cypher.CypherQuery;
-import de.mpa.graphdb.io.QueryHandler;
-import de.mpa.graphdb.io.UserQueries;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.main.Parameters;
@@ -323,6 +318,7 @@ public class FileExperiment implements ProjectExperiment {
 				client.firePropertyChange("resetall", 0L, maxProgress);
 				client.firePropertyChange("resetcur", 0L, maxProgress);
 				
+
 				// Add search hits to result object.
 				for (SearchHit searchHit : searchHits) {
 					addProteinSearchHit(searchResult, searchHit, this.getID());

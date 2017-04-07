@@ -18,6 +18,7 @@ public class MatchPeptidesInFastaTest extends TestCase {
 	
 	private Database fastaDb;
 	private Set<String> peptides;
+	
 	@Before
 	public void setUp() throws IOException{
 		fastaDb = FastaUtilities.read("E://dbstuff//uniprot_sprot.fasta");
