@@ -493,6 +493,7 @@ public class ProjectPanel extends JPanel {
 						// Reset textfields
 						clientFrame.getStatusBar().getProjectTextField().setText("None");
 						clientFrame.getStatusBar().getExperimentTextField().setText("None");
+						ProjectPanel.this.setSelectedExperiment(null);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

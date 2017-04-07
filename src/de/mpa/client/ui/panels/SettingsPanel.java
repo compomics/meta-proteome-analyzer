@@ -176,7 +176,7 @@ public class SettingsPanel extends JPanel {
         this.batchBtn.setRolloverIcon(IconConstants.SAVE_FILE_ROLLOVER_ICON);
         this.batchBtn.setPressedIcon(IconConstants.SAVE_FILE_PRESSED_ICON);
         this.batchBtn.setEnabled(true);
-        this.batchBtn.setToolTipText("Press button to select and process several .mgf or .dat files" +
+        this.batchBtn.setToolTipText("Button to select and process several .mgf or .dat files" +
 				" and store each file in a separate experiment.");
         this.batchBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -209,13 +209,13 @@ public class SettingsPanel extends JPanel {
         this.searchBtn = new JButton("Search selected spectra", IconConstants.SEARCH_ICON);
         this.searchBtn.setRolloverIcon(IconConstants.SEARCH_ROLLOVER_ICON);
         this.searchBtn.setPressedIcon(IconConstants.SEARCH_PRESSED_ICON);
-        this.searchBtn.setFont(this.searchBtn.getFont().deriveFont(Font.BOLD, this.searchBtn.getFont().getSize2D()*1.25f));
+//        this.searchBtn.setFont(this.searchBtn.getFont().deriveFont(Font.BOLD, this.searchBtn.getFont().getSize2D()*1.25f));
         this.searchBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				new ProcessWorker().execute();
 			}
 		});
-        this.searchBtn.setEnabled(true);
+        SettingsPanel.this.searchBtn.setEnabled(false);
 
 //		buttonPnl.add(connectBtn, CC.xy(2, 2));
 		buttonPnl.add(this.batchBtn, CC.xy(4, 2));
@@ -270,6 +270,20 @@ public class SettingsPanel extends JPanel {
 		}
 		// Start searches in a worker
 		new BatchProcessWorker(expFileMap, mascotFile).execute();
+	}
+	
+	/**
+	 * allows external activation of the search button (intended user: FilePanel)
+	 */
+	public void enableSearchBtn() {
+		this.searchBtn.setEnabled(true);
+	}
+	
+	/**
+	 * allows external deactivation of the search button (intended user: FilePanel)
+	 */
+	public void disableSearchBtn() {
+		this.searchBtn.setEnabled(false);
 	}
 
 	/**

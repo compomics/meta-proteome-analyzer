@@ -297,7 +297,8 @@ public class MascotStorager extends BasicStorager {
 											// we might need to go one level deeper before adding the accession (we do here)
 											String[] accession = accession_split[1].split("[|]");
 											if (accession.length>1) {
-												proteinlist.add(accession[1]);
+												// TODO: does it work? (fix from 0 -> 1)
+												proteinlist.add(accession[0]);
 											} else {
 												proteinlist.add(accession_split[1]);
 											}

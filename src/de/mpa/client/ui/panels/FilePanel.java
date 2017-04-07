@@ -1334,6 +1334,12 @@ public class FilePanel extends JPanel implements Busyable {
 		public void setSelectedCount(int numSelected) {
 			this.numSelected = numSelected;
             setText(createText());
+            // if spectra are selected the search button will be enabled
+            if (numSelected != 0) {
+            	FilePanel.this.settingsPnl.enableSearchBtn();
+            } else {
+            	FilePanel.this.settingsPnl.disableSearchBtn();
+            }
 		}
 		
 	}

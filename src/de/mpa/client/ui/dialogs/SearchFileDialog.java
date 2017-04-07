@@ -92,9 +92,13 @@ public class SearchFileDialog extends JDialog {
 		// set up for input
 		JPanel searchDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JPanel searchFileParameterPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
-		JLabel filesLabel = new JLabel("Select .dat or .mgf files: ");
-		JLabel filesTxt = new JLabel("No Files Selected");
-		JCheckBox newExperimentPerFile = new JCheckBox("Save the results into a single experiment for all files.");
+		JLabel filesLabel = new JLabel("Select .dat or .mgf files");
+		JLabel mascotTxt = new JLabel("Database for Mascot-Searches");
+		JCheckBox newExperimentPerFile = new JCheckBox("Single experiment.");
+		JCheckBox allInOneExperiment = new JCheckBox("New Experiment for each selected File.");
+		// init checkboxes
+		newExperimentPerFile.setSelected(false);
+		allInOneExperiment.setSelected(true);
 		
 		// Load the resources settings via input stream.
 		Properties prop = new Properties();
@@ -139,7 +143,7 @@ public class SearchFileDialog extends JDialog {
 						mgfNumber = mgfNumber + 1; 
 					 }
 				}
-				filesTxt.setText(mgfNumber + " '.mgf'-files and " + datNumber + " '.dat'-files selected");
+				filesLabel.setText(mgfNumber + " '.mgf'-files and " + datNumber + " '.dat'-files selected");
 			}
 		});
 		
@@ -149,8 +153,22 @@ public class SearchFileDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (newExperimentPerFile.isSelected()) {
 					SearchFileDialog.this.singleExperiment = true;
+					allInOneExperiment.setSelected(false);
 				} else {
 					SearchFileDialog.this.singleExperiment = false;
+					allInOneExperiment.setSelected(true);
+				}
+			}
+		});
+		allInOneExperiment.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (allInOneExperiment.isSelected()) {
+					SearchFileDialog.this.singleExperiment = false;
+					newExperimentPerFile.setSelected(false);
+				} else {
+					SearchFileDialog.this.singleExperiment = true;
+					newExperimentPerFile.setSelected(true);
 				}
 			}
 		});
@@ -163,14 +181,15 @@ public class SearchFileDialog extends JDialog {
 		
 		
 		searchFileParameterPnl.add(filesLabel, 	CC.xy(2, 2));
-		searchFileParameterPnl.add(filesTxt, 	CC.xy(2, 4));
-		searchFileParameterPnl.add(mascotFastaFileCbx, 	CC.xy(2, 6));
+		searchFileParameterPnl.add(mascotTxt, 	CC.xy(2, 4));
+		searchFileParameterPnl.add(mascotFastaFileCbx, 	CC.xy(4, 4));
 		searchFileParameterPnl.add(newExperimentPerFile, 	CC.xy(2, 8));
+		searchFileParameterPnl.add(allInOneExperiment, 	CC.xy(2, 10));
 		searchFileParameterPnl.add(browseButton, 	CC.xy(4, 2));
 		
 		
 		// Configure 'OK' button
-		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
+		JButton okBtn = new JButton("Start Search", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
