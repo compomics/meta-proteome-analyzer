@@ -111,18 +111,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 
-		// Export graphML file
-		JMenuItem graphmlItem = new JMenuItem("GraphML File...", IconConstants.GRAPH_ICON);
-		graphmlItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				exportGraphML();
-			}
-		});
-
 		exportMenu.add(mpaItem);
 		exportMenu.add(csvItem);	
-//		exportMenu.add(graphmlItem);
 		
 		this.setExportMenuEnabled(false);
 		
@@ -195,32 +185,6 @@ public class ClientFrameMenuBar extends JMenuBar {
     	new ExportDialog(clientFrame, "Results Export", true, true, exportFields);
     }
     
-    /**
-     * Executed when the graphML menu item is triggered. Via a file chooser the user can select the destination of the GraphML file.
-     */
-	private void exportGraphML() {
-		new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				JFileChooser chooser = new ConfirmFileChooser();
-				chooser.setFileFilter(Constants.GRAPHML_FILE_FILTER);
-				chooser.setAcceptAllFileFilterUsed(false);
-				int returnVal = chooser.showSaveDialog(clientFrame);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File selFile = chooser.getSelectedFile();
-					if (selFile != null) {
-						String filePath = selFile.getPath();
-						if (!filePath.toLowerCase().endsWith(".graphml")) {
-							filePath += ".graphml";
-						}
-						Client.getInstance().getGraphDatabaseHandler().exportGraph(new File(filePath));
-					}
-				}
-				return null;
-			}
-		}.execute();
-	}
-	
 	/**
 	 * This method is being executed when the help menu item is selected.
 	 */

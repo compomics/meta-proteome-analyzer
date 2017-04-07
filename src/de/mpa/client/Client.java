@@ -28,8 +28,6 @@ import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.graphdb.insert.GraphDatabaseHandler;
-import de.mpa.graphdb.setup.GraphDatabase;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.task.ResourceProperties;
@@ -62,11 +60,6 @@ public class Client {
 	 * Flag for debugging options.
 	 */
 	private boolean debug;
-	
-	/**
-	 * GraphDatabaseHandler.
-	 */
-	private GraphDatabaseHandler graphDatabaseHandler;
 	
 	/**
 	 * List of MGF files
@@ -148,25 +141,6 @@ public class Client {
 			}
 		}
 	}
-
-	/**
-	 * Returns the GraphDatabaseHandler object.
-	 * @return The GraphDatabaseHandler object.
-	 */
-	synchronized public void setupGraphDatabaseContent() {
-		// If graph database is already in use.
-		if (graphDatabaseHandler != null) {
-			// Shutdown old graph database.
-			graphDatabaseHandler.shutDown();
-		}
-		
-		// Create a new graph database.
-		GraphDatabase graphDb = new GraphDatabase("target/graphdb", true);
-		
-		// Setup the graph database handler. 
-		graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
-		graphDatabaseHandler.setData(dbSearchResult);
-	}		
 
 	/**
 	 * Writes the current database search result object to a the specified file.
@@ -264,13 +238,6 @@ public class Client {
 	 */
 	public PostProcessingParameters getResultParameters() {
 		return this.resultParams;
-	}
-	/**
-	 * Returns the {@link GraphDatabaseHandler} object.
-	 * @return {@link GraphDatabaseHandler}
-	 */
-	public GraphDatabaseHandler getGraphDatabaseHandler() {
-		return graphDatabaseHandler;
 	}
 
 	/**
