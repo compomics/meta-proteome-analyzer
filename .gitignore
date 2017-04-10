@@ -1,0 +1,13 @@
+/bin/
+/config.properties
+/mpa.jar
+/root.log
+/test/
+/built/
+/dbscheme/
+/generator/
+/script/
+/target/
+/uniprot-japi-client/
+/build.xml
+/server_export.xml

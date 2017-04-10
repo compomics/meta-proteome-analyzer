@@ -1,7 +1,0 @@
-<bioml>
-	<note type="input" label="spectrum, minimum peaks">123</note>
-	<note type="input" label="scoring, x ions">yes</note>
-	<note type="input" label="scoring, y ions">no</note>
-	<note type="input" label="scoring, b ions">no</note>
-	<note type="input" label="scoring, c ions">yes</note>
-</bioml>
