@@ -203,7 +203,8 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							String pep_seq = rs.getString("pepseq");
 							String prot_description = rs.getString("description");
 							Long ssid = rs.getLong("searchspectrumid");
-							String spectrum_title = rs.getString("title");
+							Long spectrum_titlehash = rs.getLong("titlehash");
+//							String spectrum_title = rs.getString("title");
 							Long uniprotid = rs.getLong("fk_uniprotentryid");
 							// search algorithm specific vars
 							// DEALS WITH SEARCHHIT
@@ -223,19 +224,8 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 							}
 							// DEALS WITH PSM
 							// construct PSM key
-							String psm_key = null;
-							if (spectrum_title.contains("File") && spectrum_title.contains("Spectrum") && spectrum_title.contains("scans")) {
-								String[] spectitle_split = spectrum_title.split("(File)|(Spectrum)|(scans)");
-								if (spectrum_title.contains("( \\(id)")) {
-									psm_key = spectitle_split[1] + spectitle_split[2].split("( \\(id)")[0];
-								} else {
-									psm_key = spectitle_split[1] + spectitle_split[2];
-								}
-							} else {
-								psm_key = spectrum_title;
-							}
-							// new psm-key spec-title + pepseq
-							psm_key = psm_key + pep_seq;
+//							// new psm-key spec-titlehash + pepseq
+							String psm_key = spectrum_titlehash.toString() + pep_seq;
 							PeptideSpectrumMatch psm;
 							// check psm redundancy and find psm
 							if (psm_mapping.containsKey(psm_key)) {
@@ -248,7 +238,7 @@ public class MultipleDatabaseExperiments extends AbstractExperiment{
 								psm_mapping.put(psm_key, psm);
 							}
 							psm.addExperimentID(expID);
-							psm.setTitle(spectrum_title);
+							psm.setTitle(spectrum_titlehash.toString());
 							// DEALS WITH PEPTIDE
 							PeptideHit pephit = null;
 							if (peptide_mapping.containsKey(pep_seq)) {

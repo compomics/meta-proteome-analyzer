@@ -30,7 +30,9 @@ public class Spectrum extends SpectrumTableAccessor {
      * @param aConn     Connection to read the spectrum File from.
      * @return Spectrum Spectrum DAO with the data.
      * @throws SQLException when the retrieval did not succeed.
+     * @deprecated should use titlehas instead
      */
+    @Deprecated
     public static Spectrum findFromTitle(String title, Connection aConn) throws SQLException {
     	Spectrum temp = null;
         PreparedStatement ps = aConn.prepareStatement(getBasicSelect() +
@@ -54,15 +56,15 @@ public class Spectrum extends SpectrumTableAccessor {
      * This method will find a spectrum file from the current connection, based on the spectrum title.
      * It works more efficient than the other method (findFromTitle()), but it's still pretty bad ...  
      *
-     * @param title String with the spectrum name of the spectrum file to find.
+     * @param titlehash String with the spectrum name of the spectrum file to find.
      * @param aConn     Connection to read the spectrum File from.
      * @return Spectrum Spectrum DAO with the data.
      * @throws SQLException when the retrieval did not succeed.
      */
-    public static Spectrum findFromTitleQuicker(String title, Connection aConn) throws SQLException {
+    public static Spectrum findFromTitleQuicker(long titlehash, Connection aConn) throws SQLException {
     	Spectrum temp = null;
-        PreparedStatement ps = aConn.prepareStatement("SELECT spectrum.spectrumid FROM spectrum WHERE spectrum.title LIKE ?");
-        ps.setString(1, title);
+        PreparedStatement ps = aConn.prepareStatement("SELECT spectrum.spectrumid FROM spectrum WHERE spectrum.titlehash = ?");
+        ps.setLong(1, titlehash);
         ResultSet rs = ps.executeQuery();
         int counter = 0;
         Long id = null;
@@ -82,9 +84,6 @@ public class Spectrum extends SpectrumTableAccessor {
         	rs = ps.executeQuery();
         	while (rs.next()) {
         		temp = new Spectrum(rs);
-        		if (!(temp.getTitle().trim().contentEquals(title.trim()))) {
-        			temp = null;
-        		}
         	}
         	rs.close();
         	ps.close();

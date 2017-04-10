@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import com.compomics.util.db.interfaces.Deleteable;
 import com.compomics.util.db.interfaces.Persistable;
@@ -56,6 +57,11 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	protected String iTitle;
 
+	
+	/**
+	 * This long-value is derived from the title and represents a unique ID for a spectrum
+	 */
+	protected long iTitleHash;
 
 	/**
 	 * This variable represents the contents for the 'precursor_mz' column.
@@ -126,6 +132,11 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * This variable represents the key for the 'title' column.
 	 */
 	public static final String TITLE = "TITLE";
+	
+	/**
+	 * A hash for the title to uniquely identify spectra across samples 
+	 */
+	public static final String TITLEHASH = "titlehash";
 
 	/**
 	 * This variable represents the key for the 'precursor_mz' column.
@@ -199,6 +210,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		if(aParams.containsKey(SpectrumTableAccessor.TITLE)) {
             iTitle = (String)aParams.get(SpectrumTableAccessor.TITLE);
 		}
+		if(aParams.containsKey(SpectrumTableAccessor.TITLEHASH)) {
+            iTitleHash = (long)aParams.get(SpectrumTableAccessor.TITLEHASH);
+		} 
 		if(aParams.containsKey(SpectrumTableAccessor.PRECURSOR_MZ)) {
             iPrecursor_mz = (Number)aParams.get(SpectrumTableAccessor.PRECURSOR_MZ);
 		}
@@ -243,6 +257,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	public SpectrumTableAccessor(ResultSet aResultSet) throws SQLException {
         iSpectrumid = aResultSet.getLong("spectrumid");
         iTitle = (String)aResultSet.getObject("title");
+        iTitleHash = (Long) aResultSet.getObject("titlehash");
         iPrecursor_mz = (Number)aResultSet.getObject("precursor_mz");
         iPrecursor_int = (Number)aResultSet.getObject("precursor_int");
         iPrecursor_charge = aResultSet.getLong("precursor_charge");
@@ -274,6 +289,15 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public String getTitle() {
 		return iTitle;
+	}
+	
+	/**
+	 * Return the titleHash opf this spectrum (column: titlehash) 
+	 * 
+	 * @return iTitleHash
+	 */
+	public long getTitleHash() {
+		return iTitleHash;
 	}
 
 	/**
@@ -383,6 +407,16 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public void setTitle(String aTitle) {
         iTitle = aTitle;
+        iUpdated = true;
+	}
+	
+	/**
+	 * Set the value for the title-Hash
+	 * 
+	 * @param aTitleHash
+	 */
+	public void setTitleHash(long aTitleHash) {
+        iTitleHash = aTitleHash;
         iUpdated = true;
 	}
 
@@ -525,6 +559,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			hits++;
             this.iSpectrumid = lRS.getLong("spectrumid");
             this.iTitle = (String)lRS.getObject("title");
+            this.iTitleHash = (long)lRS.getObject("titlehash");
             this.iPrecursor_mz = (Number)lRS.getObject("precursor_mz");
             this.iPrecursor_int = (Number)lRS.getObject("precursor_int");
             this.iPrecursor_charge = lRS.getLong("precursor_charge");
@@ -549,7 +584,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 *
 	 * @return   String with the basic select statement for this table.
 	 */
-	public static String getBasicSelect(){
+	public static String getBasicSelect() {
 		return "select * from spectrum";
 	}
 
@@ -587,15 +622,16 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		PreparedStatement lStat = aConn.prepareStatement("UPDATE spectrum SET spectrumid = ?, title = ?, precursor_mz = ?, precursor_int = ?, precursor_charge = ?, mzarray = ?, intarray = ?, chargearray = ?, total_int = ?, maximum_int = ?, creationdate = ?, modificationdate = CURRENT_TIMESTAMP WHERE spectrumid = ?");
 		lStat.setLong(1, this.iSpectrumid);
 		lStat.setObject(2, this.iTitle);
-		lStat.setObject(3, this.iPrecursor_mz);
-		lStat.setObject(4, this.iPrecursor_int);
-		lStat.setLong(5, this.iPrecursor_charge);
-		lStat.setObject(6, this.iMzarray);
-		lStat.setObject(7, this.iIntarray);
-		lStat.setObject(8, this.iChargearray);
-		lStat.setObject(9, this.iTotal_int);
-		lStat.setObject(10, this.iMaximum_int);
-		lStat.setObject(11, this.iCreationdate);
+		lStat.setObject(3, this.iTitleHash);
+		lStat.setObject(4, this.iPrecursor_mz);
+		lStat.setObject(5, this.iPrecursor_int);
+		lStat.setLong(6, this.iPrecursor_charge);
+		lStat.setObject(7, this.iMzarray);
+		lStat.setObject(8, this.iIntarray);
+		lStat.setObject(9, this.iChargearray);
+		lStat.setObject(10, this.iTotal_int);
+		lStat.setObject(11, this.iMaximum_int);
+		lStat.setObject(12, this.iCreationdate);
 		lStat.setLong(12, this.iSpectrumid);
 		int result = lStat.executeUpdate();
 		lStat.close();
@@ -612,7 +648,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public int persist(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement(
-				"INSERT INTO spectrum (spectrumid, title, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
+				"INSERT INTO spectrum (spectrumid, title, titlehash, precursor_mz, precursor_int, precursor_charge, mzarray, intarray, chargearray, total_int, maximum_int, creationdate, modificationdate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", Statement.RETURN_GENERATED_KEYS);
 		if(this.iSpectrumid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
@@ -623,45 +659,50 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		} else {
 			lStat.setObject(2, this.iTitle);
 		}
-		if(this.iPrecursor_mz == null) {
-			lStat.setNull(3, 3);
+		if(this.iTitleHash == 0L) {
+			lStat.setNull(3, 12);
 		} else {
-			lStat.setObject(3, this.iPrecursor_mz);
+			lStat.setObject(3, this.iTitleHash);
 		}
-		if(this.iPrecursor_int == null) {
+		if(this.iPrecursor_mz == null) {
 			lStat.setNull(4, 3);
 		} else {
-			lStat.setObject(4, this.iPrecursor_int);
+			lStat.setObject(4, this.iPrecursor_mz);
+		}
+		if(this.iPrecursor_int == null) {
+			lStat.setNull(5, 3);
+		} else {
+			lStat.setObject(5, this.iPrecursor_int);
 		}
 		if(this.iPrecursor_charge == Long.MIN_VALUE) {
-			lStat.setNull(5, 4);
+			lStat.setNull(6, 4);
 		} else {
-			lStat.setLong(5, this.iPrecursor_charge);
+			lStat.setLong(6, this.iPrecursor_charge);
 		}
 		if(this.iMzarray == null) {
-			lStat.setNull(6, -1);
-		} else {
-			lStat.setObject(6, this.iMzarray);
-		}
-		if(this.iIntarray == null) {
 			lStat.setNull(7, -1);
 		} else {
-			lStat.setObject(7, this.iIntarray);
+			lStat.setObject(7, this.iMzarray);
 		}
-		if(this.iChargearray == null) {
+		if(this.iIntarray == null) {
 			lStat.setNull(8, -1);
 		} else {
-			lStat.setObject(8, this.iChargearray);
+			lStat.setObject(8, this.iIntarray);
+		}
+		if(this.iChargearray == null) {
+			lStat.setNull(9, -1);
+		} else {
+			lStat.setObject(9, this.iChargearray);
 		}
 		if(this.iTotal_int == null) {
-			lStat.setNull(9, 3);
-		} else {
-			lStat.setObject(9, this.iTotal_int);
-		}
-		if(this.iMaximum_int == null) {
 			lStat.setNull(10, 3);
 		} else {
-			lStat.setObject(10, this.iMaximum_int);
+			lStat.setObject(10, this.iTotal_int);
+		}
+		if(this.iMaximum_int == null) {
+			lStat.setNull(11, 3);
+		} else {
+			lStat.setObject(11, this.iMaximum_int);
 		}
 		int result = lStat.executeUpdate();
 
@@ -698,4 +739,45 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		return iKeys;
 	}
 
+	/**
+	 * This method uses the structure of the title to create a unique identifier for a spectrum across all possible samples.
+	 * It is unknown if this may cause problems at some point, when an instrument produces different mgf-files.
+	 * 
+	 * @param title --> spectrum-title-string (see above)
+	 * @return titleHash --> the hashed value as a Long
+	 */
+	public static long createTitleHash(String title) {
+		// the title usually has the following format, where X is an integer:
+		// normal case:
+		// File: XXXX SpectrumXXXX scans: XXXX
+		// from mascot:
+		// File: XXXX SpectrumXXXX scans: XXXX ( id: XXXXXXXX)
+		
+		//initialize
+		long titleHash = 0L;
+		String mascot_remove_id = title.split("( \\(id)")[0].trim();
+		String[] parsed_integer_values;
+		// construct the title-hash
+		if (title.contains("File")) {
+			// normal case
+			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)");
+			titleHash = Long.parseLong((parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim()));
+		} else if (title.contains("Cmpd")) {
+			// weird case (old versions?)
+			titleHash = Long.parseLong(title.replaceAll("\\D+",""));
+		} else {
+			// completely different case: parse out ALL numbers, if no numbers present we are screwed -> generate random number and hope
+			String hashstring = title.replaceAll("\\D+","");
+			if (hashstring.length() != 0) {
+				// there are some numbers in there ...
+				titleHash = Long.parseLong(hashstring);
+			} else {
+				// generate random number
+				Random rand = new Random();
+				titleHash = rand.nextLong();
+			}
+		}
+		return titleHash;
+	}
+	
 }

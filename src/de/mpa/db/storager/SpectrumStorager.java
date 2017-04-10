@@ -8,10 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+
 import de.mpa.client.Client;
 import de.mpa.db.MapContainer;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.SpectrumTableAccessor;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.SixtyFourBitStringSupport;
@@ -83,8 +86,12 @@ public class SpectrumStorager extends BasicStorager {
      * @throws SQLException
      */
     public void store() throws IOException, SQLException {
+    	
+    	// TODO: batchinserts and paging for redundancy check, title-hash
+    	
         // Get all spectra from the reader.
         this.spectra = this.reader.getSpectrumFiles();
+        
         // reopen connection
         if (this.conn.isClosed()) {
             this.conn = Client.getInstance().getConnection();
@@ -93,116 +100,95 @@ public class SpectrumStorager extends BasicStorager {
         this.title2SearchIdMap = new HashMap<String, Long>();
         this.fileName2IdMap = new HashMap<String, Long>();
         
-        int countNewSpectra = 0;
-        int countDuplicates = 0;
+        // commit in batches of "commit_size"-length
+        int commit_size = 100;
+        int commit_counter = 0;
         
         // Iterate over all spectra.
         for (MascotGenericFile mgf : this.spectra) {
             // The filename, remove leading and trailing whitespace.
             String title = mgf.getTitle();
-            Spectrum query =  Spectrum.findFromTitleQuicker(title, this.conn);
-            Long searchspectrumid;
-			if (query == null) {
-				countNewSpectra++;
-				/* New spectrum section */
-				// generate a new query 
-				query = this.generateQuery(mgf);
-	            HashMap<Object, Object> data = new HashMap<Object, Object>(12);
-            
-	            // The spectrum title
-                data.put(Spectrum.TITLE, title);
-                
-                // The precursor mass.
-                data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
-                
-                // The precursor intensity
-                data.put(Spectrum.PRECURSOR_INT, mgf.getIntensity());
-                
-                // The precursor charge
-                data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
-                
-                // The m/z array
-                TreeMap<Double, Double> peakMap = new TreeMap<Double, Double>(mgf.getPeaks());
-				Double[] mzDoubles = peakMap.keySet().toArray(new Double[0]);
-                data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
-                
-                // The intensity array
-				Double[] inDoubles = peakMap.values().toArray(new Double[0]);
-                data.put(Spectrum.INTARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
-                
-                // The charge array
-                TreeMap<Double, Integer> chargeMap = new TreeMap<Double, Integer>(mgf.getCharges());
-                for (Double mz : peakMap.keySet()) {
-					if (!chargeMap.containsKey(mz)) {
-						chargeMap.put(mz, 0);
-					}
-				}
-				Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
-				data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
-                
-				// TODO: insert retention times
-				
-                // The total intensity.
-                data.put(Spectrum.TOTAL_INT, 0.0); //mgf.getTotalIntensity());
-                
-                // The highest intensity.
-                data.put(Spectrum.MAXIMUM_INT, 0.0); //mgf.getHighestIntensity());
+            long titlehash = SpectrumTableAccessor.createTitleHash(title);
+            /* New spectrum section */
+            // generate a new query 
+            Spectrum query = this.generateQuery(mgf);
+            HashMap<Object, Object> data = new HashMap<Object, Object>(13);
 
-                // Create the database object.
-                query = new Spectrum(data);
-                query.persist(this.conn);
+            // The spectrum title
+            data.put(Spectrum.TITLE, title);
 
-                // Get the spectrumid from the generated keys.
-                Long spectrumid = (Long) query.getGeneratedKeys()[0];
-                
-                /* Searchspectrum storager*/
-                HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
+            // The title hash (for quick identification and unique insert)
+            data.put(Spectrum.TITLEHASH, titlehash);
 
-                searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
-                searchData.put(Searchspectrum.FK_EXPERIMENTID, this.experimentid);
+            // The precursor mass.
+            data.put(Spectrum.PRECURSOR_MZ, mgf.getPrecursorMZ());
 
-                Searchspectrum searchSpectrum = new Searchspectrum(searchData);
-                searchSpectrum.persist(this.conn);
+            // The precursor intensity
+            data.put(Spectrum.PRECURSOR_INT, mgf.getIntensity());
 
-                // Get the search spectrum id from the generated keys.
-                searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
-                
-            } else {
-            	countDuplicates++;
-            	/* Redundant spectrum section */
-            	long spectrumid = query.getSpectrumid();
-            	
-            	// Find possibly already existing search spectrum for this experiment
-                Searchspectrum searchspectrum = Searchspectrum.findFromSpectrumIDAndExperimentID(spectrumid, this.experimentid, this.conn);
-                
-				if (searchspectrum == null) {
-                    /* Searchspectrum storager*/
-					// No search spectrum exists for this query, generate a new one
-                    HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
-                    searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
-                    searchData.put(Searchspectrum.FK_EXPERIMENTID, this.experimentid);
-                    Searchspectrum searchSpectrum = new Searchspectrum(searchData);
-                    searchSpectrum.persist(this.conn);
-                    
-                    // Get the search spectrum id from the generated keys.
-                    searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
-                    
-                } else {
-                	// A search spectrum already exists, grab its ID
-                	searchspectrumid = searchspectrum.getSearchspectrumid();
-                }
-                
+            // The precursor charge
+            data.put(Spectrum.PRECURSOR_CHARGE, Long.valueOf(mgf.getCharge()));
+
+            // The m/z array
+            TreeMap<Double, Double> peakMap = new TreeMap<Double, Double>(mgf.getPeaks());
+            Double[] mzDoubles = peakMap.keySet().toArray(new Double[0]);
+            data.put(Spectrum.MZARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(mzDoubles));
+
+            // The intensity array
+            Double[] inDoubles = peakMap.values().toArray(new Double[0]);
+            data.put(Spectrum.INTARRAY, SixtyFourBitStringSupport.encodeDoublesToBase64String(inDoubles));
+
+            // The charge array
+            TreeMap<Double, Integer> chargeMap = new TreeMap<Double, Integer>(mgf.getCharges());
+            for (Double mz : peakMap.keySet()) {
+            	if (!chargeMap.containsKey(mz)) {
+            		chargeMap.put(mz, 0);
+            	}
             }
-			
+            Integer[] chInts = chargeMap.values().toArray(new Integer[0]);
+            data.put(Spectrum.CHARGEARRAY, SixtyFourBitStringSupport.encodeIntsToBase64String(chInts));
+
+            // TODO: insert retention times
+
+            // The total intensity.
+            data.put(Spectrum.TOTAL_INT, 0.0); //mgf.getTotalIntensity());
+
+            // The highest intensity.
+            data.put(Spectrum.MAXIMUM_INT, 0.0); //mgf.getHighestIntensity());
+
+            Long spectrumid = null;
+            // just insert, if spectrum already exists catch exception and grab spectrumid
+            try {
+            	// Create the database object.
+            	query = new Spectrum(data);
+            	query.persist(this.conn);
+            	// Get the spectrumid from the generated keys.
+            	spectrumid = (Long) query.getGeneratedKeys()[0];
+            } catch (MySQLIntegrityConstraintViolationException errConstraint) {
+            	spectrumid = Spectrum.findFromTitleQuicker(titlehash, conn).getSpectrumid();
+            } catch (SQLException errSql){
+            	errSql.printStackTrace();
+            }
+
+            HashMap<Object, Object> searchData = new HashMap<Object, Object>(5);
+            searchData.put(Searchspectrum.FK_SPECTRUMID, spectrumid);
+            searchData.put(Searchspectrum.FK_EXPERIMENTID, this.experimentid);
+            Searchspectrum searchSpectrum = new Searchspectrum(searchData);
+            searchSpectrum.persist(this.conn);
+            Long searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
+
             // Fill the cache maps
             this.title2SearchIdMap.put(query.getTitle(), searchspectrumid);
             this.fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
-            this.conn.commit();
+        	// commit if count reaches batch-value
+            commit_counter++;
+            if ((commit_counter % commit_size) == 0) {
+            	this.conn.commit();
+            }
         }
-        
-        System.out.println("new: " + countNewSpectra);
-		System.out.println("dup: " + countDuplicates);
-        
+        // commit the rest
+        this.conn.commit();
+        // prepare maps for later 
         MapContainer.SpectrumTitle2IdMap = this.title2SearchIdMap;
         this.log.debug("No. of spectra: " + this.title2SearchIdMap.size());
         MapContainer.FileName2IdMap = this.fileName2IdMap;

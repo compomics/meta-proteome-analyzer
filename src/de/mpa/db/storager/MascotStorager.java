@@ -38,6 +38,7 @@ import de.mpa.db.accessor.Pep2prot;
 import de.mpa.db.accessor.ProteinAccessor;
 import de.mpa.db.accessor.Searchspectrum;
 import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.accessor.SpectrumTableAccessor;
 import de.mpa.db.accessor.UniprotentryAccessor;
 import de.mpa.db.accessor.UniprotentryTableAccessor;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -442,13 +443,18 @@ public class MascotStorager extends BasicStorager {
 										String spectrum_title = current_query.getTitle();
 										// title formatting
 										spectrum_title = spectrum_title.split("( \\(id)")[0];
+										
+										// TODO: new method for spectrum storage
+										
 										// Redundancy check if already in sql database (e.g. from other search engines)
-										Spectrum query =  Spectrum.findFromTitle(spectrum_title, conn);
+//										Spectrum query =  Spectrum.findFromTitle(spectrum_title, conn);
+							            long titlehash = SpectrumTableAccessor.createTitleHash(spectrum_title);
+							            Spectrum query =  Spectrum.findFromTitleQuicker(titlehash, this.conn);
 										if (query == null) {
-											// update the spectrum title to the shortend one
-											current_query.setTitle(spectrum_title);
+											// update the spectrum title to the shortened one
+//											current_query.setTitle(spectrum_title);
 											// not stored spectra will be stored
-											spectrumId = this.storeSpectrum(current_query);
+											spectrumId = this.storeSpectrum(current_query, titlehash);
 										} else {
 											// get id if already stored
 											spectrumId = query.getSpectrumid();
@@ -549,23 +555,23 @@ public class MascotStorager extends BasicStorager {
 			e.printStackTrace();
 		}
 
-		// final commit can probably go
+		// final commit
 		conn.commit();
 //		conn.setAutoCommit(true);
 
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		// this part of the code remained unchanged
 		// retrieve UniProt entries
-		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-		client.firePropertyChange("resetall", 0L, 100L);
-		client.firePropertyChange("indeterminate", false, true);
+//		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
+//		client.firePropertyChange("resetall", 0L, 100L);
+//		client.firePropertyChange("indeterminate", false, true);
 
 //		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
 		//Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
 
-		client.firePropertyChange("indeterminate", true, false);
-		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
-		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());
+//		client.firePropertyChange("indeterminate", true, false);
+//		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
+//		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());
 
 //		// iterate entries
 //		for (String accession : this.uniProtCandidates.keySet()) {
@@ -816,11 +822,12 @@ public class MascotStorager extends BasicStorager {
 	 * @return spectrumID The ID of the spectra in the database.
 	 * @throws SQLException
 	 */
-	private Long storeSpectrum(Query query) throws SQLException {
+	private Long storeSpectrum(Query query, long titlehash) throws SQLException {
 
 		Long spectrumid = null;
 		HashMap<Object, Object> data = new HashMap<Object, Object>(12);
 		data.put(Spectrum.TITLE, query.getTitle().trim());
+		data.put(Spectrum.TITLEHASH, titlehash);
 		data.put(Spectrum.PRECURSOR_MZ, query.getPrecursorMZ());
 		data.put(Spectrum.PRECURSOR_INT, query.getPrecursorIntensity());
 		String chargeString = query.getChargeString();
