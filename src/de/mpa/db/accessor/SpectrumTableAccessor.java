@@ -753,6 +753,8 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		// from mascot:
 		// File: XXXX SpectrumXXXX scans: XXXX ( id: XXXXXXXX)
 		
+		// other weird cases exist, in this case we take the first 10 numbers
+		
 		//initialize
 		long titleHash = 0L;
 		String mascot_remove_id = title.split("( \\(id)")[0].trim();
@@ -770,7 +772,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			String hashstring = title.replaceAll("\\D+","");
 			if (hashstring.length() != 0) {
 				// there are some numbers in there ...
-				titleHash = Long.parseLong(hashstring);
+				// take first 10 numbers and use as hash
+				String numString = hashstring.substring(0, 10);
+				titleHash = Long.parseLong(numString);
 			} else {
 				// generate random number
 				Random rand = new Random();
