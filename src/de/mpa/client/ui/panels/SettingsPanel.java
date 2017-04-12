@@ -79,11 +79,6 @@ public class SettingsPanel extends JPanel {
 	private DatabaseSearchSettingsPanel databasePnl;
 
 	/**
-	 * Spectral library settings panel.
-	 */
-	private SpectralLibrarySettingsPanel specLibPnl;
-
-	/**
 	 * The search button.
 	 */
 	private JButton searchBtn;
@@ -124,7 +119,6 @@ public class SettingsPanel extends JPanel {
 		JPanel settingsPnl = new JPanel(new FormLayout("p", "f:p:g, 5dlu, p"));
 
         this.databasePnl = new DatabaseSearchSettingsPanel();
-        specLibPnl = this.databasePnl.getSpectralLibrarySettingsPanel();
 
 		JPanel buttonPnl = new JPanel(new FormLayout("8dlu, p, 7dlu, p, 7dlu, p:g, 7dlu, p:g, 8dlu", "2dlu, p, 7dlu"));
 
@@ -313,8 +307,7 @@ public class SettingsPanel extends JPanel {
 					List<String> filenames = null;
 					// Collect search settings.
 					DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
-					SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
-					SearchSettings settings = new SearchSettings(dbss, sss, experimentID);
+					SearchSettings settings = new SearchSettings(dbss, null, experimentID);
 					// FIXME: Please change that and get files from file tree.
 					if (dbss.isMascot()) {		
 						// Get Instance of a fastaLoader
@@ -411,8 +404,7 @@ public class SettingsPanel extends JPanel {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 				// Collect search settings.
 				DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
-				SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
-				SearchSettings settings = new SearchSettings(dbss, sss, 1L);
+				SearchSettings settings = new SearchSettings(dbss, null, 1L);
 				if (dbss.isMascot()) {
 					// Get Instance of a fastaLoader
 					FastaLoader fastaLoader = FastaLoader.getInstance();
@@ -571,8 +563,7 @@ public class SettingsPanel extends JPanel {
 			
 			// collect search settings
 			DbSearchSettings dbss = (SettingsPanel.this.databasePnl.isEnabled()) ? SettingsPanel.this.databasePnl.gatherDBSearchSettings() : null;
-			SpecSimSettings sss = (SettingsPanel.this.specLibPnl.isEnabled()) ? SettingsPanel.this.specLibPnl.gatherSpecSimSettings() : null;
-			SearchSettings settings = new SearchSettings(dbss, sss, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
+			SearchSettings settings = new SearchSettings(dbss, null, ClientFrame.getInstance().getProjectPanel().getSelectedExperiment().getID());
 			client.firePropertyChange("new message", null, "SEARCHES RUNNING");
 			// dispatch search request		
 			client.firePropertyChange("indeterminate", false, true);

@@ -12,7 +12,6 @@ import de.mpa.client.model.specsim.SpectrumSpectrumMatch;
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.db.storager.OmssaStorager;
-import de.mpa.db.storager.SpecSimStorager;
 import de.mpa.db.storager.SpectrumStorager;
 import de.mpa.db.storager.Storager;
 import de.mpa.db.storager.XTandemStorager;
@@ -127,56 +126,6 @@ public class DBManager {
 		storager.run();
 	}
 
-	/**
-	 * Stores found spectrum-spectrum matches to the DB.
-	 * @param results List of SSMs.
-	 * @throws InterruptedException 
-	 */
-	public void storeSpecSimResults(List<SpectrumSpectrumMatch> results) throws InterruptedException {
-		SpecSimStorager storager = new SpecSimStorager(this.conn, results);
-		Thread thread = new Thread(storager);
-		thread.start();
-		thread.join();
-	}
-	
-//	/**
-//	 * Method to query and store the UniProt entries. 
-//	 * Retrieval is based on the UniProt JAPI.
-//	 * @throws SQLException
-//	 */
-//	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
-//		System.out.println("Do the uniprot");
-//		
-//		// Retrieve the UniProt entries.
-//		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
-//		Set<String> keySet = proteinHits.keySet();
-//		Map<String, List<Long>> accessionMap = new TreeMap<String, List<Long>>();
-//		for (String string : keySet) {
-//			System.out.println("ProteinsACC " +  string);
-//			// check if uniprotentry exists
-//			if (Uniprotentry.check_if_UniProtEntry_exists_from_proteinID(proteinHits.get(string), conn)) {
-//				System.out.println("prooved check 1");
-//				if (string.matches("[A-NR-Z][0-9][A-Z][A-Z0-9][A-Z0-9][0-9]|[OPQ][0-9][A-Z0-9][A-Z0-9][A-Z0-9][0-9]")) {
-//					System.out.println("prooved check 2");
-//					if (accessionMap.containsKey(string)) {
-//						accessionMap.get(string).add(proteinHits.get(string));
-//					} else {
-//						List<Long> prot_id_list = new ArrayList<Long>();
-//						accessionMap.put(string, prot_id_list);
-//					}
-//				}
-//			}
-//		}
-//		System.out.println("Size " + accessionMap.keySet().size());
-//		if (accessionMap.keySet().size() > 0) {
-//			// instantiate UniProtUtilites class			
-//			UniProtUtilities uniprotweb = new UniProtUtilities();
-//			uniprotweb.make_uniprot_entries(accessionMap);
-//			// clearing of map.
-//			MapContainer.UniprotQueryProteins.clear();
-//		}
-//	}
-	
 	/**
 	 * Returns the connection.
 	 * @return

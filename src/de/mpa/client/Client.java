@@ -60,7 +60,6 @@ import de.mpa.db.accessor.ExperimentAccessor;
 import de.mpa.db.accessor.Omssahit;
 import de.mpa.db.accessor.SearchHit;
 import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.SpecSearchHit;
 import de.mpa.db.accessor.Spectrum;
 import de.mpa.db.accessor.XTandemhit;
 import de.mpa.db.extractor.SpectrumExtractor;
@@ -111,11 +110,6 @@ public class Client {
 	 * Database search result.
 	 */
 	private DbSearchResult dbSearchResult;
-
-	/**
-	 * Spectral similarity search result.
-	 */
-	private SpecSimResult specSimResult;
 
 	/**
 	 * Flag denoting whether client is in viewer mode.
@@ -397,39 +391,6 @@ public class Client {
 		ClientFrame.getInstance().restart();
 	}
 	
-	/**
-	 * Returns the current spectral similarity search result.
-	 * @param expContent The experiment content.
-	 * @return The current spectral similarity search result.
-	 */
-	public SpecSimResult getSpecSimResult(AbstractExperiment expContent) {
-		if (this.specSimResult == null) {
-			this.retrieveSpecSimResult(expContent.getID());
-		}
-		return this.specSimResult;
-	}
-
-	/**
-	 * Returns the result(s) of a spectral similarity search belonging to a particular experiment.
-	 * @param experimentID The experiment's primary key.
-	 */
-	private void retrieveSpecSimResult(Long experimentID) {
-		try {
-			this.getConnection();
-			this.specSimResult = SpecSearchHit.getAnnotations(experimentID, this.conn, this.pSupport);
-		} catch (Exception e) {
-			this.pSupport.firePropertyChange("new message", null, "FETCHING RESULTS FAILED");
-			this.pSupport.firePropertyChange("indeterminate", true, false);
-			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-		}
-	}
-
-	/**
-	 * Resets the current spectral similarity search result reference.
-	 */
-	public void clearSpecSimResult() {
-		this.specSimResult = null;
-	}
 
 	/**
 	 * Returns the GraphDatabaseHandler object.

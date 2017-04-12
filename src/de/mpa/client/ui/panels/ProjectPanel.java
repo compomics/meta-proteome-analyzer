@@ -892,27 +892,7 @@ public class ProjectPanel extends JPanel {
 		return currentExperiment;
 	}
 	
-	/**
-	 * Returns the current search result object.
-	 * @return the current search result
-	 * @deprecated too many searchresult-objects
-	 */
-	@Deprecated
-	public DbSearchResult getSearchResult() {
-		System.out.println("Shoul never be called");
-		if (currentExperiment != null) {
-			if (!currentExperiment.equals(selectedExperiment)) {
-				// clear cached results
-				currentExperiment.clearSearchResult();
-				currentExperiment = selectedExperiment;
-			}
-			return currentExperiment.getSearchResult();
-		} else if (selectedExperiment != null) {
-			currentExperiment = selectedExperiment;
-			return currentExperiment.getSearchResult();
-		}
-		return null;
-	}
+	
 	
 	public boolean isBusy() {
 		return this.busy;

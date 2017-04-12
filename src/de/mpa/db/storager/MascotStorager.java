@@ -448,7 +448,7 @@ public class MascotStorager extends BasicStorager {
 										
 										// Redundancy check if already in sql database (e.g. from other search engines)
 //										Spectrum query =  Spectrum.findFromTitle(spectrum_title, conn);
-							            long titlehash = SpectrumTableAccessor.createTitleHash(spectrum_title);
+							            long titlehash = SpectrumTableAccessor.createTitleHash(spectrum_title, current_query.getPrecursorMZ(), current_query.getPrecursorIntensity());
 							            Spectrum query =  Spectrum.findFromTitleQuicker(titlehash, this.conn);
 										if (query == null) {
 											// update the spectrum title to the shortened one
@@ -557,100 +557,7 @@ public class MascotStorager extends BasicStorager {
 
 		// final commit
 		conn.commit();
-//		conn.setAutoCommit(true);
-
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
-		// this part of the code remained unchanged
-		// retrieve UniProt entries
-//		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
-//		client.firePropertyChange("resetall", 0L, 100L);
-//		client.firePropertyChange("indeterminate", false, true);
-
-//		uniprotweb.make_uniprot_entries(this.uniProtCandidates);
-		//Map<String, ReducedProteinData> proteinData = uniprotweb.getUniProtData(new ArrayList<String>(this.uniProtCandidates));
-
-//		client.firePropertyChange("indeterminate", true, false);
-//		client.firePropertyChange("resetall", 0L, (long) this.uniProtCandidates.size());
-//		client.firePropertyChange("resetcur", 0L, (long) this.uniProtCandidates.size());
-
-//		// iterate entries
-//		for (String accession : this.uniProtCandidates.keySet()) {
-//			// retrieve protein data from local cache
-//			ReducedProteinData rpd = proteinData.get(accession);
-//			if (rpd == null) {
-//				// candidate accession apparently is not a primary UniProt accession,
-//				// therefore look in secondary accessions
-//				outerloop:
-//					for (ReducedProteinData value : proteinData.values()) {
-//						List<SecondaryUniProtAccession> secondaryAccessions =
-//								value.getUniProtEntry().getSecondaryUniProtAccessions();
-//						for (SecondaryUniProtAccession secAcc : secondaryAccessions) {
-//							if (secAcc.getValue().equals(accession)) {
-//								rpd = value;
-//								break outerloop;
-//							}
-//						}
-//					}
-//			// if accession still cannot be found skip altogether, tough luck!
-//			if (rpd == null) {
-//				client.firePropertyChange("progressmade", true, false);
-//				continue;
-//			}
-//			}
-//			// retrieve protein from database
-//			ProteinAccessor protein = ProteinAccessor.findFromAttributes(accession, conn);
-//			long proteinID = protein.getProteinid();
-//			// look for already stored UniProt entry in database
-//			Uniprotentry upe = Uniprotentry.findFromProteinID(proteinID, conn);
-//			if (upe != null) {
-//				// a UniProt entry already exists, we therefore probably like to update only the protein sequence
-//				protein.setSequence(rpd.getUniProtEntry().getSequence().getValue());
-//				protein.update(conn);
-//			} else {
-//				// no UniProt entry exists, therefore we create a new one
-//				UniProtEntry uniProtEntry = rpd.getUniProtEntry();
-//				// Get taxonomy id
-//				Long taxID = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0).getValue());
-//				// Get EC Numbers
-//				String ecNumbers = "";
-//				List<String> ecNumberList = uniProtEntry.getProteinDescription().getEcNumbers();
-//				if (ecNumberList.size() > 0) {
-//					for (String ecNumber : ecNumberList) {
-//						ecNumbers += ecNumber + ";";
-//					}
-//					ecNumbers = Formatter.removeLastChar(ecNumbers);
-//				}
-//				// Get ontology keywords
-//				String keywords = "";
-//				List<Keyword> keywordsList = uniProtEntry.getKeywords();
-//
-//				if (keywordsList.size() > 0) {
-//					for (Keyword kw : keywordsList) {
-//						keywords += kw.getValue() + ";";
-//					}
-//					keywords = Formatter.removeLastChar(keywords);
-//				}
-//				// Get KO numbers
-//				String koNumbers = "";
-//				List<DatabaseCrossReference> xRefs = uniProtEntry.getDatabaseCrossReferences(DatabaseType.KO);
-//				if (xRefs.size() > 0) {
-//					for (DatabaseCrossReference xRef : xRefs) {
-//						koNumbers += xRef.getPrimaryId().getValue() + ";";
-//					}
-//					koNumbers = Formatter.removeLastChar(koNumbers);
-//				}
-//				// get UniRef identifiers
-//				String uniref100 = rpd.getUniRef100EntryId();
-//				String uniref90 = rpd.getUniRef90EntryId();
-//				String uniref50 = rpd.getUniRef50EntryId();
-//				Uniprotentry.addUniProtEntryWithProteinID(proteinID,
-//						taxID, ecNumbers, koNumbers, keywords,
-//						uniref100, uniref90, uniref50, conn);
-//			}
-//			client.firePropertyChange("progressmade", true, false);
-//		}
-//		conn.commit();
-//		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 	}
 
 	/**

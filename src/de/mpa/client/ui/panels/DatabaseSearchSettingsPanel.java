@@ -32,7 +32,6 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.settings.MascotParameters;
 import de.mpa.client.settings.OmssaParameters;
 import de.mpa.client.settings.ParameterMap;
-import de.mpa.client.settings.SpectralLibraryParameters;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
@@ -118,11 +117,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	 */
 	private final ParameterMap mascotParams = new MascotParameters();
 	
-	/**
-	 * Parameter map containing advanced settings for spectral library searching.
-	 */
-	private final ParameterMap specLibParams = new SpectralLibraryParameters();
-
 	/**
 	 * Checkbox for using X!Tandem search engine.
 	 */
@@ -341,20 +335,10 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				AdvancedSettingsDialog.showDialog(
-						ClientFrame.getInstance(), "Spectral Library Advanced Parameters", true, DatabaseSearchSettingsPanel.this.specLibParams);
+						ClientFrame.getInstance(), "Spectral Library Advanced Parameters", true, null);
 			}
 		});
-		specLibSetBtn.setEnabled(false);
-		specLibChk.setEnabled(false);
-		specLibChk.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				boolean selected = specLibChk.isSelected();
-				specLibSetBtn.setEnabled(selected);
-				((Component) DatabaseSearchSettingsPanel.this.specLibParams.get("settings").getValue()).setEnabled(selected);
-			}
-		});
-		
+
 		searchEngPnl.add(this.xTandemChk, CC.xy(2, 2));
 		searchEngPnl.add(xTandemSetBtn, CC.xy(4, 2));
 		searchEngPnl.add(this.omssaChk, CC.xy(2, 4));
@@ -548,13 +532,4 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	public boolean getpepHitsUse() {
 		return this.addProtChk.isSelected();
 	}
-	
-	/**
-	 * Returns the spectral library settings panel.
-	 * @return the spectral library settings panel
-	 */
-	public SpectralLibrarySettingsPanel getSpectralLibrarySettingsPanel() {
-		return (SpectralLibrarySettingsPanel) specLibParams.get("settings").getValue();
-	}
-
 }

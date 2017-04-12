@@ -108,7 +108,7 @@ public class SpectrumStorager extends BasicStorager {
         for (MascotGenericFile mgf : this.spectra) {
             // The filename, remove leading and trailing whitespace.
             String title = mgf.getTitle();
-            long titlehash = SpectrumTableAccessor.createTitleHash(title);
+            long titlehash = SpectrumTableAccessor.createTitleHash(title, mgf.getPrecursorMZ(), mgf.getIntensity());
             /* New spectrum section */
             // generate a new query 
             Spectrum query = this.generateQuery(mgf);

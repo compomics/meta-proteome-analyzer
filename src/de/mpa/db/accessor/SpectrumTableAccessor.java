@@ -746,21 +746,19 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 	 * @param title --> spectrum-title-string (see above)
 	 * @return titleHash --> the hashed value as a Long
 	 */
-	public static long createTitleHash(String title) {
+	public static long createTitleHash(String title, double precursor_mz, double precursor_int) {
 		// the title usually has the following format, where X is an integer:
 		// normal case:
 		// File: XXXX SpectrumXXXX scans: XXXX
 		// from mascot:
 		// File: XXXX SpectrumXXXX scans: XXXX ( id: XXXXXXXX)
 		
-		// other weird cases exist, in this case we take the first 10 numbers
-		
 		//initialize
 		long titleHash = 0L;
 		String mascot_remove_id = title.split("( \\(id)")[0].trim();
 		String[] parsed_integer_values;
 		// construct the title-hash
-		if (title.contains("File")) {
+		if (title.contains("File") && title.contains("Spectrum")) {
 			// normal case
 			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)");
 			titleHash = Long.parseLong((parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim()));
@@ -768,17 +766,20 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			// weird case (old versions?)
 			titleHash = Long.parseLong(title.replaceAll("\\D+",""));
 		} else {
-			// completely different case: parse out ALL numbers, if no numbers present we are screwed -> generate random number and hope
+			// completely different case: parse out ALL numbers, Use the precursor_mz
+			// get 4 digits from precursor mz
+			String precursor_mzdigits = String.valueOf(precursor_mz).replaceAll("\\D+","");
+			String precursor_intdigits = String.valueOf(precursor_int).replaceAll("\\D+","");
+			// remove all non-digits
 			String hashstring = title.replaceAll("\\D+","");
-			if (hashstring.length() != 0) {
+			if (hashstring.length() >= 2) {
 				// there are some numbers in there ...
-				// take first 10 numbers and use as hash
-				String numString = hashstring.substring(0, 10);
+				// take first and last 3 numbers and use as hash together with the precursor digits
+				String numString = precursor_mzdigits.substring(0, 4) + precursor_intdigits.substring(0, 4)  + hashstring.substring(hashstring.length() - 3, hashstring.length() - 1);
 				titleHash = Long.parseLong(numString);
 			} else {
-				// generate random number
-				Random rand = new Random();
-				titleHash = rand.nextLong();
+				// use all precursor digits and hope for the best
+				titleHash = Long.parseLong(precursor_mzdigits.substring(0, 4) + precursor_intdigits.substring(0, 4));
 			}
 		}
 		return titleHash;
