@@ -192,8 +192,8 @@ public class GraphQueryDialog extends JDialog {
             this.userQueries = QueryHandler.importUserQueries(queryFile);
 		} catch (Exception e) {
             this.userQueries = new UserQueries();
-			JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), "Unable to load the user queries", null, e, ErrorLevel.SEVERE, null));
-			e.printStackTrace();
+			//JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), "Unable to load the user queries", null, e, ErrorLevel.SEVERE, null));
+			//e.printStackTrace();
 		}
 	}
 
