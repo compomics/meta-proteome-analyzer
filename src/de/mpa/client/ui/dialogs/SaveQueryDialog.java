@@ -138,7 +138,7 @@ public class SaveQueryDialog extends JDialog {
 		protected Object doInBackground() {
 			
 			try {
-				File queryFile = new File(getClass().getResource(Constants.CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
+				File queryFile = Constants.getUserQueriesFile();
 				UserQueries userQueries = SaveQueryDialog.this.owner.getUserQueries();
 				CypherQuery userQuery = SaveQueryDialog.this.owner.getSelectedQuery();
 				userQuery.setTitle(SaveQueryDialog.this.queryNameTtf.getText());

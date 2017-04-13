@@ -214,8 +214,6 @@ public class Constants {
 
 	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, UniProtUtilities.TaxonomyRank.NO_RANK, "none");
 
-	// Get constants for BLAST
-	// Check for OS
 	public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
 	
 	/**
@@ -263,10 +261,14 @@ public class Constants {
 	 *             if the file could not be found
 	 */
 	public static File getUserQueriesFile() throws URISyntaxException {
-		return new File(Constants.class.getResource(CONFIGURATION_PATH_JAR + "userqueries.xml").toURI());
+		return new File(Constants.CONFIGURATION_PATH_JAR + SEP + "userqueries.xml");
 	}
 
 	/**
+	 * 
+	 * C:\Users\kaysc\Desktop\MPAv2\software\MPApackage\conf
+	 * C:\Users\kaysc\Desktop\MPAv2\\software\MPApackage\conf\\userqueries.xml
+	 * 
 	 * Returns the projects file.
 	 * 
 	 * @return the projects file
