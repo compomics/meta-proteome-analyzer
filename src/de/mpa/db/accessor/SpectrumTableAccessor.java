@@ -772,14 +772,18 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			String precursor_intdigits = String.valueOf(precursor_int).replaceAll("\\D+","");
 			// remove all non-digits
 			String hashstring = title.replaceAll("\\D+","");
-			if (hashstring.length() >= 2) {
+			if ((hashstring.length() >= 2) && (precursor_mzdigits.length() >= 4) && (precursor_intdigits.length() >= 4)) {
 				// there are some numbers in there ...
 				// take first and last 3 numbers and use as hash together with the precursor digits
 				String numString = precursor_mzdigits.substring(0, 4) + precursor_intdigits.substring(0, 4)  + hashstring.substring(hashstring.length() - 3, hashstring.length() - 1);
 				titleHash = Long.parseLong(numString);
 			} else {
 				// use all precursor digits and hope for the best
-				titleHash = Long.parseLong(precursor_mzdigits.substring(0, 4) + precursor_intdigits.substring(0, 4));
+				try {
+					titleHash = Long.parseLong( (precursor_mzdigits + precursor_intdigits).substring(0, 12));
+				} catch (StringIndexOutOfBoundsException errStr) {
+					titleHash = Long.parseLong( (precursor_mzdigits + precursor_intdigits));
+				}
 			}
 		}
 		return titleHash;
