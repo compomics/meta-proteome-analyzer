@@ -23,12 +23,18 @@ public class PropertyLoader {
 
 	// central place to change property names
 	public static final String BASE_PATH = "base_path";
+	
+	
+	public static final String XAMPP_PATH = "xampp_path";
 
 	// fasta settings
 	public static final String FILES_FASTA = "file.fastalist";
 	public static final String PATH_FASTA = "path.fasta";
 	public static final String BLAST_DB = "path.blastdb";
-
+	//NEW
+	public static final String FASTA_FORMATER_PATH = "fasta.formater.path";
+	public static final String BLAST_FILE = "blast.file";
+	
 	// connection-settings
 	public static final String DB_ADRESS = "dbAddress";
 	public static final String DB_NAME = "dbName";
@@ -70,11 +76,11 @@ public class PropertyLoader {
 
 	static {
 		// load the property file
-		File propFile = new File("./config.properties");
+		File propFile = new File("./config_LINUX.properties");
 
 
 		if(System.getProperty("os.name").toLowerCase().indexOf("win")!=-1)
-			propFile = new File("./config.properties");
+			propFile = new File("./config_WINDOWS.properties");
 		//System.out.println(propFile.getAbsolutePath());
 		// error and exit if not found
 		if (!propFile.exists()) {
@@ -113,6 +119,7 @@ public class PropertyLoader {
 		String pathFasta = getProperty(BASE_PATH)
 				+ getProperty(PATH_FASTA);
 		System.out.println(pathFasta);
+		
 	}
 
 }

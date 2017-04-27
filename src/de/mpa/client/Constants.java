@@ -67,7 +67,7 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-    public static final String VER_NUMBER = "2-beta17";
+    public static final String VER_NUMBER = "2-beta18";
 
 	/**
 	 * The client frame minimum width in pixels.
@@ -161,7 +161,7 @@ public class Constants {
 	/**
 	 * Path of the fastaformater script
 	 */
-	public static final String FASTA_FORMATER_PATH = Constants.FASTA_PATHS + "fastaformat.sh";
+	public static final String FASTA_FORMATER_PATH = Constants.FASTA_PATHS + PropertyLoader.getProperty(PropertyLoader.FASTA_FORMATER_PATH);
 
 	/**
 	 * This constant is used for database backups, the executable file is used
@@ -224,7 +224,7 @@ public class Constants {
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "software" + Constants.SEP + "blast" + Constants.SEP + "bin" + Constants.SEP + "blastp";
+	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + PropertyLoader.getProperty(PropertyLoader.BLAST_FILE);
 
 	/**
 	 * File for a dummy fasta for each BLAST query

@@ -38,6 +38,8 @@ public class RunFastaFormater {
 		fastaFormatQuery.add(fastaPath.split("[.]")[0]);
 		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
 		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
+		//third path to xampp installation
+		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.XAMPP_PATH));
 
 		// Add database 
 		fastaFormatQuery.trimToSize();
