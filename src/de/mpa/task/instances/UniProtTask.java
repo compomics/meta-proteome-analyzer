@@ -63,6 +63,7 @@ public class UniProtTask extends Task {
 		
 		// Retrieve the UniProt entries.
 		Map<String, ReducedUniProtEntry> uniProtEntries = GenericContainer.UniprotQueryProteins;
+		
 		Set<String> keySet = uniProtEntries.keySet();
 		List<String> accessions = new ArrayList<String>();
 		int counter = 0;

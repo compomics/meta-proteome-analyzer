@@ -968,7 +968,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			
 			// Enable 'Export' menu
 			ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
-			menuBar.setExportMenuEnabled(true);
+			menuBar.setMenuItemsEnabled(true);
 		}
 	
 	}

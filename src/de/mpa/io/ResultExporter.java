@@ -295,7 +295,6 @@ public class ResultExporter {
 				ProteinHit proteinHit = (ProteinHit) entry.getValue();
 				// Export not metagenomic hits
 				// if(!proteinHit.getAccession().matches("^\\d*$")) {
-				
 				if (hasFeature[0]) writer.append(++protCount + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[1]) writer.append(proteinHit.getAccession() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[2]) writer.append(proteinHit.getDescription() + Constants.TSV_FILE_SEPARATOR);

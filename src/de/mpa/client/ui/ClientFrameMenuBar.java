@@ -9,8 +9,11 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import javax.swing.ImageIcon;
@@ -28,12 +31,14 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
+import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
+import de.mpa.client.model.dbsearch.ProteinHit;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog;
@@ -41,6 +46,7 @@ import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.io.GenericContainer;
+import de.mpa.task.instances.UniProtTask;
 
 /**
  * The main application frame's menu bar.
@@ -63,6 +69,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * The 'Export' menu.
 	 */
 	private JMenu exportMenu;
+
+	private JMenuItem updateUniProtItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -125,7 +133,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		/* create Export menu */
 		exportMenu = new JMenu("Export");
 		
-		JMenuItem exportExperimentItem = new JMenuItem("MPA Experiment...", IconConstants.MPA_SMALL_ICON);
+		JMenuItem exportExperimentItem = new JMenuItem("Export MPA Experiment", IconConstants.MPA_SMALL_ICON);
 		exportExperimentItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -134,7 +142,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 		
 		// Export CSV results
-		JMenuItem csvItem = new JMenuItem("CSV File...", IconConstants.EXCEL_EXPORT_ICON);
+		JMenuItem csvItem = new JMenuItem("Export CSV File", IconConstants.EXCEL_EXPORT_ICON);
 		csvItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -145,7 +153,39 @@ public class ClientFrameMenuBar extends JMenuBar {
 		exportMenu.add(exportExperimentItem);
 		exportMenu.add(csvItem);	
 		
-		this.setExportMenuEnabled(false);
+		// Update Menu
+		JMenu updateMenu = new JMenu();		
+		updateMenu.setText("Update");
+		
+		// Find unreferenced UniProt entries in the database and try to fill them
+		updateUniProtItem = new JMenuItem();
+		updateUniProtItem.setText("Update UniProt Entries");
+		updateUniProtItem.setIcon(new ImageIcon(this.getClass().getResource("/de/mpa/resources/icons/uniprot16.png")));
+		updateUniProtItem.setEnabled(true);
+		updateUniProtItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new SwingWorker<Object, Object>() {
+					@Override
+					protected Object doInBackground()  {
+						
+						Set<String> accessions = Client.getInstance().getDatabaseSearchResult().getProteinHits().keySet();
+						for (String accession : accessions) {
+							GenericContainer.UniprotQueryProteins.put(accession, null);
+						}
+						
+						// Start the UniProt entry retrieval task.
+						UniProtTask uniProtTask = new UniProtTask();
+						uniProtTask.run();
+						
+						Client.getInstance().firePropertyChange("new message", null, "UPDATING UNIPROT ENTRIES FINISHED");
+						Client.getInstance().firePropertyChange("indeterminate", true,	false);
+						return null;
+					}	
+				}.execute();
+			}
+		});
+		updateMenu.add(updateUniProtItem);
+		this.setMenuItemsEnabled(false);
 		
 		// Help Menu
 		JMenu helpMenu = new JMenu();		
@@ -178,6 +218,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.add(fileMenu);
 		this.add(settingsMenu);
 		this.add(exportMenu);
+		this.add(updateMenu);
 		this.add(helpMenu);
 	}
 	
@@ -344,13 +385,14 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Sets the enable state of the 'Export' menu.
+	 * Sets the enable state of the different menu items.
 	 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
 	 */
-	public void setExportMenuEnabled(boolean enabled) {
+	public void setMenuItemsEnabled(boolean enabled) {
 		for (Component comp : exportMenu.getMenuComponents()) {
 			comp.setEnabled(enabled);
 		}
+		updateUniProtItem.setEnabled(enabled);
 	}
     
 }
