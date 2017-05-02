@@ -64,6 +64,10 @@ public class DbSearchResult implements Serializable {
 	 */
 	private int totalSpectra;
 	
+	/**
+	 * List of spectrum file paths. 
+	 */
+	private List<String> spectrumFilePaths;
 
 	/**
 	 * Constructs a result object from the specified project title, experiment
@@ -358,6 +362,22 @@ public class DbSearchResult implements Serializable {
 		}
 	}
 	
+	/**
+	 * Returns a list of spectrum file paths (to the original MGF files). 
+	 * @return spectrumFilePaths the list of spectrum file paths.
+	 */
+	public List<String> getSpectrumFilePaths() {
+		return spectrumFilePaths;
+	}
+	
+	/**
+	 * Sets a list of spectrum file paths.
+	 * @param spectrumFilePaths list of spectrum file paths
+	 */
+	public void setSpectrumFilePaths(List<String> spectrumFilePaths) {
+		this.spectrumFilePaths = spectrumFilePaths;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = (obj instanceof DbSearchResult);

@@ -20,38 +20,16 @@
 	<classpathentry kind="lib" path="lib/commons-discovery-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar" sourcepath="/scratch/javadoc/jfreechart-1.0.14.zip"/>
 	<classpathentry kind="lib" path="lib/jaligner.jar"/>
-	<classpathentry kind="lib" path="lib/blueprints-core-2.2.0.jar" sourcepath="C:/temp/src-jars/blueprints-core-2.2.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/blueprints-neo4j-graph-2.2.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://www.tinkerpop.com/docs/javadocs/blueprints/2.2.0/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/frames-2.2.0.jar" sourcepath="C:/temp/src-jars/frames-2.2.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/geronimo-jta_1.1_spec-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/mascotdatfile-3.4.6.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar" sourcepath="/scratch/javadoc/jgoodies-looks-2.5.3-sources"/>
 	<classpathentry kind="lib" path="lib/ColorPicker.jar"/>
-	<classpathentry kind="lib" path="lib/omssa-parser-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/xtandem-parser-1.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/xxindex-0.11.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.3.2.jar"/>
-	<classpathentry kind="lib" path="lib/lucene-core-3.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-cypher-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-graph-algo-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-graph-matching-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-jmx-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-kernel-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-lucene-index-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-shell-1.9.9.jar"/>
-	<classpathentry kind="lib" path="lib/scala-library-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib/server-api-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/concurrentlinkedhashmap-lru-1.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/neo4j-udc-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-binding-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jaxrpc.jar"/>
 	<classpathentry kind="lib" path="lib/trove-3.0.3.jar"/>
@@ -143,6 +121,8 @@
 	<classpathentry kind="lib" path="lib/jackson-databind-2.7.5.jar"/>
 	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.7.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.9.jar"/>
-	<classpathentry kind="lib" path="lib/utilities-3.45.25.jar"/>
+	<classpathentry kind="lib" path="lib/utilities-4.11.4.jar"/>
+	<classpathentry kind="lib" path="lib/braf-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsuffixarrays-0.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

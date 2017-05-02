@@ -55,10 +55,12 @@ public class GenericContainer {
 	 */
 	public static Set<String> ProteinAccs = new HashSet<String>();
 	
+	public static String CurrentExperimentPath = null;
+	
 	/**
 	 * In-memory FASTA database.
 	 */
-	public static SequenceFactory SeqFactory = SequenceFactory.getInstance();
+//	public static SequenceFactory SeqFactory = SequenceFactory.getInstance();
 	
 	/**
 	 * Number of total spectra.

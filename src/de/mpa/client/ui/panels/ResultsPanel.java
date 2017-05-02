@@ -903,22 +903,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 		return dbPnl;
 	}
 
-//	/**
-//	 * Returns the spectral similarity search result panel.
-//	 * @return the spectral similarity search result panel
-//	 */
-//	public SpecSimResultPanel getSpectralSimilarityResultPanel() {
-//		return ssPnl;
-//	}
-
-	/**
-	 * Returns the graph database result panel.
-	 * @return the graph database result panel
-	 */
-//	public GraphDatabaseResultPanel getGraphDatabaseResultPanel() {
-//		return gdbPnl;
-//	}
-
 	/**
 	 * Class to fetch protein database search results in a background thread.
 	 * It's possible to fetch from the remote SQL database or from a local file instance.
@@ -936,7 +920,6 @@ public class ResultsPanel extends JPanel implements Busyable {
 				// Begin appearing busy
 				ResultsPanel.this.setBusy(true);
 				ResultsPanel.this.dbPnl.setBusy(true);
-//				ResultsPanel.this.gdbPnl.setBusy(true);
 
 				// Fetch the search result object
 				DbSearchResult newResult = client.getDatabaseSearchResult();

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,14 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.tree.TreePath;
-
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
-
 import de.mpa.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.analysis.taxonomy.TaxonomyNode;
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.SpectrumMatch;
@@ -49,13 +48,37 @@ public class ResultExporter {
 	}
 	
 	/**
+	 * This method exports the MPA experiment file and the input spectra.
+	 * @param filepath The path string pointing to the target file.
+	 * @param dbSearchResult The database search result object.
+	 * @throws IOException
+	 */
+	public static void exportExperiment(String filepath, DbSearchResult dbSearchResult) throws IOException {
+		// Iterate the spectrum file paths.
+		for (String spectrumFilePath : dbSearchResult.getSpectrumFilePaths()) {
+			File spectrumFile = new File(spectrumFilePath);
+			File parentFile = new File(filepath).getParentFile();
+			File createdSpectrumFile = new File(parentFile.getAbsolutePath() + File.separator + spectrumFile.getName());
+			// Check whether spectrum file is not already existing
+			if (!createdSpectrumFile.exists()) {
+				Files.copy(spectrumFile.toPath(), createdSpectrumFile.toPath());
+			}
+		}
+		
+		// Cut out ".mgf" from the output filename.
+		filepath = filepath.replaceAll(".mgf", "");
+		
+		// Dump MPA experiment to file.
+		Client.getInstance().dumpDatabaseSearchResult(dbSearchResult, filepath);
+	}
+	/**
 	 * This method exports the meta-protein results.
 	 * @param filePath The path string pointing to the target file.
-	 * @param result The database search result object.
+	 * @param dbSearchResult The database search result object.
 	 * @param exportHeaders The exported headers.
 	 * @throws IOException
 	 */
-	public static void exportMetaProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException {
+	public static void exportMetaProteins(String filePath, DbSearchResult dbSearchResult, List<ExportHeader> exportHeaders) throws IOException {
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 		boolean hasFeature[] = new boolean[14];
@@ -70,7 +93,7 @@ public class ResultExporter {
 		
 		// Filling the format with data
 		int metaProtCount = 0;
-		for (ProteinHit metaProteinHit : result.getMetaProteins()) {
+		for (ProteinHit metaProteinHit : dbSearchResult.getMetaProteins()) {
 			MetaProteinHit metaProtein = (MetaProteinHit) metaProteinHit;
 			if (hasFeature[0]) writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
 			if (hasFeature[1]) writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);

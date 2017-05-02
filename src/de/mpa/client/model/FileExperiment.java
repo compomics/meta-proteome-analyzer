@@ -74,11 +74,6 @@ public class FileExperiment implements ProjectExperiment {
 	private File resultFile = null;
 	
 	/**
-	 * The spectrum files.
-	 */
-	private List<File> spectrumFiles;
-	
-	/**
 	 * The search result object.
 	 */
 	private DbSearchResult searchResult;
@@ -87,6 +82,11 @@ public class FileExperiment implements ProjectExperiment {
 	 * The shared taxonomy node instance for undefined taxonomies.
 	 */
 	private TaxonomyNode unclassifiedNode;
+	
+	/**
+	 * List of spectrum file paths.
+	 */
+	private List<String> spectrumFilePaths;
 	
 	/**
 	 * Creates an empty file-based experiment.
@@ -240,53 +240,34 @@ public class FileExperiment implements ProjectExperiment {
 		}
 	}
 	
-	/**
-	 * Returns the spectrum file.
-	 * @return the spectrum file
-	 */
-	public List<File> getSpectrumFiles() {
-		return spectrumFiles;
-	}
-	
-	/**
-	 * Sets the spectrum files.
-	 * @param spectrumFiles the spectrum files to set
-	 */
-	public void setSpectrumFiles(List<File> spectrumFiles) {
-		this.spectrumFiles = spectrumFiles;
-	}
-	
 	public boolean hasSearchResult() {
 		return (resultFile != null) && resultFile.exists();
 	}
-
 
 	public DbSearchResult getSearchResult() {
 		if (searchResult != null) {
 			return searchResult;
 		}
 		Client client = Client.getInstance();
+		
 		if (resultFile != null) {
 			
 			client.firePropertyChange("new message", null, "READING RESULTS FILE");
 			client.firePropertyChange("resetall", 0L, 100L);
 			client.firePropertyChange("indeterminate", false, true);
-			
 			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(resultFile))))) {
 				searchResult = (DbSearchResult) ois.readObject();
-				
-//				ClientFrame.getInstance().getGraphDatabaseResultPanel().setResultsButtonEnabled(true);
+				searchResult.setSpectrumFilePaths(this.getSpectrumFilePaths());
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FINISHED");
-				
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				
 				client.firePropertyChange("new message", null, "READING RESULTS FILE FAILED");
 			}
 			client.firePropertyChange("indeterminate", true, false);
 			
-			List<File> spectrumFiles = this.getSpectrumFiles();
-			for (File file : spectrumFiles) {
+			// Iterate one or multiple spectrum files.
+			for (String filePath : this.getSpectrumFilePaths()) {
+				File file = new File(filePath);
 				String pathname = file.getAbsolutePath();
 				// Check if reader already has the current experiment selected.
 				if (GenericContainer.MGFReaders.get(pathname) == null || !file.getName().equals(GenericContainer.MGFReaders.get(pathname).getFilename())) {
@@ -431,10 +412,22 @@ public class FileExperiment implements ProjectExperiment {
 			experiments.remove(this);
 			this.serialize();
 			
-			// Delete the actual (*.mpa) result file.
+			// Delete the actual result files, i.e. MPA files + experiment directory. 
 			if (resultFile != null) {
+				String dirPath = resultFile.getParentFile().getAbsolutePath();
 				if (resultFile.exists() && resultFile.isFile()) {
 					resultFile.delete();
+				}
+				
+				// Remove the experiment directory.
+				File dir = new File(dirPath);
+				if (dir.isDirectory()) {
+					for (File file : dir.listFiles()) {
+						if (file.isFile() && file.getName().endsWith(".mgf")) {
+							file.delete();
+						}
+					}
+					dir.delete();
 				}
 			}
 			
@@ -483,5 +476,20 @@ public class FileExperiment implements ProjectExperiment {
 			FileExperiment.this.searchResult = tempResult;
 		}
 	}
-
+	
+	/**
+	 * Returns a list of spectrum file paths.
+	 * @return Spectrum file paths
+	 */
+	public List<String> getSpectrumFilePaths() {
+		return spectrumFilePaths;
+	}
+	
+	/**
+	 * Returns a list of  spectrum file paths.
+	 * @param spectrumFiles list of spectrum file paths
+	 */
+	public void setSpectrumFilePaths(List<String> spectrumFilePaths) {
+		this.spectrumFilePaths = spectrumFilePaths;
+	}
 }

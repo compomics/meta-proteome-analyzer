@@ -10,7 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -25,12 +28,14 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.PanelConfig;
-import de.mpa.task.ResourceProperties;
+import de.mpa.io.GenericContainer;
+import de.mpa.io.MascotGenericFileReader;
 
 public class SettingsPanel extends JPanel {
 	
@@ -115,7 +120,7 @@ public class SettingsPanel extends JPanel {
 					// Collect search settings.
 					DbSearchSettings searchSettings = databasePnl.collectSearchSettings();
 					FileExperiment selectedExperiment = projectPanel.getSelectedExperiment();
-					selectedExperiment.setSpectrumFiles(Client.getInstance().getMgfFiles());
+					selectedExperiment.setSpectrumFilePaths(client.getMgfFilePaths());
 					
 					// Run the searches.
 					client.runSearches(searchSettings);
@@ -139,10 +144,36 @@ public class SettingsPanel extends JPanel {
 				DbSearchResult searchResult = selectedExperiment.getSearchResult();
 				clientFrame.getProjectPanel().setResultsButtonState(true);
 				
-				String path = ResourceProperties.getInstance().getProperty("path.base");
-				File experimentFile = new File(path + File.separator + selectedExperiment.getTitle() + ".mpa");
+				String experimentPath = Constants.PROJECTS_PATH + File.separator + selectedExperiment.getTitle();
+				GenericContainer.CurrentExperimentPath = experimentPath;
+				File experimentDir = new File(experimentPath);
+				if (!experimentDir.exists()) {
+					experimentDir.mkdir();
+				}
+				
+				File experimentFile = new File(experimentPath + File.separator + selectedExperiment.getTitle() + ".mpa");
+				List<String> newSpectrumFilePaths = new ArrayList<>();
 				try {
+					// Add MGF files to experiment/projects file structure
+					for (String filePath : selectedExperiment.getSpectrumFilePaths()) {
+						File file = new File(filePath);
+						File createdFile = new File(experimentPath + File.separator + file.getName());
+						
+						// Check whether spectrum file is not already existing
+						if (!createdFile.exists()) {
+							Files.copy(file.toPath(), createdFile.toPath());
+						}
+						// Update the current reader mapping.
+						MascotGenericFileReader currentMGFReader = GenericContainer.MGFReaders.get(file.getAbsolutePath());
+						GenericContainer.MGFReaders.put(createdFile.getAbsolutePath(), currentMGFReader);
+						GenericContainer.MGFReaders.remove(file.getAbsolutePath());
+						newSpectrumFilePaths.add(createdFile.getAbsolutePath());
+					}
+					// Update the spectrum file paths accordingly.
+					selectedExperiment.setSpectrumFilePaths(newSpectrumFilePaths);
+					searchResult.setSpectrumFilePaths(newSpectrumFilePaths);
 					client.dumpDatabaseSearchResult(searchResult, experimentFile.getAbsolutePath());
+					
 					selectedExperiment.setResultFile(experimentFile);
 					selectedExperiment.serialize();
 				} catch (Exception e) {

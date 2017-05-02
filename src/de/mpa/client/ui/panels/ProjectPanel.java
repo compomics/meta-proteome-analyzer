@@ -40,6 +40,7 @@ import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.GenericContainer;
 
 /**
  * Panel for displaying, manipulating and selecting available projects and the
@@ -518,6 +519,7 @@ public class ProjectPanel extends JPanel {
 				// update text fields
 				String title = (selectedExperiment != null) ? selectedExperiment.getTitle() : "None";
 				selExperimentTtf.setText(title);
+				GenericContainer.CurrentExperimentPath = Constants.PROJECTS_PATH + File.separator + title;
 				clientFrame.getStatusBar().getExperimentTextField().setText(title);
 				
 				// enable buttons
@@ -733,7 +735,7 @@ public class ProjectPanel extends JPanel {
 	}
 	
 	/**
-	 * Selects the specified project in the experiments table.
+	 * Selects the specified experiment in the experiments table.
 	 * @param experiment the experiment to select
 	 */
 	public void setSelectedExperiment(FileExperiment experiment) {

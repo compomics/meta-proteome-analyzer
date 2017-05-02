@@ -13,8 +13,8 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -23,9 +23,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 
 import de.mpa.client.model.FileExperiment;
-import de.mpa.client.model.SpectrumMatch;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.ProteinHitList;
 import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.io.GenericContainer;
@@ -116,7 +114,7 @@ public class Client {
 		fastaLoader.setFastaFile(fastaFile);
 		
 		// Add fasta file to the Sequence factory
-		GenericContainer.SeqFactory.loadFastaFile(fastaFile);
+//		GenericContainer.SeqFactory.loadFastaFile(fastaFile);
 		File indexFile = new File(settings.getFastaFilePath() + ".fb");
 		if (indexFile.exists()) {
 			fastaLoader.setIndexFile(indexFile);
@@ -143,42 +141,24 @@ public class Client {
 	}
 
 	/**
-	 * Writes the current database search result object to a the specified file.
-	 * @param filename The String representing the desired file path and name.
-	 */
-	/**
-	 * Copies the backup raw database search result dump to the specified file
-	 * path, fetches the spectra referenced by the result object and stores them
+	 * Copies the backup raw database search result dump to the specified file path, fetches the spectra referenced by the result object and stores them
 	 * alongside the raw result.
 	 * @param pathname the string representing the desired file path and name for the result object
 	 */
 	public void exportDatabaseSearchResult(String pathname) {
-		DbSearchResult dbSearchResult = restoreBackupDatabaseSearchResult();
-		
-		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
-	
 		// Dump referenced spectra to separate MGF
 		this.firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		this.firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		this.firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
 		String status = "FINISHED";
-		// TODO: clean up mix of Java IO and NIO APIs
 		try {
-			String prefix = pathname.substring(0, pathname.indexOf('.'));
-			File mgfFile = new File(prefix + ".mgf");
-			FileOutputStream fos = new FileOutputStream(mgfFile);
-			long index = 0L;
-			for (SpectrumMatch spectrumMatch : spectrumMatches) {
-				spectrumMatch.setStartIndex(index);
-				// TODO: Write MGF to file. 
-//				MascotGenericFile mgf = Client.getInstance().getSpectrumBySearchSpectrumID(spectrumMatch.getSearchSpectrumID());
-//				mgf.writeToStream(fos);
-				index = mgfFile.length();
-				spectrumMatch.setEndIndex(index);
-				firePropertyChange("progressmade", false, true);
+			for (String spectrumFilePath : dbSearchResult.getSpectrumFilePaths()) {
+				File spectrumFile = new File(spectrumFilePath);
+				File parentFile = new File(pathname).getParentFile();
+				File createdSpectrumFile = new File(parentFile.getAbsolutePath() + File.separator + spectrumFile.getName());
+				// Check whether spectrum file is not already existing
+				if (!createdSpectrumFile.exists()) {
+					Files.copy(spectrumFile.toPath(), createdSpectrumFile.toPath());
+				}
 			}
-			fos.flush();
-			fos.close();
 		} catch (Exception e) {
 			JXErrorPane.showDialog(ClientFrame.getInstance(),
 					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
@@ -269,11 +249,16 @@ public class Client {
 	}
 	
 	/**
-	 * Returns the list of input files.
-	 * @return
+	 * Returns a list of paths for the MGF input files.
+	 * @return MGF file path list
 	 */
-	public List<File> getMgfFiles() {
-		return mgfFiles;
+	public List<String> getMgfFilePaths() {
+		List<String> filePathList = new ArrayList<>();
+		
+		for (File file : mgfFiles) {
+			filePathList.add(file.getAbsolutePath());
+		}
+		return filePathList;
 	}
 	
 	/**
@@ -291,9 +276,8 @@ public class Client {
 	 * @throws IOException if an I/O error occurs
 	 */
 	public void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
-		// store as compressed binary object
-		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
-				new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
+		// Store as compressed binary object.
+		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
 		oos.writeObject(result);
 		oos.flush();
 		oos.close();
@@ -330,5 +314,25 @@ public class Client {
 			currentExperiment.clearSearchResult();
 		}
 		return currentExperiment.getSearchResult();
+	}
+	
+	/**
+	 * Loads a database search result from an experimental file.
+	 * @param filePath Path to MPA experiment
+	 * @return DbSearchResult instance
+	 */
+	public DbSearchResult loadDatabaseSearchResultFromFile(String filePath) {
+		DbSearchResult dbSearchResult = null;
+		File experimentFile = new File(filePath);
+		// Check whether file exists and is actually a file.
+		if (experimentFile.exists() && experimentFile.isFile()) {
+			try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(experimentFile))))) {
+				dbSearchResult = (DbSearchResult) ois.readObject();
+			} catch (Exception e) {
+				e.printStackTrace();
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+		}
+		return dbSearchResult;
 	}
 }

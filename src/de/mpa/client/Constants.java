@@ -51,12 +51,12 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.4.2";
+	public final static String VER_NUMBER = "1.5.0";
 	
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "07/04/2017";
+	public final static String VER_DATE = "01/05/2017";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -137,6 +137,11 @@ public class Constants {
 	public static final String DEFAULT_SPECTRA_PATH = "test/de/mpa/resources/";
 	
 	/**
+	 * Path string of folder containing projects. 
+	 */
+	public final static String PROJECTS_PATH = "projects";
+	
+	/**
 	 * Path string of the temporary backup database search result object.
 	 */
 	public static final String BACKUP_RESULT = "/tmp.mpa";
@@ -144,8 +149,7 @@ public class Constants {
 	/**
 	 * Map of KEGG Orthology tree leaves.
 	 */
-	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(
-			KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
+	public static final KEGGMap KEGG_ORTHOLOGY_MAP = new KEGGMap(KEGGReader.readKEGGTree(CONFIGURATION_PATH_JAR + File.separator + "ko00001.keg"));
 	
 	public static final ECNode ENZYME_ROOT = Constants.createEnzymeTree();
 	

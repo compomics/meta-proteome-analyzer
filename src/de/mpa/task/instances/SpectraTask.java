@@ -51,7 +51,7 @@ public class SpectraTask extends Task {
 					
 					// Fill the cache maps
 					GenericContainer.SpectrumId2TitleMap.put(++spectrumCounter, title);
-					GenericContainer.SpectrumTitle2FilenameMap.put(title, file.getAbsolutePath());
+					GenericContainer.SpectrumTitle2FilenameMap.put(title, file.getName());
 					totalSpectra++;
 				}
 				GenericContainer.MGFReaders.put(file.getAbsolutePath(), reader);

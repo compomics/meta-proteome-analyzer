@@ -163,7 +163,11 @@ public class CmdLineInterface {
 			cliProject.setTitle("CLI Project");
 			FileExperiment cliExperiment = new FileExperiment("CLI Experiment", new Date(), cliProject);
 			cliExperiment.setId(1L);
-			cliExperiment.setSpectrumFiles(cliInput.getSpectrumFiles());
+			List<String> spectrumFilePaths = new ArrayList<>();
+			for (File file : cliInput.getSpectrumFiles()) {
+				spectrumFilePaths.add(file.getAbsolutePath());
+			}
+			cliExperiment.setSpectrumFilePaths(spectrumFilePaths);
 			
 			// Create FASTA index (if not existent yet)
 			File indexFile = new File(searchSettings.getFastaFilePath() + ".fb");
@@ -193,7 +197,8 @@ public class CmdLineInterface {
 			client.setMgfFiles(cliInput.getSpectrumFiles());
 			
 			String concatenatedFileNames = "";
-			for (File file : client.getMgfFiles()) {
+			for (String filePath : client.getMgfFilePaths()) {
+				File file = new File(filePath);
 				concatenatedFileNames += file.getName();
 			}
 			// Get instance of job manager.
@@ -222,6 +227,7 @@ public class CmdLineInterface {
 			// Retrieve the search result.
 			System.out.println(new Date() + " Retrieving search results.");
 			DbSearchResult dbSearchResult = cliExperiment.getSearchResult();
+			dbSearchResult.setSpectrumFilePaths(spectrumFilePaths);
 			System.out.println(new Date() + " Search results retrieval finished.");
 			
 			// Apply post-processing parameters.
@@ -274,6 +280,7 @@ public class CmdLineInterface {
 			ResultExporter.exportIdentifiedSpectra(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_spectrum_ids.csv", dbSearchResult, exportHeaders);
 			ResultExporter.exportMetaProteins(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaproteins.csv", dbSearchResult, exportHeaders);
 			ResultExporter.exportMetaProteinTaxonomy(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + "_metaprotein_taxa.csv", dbSearchResult, exportHeaders);
+			ResultExporter.exportExperiment(cliInput.getOutputFile().getAbsolutePath() + File.separator + concatenatedFileNames + ".mpa", dbSearchResult);
 			System.out.println(new Date() + " Processed results export finished.");
 			
 			// Empty the search hits from the GenericContainer

@@ -3,7 +3,15 @@ package de.mpa.client.ui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -13,20 +21,31 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
+
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
+import de.mpa.client.model.FileExperiment;
+import de.mpa.client.model.FileProject;
+import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
+import de.mpa.client.ui.dialogs.GeneralDialog;
+import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.panels.ProjectPanel;
+import de.mpa.io.GenericContainer;
 
 /**
  * The main application frame's menu bar.
  * 
- * @author A. Behne
+ * @author Alexander Behne, Thilo Muth
  */
 public class ClientFrameMenuBar extends JMenuBar {
 	
@@ -65,7 +84,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 		/* create File Menu */
 		JMenu fileMenu = new JMenu();
 		fileMenu.setText("File");
-
+		
+		// create Import experiment item
+		JMenuItem importExperimentItem = new JMenuItem();
+		importExperimentItem.setText("Import MPA Experiment...");
+		importExperimentItem.setIcon(IconConstants.IMPORT_ICON);
+		importExperimentItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				importExperiment();
+			}
+		});
+		
+		fileMenu.add(importExperimentItem);
+		
 		// create Exit item
 		JMenuItem exitItem = new JMenuItem();
 		exitItem.setText("Exit");
@@ -82,23 +113,23 @@ public class ClientFrameMenuBar extends JMenuBar {
 		JMenu settingsMenu = new JMenu("Settings");
 		
 		// create Color Settings item
-		JMenuItem colorsItem = new JMenuItem("Color Settings", IconConstants.COLOR_SETTINGS_ICON);
-		colorsItem.addActionListener(new ActionListener() {
+		JMenuItem colorSettingsItem = new JMenuItem("Color Settings", IconConstants.COLOR_SETTINGS_ICON);
+		colorSettingsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				ColorsDialog.getInstance().setVisible(true);
 			}
 		});
 
-		settingsMenu.add(colorsItem);
+		settingsMenu.add(colorSettingsItem);
 
 		/* create Export menu */
 		exportMenu = new JMenu("Export");
 		
-		JMenuItem mpaItem = new JMenuItem("MPA File...", IconConstants.MPA_SMALL_ICON);
-		mpaItem.addActionListener(new ActionListener() {
+		JMenuItem exportExperimentItem = new JMenuItem("MPA Experiment...", IconConstants.MPA_SMALL_ICON);
+		exportExperimentItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				exportMPA();
+				exportExperiment();
 			}
 		});
 		
@@ -111,7 +142,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 
-		exportMenu.add(mpaItem);
+		exportMenu.add(exportExperimentItem);
 		exportMenu.add(csvItem);	
 		
 		this.setExportMenuEnabled(false);
@@ -151,9 +182,110 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 	
 	/**
-	 * Executed when the save project button is triggered. Via a file chooser the user can select the destination of the project (MPA) file.
+	 * This method is executed when the import experiment button is triggered. 
+	 * The user can select the destination of the imported (MPA) experiment file.
 	 */
-	private void exportMPA() {
+	private void importExperiment() {
+		SwingWorker<String, Void> swingWorker = new SwingWorker<String, Void>() {
+			@Override
+			protected String doInBackground() throws Exception {
+				String selectedFilePath = null;
+				JFileChooser chooser = new JFileChooser(new File(Constants.PROJECTS_PATH));
+				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
+				chooser.setMultiSelectionEnabled(false);
+				chooser.setApproveButtonText("Open MPA Experiment");
+				if (chooser.showOpenDialog(ClientFrame.getInstance()) == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = chooser.getSelectedFile();
+					// Check whether user has approved the file.
+					if (selectedFile != null) {
+						if (selectedFile.canRead() && selectedFile.exists()) {
+							selectedFilePath = selectedFile.toString();
+							
+							// Get the project panel.
+							ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
+							
+							// Get the list of existing experiments.							
+							FileProject selectedProject = projectPanel.getSelectedProject();
+							
+							// Step 1: add new experiment to the list.
+							FileExperiment experiment;
+							experiment = new FileExperiment();
+							experiment.setTitle(selectedFile.getName().substring(0, selectedFile.getName().indexOf(".mpa")));
+							experiment.setProject(selectedProject);
+							experiment.setCreationDate(new Date());
+							// Show experiment creation dialog
+							GeneralDialog dialog = new GeneralDialog(DialogType.NEW_EXPERIMENT, experiment);
+							int res = dialog.showDialog();
+							
+							// Check if new experiment has been created (setting a title is mandatory).
+							if (res == GeneralDialog.RESULT_SAVED) {
+								projectPanel.refreshExperimentTable(selectedProject);
+								projectPanel.setSelectedExperiment(experiment);
+							}
+							// Step 2: create project specific folder.
+							String experimentPath = Constants.PROJECTS_PATH + File.separator + experiment.getTitle();
+							GenericContainer.CurrentExperimentPath = experimentPath;
+							File experimentDir = new File(experimentPath);
+							if (!experimentDir.exists()) {
+								experimentDir.mkdir();
+							}
+							
+							// Step 3: move result file and include it within the experiment.
+							File createdFile = new File(experimentPath + File.separator + experiment.getTitle() + ".mpa");
+							if (!createdFile.exists()) {
+								Files.copy(selectedFile.toPath(), createdFile.toPath());
+							}
+							
+							// Step 4: update the spectrum file path structure.
+							DbSearchResult dbSearchResult = null;
+							List<String> spectrumFilePaths = null;
+							
+							try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(createdFile))))) {
+								dbSearchResult = (DbSearchResult) ois.readObject();
+								spectrumFilePaths = dbSearchResult.getSpectrumFilePaths();
+							} catch (Exception e) {
+								JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+							}
+							List<String> newSpectrumFilePaths = new ArrayList<>();
+							// Iterate over all spectrum file path and copy spectrum files to their new destination.
+							for (String spectrumFilePath : spectrumFilePaths) {
+								File spectrumFile = new File(spectrumFilePath);
+								
+								if (!spectrumFile.exists()) {
+									spectrumFile = new File(selectedFile.getParentFile().getAbsolutePath() + File.separator + spectrumFile.getName());
+								}
+								File createdSpectrumFile = new File(experimentPath + File.separator + spectrumFile.getName());
+								
+								// Check whether spectrum file is not already existing
+								if (!createdSpectrumFile.exists()) {
+									Files.copy(spectrumFile.toPath(), createdSpectrumFile.toPath());
+								}
+								newSpectrumFilePaths.add(createdSpectrumFile.getAbsolutePath());
+							}
+							experiment.setSpectrumFilePaths(newSpectrumFilePaths);
+							experiment.setResultFile(createdFile);
+							experiment.serialize();
+							projectPanel.refreshExperimentTable(selectedProject);
+							projectPanel.setSelectedExperiment(experiment);
+							projectPanel.setResultsButtonState(true);
+						} else {
+							JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+									"The file does not exist or is not readable.",
+									"Selection Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				}
+				return selectedFilePath;
+			}
+		};
+		swingWorker.execute();
+	}
+		
+	/**
+	 * This method is executed when the export experiment button is triggered. 
+	 * The user can select the destination of the exported (MPA) experiment file.
+	 */
+	private void exportExperiment() {
 		new SwingWorker<Void, Void>() {
 			@Override
 			protected Void doInBackground() throws Exception {

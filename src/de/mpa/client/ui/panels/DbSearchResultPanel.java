@@ -2033,7 +2033,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @throws IOException 
 	 */
 	public MascotGenericFile readSpectrumFromFile(String filename, int index) throws IOException {
-		File mgfFile = new File(filename);
+		File mgfFile = new File(GenericContainer.CurrentExperimentPath + File.separator + filename);
 		MascotGenericFileReader currentReader = GenericContainer.MGFReaders.get(mgfFile.getAbsolutePath());
 		return currentReader.loadSpectrum(index - 1);
 	}

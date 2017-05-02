@@ -40,7 +40,8 @@ public class IconConstants {
 	public static final ImageIcon COMPARE_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/compare32.png"));
 	/** <img src="../../../resources/icons/logging.png"> */
 	public static final ImageIcon LOGGING_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/logging.png"));
-
+	/** <img src="../../../resources/icons/import16.png"> */
+	public static final ImageIcon IMPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/import16.png"));
 	/** <img src="../../../resources/icons/exit16.png"> */
 	public static final ImageIcon EXIT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/exit16.png"));
 	/** <img src="../../../resources/icons/color_wheel16.png"> */
