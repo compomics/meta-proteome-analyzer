@@ -1,2 +1,2 @@
 @echo off
-java -jar -Xmx3000m mpa-portable-1.4.2.jar
+java -jar -Xmx3000m mpa-portable-1.5.0.jar

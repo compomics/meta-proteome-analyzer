@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="distro-binary" name="Create Runnable Jar for Project MetaProteomeAnalyzer">
 	  <!-- Default property values, if not overridden elsewhere: -->
-	  <property name='build' location="${user.home}/mpa-portable" />	  <property name='app.version' value='1.4.2'/>
+	  <property name='build' location="${user.home}/mpa-portable" />	  <property name='app.version' value='1.5.0'/>
 	  <property name='app.name' value='MPA Portable'/>
 	  <property name='distro-name' value='mpa-portable-${app.version}'/>
     <target name='clean' description="Delete all build artifacts." >
@@ -140,6 +140,7 @@
     	<zipfileset dir="${build}/" includes="${distro-name}.jar"/>
     	<zipfileset dir="src/conf" prefix="conf/"/>
         <zipfileset dir="built" prefix="built/"/>
+        <zipfileset dir="projects" prefix="projects/"/>
     	<zipfileset dir="lib" prefix="lib/"/>
     	<zipfileset file="src/log4j.properties" fullpath="log4j.properties"/>
    	 	</zip>
