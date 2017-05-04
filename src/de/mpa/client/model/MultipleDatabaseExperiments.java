@@ -187,6 +187,8 @@ public class MultipleDatabaseExperiments extends AbstractExperiment {
 				client.firePropertyChange("resetall", 0L, maxProgress);
 				client.firePropertyChange("resetcur", 0L, maxProgress);
 				
+				System.out.println(experimentList.toString());
+				
 				for (Long expID : experimentList) {
 					// loop for each search engine (3: omssa, xtandem, mascot)
 					for (SerchEngineViewMulti current_view : SerchEngineViewMulti.values()) {

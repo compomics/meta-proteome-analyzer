@@ -386,9 +386,6 @@ public class Client {
 		closeDBConnection();
 		connectToServer();
 		getConnection();
-		
-		// restart the client frame
-		ClientFrame.getInstance().restart();
 	}
 	
 

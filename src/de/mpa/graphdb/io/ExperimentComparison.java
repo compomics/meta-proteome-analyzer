@@ -6,6 +6,8 @@ import java.util.TreeMap;
 
 import de.mpa.client.ui.chart.OntologyChart;
 import de.mpa.client.ui.chart.TaxonomyChart;
+
+import org.jvnet.jaxb2_commons.xml.bind.model.MPackaged;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Node;
 
@@ -63,10 +65,11 @@ public class ExperimentComparison {
 	
 	public ExperimentComparison(List<AbstractExperiment> experiments, ProteinHitList metaprot, GraphDatabaseHandler graphHandler, ChartType typeLevel, HierarchyLevel countLevel) {
 		this.experiments = experiments;
-        metaproteins = metaprot;
+        this.metaproteins = metaprot;
 		this.graphHandler = graphHandler;
 		this.typeLevel = typeLevel;
 		this.countLevel = countLevel;
+
         this.executeQuery();
         this.formatData();
 	}
@@ -91,7 +94,7 @@ public class ExperimentComparison {
 			} else if (typeLevel == OntologyChart.OntologyChartType.MOLECULAR_FUNCTION) {
                 this.executionResult = this.graphHandler.executeCypherQuery(CypherQueryFactory.getMolecularFunctionsWithCountsByExperiments(this.countLevel.getCountIdentifier()));
 			} else if (this.typeLevel instanceof TaxonomyChart.TaxonomyChartType) {
-				typeLevel = typeLevel;
+//				typeLevel = typeLevel;
 				if (((TaxonomyChart.TaxonomyChartType) this.typeLevel).getDepth() == 0) {
                     this.executionResult = this.graphHandler.executeCypherQuery(CypherQueryFactory.getSubspeciesWithCountsByExperiments(this.countLevel.getCountIdentifier()));
 				} else {

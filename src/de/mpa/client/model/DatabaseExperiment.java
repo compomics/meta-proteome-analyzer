@@ -194,9 +194,8 @@ public class DatabaseExperiment extends AbstractExperiment {
 	public DbSearchResult getSearchResult() {
 		// instantiate Multiexp and call viewbased method
 		LinkedList<Long> experimentList = new LinkedList<Long>();
-		AbstractExperiment selexp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-		experimentList.add(selexp.getID());
-		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, selexp.getTitle(), new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		experimentList.add(this.getID());
+		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, this.getTitle(), new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		DbSearchResult dbSearchResult = multipleDatabaseExperiments.getSearchResult();
 		this.searchResult = dbSearchResult;
 		return searchResult;
