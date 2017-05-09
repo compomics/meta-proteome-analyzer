@@ -328,46 +328,48 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 					// Add ontology
 					List<String> keywords = mp.getUniProtEntry().getKeywords();
 					for (String keyword : keywords) {
-						UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
-
-						if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
-							if (biolFuncMap.get(keyword)== null) {
-								biolFuncMap.put(keyword, mp.getMatchSet());
-							}else{
-								Set<SpectrumMatch> ontoSet = biolFuncMap.get(keyword);
-								@SuppressWarnings("unused")
-								Set<SpectrumMatch> matchSet = mp.getMatchSet();
-								ontoSet.addAll(mp.getMatchSet());
-								biolFuncMap.put(keyword, ontoSet);
+						if (ontologyMap.containsKey(keyword)) {
+							UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
+							if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
+								if (biolFuncMap.get(keyword)== null) {
+									biolFuncMap.put(keyword, mp.getMatchSet());
+								}else{
+									Set<SpectrumMatch> ontoSet = biolFuncMap.get(keyword);
+									@SuppressWarnings("unused")
+									Set<SpectrumMatch> matchSet = mp.getMatchSet();
+									ontoSet.addAll(mp.getMatchSet());
+									biolFuncMap.put(keyword, ontoSet);
+								}
 							}
 						}
 					}
-				}
-				// Add taxonomy Data
-				TaxonomyNode orderTaxNode = taxNode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER);
-				// check whether alread in the map
-				boolean alreadyInMap = false;
-				for (TaxonomyNode taxMapNode : taxMap.keySet()) {
-					if (taxMapNode.getID() == orderTaxNode.getID()) {
-						alreadyInMap = true;
-					}
-				}
 
-				if (alreadyInMap == false) {
-					taxMap.put(orderTaxNode, mp.getMatchSet());
-				}else{
-					Set<SpectrumMatch> taxSet = taxMap.get(orderTaxNode);
-					taxSet.addAll(mp.getMatchSet());
-					taxMap.put(orderTaxNode, taxSet);
-				}
-				// Add taxonomy Data
-				taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
-				if (speciesMap.get(this.taxonSpecies)== null) {
-					speciesMap.put(this.taxonSpecies, mp.getMatchSet());
-				}else{
-					Set<SpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
-					taxSet.addAll(mp.getMatchSet());
-					speciesMap.put(this.taxonSpecies, taxSet);
+					// Add taxonomy Data
+					TaxonomyNode orderTaxNode = taxNode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER);
+					// check whether alread in the map
+					boolean alreadyInMap = false;
+					for (TaxonomyNode taxMapNode : taxMap.keySet()) {
+						if (taxMapNode.getID() == orderTaxNode.getID()) {
+							alreadyInMap = true;
+						}
+					}
+
+					if (alreadyInMap == false) {
+						taxMap.put(orderTaxNode, mp.getMatchSet());
+					} else {
+						Set<SpectrumMatch> taxSet = taxMap.get(orderTaxNode);
+						taxSet.addAll(mp.getMatchSet());
+						taxMap.put(orderTaxNode, taxSet);
+					}
+					// Add taxonomy Data
+					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
+					if (speciesMap.get(this.taxonSpecies)== null) {
+						speciesMap.put(this.taxonSpecies, mp.getMatchSet());
+					}else{
+						Set<SpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
+						taxSet.addAll(mp.getMatchSet());
+						speciesMap.put(this.taxonSpecies, taxSet);
+					}
 				}
 			}
 		}

@@ -694,9 +694,6 @@ public class ComparePanel extends JPanel {
 
 		@Override
 		protected Object doInBackground() throws Exception {
-
-
-
 			// TODO: make this work for big datasets ....
 			try {
 				Client client = Client.getInstance();
@@ -716,7 +713,7 @@ public class ComparePanel extends JPanel {
 
 				// Compare the experiments.
 				this.expComparison = new ExperimentComparison(ComparePanel.this.experiments, this.metaProtList, graphDatabaseHandler, chartType, countLevel);
-
+				System.out.println("Results: " + expComparison.getDataMap().size());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -95,9 +95,12 @@ public class ExperimentComparison {
                 this.executionResult = this.graphHandler.executeCypherQuery(CypherQueryFactory.getMolecularFunctionsWithCountsByExperiments(this.countLevel.getCountIdentifier()));
 			} else if (this.typeLevel instanceof TaxonomyChart.TaxonomyChartType) {
 //				typeLevel = typeLevel;
+				System.out.println("Correct if");
 				if (((TaxonomyChart.TaxonomyChartType) this.typeLevel).getDepth() == 0) {
+					System.out.println("Query 1");
                     this.executionResult = this.graphHandler.executeCypherQuery(CypherQueryFactory.getSubspeciesWithCountsByExperiments(this.countLevel.getCountIdentifier()));
 				} else {
+					System.out.println("Query 2");
                     this.executionResult = this.graphHandler.executeCypherQuery(CypherQueryFactory.getTaxonomyWithCountsByExperiments(this.countLevel.getCountIdentifier(), this.typeLevel.getTitle()));
 				}
 			}
