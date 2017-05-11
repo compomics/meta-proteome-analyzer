@@ -30,7 +30,43 @@ public class CometHit implements SearchHit, Serializable {
 	private double qValue;
 	private String spectrumFilename;
 	private String spectrumTitle;
-
+	
+	public CometHit() {}
+	
+	public CometHit(SearchEngineType type, long spectrumId, int charge, double expNeutralMass, double calcNeutralMass,
+			double eValue, double xCorr, double deltaCn, double spScore, int ionsMatches, int totalIons,
+			String peptideSequence, String accession, String proteinSequence, String proteinDescription, double qValue,
+			String spectrumFilename, String spectrumTitle) {
+		this.type = type;
+		this.spectrumId = spectrumId;
+		this.charge = charge;
+		this.expNeutralMass = expNeutralMass;
+		this.calcNeutralMass = calcNeutralMass;
+		this.eValue = eValue;
+		this.xCorr = xCorr;
+		this.deltaCn = deltaCn;
+		this.spScore = spScore;
+		this.ionsMatches = ionsMatches;
+		this.totalIons = totalIons;
+		this.peptideSequence = peptideSequence;
+		this.accession = accession;
+		this.proteinSequence = proteinSequence;
+		this.proteinDescription = proteinDescription;
+		this.qValue = qValue;
+		this.spectrumFilename = spectrumFilename;
+		this.spectrumTitle = spectrumTitle;
+	}
+	
+	/**
+	 * Copy constructor.
+	 */
+	public CometHit(CometHit hit) {
+		this(hit.getType(), hit.getSpectrumId(), hit.getCharge(), hit.getExpNeutralMass(), hit.getCalcNeutralMass(),
+				hit.getEValue(), hit.getXCorr(), hit.getDeltaCn(), hit.getSpScore(), hit.getIonsMatches(),
+				hit.getTotalIons(), hit.getPeptideSequence(), hit.getAccession(), hit.getProteinSequence(),
+				hit.getProteinDescription(), hit.getQvalue(), hit.getSpectrumFilename(), hit.getSpectrumTitle());
+	}
+	
 	@Override
 	public SearchEngineType getType() {
 		return type;

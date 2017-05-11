@@ -39,9 +39,9 @@ import com.jgoodies.forms.layout.FormLayout;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.DbSearchSettings;
+import de.mpa.client.settings.CometParameters;
 import de.mpa.client.settings.IterativeSearchParams;
 import de.mpa.client.settings.MSGFParameters;
-import de.mpa.client.settings.CometParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
 import de.mpa.client.ui.ClientFrame;
@@ -49,8 +49,10 @@ import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.RolloverButtonUI;
 import de.mpa.client.ui.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.io.GenericContainer;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.FastaUtilities;
+import de.mpa.io.fasta.index.OffHeapIndex;
 import de.mpa.task.ResourceProperties;
 
 /**
@@ -375,7 +377,8 @@ public class DatabaseSearchSettingsPanel extends JPanel {
             		fastaIndexFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + ".fasta.fb");
                 	if (!fastaIndexFile.exists()) {
                 		new IndexFastaFileWorker().execute();
-                	}    
+                	}
+                	new PeptideIndexWorker().execute();
             	}
             } catch (Exception e) {
             	dbFormattingError = true;
@@ -477,6 +480,57 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 	}
 	
 	/**
+	 * Class to create (or load) the peptide index in a background thread.
+	 * 
+	 * @author Thilo Muth
+	 */
+	private class PeptideIndexWorker extends SwingWorker<Integer, Object> {
+		Client client = Client.getInstance();
+		
+		@Override
+		protected Integer doInBackground() {
+			
+			try {
+				// Create a peptide index from
+        		client.firePropertyChange("new message", null, "LOADING PEPTIDE INDEX");
+        		client.firePropertyChange("indeterminate", false, true);
+
+        		OffHeapIndex offHeapIndex = new OffHeapIndex(fastaFile, 2);
+				GenericContainer.PeptideIndex = offHeapIndex.getPeptideIndex();
+
+        		return 1;
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				client.firePropertyChange("new message", null, "LOADING PEPTIDE INDEX FAILED");
+				client.firePropertyChange("indeterminate", true, false);
+			}
+			return 0;
+		}
+	
+		@Override
+		protected void done() {
+			// Get worker result
+			int res = 0;
+			try {
+				res = this.get().intValue();
+			} catch (Exception e) {
+				JXErrorPane.showDialog(ClientFrame.getInstance(),
+						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			}
+			
+			// If new results have been fetched...
+			if (res == 1) {
+				client.firePropertyChange("indeterminate", true, false);
+				client.firePropertyChange("new message", null, "LOADING PEPTIDE INDEX FINISHED");
+
+				if (GenericContainer.PeptideIndex != null && fastaIndexFile.exists() && fastaFile.exists() & !dbFormattingError) {
+					processBtn.setEnabled(true);
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Class to a index FASTA file in a background thread.
 	 * 
 	 * @author T. Muth
@@ -489,21 +543,18 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protected Integer doInBackground() {
 			
 			try {
-				// Create the decoy database by reversing the FASTA protein sequences.
+				// Index the FASTA protein database.
     			fastaLoader = FastaLoader.getInstance();
     			fastaLoader.setFastaFile(fastaFile);
-        		client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE");
+        		client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILES");
         		client.firePropertyChange("indeterminate", false, true);
 				fastaLoader.loadFastaFile();
 				fastaLoader.writeIndexFile();
-
         		return 1;
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FAILED");
+				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILES FAILED");
 				client.firePropertyChange("indeterminate", true, false);
-	
 			}
 			return 0;
 		}
@@ -523,10 +574,6 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			if (res == 1) {
 				client.firePropertyChange("indeterminate", true, false);
 				client.firePropertyChange("new message", null, "CREATING INDEX FASTA FILE FINISHED");
-
-				if (fastaIndexFile.exists() && fastaFile.exists() & !dbFormattingError) {
-					processBtn.setEnabled(true);
-				}
 			}
 		}
 	}

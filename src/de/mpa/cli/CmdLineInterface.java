@@ -32,6 +32,7 @@ import de.mpa.io.GenericContainer;
 import de.mpa.io.ResultExporter;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.FastaUtilities;
+import de.mpa.io.fasta.index.OffHeapIndex;
 import de.mpa.task.TaskManager;
 import de.mpa.task.instances.SpectraTask;
 
@@ -182,7 +183,7 @@ public class CmdLineInterface {
 			
 			File fastaFile = cliInput.getDatabaseFile();
 			
-			// Create FASTA decoy database (if not existent yet)
+			// Create decoy database and peptide index...
 			if (fastaFile.isFile()) {
         		// Check whether decoy FASTA file already exists - if not: create one!
             	File decoyFastaFile = new File(fastaFile.getAbsolutePath().substring(0, fastaFile.getAbsolutePath().indexOf(".fasta")) + "_decoy.fasta");
@@ -191,6 +192,12 @@ public class CmdLineInterface {
             		decoyFastaFile = FastaUtilities.createDecoyDatabase(fastaFile);
             		System.out.println(new Date() + " FASTA decoy file creation finished...");
             	}
+            	
+            	// Load (or also create) peptide off-heap index.
+            	System.out.println(new Date() + " Creating peptide index file...");
+            	OffHeapIndex offHeapIndex = new OffHeapIndex(fastaFile, 2);
+            	GenericContainer.PeptideIndex = offHeapIndex.getPeptideIndex();
+        		System.out.println(new Date() + " Peptide index creation finished...");
 			}
 			
 			// Set MGF files within the client.

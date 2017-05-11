@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -93,7 +96,7 @@ public class XTandemParser extends GenericContainer {
             	
             	List<Domain> domains = peptide.getDomains();
             	for (Domain domain : domains) {
-                   	String sequence = domain.getDomainSequence();
+                   	String peptideSequence = domain.getDomainSequence();
                    	
             	    // Only store if the search spectrum id is referenced.
 					if (SpectrumId2TitleMap.containsKey(spectrumId)) {
@@ -121,23 +124,36 @@ public class XTandemParser extends GenericContainer {
                             hit.setType(searchEngineType);
    						
                             // Get and store the peptide.
-                            hit.setPeptideSequence(sequence);
+                            hit.setPeptideSequence(peptideSequence);
                             hit.setCharge(xTandemFile.getSupportData(spectrumNumber).getFragIonCharge());
     						
-    						// Store peptide-spectrum association
+    						// Add peptide-to-protein relations.
+                            Set<String> accessions = new HashSet<>();
+                            if (accession.length() > 0){
+                            	accessions.add(accession);
+                            }
                             Protein protein;
-							try {
-								protein = FastaLoader.getProteinFromFasta(accession);
-								String description = protein.getHeader().getDescription();
-                                hit.setProteinSequence(protein.getSequence().getSequence());
-                                hit.setProteinDescription(description);
-                                
-                        		// Add protein for UniProt storing.
-                        		UniprotQueryProteins.put(accession, null);
-                                nHits++;
-                                SearchHits.add(hit);
-							} catch (IOException e) {
-								e.printStackTrace();
+                            Map<String, Set<String>> peptideIndex = GenericContainer.PeptideIndex;
+                            if (peptideIndex.get(peptideSequence) != null) {
+								accessions.addAll(peptideIndex.get(peptideSequence));
+							}
+							
+							for (String acc : accessions) {
+								try {
+									protein = FastaLoader.getProteinFromFasta(acc);
+									String description = protein.getHeader().getDescription();
+									XTandemHit newHit = new XTandemHit(hit);
+									newHit.setAccession(acc);
+									newHit.setProteinSequence(protein.getSequence().getSequence());
+									newHit.setProteinDescription(description);
+	                                
+	                        		// Add protein for UniProt storing.
+	                        		UniprotQueryProteins.put(acc, null);
+	                                nHits++;
+	                                SearchHits.add(newHit);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 							}
         				}
             	    }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.dbsearch.SearchEngineType;
+import de.mpa.io.parser.comet.CometHit;
 
 public class XTandemHit implements SearchHit, Serializable {
 
@@ -23,6 +24,32 @@ public class XTandemHit implements SearchHit, Serializable {
 	private int charge;
 	private double qValue;
 	private double pep;
+	
+	public XTandemHit() {}
+	
+	public XTandemHit(SearchEngineType type, String peptideSequence, String accession, String proteinSequence,
+			String proteinDescription, long spectrumId, String spectrumFilename, String spectrumTitle, double score,
+			int charge, double qValue, double pep) {
+		this.type = type;
+		this.peptideSequence = peptideSequence;
+		this.accession = accession;
+		this.proteinSequence = proteinSequence;
+		this.proteinDescription = proteinDescription;
+		this.spectrumId = spectrumId;
+		this.spectrumFilename = spectrumFilename;
+		this.spectrumTitle = spectrumTitle;
+		this.score = score;
+		this.charge = charge;
+		this.qValue = qValue;
+		this.pep = pep;
+	}
+	
+	/**
+	 * Copy constructor.
+	 */
+	public XTandemHit(XTandemHit hit) {
+		this(hit.getType(), hit.getPeptideSequence(), hit.getAccession(), hit.getProteinSequence(), hit.getProteinDescription(), hit.getSpectrumId(), hit.getSpectrumFilename(), hit.getSpectrumTitle(), hit.getScore(), hit.getCharge(), hit.getQvalue(), hit.getPep());
+	}
 
 	@Override
 	public SearchEngineType getType() {

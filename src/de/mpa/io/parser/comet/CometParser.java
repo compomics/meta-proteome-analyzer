@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
@@ -75,24 +78,40 @@ public class CometParser extends GenericContainer {
 							hit.setSpScore(Double.valueOf(split[8]));
 							hit.setIonsMatches(Integer.valueOf(split[9]));
 							hit.setTotalIons(Integer.valueOf(split[10]));
-							hit.setPeptideSequence(split[11]);
+							String peptideSequence = split[11];
+							hit.setPeptideSequence(peptideSequence);
 							Header header = Header.parseFromFASTA(split[15]);
 	                        String accession = header.getAccession();
 							hit.setAccession(accession);
 							hit.setQValue(qValue);
 							hit.setType(searchEngineType);
 
-							// Store peptide-spectrum association
+							// Add peptide-to-protein relations.
 							Protein protein;
-							protein = FastaLoader.getProteinFromFasta(accession);
-							String description = protein.getHeader().getDescription();
-							hit.setProteinSequence(protein.getSequence().getSequence());
-							hit.setProteinDescription(description);
-
-							// Add protein for UniProt storing.
-							UniprotQueryProteins.put(accession, null);
-							nHits++;
-							SearchHits.add(hit);
+                            Set<String> accessions = new HashSet<>();
+                            if (accession.length() > 0){
+                            	accessions.add(accession);
+                            }
+                            
+							Map<String, Set<String>> peptideIndex = GenericContainer.PeptideIndex;
+							
+							if (peptideIndex.get(peptideSequence) != null) {
+								accessions.addAll(peptideIndex.get(peptideSequence));
+							}
+							
+							for (String acc : accessions) {
+								protein = FastaLoader.getProteinFromFasta(acc);
+								String description = protein.getHeader().getDescription();
+								CometHit newHit = new CometHit(hit);
+								newHit.setAccession(acc);
+								newHit.setProteinSequence(protein.getSequence().getSequence());
+								newHit.setProteinDescription(description);
+                                
+                        		// Add protein for UniProt storing.
+                        		UniprotQueryProteins.put(acc, null);
+                                nHits++;
+                                SearchHits.add(newHit);
+							}
 						}
 					}
 				}

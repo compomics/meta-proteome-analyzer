@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.compomics.util.experiment.identification.protein_sequences.SequenceFactory;
-
 import de.mpa.analysis.TargetDecoyAnalysis;
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.dbsearch.ReducedUniProtEntry;
@@ -96,6 +94,11 @@ public class GenericContainer {
 	 * The FastaLoader instance. 
 	 */
 	public static FastaLoader FastaLoader;
+	
+	/**
+	 * The peptide index.
+	 */
+	public static Map<String, Set<String>> PeptideIndex;
 	
 	/**
 	 * The current TargetDecoyAnalysis instance.

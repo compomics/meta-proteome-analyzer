@@ -35,6 +35,7 @@ import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
 import de.mpa.client.ui.ClientFrame;
+import de.mpa.client.ui.ClientFrameMenuBar;
 import de.mpa.client.ui.PanelConfig;
 import de.mpa.client.ui.TableConfig;
 import de.mpa.client.ui.dialogs.GeneralDialog;
@@ -315,6 +316,8 @@ public class ProjectPanel extends JPanel {
 				modifyProjectBtn.setEnabled(true);
 				deleteProjectBtn.setEnabled(true);
 				addExperimentBtn.setEnabled(true);
+				ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
+				menuBar.setImportExperimentMenuItemEnabled(true);
 				
 				// disable tabs
 				for (int i = ClientFrame.INDEX_INPUT_PANEL; i < ClientFrame.INDEX_LOGGING_PANEL; i++) {
@@ -418,7 +421,9 @@ public class ProjectPanel extends JPanel {
 						addExperimentBtn.setEnabled(false);
 						modifyExperimentBtn.setEnabled(false);
 						deleteExperimentBtn.setEnabled(false);
-
+						ClientFrameMenuBar menuBar = (ClientFrameMenuBar) ClientFrame.getInstance().getJMenuBar();
+						menuBar.setImportExperimentMenuItemEnabled(false);
+						
 						// Reset textfields
 						selProjectTtf.setText("None");
 						selExperimentTtf.setText("None");

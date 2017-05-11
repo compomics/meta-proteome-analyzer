@@ -6,13 +6,12 @@ import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
@@ -31,7 +30,6 @@ import org.jdesktop.swingx.error.ErrorLevel;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
-import de.mpa.analysis.UniProtUtilities;
 import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ExportFields;
@@ -71,6 +69,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 	private JMenu exportMenu;
 
 	private JMenuItem updateUniProtItem;
+
+	private JMenuItem importExperimentItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -94,7 +94,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		fileMenu.setText("File");
 		
 		// create Import experiment item
-		JMenuItem importExperimentItem = new JMenuItem();
+		importExperimentItem = new JMenuItem();
 		importExperimentItem.setText("Import MPA Experiment...");
 		importExperimentItem.setIcon(IconConstants.IMPORT_ICON);
 		importExperimentItem.addActionListener(new ActionListener() {
@@ -102,6 +102,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 				importExperiment();
 			}
 		});
+		
+		importExperimentItem.setEnabled(false);
 		
 		fileMenu.add(importExperimentItem);
 		
@@ -168,7 +170,10 @@ public class ClientFrameMenuBar extends JMenuBar {
 					@Override
 					protected Object doInBackground()  {
 						
-						Set<String> accessions = Client.getInstance().getDatabaseSearchResult().getProteinHits().keySet();
+						Client client = Client.getInstance();
+						FileExperiment selectedExperiment = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
+						DbSearchResult dbSearchResult = client.getDatabaseSearchResult();
+						Set<String> accessions = dbSearchResult.getProteinHits().keySet();
 						for (String accession : accessions) {
 							GenericContainer.UniprotQueryProteins.put(accession, null);
 						}
@@ -177,8 +182,23 @@ public class ClientFrameMenuBar extends JMenuBar {
 						UniProtTask uniProtTask = new UniProtTask();
 						uniProtTask.run();
 						
-						Client.getInstance().firePropertyChange("new message", null, "UPDATING UNIPROT ENTRIES FINISHED");
-						Client.getInstance().firePropertyChange("indeterminate", true,	false);
+						client.firePropertyChange("new message", null, "UPDATING UNIPROT ENTRIES FINISHED");
+						client.firePropertyChange("indeterminate", true,	false);
+						
+						// Updating the result set
+						for (String accession : accessions) {
+							selectedExperiment.updateProteinSearchHit(dbSearchResult, accession);
+						}
+						
+						// Finally dump the new result object.
+						try {
+							if (selectedExperiment.hasSearchResult()) {
+								client.dumpDatabaseSearchResult(dbSearchResult, selectedExperiment.getResultFile().getAbsolutePath());
+								System.out.println("write to file: " + selectedExperiment.getResultFile().getAbsolutePath());
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						return null;
 					}	
 				}.execute();
@@ -234,7 +254,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				JFileChooser chooser = new JFileChooser(new File(Constants.PROJECTS_PATH));
 				chooser.setFileFilter(Constants.MPA_FILE_FILTER);
 				chooser.setMultiSelectionEnabled(false);
-				chooser.setApproveButtonText("Open MPA Experiment");
+				chooser.setApproveButtonText("Open");
 				if (chooser.showOpenDialog(ClientFrame.getInstance()) == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
 					// Check whether user has approved the file.
@@ -385,7 +405,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Sets the enable state of the different menu items.
+	 * Sets the enabled state of the different menu items.
 	 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
 	 */
 	public void setMenuItemsEnabled(boolean enabled) {
@@ -394,5 +414,12 @@ public class ClientFrameMenuBar extends JMenuBar {
 		}
 		updateUniProtItem.setEnabled(enabled);
 	}
-    
+	
+	/**
+	 * Sets the enabled state of the import experiment menu item.
+	 * @param enabled <code>true</code> if enabled, <code>false</code> otherwise
+	 */
+	public void setImportExperimentMenuItemEnabled(boolean enabled) {
+		importExperimentItem.setEnabled(enabled);
+	}
 }

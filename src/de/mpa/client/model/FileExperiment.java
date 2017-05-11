@@ -240,10 +240,26 @@ public class FileExperiment implements ProjectExperiment {
 		}
 	}
 	
+	/**
+	 * Returns the MPA experiment result file.
+	 * @return resultFile MPA experiment result file.
+	 */
+	public File getResultFile() {
+		return resultFile;
+	}
+	
+	/**
+	 * Checks whether a search result is provided.
+	 * @return <code>true</code> if a search result is provided, otherwise <code>false</code>
+	 */
 	public boolean hasSearchResult() {
 		return (resultFile != null) && resultFile.exists();
 	}
-
+	
+	/**
+	 * Returns the DbSearchResult instance.
+	 * @return DbSearchResult instance
+	 */
 	public DbSearchResult getSearchResult() {
 		if (searchResult != null) {
 			return searchResult;
@@ -366,11 +382,48 @@ public class FileExperiment implements ProjectExperiment {
 		// create a new protein hit and add it to the result
 		result.addProtein(new ProteinHit(hit.getAccession(), hit.getProteinDescription(), hit.getProteinSequence(), peptideHit, uniProtEntry, taxonomyNode, experimentID));
 	}
+	
+	public void updateProteinSearchHit(DbSearchResult dbSearchResult, String accession) {
+		// Retrieve UniProt meta-data
+		ReducedUniProtEntry uniProtEntry = null;
+		TaxonomyNode taxonomyNode = null;
 
+		if (GenericContainer.UniprotQueryProteins.get(accession) != null) {
+			uniProtEntry = GenericContainer.UniprotQueryProteins.get(accession);
+			
+			// retrieve taxonomy branch
+			taxonomyNode = TaxonomyUtils.createTaxonomyNode(uniProtEntry.getTaxID(), Parameters.getInstance().getTaxonomyMap());
+			if (taxonomyNode == null) {
+				if (unclassifiedNode == null) {
+					TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
+					unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
+				}
+				taxonomyNode = unclassifiedNode;
+			}
+		} else {
+			// create dummy UniProt entry
+			uniProtEntry = new ReducedUniProtEntry(1, "", "", "", null, null, null);
+			
+			// mark taxonomy as 'unclassified'
+			if (unclassifiedNode == null) {
+				TaxonomyNode rootNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root"); 
+				unclassifiedNode = new TaxonomyNode(0, TaxonomyRank.NO_RANK, "Unclassified", rootNode);
+			}
+			taxonomyNode = unclassifiedNode;
+		}
+		
+		ProteinHit proteinHit = dbSearchResult.getProteinHit(accession);
+		proteinHit.setTaxonomyNode(taxonomyNode);
+		proteinHit.setUniprotEntry(uniProtEntry);
+	}
+	
+	/**
+	 * Sets the database search result.
+	 * @param searchResult DbSearchResult instance.
+	 */
 	public void setSearchResult(DbSearchResult searchResult) {
 		this.searchResult = searchResult;
 	}
-
 
 	@Override
 	public void persist(String title, Map<String, String> properties, Object... params) {
