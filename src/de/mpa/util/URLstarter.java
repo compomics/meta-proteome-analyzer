@@ -18,7 +18,6 @@ public class URLstarter {
 	 * @param url
 	 */
 	public static void openURL(String url){
-		System.out.println("open " + url);
 		if(Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)){
 			try {
 				Desktop.getDesktop().browse(new URI(url));

@@ -196,7 +196,6 @@ public class PeptideDigester {
 	 */
 	public void createPeptidDB(String dbFile, String outFile,
 			int missedCleavage, int minLength, int maxLength) {
-		System.out.println("DBFile: " + dbFile + " outFile: " + outFile);
 		
 		// NEW IDEA:
 		// 3. TODO: Later: the number of aminoacids necassary (1, 2 ,3 or 4) should be estimated by fasta-file-size
@@ -285,14 +284,6 @@ public class PeptideDigester {
 					for (DigFASTAEntry pep : peptides) {
 						writer_1.write(pep.getSequence() + "\n");
 					}
-					
-					// feedback
-					prots_parsed++;
-					if (prots_parsed % 50000 == 0) {
-						// doesnt help
-						double output_percent =  ((double) prots_parsed) / protein_count;
-						System.out.println("Percent complete: "  + output_percent);
-					}
 				}
 			}
 			// Close the reader and writer
@@ -301,7 +292,6 @@ public class PeptideDigester {
 			
 			// Create multiple writers/readers for 21^2 different files
 			for (String AminoAcids : FileExtensions) {
-				System.out.println("Writing File for: " + AminoAcids);
 				// read temp file
 				BufferedReader read_1 = new BufferedReader(new FileReader(temp_file));
 				// init peptide2protein map

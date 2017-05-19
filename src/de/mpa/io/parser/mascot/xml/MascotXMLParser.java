@@ -108,7 +108,7 @@ public class MascotXMLParser {
 							descriptions.add(this.getTagValue("prot_desc", protElement));
 						} catch (Exception e) {
 							if (this.verbose) {
-								System.out.println("WARNING: no prot_desc found at hit " + num + 
+								System.err.println("WARNING: no prot_desc found at hit " + num + 
 										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							descriptions.add(null);
@@ -118,7 +118,7 @@ public class MascotXMLParser {
 							scores.add(Double.parseDouble(this.getTagValue("prot_score", protElement)));
 						} catch (Exception e) {
 							if (this.verbose) {
-								System.out.println("WARNING: no prot_score found at hit " + num + 
+								System.err.println("WARNING: no prot_score found at hit " + num + 
 										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							scores.add(null);
@@ -128,7 +128,7 @@ public class MascotXMLParser {
 							masses.add(Double.parseDouble(this.getTagValue("prot_mass", protElement)));
 						} catch (Exception e) {
 							if (this.verbose) {
-								System.out.println("WARNING: no prot_mass found at hit " + num + 
+								System.err.println("WARNING: no prot_mass found at hit " + num + 
 										" in protein " + (j+1) + " in file " + this.xmlFile.getName());
 							}
 							masses.add(null);
@@ -169,7 +169,7 @@ public class MascotXMLParser {
 							} 
 							catch (Exception e) {
 								if (this.verbose) {
-									System.out.println("WARNING: no pep_exp_mz found at protein hit " + num +
+									System.err.println("WARNING: no pep_exp_mz found at protein hit " + num +
 											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
@@ -180,7 +180,7 @@ public class MascotXMLParser {
 							} 
 							catch (Exception e) {
 								if (this.verbose) {
-									System.out.println("WARNING: no pep_exp_z found at protein hit " + num +
+									System.err.println("WARNING: no pep_exp_z found at protein hit " + num +
 											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
@@ -190,7 +190,7 @@ public class MascotXMLParser {
 								peptideHit.setSequence(this.getTagValue("pep_seq", peptideElement));
 							} catch (Exception e) {
 								if (this.verbose) {
-									System.out.println("WARNING: no pep_seq found at protein hit " + num +
+									System.err.println("WARNING: no pep_seq found at protein hit " + num +
 											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
@@ -218,7 +218,7 @@ public class MascotXMLParser {
 								peptideHit.setModifications(pepMods);
 							} catch (Exception e) {
 								if (this.verbose) {
-									System.out.println("WARNING: no pep_var_mod found at protein hit " + num +
+									System.err.println("WARNING: no pep_var_mod found at protein hit " + num +
 											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}
@@ -254,7 +254,7 @@ public class MascotXMLParser {
 								peptideHit.setScanTitle(scanTitle);
 							} catch (Exception e) {
 								if (this.verbose) {
-									System.out.println("WARNING: no pep_scan_title found at protein hit " + num +
+									System.err.println("WARNING: no pep_scan_title found at protein hit " + num +
 											", peptide " + (j+1) + " in file " + this.xmlFile.getName());
 								}
 							}

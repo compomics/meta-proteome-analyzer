@@ -20,7 +20,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.settings.Parameter.ButtonParameter;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.panels.DatabaseSearchSettingsPanel;
+import de.mpa.client.ui.inputpanel.DatabaseSearchSettingsPanel;
 
 /**
  * Class for storing Mascot search engine-specific settings.
@@ -121,7 +121,6 @@ public class MascotParameters extends ParameterMap {
 		private JSpinner fdrScoreSpn;
 
 		/** Flag indicating whether FDR filtering is available. */
-		@SuppressWarnings("unused")
 		private boolean decoy;
 
 		/**

@@ -3,6 +3,9 @@ package de.mpa.client;
 
 import javax.xml.bind.annotation.XmlRegistry;
 
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+
 
 /**
  * This object contains factory methods for each 

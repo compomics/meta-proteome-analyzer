@@ -6,7 +6,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 
-import de.mpa.client.SearchSettings;
+import de.mpa.client.settings.SearchSettings;
 
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC)

@@ -81,7 +81,6 @@ public class PropertyLoader {
 
 		if(System.getProperty("os.name").toLowerCase().indexOf("win")!=-1)
 			propFile = new File("./config_WINDOWS.properties");
-		//System.out.println(propFile.getAbsolutePath());
 		// error and exit if not found
 		if (!propFile.exists()) {
 			System.err
@@ -113,13 +112,6 @@ public class PropertyLoader {
 	 */
 	public static String getProperty(String key) {
 		return PropertyLoader.props.getProperty(key);
-	}
-
-	public static void main(String[] args) {
-		String pathFasta = getProperty(BASE_PATH)
-				+ getProperty(PATH_FASTA);
-		System.out.println(pathFasta);
-		
 	}
 
 }

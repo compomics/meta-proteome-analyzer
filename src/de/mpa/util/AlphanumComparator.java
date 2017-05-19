@@ -39,7 +39,6 @@ import java.util.Comparator;
  *   Use the static "sort" method from the java.util.Collections class:
  *   Collections.sort(your list, new AlphanumComparator());
  */
-@SuppressWarnings("rawtypes")
 public class AlphanumComparator implements Comparator {
 	
 	/**

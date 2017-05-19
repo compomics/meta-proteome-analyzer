@@ -2,8 +2,8 @@ package de.mpa.webservice;
 
 import java.util.Date;
 
-import de.mpa.db.job.Job;
-import de.mpa.db.job.JobStatus;
+import de.mpa.db.mysql.job.Job;
+import de.mpa.db.mysql.job.JobStatus;
 
 /**
  * <b> Message.java</b>

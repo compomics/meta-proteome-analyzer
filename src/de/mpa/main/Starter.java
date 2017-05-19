@@ -23,7 +23,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.ColorUIResource;
 
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -31,12 +30,13 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.theme.SkyBlue;
 
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.DelegateColor;
-import de.mpa.client.ui.ThinBevelBorder;
+import de.mpa.client.ui.menubar.dialogs.DelegateColor;
+import de.mpa.client.ui.sharedelements.ThinBevelBorder;
 
 /**
  * Starter class for the main application.
@@ -44,18 +44,6 @@ import de.mpa.client.ui.ThinBevelBorder;
  * @author T. Muth
  */
 public class Starter {
-	
-	/**
-	 * Flag denoting whether the application is in jar export mode.
-	 */
-	@Deprecated
-	private static final boolean jarExport = true;
-
-	/**
-	 * Flag denoting whether results should be loaded including nsaf and empai calculation.
-	 * This greatly improves loading times
-	 */
-	private static boolean fast_results;
 	
 	/**
 	 * The logger instance.
@@ -179,18 +167,7 @@ public class Starter {
 						// Set the look&feel
 						Starter.setLookAndFeel();
 						
-						boolean viewerMode = false;
-						boolean debugMode = false;
-						if (args.length > 0) {
-							for (String arg : args) {
-								if (arg.equalsIgnoreCase("-debug")) {
-									debugMode = true;
-								} else if (arg.equalsIgnoreCase("-viewer")) {
-									viewerMode = true;
-								}  
-							}
-						}
-						ClientFrame clientFrame = ClientFrame.getInstance(viewerMode, debugMode, Starter.fast_results);
+						ClientFrame clientFrame = ClientFrame.getInstance();
 						clientFrame.toFront();
 						
 					} catch (Exception e) {
@@ -224,15 +201,6 @@ public class Starter {
 		path = path.replace("%5b", "[");
 		path = path.replace("%5d", "]");
 		return path;
-	}
-	
-	/**
-	 * Checks whether the application is a jar export or not.
-	 * @return <code>true</code> if the application is being exported as jar, otherwise <code>false</code>.
-	 */
-	@Deprecated
-	public static boolean isJarExport() {
-		return Starter.jarExport;
 	}
 	
 	/**

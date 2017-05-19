@@ -49,8 +49,6 @@ public class MascotDatFileReader extends InputFileReader {
 		// Determine start and end positions
     	long summaryPos = this.spectrumPositions.get(index);
     	long queryPos = this.queryPositions.get(index);
-//    	System.out.println(summaryPos);
-//    	System.out.println(queryPos);
     	return this.loadSpectrum(index, summaryPos, queryPos);
 	}
 
@@ -134,7 +132,6 @@ public class MascotDatFileReader extends InputFileReader {
     		if (summary) {
             	if (line.startsWith("qmass")) {
             		if(!first) {
-//                		System.out.println("new Pos: " + newPos);
                 		first = true;
                 	}
                     this.spectrumPositions.add(newPos);

@@ -15,7 +15,8 @@ import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXBusyLabel;
 
-import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.sharedelements.Busyable;
+import de.mpa.client.ui.sharedelements.icons.IconConstants;
 
 /**
  * Tabbed pane extension featuring buttons with rollover effects as tab components.

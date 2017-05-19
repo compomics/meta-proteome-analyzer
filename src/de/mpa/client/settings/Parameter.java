@@ -173,13 +173,11 @@ public abstract class Parameter {
 		/**
 		 * The lower bound of the value range.
 		 */
-		@SuppressWarnings("rawtypes")
 		private final Comparable minimum;
 		
 		/**
 		 * The upper bound of the value range.
 		 */
-		@SuppressWarnings("rawtypes")
 		private final Comparable maximum;
 		
 		/**
@@ -202,7 +200,6 @@ public abstract class Parameter {
 		 * @param description the parameter description
 		 * @param section the section identifier
 		 */
-		@SuppressWarnings("rawtypes")
 		public NumberParameter(Number value, Comparable minimum, Comparable maximum, 
 				String name, String description, String section) {
 			this(value, minimum, maximum, true, name, description, section);
@@ -220,7 +217,6 @@ public abstract class Parameter {
 		 * @param description the parameter description
 		 * @param section the section identifier
 		 */
-		@SuppressWarnings("rawtypes")
 		public NumberParameter(Number value, Comparable minimum, Comparable maximum, 
 				boolean editable, String name, String description, String section) {
 			super(value, name, description, section);

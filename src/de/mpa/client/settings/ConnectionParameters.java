@@ -16,7 +16,7 @@ import javax.xml.ws.WebServiceException;
 
 import de.mpa.client.Client;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.icons.IconConstants;
+import de.mpa.client.ui.sharedelements.icons.IconConstants;
 import de.mpa.util.PropertyLoader;
 
 /**

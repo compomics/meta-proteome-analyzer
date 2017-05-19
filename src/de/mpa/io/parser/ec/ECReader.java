@@ -389,7 +389,6 @@ public class ECReader {
 	 * @param identifier
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private static ECNode getNode(ECNode parent, String identifier) {
 		short[] ecNums = toArray(identifier);
 		int depth = parent.getLevel() + 1;
@@ -417,7 +416,6 @@ public class ECReader {
 //	 * @return the path of tree nodes from the root to the desired node or
 //	 *  <code>null</code> if no such path exists
 //	 */
-//	@SuppressWarnings("unchecked")
 //	public static ECNode getNode(ECNode parent, String identifier) {
 //		if (identifier != null) {
 //			Enumeration<ECNode> dfe = parent.depthFirstEnumeration();

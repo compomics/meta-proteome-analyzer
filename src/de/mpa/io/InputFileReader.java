@@ -80,7 +80,6 @@ public abstract class InputFileReader {
     private int determineNewlineCharCount() {
     	int res = 0;
     	try {
-            @SuppressWarnings("resource")
 			BufferedReader br = new BufferedReader(new FileReader(this.file));
             int character;
             boolean eol = false;
@@ -170,7 +169,6 @@ public abstract class InputFileReader {
 	 * @param oldProgress
 	 * @param newProgress
 	 */
-	@SuppressWarnings("unused")
 	private void fireProgressMade(long oldProgress, long newProgress) {
 		for (PropertyChangeListener listener : this.listeners) {
 			listener.propertyChange(new PropertyChangeEvent(this, "progress", oldProgress, newProgress));

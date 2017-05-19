@@ -23,17 +23,15 @@ import javax.swing.filechooser.FileFilter;
 
 import com.thoughtworks.xstream.XStream;
 
-import de.mpa.analysis.UniProtUtilities;
-import de.mpa.analysis.taxonomy.TaxonomyNode;
-import de.mpa.client.model.AbstractProject;
-import de.mpa.client.ui.DelegateColor;
-import de.mpa.client.ui.ExtensionFileFilter;
+import de.mpa.client.ui.menubar.dialogs.DelegateColor;
+import de.mpa.client.ui.sharedelements.ExtensionFileFilter;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.parser.ec.ECNode;
 import de.mpa.io.parser.ec.ECReader;
 import de.mpa.io.parser.kegg.KEGGMap;
 import de.mpa.io.parser.kegg.KEGGReader;
-import de.mpa.main.Starter;
+import de.mpa.model.analysis.UniProtUtilities;
+import de.mpa.model.taxonomy.TaxonomyNode;
 import de.mpa.util.PropertyLoader;
 
 /**
@@ -47,6 +45,12 @@ public class Constants {
 	static{
 		
 	}
+	
+	/**
+	 * Flag denoting whether results should be loaded including nsaf and empai calculation.
+	 * This greatly improves loading times
+	 */
+	public static final boolean fast_results = true;
 	
 	/**
 	 * User directory of the MPA
@@ -151,7 +155,7 @@ public class Constants {
 	/**
 	 * Path string of the temporary backup database search result object.
 	 */
-	public static final String BACKUP_RESULT_PATH = "tmp.mpa";
+	public static final String BACKUP_RESULT_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "tmp.mpa";
 
 	/**
 	 * Path of the FASTA directory
@@ -265,34 +269,6 @@ public class Constants {
 	}
 
 	/**
-	 * 
-	 * C:\Users\kaysc\Desktop\MPAv2\software\MPApackage\conf
-	 * C:\Users\kaysc\Desktop\MPAv2\\software\MPApackage\conf\\userqueries.xml
-	 * 
-	 * Returns the projects file.
-	 * 
-	 * @return the projects file
-	 * @throws Exception
-	 *             if the file could not be found or created
-	 */
-	public static File getProjectsFile() throws Exception {
-		File projectsFile;
-		URL resource = Constants.class.getResource(CONFIGURATION_PATH_JAR + "projects.xml");
-		if (resource != null) {
-			projectsFile = new File(resource.toURI());
-		} else {
-			File confFolder = new File(Constants.class.getResource(CONFIGURATION_PATH_JAR).toURI());
-			projectsFile = new File(confFolder, "projects.xml");
-		}
-		if (!projectsFile.exists()) {
-			// create new projects file
-			new XStream().toXML(new ArrayList<AbstractProject>(),
-					new BufferedOutputStream(new FileOutputStream(projectsFile)));
-		}
-		return projectsFile;
-	}
-
-	/**
 	 * Concatenates two one-dimensional object arrays.
 	 * 
 	 * @param <T>
@@ -303,7 +279,6 @@ public class Constants {
 	 *            The array that is to be appended.
 	 * @return An array containing the elements of <i>A</i> and <i>B</i>.
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T[] concat(T[] A, T[] B) {
 		T[] C = (T[]) new Object[A.length + B.length];
 		System.arraycopy(A, 0, C, 0, A.length);

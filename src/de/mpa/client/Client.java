@@ -14,14 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -32,45 +28,40 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.MTOMFeature;
 
-import de.mpa.client.settings.SpectrumFetchParameters;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 
-import de.mpa.client.model.AbstractExperiment;
-import de.mpa.client.model.AbstractProject;
-import de.mpa.client.model.DatabaseExperiment;
-import de.mpa.client.model.MultipleDatabaseExperiments;
-import de.mpa.client.model.SpectrumMatch;
-import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.ProteinHitList;
-import de.mpa.client.model.specsim.SpecSimResult;
 import de.mpa.client.settings.ConnectionParameters;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.client.ui.CheckBoxTreeSelectionModel;
-import de.mpa.client.ui.CheckBoxTreeTable;
-import de.mpa.client.ui.CheckBoxTreeTableNode;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.client.settings.SpectrumFetchParameters;
 import de.mpa.client.ui.ClientFrame;
-import de.mpa.client.ui.panels.ProjectPanel;
-import de.mpa.db.DBConfiguration;
-import de.mpa.db.accessor.ExpProperty;
-import de.mpa.db.accessor.ExperimentAccessor;
-import de.mpa.db.accessor.Omssahit;
-import de.mpa.db.accessor.SearchHit;
-import de.mpa.db.accessor.Searchspectrum;
-import de.mpa.db.accessor.Spectrum;
-import de.mpa.db.accessor.XTandemhit;
-import de.mpa.db.extractor.SpectrumExtractor;
-import de.mpa.graphdb.insert.GraphDatabaseHandler;
-import de.mpa.graphdb.setup.GraphDatabase;
+import de.mpa.client.ui.sharedelements.tables.CheckBoxTreeSelectionModel;
+import de.mpa.client.ui.sharedelements.tables.CheckBoxTreeTable;
+import de.mpa.client.ui.sharedelements.tables.CheckBoxTreeTableNode;
+import de.mpa.db.mysql.DBConfiguration;
+import de.mpa.db.mysql.accessor.Omssahit;
+import de.mpa.db.mysql.accessor.SearchHit;
+import de.mpa.db.mysql.accessor.Searchspectrum;
+import de.mpa.db.mysql.accessor.Spectrum;
+import de.mpa.db.mysql.accessor.XTandemhit;
+import de.mpa.db.mysql.extractor.SpectrumExtractor;
+import de.mpa.db.neo4j.insert.GraphDatabaseHandler;
+import de.mpa.db.neo4j.setup.GraphDatabase;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
-import de.mpa.main.Starter;
+import de.mpa.model.MPAExperiment;
+import de.mpa.model.dbsearch.DbSearchResult;
 
 public class Client {
 
+	/*
+	 * FIELDS 
+	 */
+	
 	/** 
 	 * Client instance.
 	 */
@@ -107,25 +98,18 @@ public class Client {
 	private final PropertyChangeSupport pSupport;
 	
 	/**
-	 * Database search result.
+	 * Database search result
 	 */
 	private DbSearchResult dbSearchResult;
 
-	/**
-	 * Flag denoting whether client is in viewer mode.
-	 */
-	private final boolean viewer;
-	
-	/**
-	 * Flag for debugging options.
-	 */
-	private final boolean debug;
-	
 	/**
 	 * GraphDatabaseHandler.
 	 */
 	private GraphDatabaseHandler graphDatabaseHandler;
 
+	/**
+	 * Server connection
+	 */
 	private Client.RequestThread requestThread;
 
 	/**
@@ -133,40 +117,41 @@ public class Client {
 	 */
 	private boolean fast_results = true;
 
-
-	public boolean isfast_results() {
-		return this.fast_results;
-	}
-
-	public void setfast_results(boolean nsaf_empai_coverage_flag) {
-		fast_results = nsaf_empai_coverage_flag;
-	}
-
-	/**
-	 * Creates the singleton client instance in non-viewer, non-debug mode.
+	/*
+	 * CONSTRUCTOR
 	 */
-	private Client() {
-		this(false, false, false);
-	}
 
 	/**
 	 * Creates the singleton client instance using the specified viewer and debug mode flags.
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	private Client(boolean viewer, boolean debug, boolean fast) {
-		this.viewer = viewer;
-		this.debug = debug;
+	private Client(boolean fast) {
 		fast_results = fast;
 		pSupport = new PropertyChangeSupport(this);
 	}
+	
+	/*
+	 * METHODS
+	 */
 
 	/**
 	 * Returns the client singleton instance.
 	 * @return the client singleton instance
 	 */
 	public static Client getInstance() {
+		if (Client.instance == null) {
+			Client.init();
+		}
 		return Client.instance;
+	}
+	
+	/**
+	 * Fast results flag denotes if nsaf/emapi are calculated drastically increasing time to populate result tables. 
+	 * @return boolean false=full calculations for nsaf/empai 
+	 */
+	public boolean isfast_results() {
+		return this.fast_results;
 	}
 
 	/**
@@ -174,9 +159,9 @@ public class Client {
 	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
-	public static void init(boolean viewer, boolean debug, boolean fast_results) {
+	public static void init() {
 		if (Client.instance == null) {
-			Client.instance = new Client(viewer, debug, fast_results);
+			Client.instance = new Client(Constants.fast_results);
 		}
 	}
 
@@ -403,12 +388,7 @@ public class Client {
 		// Create a new graph database.
 		// Setup the graph database handler. 
 		GraphDatabase graphDb;
-		if (Starter.isJarExport()) {
-//			graphDb = new GraphDatabase("/scratch/metaprot/software/MPApackage/target/graphdb", true);
-			graphDb = new GraphDatabase("target/graphdb", true);
-		}else{
-			graphDb = new GraphDatabase("target/graphdb", true);
-		}
+		graphDb = new GraphDatabase("target/graphdb", true);
 		
 		// Setup the graph database handler. 
 		this.graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
@@ -424,10 +404,10 @@ public class Client {
 	 * @return The corresponding spectrum file object.
 	 * @throws SQLException
 	 */
-	public MascotGenericFile getSpectrumBySearchSpectrumID(long searchspectrumID) throws SQLException {
+	public MascotGenericFile getSpectrumBySpectrumID(long spectrumID) throws SQLException {
 		// TODO: delegate to experiment implementation
 		this.getConnection();
-		return new SpectrumExtractor(this.conn).getSpectrumBySearchSpectrumID(searchspectrumID);
+		return new SpectrumExtractor(this.conn).getSpectrumBySpectrumID(spectrumID);
 	}
 
 	/**
@@ -617,75 +597,63 @@ public class Client {
 	 * @param pathname the string representing the desired file path and name for the result object
 	 */
 	public void exportDatabaseSearchResult(String pathname) {
-		DbSearchResult dbSearchResult = this.restoreBackupDatabaseSearchResult();
 		
-		Set<SpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
-	
-		// Dump referenced spectra to separate MGF
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
-		String status = "FINISHED";
-		// TODO: clean up mix of Java IO and NIO APIs
-		try {
-			String prefix = pathname.substring(0, pathname.indexOf('.'));
-			File mgfFile = new File(prefix + ".mgf");
-			FileOutputStream fos = new FileOutputStream(mgfFile);
-			long index = 0L;
-			for (SpectrumMatch spectrumMatch : spectrumMatches) {
-				spectrumMatch.setStartIndex(index);
-				MascotGenericFile mgf = getInstance().getSpectrumBySearchSpectrumID(
-						spectrumMatch.getSearchSpectrumID());
-				mgf.writeToStream(fos);
-				index = mgfFile.length();
-				spectrumMatch.setEndIndex(index);
-				spectrumMatch.setTitle(mgf.getTitle());
-				firePropertyChange("progressmade", false, true);
-			}
-			fos.flush();
-			fos.close();
-		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			status = "FAILED";
-		}
-		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
-	
-		// Dump results object to file
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
-		status = "FINISHED";
-		firePropertyChange("indeterminate", false, true);
-		try {
-//			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
-//			if (!backupFile.exists()) {
-//				// technically this should never happen
-//				System.err.println("No result file backup detected, creating new one...");
-			dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+		// TODO: method broken
+		
+//		DbSearchResult dbSearchResult = this.restoreBackupDatabaseSearchResult();
+//		
+//		Set<PeptideSpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
+//	
+//		// Dump referenced spectra to separate MGF
+//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+//		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+//		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+//		String status = "FINISHED";
+//		// TODO: clean up mix of Java IO and NIO APIs
+//		try {
+//			String prefix = pathname.substring(0, pathname.indexOf('.'));
+//			File mgfFile = new File(prefix + ".mgf");
+//			FileOutputStream fos = new FileOutputStream(mgfFile);
+//			long index = 0L;
+//			for (PeptideSpectrumMatch spectrumMatch : spectrumMatches) {
+//				spectrumMatch.setStartIndex(index);
+//				MascotGenericFile mgf = getInstance().getSpectrumBySearchSpectrumID(
+//						spectrumMatch.getSearchSpectrumID());
+//				mgf.writeToStream(fos);
+//				index = mgfFile.length();
+//				spectrumMatch.setEndIndex(index);
+//				spectrumMatch.setTitle(mgf.getTitle());
+//				firePropertyChange("progressmade", false, true);
 //			}
-			// Copy backup file to target location
-			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			status = "FAILED";
-		}
-		firePropertyChange("indeterminate", true, false);
-		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
-	}
-	
-	/**
-	 * Dumps the specified search result object as a binary file identified by the specified path name.
-	 * @param result the result object to dump
-	 * @param pathname the path name string
-	 * @throws IOException if an I/O error occurs
-	 */
-	private void dumpDatabaseSearchResult(DbSearchResult result, String pathname) throws IOException {
-		// store as compressed binary object
-		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
-				new GZIPOutputStream(new FileOutputStream(new File(pathname)))));
-		oos.writeObject(result);
-		oos.flush();
-		oos.close();
+//			fos.flush();
+//			fos.close();
+//		} catch (Exception e) {
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+//			status = "FAILED";
+//		}
+//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+//	
+//		// Dump results object to file
+//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+//		status = "FINISHED";
+//		firePropertyChange("indeterminate", false, true);
+//		try {
+////			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
+////			if (!backupFile.exists()) {
+////				// technically this should never happen
+////				System.err.println("No result file backup detected, creating new one...");
+//			dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+////			}
+//			// Copy backup file to target location
+//			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
+//		} catch (IOException e) {
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+//			status = "FAILED";
+//		}
+//		firePropertyChange("indeterminate", true, false);
+//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
 	
 	/**
@@ -694,10 +662,15 @@ public class Client {
 	 */
 	public void dumpBackupDatabaseSearchResult() {
 		try {
-			dumpDatabaseSearchResult(this.dbSearchResult, Constants.BACKUP_RESULT_PATH);
-		} catch (IOException e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(
+					new GZIPOutputStream(new FileOutputStream(new File(Constants.BACKUP_RESULT_PATH)))));
+			oos.writeObject(this.dbSearchResult);
+			oos.close();
+		} catch (Exception e) {
+			// TODO: fix this 
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+			e.printStackTrace();
 		}
 	}
 	
@@ -706,18 +679,16 @@ public class Client {
 	 * @return the restored result object or <code>null</code> if an error occurred
 	 */
 	public DbSearchResult restoreBackupDatabaseSearchResult() {
-		AbstractExperiment currentExperiment = ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
-		try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
-				new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))))) {
-			DbSearchResult restoredDbSearchResult = (DbSearchResult) ois.readObject();
-//			currentExperiment.setSearchResult(restoredDbSearchResult);
-			// Has to update the dbSearchResult object in the client, too
-			this.dbSearchResult = restoredDbSearchResult;
-			ClientFrame.getInstance().getResultsPanel().setDBSearchResultObj(this.dbSearchResult);
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
+					new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))));
+			this.dbSearchResult = (DbSearchResult) ois.readObject();
+			ois.close();
 		} catch (Exception e) {
-			JXErrorPane.showDialog(ClientFrame.getInstance(),
-					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-			currentExperiment.clearSearchResult();
+			// TODO: fix this 
+//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			e.printStackTrace();
 		} 
 		return this.dbSearchResult;
 	}
@@ -755,8 +726,8 @@ public class Client {
 	 * @throws SQLException 
 	 */
 	public Connection getDatabaseConnection() throws SQLException {
-		if ((this.conn == null) && !Client.isViewer()) {
-			getConnection();
+		if ((this.conn == null)) {
+			this.getConnection();
 		}
 		return this.conn;
 	}
@@ -801,56 +772,18 @@ public class Client {
 		return this.dbSearchResult;
 	}
 	
-	/**
-	 * Returns searchresult constructed from the experiment currently selected in the 
-	 * 
-	 * @return
-	 */
-	public DbSearchResult getSingleSearchResult() {
-		LinkedList<Long> experimentList = new LinkedList<Long>();
-		AbstractExperiment selexp = ClientFrame.getInstance().getProjectPanel().getSelectedExperiment();
-		experimentList.add(selexp.getID());
-		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, selexp.getTitle(), new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
-		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
-		dbSearchResult = searchResult;
-		return this.dbSearchResult;
+	public void newDatabaseSearchResult(ArrayList<MPAExperiment> expList) {
+		this.dbSearchResult = new DbSearchResult("", expList, "");
+		try {
+			this.dbSearchResult.getSearchResultByView();
+			// init charts
+			ClientFrame.getInstance().getResultsPanel().initChartData();
+			this.dumpBackupDatabaseSearchResult();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	/**
-	 * Returns the database search result of all experiments in the list.
-	 * @return dbSearchResult The database search result of all listet experiments.
-	 */
-	public DbSearchResult getMultipleSearchResults(LinkedList<Long> experimentList) {
-		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(experimentList, "MultipleExperimentObject", new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
-		DbSearchResult searchResult = multipleDatabaseExperiments.getSearchResult();
-		dbSearchResult = searchResult;
-		return this.dbSearchResult;
-	}
-	
-	/**
-	 * Returns the database search result independent of type of result
-	 * @return dbSearchResult The database search result of single or all listed experiments.
-	 */
-	public DbSearchResult fetchResults() {
-		return this.dbSearchResult;
-	}
-	
-	/**
-	 * Returns whether the client is in viewer mode.
-	 * @return <code>true</code> if in viewer mode, <code>false</code> otherwise.
-	 */
-	public static boolean isViewer() {
-		return Client.instance.viewer;
-	}
-	
-	/**
-	 * Returns whether the client is in debug mode
-	 * @return <code>true</code> if in debug mode, <code>false</code> otherwise.
-	 */
-	public static boolean isDebug() {
-		return Client.instance.debug;
-	}
-
 	/**
 	 * Shuts down the application.
 	 */

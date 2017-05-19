@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.db.job.JobStatus;
+import de.mpa.db.mysql.job.JobStatus;
 
 /**
  * Custom collection to hold message strings to be transferred between client and server.

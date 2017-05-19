@@ -59,7 +59,6 @@ public class XMLStripper {
 			
 			// strip off tags
 			for (String tagName : tags2strip) {
-				System.out.print("Removing <" + tagName + "> tag... ");
 				// find all occurrences of tag
 				NodeList tags = doc.getElementsByTagName(tagName);	
 				int length = tags.getLength();
@@ -68,7 +67,6 @@ public class XMLStripper {
 					// remove node from parent
 					node.getParentNode().removeChild(node);
 				}
-				System.out.println("done.");
 			}
 			
 			// wrap document in DOM source
@@ -89,14 +87,12 @@ public class XMLStripper {
 	 */
 	public void write(File output, Source domSrc)
 			throws TransformerFactoryConfigurationError, TransformerException {
-		System.out.print("Writing output file... ");
 		if ((output != null) && (domSrc != null)) {
 			Result res = new StreamResult(output);
 
 			// Write the DOM document to the file
 			Transformer xformer = TransformerFactory.newInstance().newTransformer();
 			xformer.transform(domSrc, res);
-			System.out.println("done!");
 		} else {
 			System.err.println("failed!");
 		}

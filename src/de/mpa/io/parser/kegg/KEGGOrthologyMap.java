@@ -23,7 +23,6 @@ public class KEGGOrthologyMap extends KEGGMap {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void mapLeaves() {
 		// iterate all tree nodes
 		Enumeration<KEGGOrthologyNode> dfe = getRoot().depthFirstEnumeration();

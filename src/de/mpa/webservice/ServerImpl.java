@@ -19,29 +19,29 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
-import de.mpa.client.DbSearchSettings;
-import de.mpa.client.SearchSettings;
-import de.mpa.client.model.dbsearch.SearchEngineType;
-import de.mpa.db.DBManager;
-import de.mpa.db.MapContainer;
-import de.mpa.db.extractor.SpectrumExtractor;
-import de.mpa.db.extractor.SpectrumUtilities;
-import de.mpa.db.job.Job;
-import de.mpa.db.job.JobManager;
-import de.mpa.db.job.JobStatus;
-import de.mpa.db.job.SearchType;
-import de.mpa.db.job.ServerProperties;
-import de.mpa.db.job.instances.CommonJob;
-import de.mpa.db.job.instances.DeleteJob;
-import de.mpa.db.job.instances.OmssaJob;
-import de.mpa.db.job.instances.StoreJob;
-import de.mpa.db.job.instances.XTandemJob;
-import de.mpa.db.job.scoring.OmssaScoreJob;
-import de.mpa.db.job.scoring.XTandemScoreJob;
+import de.mpa.client.settings.DbSearchSettings;
+import de.mpa.client.settings.SearchSettings;
+import de.mpa.db.mysql.DBManager;
+import de.mpa.db.mysql.MapContainer;
+import de.mpa.db.mysql.extractor.SpectrumExtractor;
+import de.mpa.db.mysql.extractor.SpectrumUtilities;
+import de.mpa.db.mysql.job.Job;
+import de.mpa.db.mysql.job.JobManager;
+import de.mpa.db.mysql.job.JobStatus;
+import de.mpa.db.mysql.job.SearchType;
+import de.mpa.db.mysql.job.ServerProperties;
+import de.mpa.db.mysql.job.instances.CommonJob;
+import de.mpa.db.mysql.job.instances.DeleteJob;
+import de.mpa.db.mysql.job.instances.OmssaJob;
+import de.mpa.db.mysql.job.instances.StoreJob;
+import de.mpa.db.mysql.job.instances.XTandemJob;
+import de.mpa.db.mysql.job.scoring.OmssaScoreJob;
+import de.mpa.db.mysql.job.scoring.XTandemScoreJob;
 import de.mpa.io.MascotGenericFile;
 import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.PeptideDigester;
+import de.mpa.model.dbsearch.SearchEngineType;
 import de.mpa.util.PropertyLoader;
 
 
@@ -104,7 +104,6 @@ public class ServerImpl implements Server {
 	 * @param dbSearchSettings The database search settings.
 	 * @throws Exception
 	 */
-	@SuppressWarnings("static-access")
 	private void addDbSearchJobs(String filename, DbSearchSettings dbSearchSettings) {	
 		String pathTransfer = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + PropertyLoader.getProperty(PropertyLoader.PATH_TRANSFER);
 		File file = new File(pathTransfer + filename);

@@ -19,10 +19,10 @@ import javax.swing.SpinnerNumberModel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
-import de.mpa.analysis.MetaProteinFactory;
-import de.mpa.analysis.taxonomy.TaxonomyUtils.TaxonomyDefinition;
-import de.mpa.analysis.MetaProteinFactory.ClusterRule;
-import de.mpa.analysis.MetaProteinFactory.PeptideRule;
+import de.mpa.model.analysis.MetaProteinFactory;
+import de.mpa.model.analysis.MetaProteinFactory.ClusterRule;
+import de.mpa.model.analysis.MetaProteinFactory.PeptideRule;
+import de.mpa.model.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 
 /**
  * Class for storing search result fetching-specific parameters.

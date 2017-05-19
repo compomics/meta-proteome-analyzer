@@ -27,7 +27,7 @@ import java.util.TreeSet;
 
 import com.compomics.util.interfaces.SpectrumFile;
 
-import de.mpa.db.accessor.Spectrum;
+import de.mpa.db.mysql.accessor.Spectrum;
 
 /**
  * This class maps a Mascot Generic File to memory. It allows for search and retrieval as well as comparing
@@ -570,7 +570,7 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
                             this.iCharges.put(mass, new Integer(charge));
                         }                     
                     } else {
-                        System.out.println("\n\nUnrecognized line at line number " + lineCount + ": '" + line + "'!\n");
+                        System.err.println("\n\nUnrecognized line at line number " + lineCount + ": '" + line + "'!\n");
                     }
                 }
             }
@@ -855,9 +855,8 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
         iFilename = aFilename;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public void setPeaks(@SuppressWarnings("rawtypes") HashMap aPeaks) {
+	public void setPeaks(HashMap aPeaks) {
         iPeaks = aPeaks;
 	}
 

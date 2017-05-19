@@ -31,7 +31,6 @@ public class KEGGMap extends LinkedHashMap<Object, List<KEGGNode>> {
 	/**
 	 * Maps all leaf nodes to their name string.
 	 */
-	@SuppressWarnings("unchecked")
 	protected void mapLeaves() {
 		// iterate all tree nodes
 		Enumeration<KEGGNode> dfe = this.root.depthFirstEnumeration();
