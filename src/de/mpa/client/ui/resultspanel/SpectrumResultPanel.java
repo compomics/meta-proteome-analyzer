@@ -46,12 +46,12 @@ public class SpectrumResultPanel extends JPanel {
 	final int SPEC_SNR = 4;
 	final int SPEC_XTANDEM = 5;
 	final int SPEC_OMSSA = 6;
-	final int SPEC_INSPECT = 7;
-	final int SPEC_CRUX = 8;
-	final int SPEC_MASCOT = 9;
-	final int SPEC_SPECLIB = 10;
-	final int SPEC_PEPTIDE = 11;
-	final int SPEC_PROTEIN = 12;
+//	final int SPEC_INSPECT = 7;
+//	final int SPEC_CRUX = 8;
+	final int SPEC_MASCOT = 7;
+//	final int SPEC_SPECLIB = 10;
+	final int SPEC_PEPTIDE = 8;
+	final int SPEC_PROTEIN = 9;
 
 	/**
 	 * The spectrum table
@@ -120,7 +120,7 @@ public class SpectrumResultPanel extends JPanel {
 			{
                 this.setColumnIdentifiers(new Object[] {
 						"#", "Spectrum", "Peaks", "TIC", "SNR",
-						"X", "O", "I", "C", "M", "S", "Peptide", "Protein"});
+						"X", "O", "M", "Peptide", "Protein"});
 			}
 	
 			@Override
@@ -134,11 +134,7 @@ public class SpectrumResultPanel extends JPanel {
 				case SPEC_SELECTION:
 				case SPEC_XTANDEM:
 				case SPEC_OMSSA:
-				case SPEC_INSPECT:
-				case SPEC_CRUX:
 				case SPEC_MASCOT:
-				case SPEC_SPECLIB:
-					return Boolean.class;
 				case SPEC_PEAKS:
 					return Integer.class;
 				case SPEC_TIC:
@@ -202,14 +198,12 @@ public class SpectrumResultPanel extends JPanel {
 				// TODO: use actual values
 				specTblMdl.addRow(new Object[] {
 						true,
-						specMatch.getSpectrumID(), // XXX does this work? 
+						specMatch.getSpectrumID(), 
 						1,
 						1,
 						1,
 						isXtandem,
 						isOmssa,
-						isInspect,
-						isCrux,
 						isMascot,
 						isSpecLib,
 						"NAME",

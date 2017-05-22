@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.JProgressBar;
+
 import org.apache.log4j.Logger;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
+import de.mpa.client.Constants;
 import de.mpa.util.PropertyLoader;
 
 public class PeptideDigester {
@@ -31,14 +34,21 @@ public class PeptideDigester {
 	private AtomicInteger proteinNumber;
 	private AtomicInteger peptideNumber;
 	private AtomicInteger peptideNumberUnique;
-
+	
+	private JProgressBar progressbar = null;
 	private final Logger log = Logger.getLogger(this.getClass());
 
 	public PeptideDigester() {
-
         this.peptideNumberUnique = new AtomicInteger();
         this.peptideNumber = new AtomicInteger();
         this.proteinNumber = new AtomicInteger();
+	}
+
+	public PeptideDigester(JProgressBar progressbar) {
+        this.peptideNumberUnique = new AtomicInteger();
+        this.peptideNumber = new AtomicInteger();
+        this.proteinNumber = new AtomicInteger();
+        this.progressbar = progressbar;
 	}
 
 	/**
@@ -202,7 +212,12 @@ public class PeptideDigester {
 		
 		// The String contains all permissible Amino acids (including * and X)
 		// Should be implemented as parameter (not hard-coded here)
-		String AllAminoAcids = "GPAVLIMCFYWHKRQNEDSTJBOXZU*";
+		String AllAminoAcids;
+		if (Constants.winOS = true) {
+			AllAminoAcids = "GPAVLIMCFYWHKRQNEDSTJBOXZU_";
+		} else {
+			AllAminoAcids = "GPAVLIMCFYWHKRQNEDSTJBOXZU*";
+		}
 		
 		
 		
@@ -290,6 +305,7 @@ public class PeptideDigester {
 			reader.close();
 			writer_1.close();
 			
+			int count = 0;
 			// Create multiple writers/readers for 21^2 different files
 			for (String AminoAcids : FileExtensions) {
 				// read temp file
@@ -345,6 +361,14 @@ public class PeptideDigester {
 				}
 				pepwriter.close();
 				pep2prot = null;
+				
+				// peptideparser progress is from 75% to 100%
+				if (progressbar != null) {
+					
+					int progress = (int) (75 + (count*1.0 / (FileExtensions.size())*1.0) * 25 ); 
+					this.progressbar.setValue(progress);
+				}
+				
 			}
 			// delete temp_file
 			temp_file.delete();

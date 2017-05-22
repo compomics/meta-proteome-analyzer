@@ -852,7 +852,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		final SortableTreeTableModel treeTblMdl = new SortableTreeTableModel(root) {
 			// Install column names
 			{
-				setColumnIdentifiers(Arrays.asList("ID", "z", "Pep", "X", "O", "C", "I", "M"));
+				setColumnIdentifiers(Arrays.asList("ID", "z", "Pep", "X", "O", "M"));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -865,7 +865,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			}
 		};
-
 		// Create table from model
 		final SortableCheckBoxTreeTable treeTbl = new SortableCheckBoxTreeTable(treeTblMdl) {
 			/** The text to display on top of the table when it's empty */
@@ -911,7 +910,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				return null;
 			}
 		};
-
 		// Install component header
 		TableColumnModelExt tcm = (TableColumnModelExt) treeTbl.getColumnModel();
 		String[] columnToolTips = {
@@ -920,8 +918,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				"Peptide Sequences",
 				"X!Tandem Confidence",
 				"Omssa Confidence",
-				"Crux Confidence",
-				"InsPecT Confidence",
 				"Mascot Confidence"
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
@@ -929,7 +925,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		for (int i = 0; i < columnToolTips.length; i++) {
 			treeTbl.getColumnExt(i).setToolTipText(columnToolTips[i]);
 		}
-
 		// Install mouse listeners in header for right-click popup capabilities
 		MouseAdapter ma = ProteinTreeTables.createHeaderMouseAdapter(treeTbl);
 		ch.addMouseListener(ma);
@@ -937,15 +932,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 		// Force column factory to generate columns to properly cache widths
 		((AbstractTableModel) treeTbl.getModel()).fireTableStructureChanged();
-
-		TableConfig.setColumnWidths(treeTbl, new double[] { 10, 1, 0, 1, 1, 1, 1, 1 });
+		TableConfig.setColumnWidths(treeTbl, new double[] { 10, 1, 0, 1, 1, 1 });
 		TableConfig.setColumnMinWidths(
 				treeTbl, UIManager.getIcon("Table.ascendingSortIcon").getIconWidth(), 22, treeTbl.getFont());
-
 		// Pre-select root node
 		final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
 		cbtsm.setSelectionPath(new TreePath(root));
-
 		cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
 			public void valueChanged(TreeSelectionEvent tse) {
@@ -961,10 +953,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				}
 			}
 		});
-
 		// Set default sort order (PSM ID, ascending)
 		((TreeTableRowSorter) treeTbl.getRowSorter()).setSortOrder(0, SortOrder.ASCENDING);
-
 		// Install selection listener to update spectrum panel
 		treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 			@Override
@@ -1034,7 +1024,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 		treeTbl.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-
 		// Reduce node indents to make tree more compact horizontally
 		treeTbl.setIndents(0, 0, 2);
 		// Hide root node
@@ -1048,7 +1037,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		};
 		treeTbl.setIconValue(iv);
-
 		// Install renderers and highlighters
 		tcm.getColumnExt(1).addHighlighter(new FormatHighlighter(SwingConstants.CENTER, "+0"));
 		tcm.getColumnExt(3).addHighlighter(new BarChartHighlighter(
@@ -1056,18 +1044,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		tcm.getColumnExt(4).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_CYAN, ColorUtils.LIGHT_CYAN));
 		tcm.getColumnExt(5).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_BLUE, ColorUtils.LIGHT_BLUE));
-		tcm.getColumnExt(6).addHighlighter(new BarChartHighlighter(
-				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_MAGENTA, ColorUtils.LIGHT_MAGENTA));
-		tcm.getColumnExt(7).addHighlighter(new BarChartHighlighter(
 				0.8, 1.0, 0, SwingConstants.VERTICAL, ColorUtils.DARK_ORANGE, ColorUtils.LIGHT_ORANGE));
-
 		// Initially hide parent peptides column
 		tcm.getColumnExt(2).setVisible(false);
 
 		// Enable column control widget
 		TableConfig.configureColumnControl(treeTbl);
-
 		return treeTbl;
 	}
 
@@ -1876,11 +1858,11 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// Insert peptide nodes
 		SortableTreeTableModel treeTblMdl;
 		DefaultMutableTreeTableNode root;
-		int maxProtCount, maxSpecCount = 0;
 		treeTblMdl = (SortableTreeTableModel) peptideTbl
 				.getTreeTableModel();
 		root = (DefaultMutableTreeTableNode) treeTblMdl.getRoot();
-		maxProtCount = 0;
+		int maxProtCount = 0;
+		int maxSpecCount = 0;
 		if (peptides != null) {
 			for (PeptideHit peptide : peptides) {
 				PhylogenyTreeTableNode pepNode = new PhylogenyTreeTableNode(
@@ -1895,7 +1877,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				treeTblMdl.sort();
 				treeTblMdl.setRoot(root);
 			}
-
+			
 			// Adjust highlighters
 			peptideTbl.updateHighlighters(1, 0, maxProtCount);
 			peptideTbl.updateHighlighters(3, 0, maxSpecCount);

@@ -150,7 +150,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 				}
 				return value;
 			case 3:
-				return ph.getPeptideSpectrumMatches().size();
+				return ph.getSpectralCount();
 			case 4:
 				return ph.getTaxonomyNode();
 			default:
@@ -161,9 +161,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			SearchHit searchHit;
 			switch (column) {
 			case 0:
-				// XXX: this might be a problem
 				return psm.getSpectrumID();
-				//				return psm.getSearchSpectrumID();
 			case 1:
 				return psm.getCharge();
 			case 2:
@@ -182,7 +180,7 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 			case 4:
 				searchHit = psm.getSearchHit(SearchEngineType.OMSSA);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
-			case 7:
+			case 5:
 				searchHit = psm.getSearchHit(SearchEngineType.MASCOT);
 				return searchHit == null ? 0.0 : 1.0 - searchHit.getQvalue().doubleValue();
 			default:

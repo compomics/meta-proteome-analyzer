@@ -48,7 +48,10 @@ public class RunFastaFormater {
         this.log.info("FASTAFORMATER:  Starts the fastaformter");
         this.log.info("FASTAFORMATER:  Database:");
         this.log.info("FASTAFORMATER:  " + fastaPath);
+        
+		System.out.println(fastaFormatQuery.toString());
 		
+        
 		// Construct Process
 		Process process = null;
 		try {
@@ -65,7 +68,7 @@ public class RunFastaFormater {
 			process.waitFor();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			process.destroy();
 			// Define permissions for the new *fasta-files
 			File fastaFolderFile = new File(Constants.FASTA_FORMATER_PATH);

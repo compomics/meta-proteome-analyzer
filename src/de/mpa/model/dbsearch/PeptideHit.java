@@ -287,7 +287,16 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * @param proteinHit the protein to add
 	 */
 	public void addProteinHit(ProteinHit proteinHit) {
-		this.proteinHits.add(proteinHit);
+		boolean add = true;
+		for (ProteinHit ph : this.proteinHits) {
+			if (proteinHit.equals(ph)) {
+				add = false;
+				break;
+			}
+		}
+		if (add) {
+			this.proteinHits.add(proteinHit);
+		}
 	}
 	
 	/**
