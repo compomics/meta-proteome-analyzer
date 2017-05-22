@@ -254,8 +254,6 @@ public class AddFastaDialog extends JDialog {
 				progressbar.setMinimum(0);
 				progressbar.setMaximum(100);
 				progressbar.setValue(10);
-				
-				System.out.println("current " + progressbar.getValue());
 				// add fasta
 				FastaLoader.addFastaDatabases(fastaFile, dbName, UniProtUtilities.BATCH_SIZE, progressbar);
 				

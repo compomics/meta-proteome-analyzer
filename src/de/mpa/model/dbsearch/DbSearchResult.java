@@ -33,8 +33,6 @@ import de.mpa.model.taxonomy.TaxonomyUtils;
  */
 public class DbSearchResult implements Serializable {
 	
-
-
 	/*
 	 * FIELDS  Unknown Taxonomic instance:
 	 */
