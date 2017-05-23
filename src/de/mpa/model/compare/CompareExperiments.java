@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import de.mpa.client.ui.sharedelements.chart.ChartType;
 import de.mpa.client.ui.sharedelements.chart.HierarchyLevel;
@@ -16,6 +17,7 @@ import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
 import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
+import de.mpa.model.dbsearch.ProteinHit;
 import de.mpa.model.taxonomy.TaxonomyNode;
 
 public class CompareExperiments {
@@ -26,8 +28,8 @@ public class CompareExperiments {
 	private HierarchyLevel countLevel;
 	private DbSearchResult dbSearchResult;
 
-	public CompareExperiments(ArrayList<MPAExperiment> experiments, DbSearchResult dbSearchResult,
-			ChartType typeLevel, HierarchyLevel countLevel) {
+	public CompareExperiments(ArrayList<MPAExperiment> experiments, DbSearchResult dbSearchResult, ChartType typeLevel,
+			HierarchyLevel countLevel) {
 		this.typeLevel = typeLevel;
 		this.experiments = experiments;
 		this.dbSearchResult = dbSearchResult;
@@ -151,95 +153,115 @@ public class CompareExperiments {
 	}
 
 	private void compareTaxonomyCountPeptides() {
-		// get individual metaproteins, get its taxonomy-node and determine its
-		// taxonomy
-		//
-
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
-			//
-			metaprotein.getTaxonomyNode();
-		}
-	}
-
-	private void compareTaxonomyCountSpectra() {
-
-		//create index experimentIDs to Index of the column map
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
 		int i = 0;
 		for (MPAExperiment exper : this.experiments) {
 			experimentIndexMap.put(exper.getID(), i);
 			i++;
 		}
-		
-		//init the result map
-		this.results = new HashMap<String, Long[]>();		
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
 
-		//objects for the loop
-		//store the column values for the result map
-		Long[] resultValues = new Long[this.experiments.size()];
-		resultValues = cleanLongArray(resultValues);
-		//for ignoring the dublicates we use hashset
-		HashSet<Long> spectra_found_this_metaprotein = new HashSet<Long>();
-		//for iterating the taxonomy tree
-		TaxonomyNode node = null;
-
-		//loop every metaproteine
+		HashSet<PeptideHit> set = new HashSet<>();
+		// loop every metaproteine
 		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
-			//loop all psms 
+			for (PeptideHit peptide : metaprotein.getPeptides()) {
+				set.add(peptide);
+			}
+			for (PeptideHit peptide : set) {
+				CompareUtil.countTaxonomyNodes(experimentIndexMap, peptide.getTaxonomyNode(), peptide.getExperimentIDs(),
+						this.results, this.typeLevel);
+			}
+			set.clear();
+		}
+	}
+
+	private void compareTaxonomyCountSpectra() {
+
+		// create index experimentIDs to Index of the column map
+		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
+		int i = 0;
+		for (MPAExperiment exper : this.experiments) {
+			experimentIndexMap.put(exper.getID(), i);
+			i++;
+		}
+
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		HashSet<PeptideSpectrumMatch> set = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			// loop all psms
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
-				//init start node
-				node = psm.getTaxonomyNode();
-				//while not the right rank, set it to parent and repeat
-				while (!isTaxonomyHierarchyLevel(node, (TaxonomyChartType) this.typeLevel)) {
-					if (!node.isRoot()) {
-						node = node.getParentNode();
-					} else {
-						//break condition
-						break;
-					}
-				}
-				//last test for the taxonomy rank
-				if (isTaxonomyHierarchyLevel(node, (TaxonomyChartType) this.typeLevel)) {
-					//for each experiment
-					for (long psLong : psm.getExperimentIDs()) {
-						//is already inside just increase
-						if(results.containsKey(node.getName())){
-							results.get(node.getName())[experimentIndexMap.get(psLong)]++;
-						}else{
-							//else put new row and increase
-							results.put(node.getName(), cleanLongArray(new Long[experimentIndexMap.size()]));
-							System.out.println();
-							results.get(node.getName())[(int)experimentIndexMap.get(psLong)]++;
-						}
-												
-					}
-				}
+				// counts the nodex with the searched taxonomyrank
+				CompareUtil.countTaxonomyNodes(experimentIndexMap, psm.getTaxonomyNode(), psm.getExperimentIDs(),
+						results, this.typeLevel);
 			}
 		}
 	}
-	
-	private static Long[] cleanLongArray(Long[] array){
-		for (int i = 0; i < array.length; i++) {
-			array[i]=(long) 0;
-		}
-		return array;
-	}
-
-	private static boolean isTaxonomyHierarchyLevel(TaxonomyNode node, TaxonomyChartType type) {
-
-		if (node.getRank() == type.getRank())
-			return true;
-		return false;
-	}
 
 	private void compareMolFuncCountPeptides() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
+		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
+		int i = 0;
+		for (MPAExperiment exper : this.experiments) {
+			experimentIndexMap.put(exper.getID(), i);
+			i++;
+		}
 
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		HashSet<PeptideHit> set = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			for (PeptideHit peptide : metaprotein.getPeptides()) {
+				set.add(peptide);
+			}
+			for (PeptideHit peptide : set) {
+				CompareUtil.countMolFunctionElements(experimentIndexMap, peptide.getExperimentIDs(),
+						peptide.getProperties(OntologyChart.OntologyChartType.MOLECULAR_FUNCTION), results);
+			}
+			set.clear();
+		}
 	}
 
 	private void compareMolFuncCountSpectra() {
 		// TODO Auto-generated method stub
-		this.dbSearchResult.getMetaProteins().get(0).getUniProtEntry().getKeywords();
+		// create index experimentIDs to Index of the column map
+		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
+		int i = 0;
+		for (MPAExperiment exper : this.experiments) {
+			experimentIndexMap.put(exper.getID(), i);
+			i++;
+		}
+
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+		HashSet<PeptideHit> set = new HashSet<>();
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+//			for (PeptideHit peptide : metaprotein.getPeptides()) {
+//				set.add(peptide);
+//			}
+//			for (PeptideHit peptide : set) {
+//				for(PeptideSpectrumMatch psm : peptide.getPeptideSpectrumMatches()){
+//					Set<Object> props = psm.getPeptideHit().getProperties(OntologyChart.OntologyChartType.MOLECULAR_FUNCTION);
+//					CompareUtil.countMolFunctionElements(experimentIndexMap, psm.getExperimentIDs(),
+//							props, results);
+//				}
+//			}
+			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
+				Set<Object> props = psm.getPeptideHit().getProperties(OntologyChart.OntologyChartType.MOLECULAR_FUNCTION);
+//				Set<Object> set = psm.getProperties(OntologyChart.OntologyChartType.MOLECULAR_FUNCTION);
+				CompareUtil.countMolFunctionElements(experimentIndexMap, psm.getExperimentIDs(),
+						props, results);
+			}
+		}
 	}
 
 	private void compareCellCompCountPeptides() {
