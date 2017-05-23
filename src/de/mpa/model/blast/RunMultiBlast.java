@@ -207,7 +207,6 @@ public class RunMultiBlast {
 			String database, double evalue, long experimentID, boolean blastAllDBProteins,
 			BlastDialog.BlastResultOption resultOption) throws SQLException,
 			IOException {
-
 		
 		// Show progress
 		Client.getInstance().firePropertyChange("new message", null, "RUNNING BLAST");

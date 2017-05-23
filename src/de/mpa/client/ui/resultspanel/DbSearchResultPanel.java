@@ -2116,7 +2116,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							}
 						}
 						// Wrap protein data in table node clones and insert them into the relevant trees
-						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim());
+						URI uri;
+						if (proteinHit.getAccession().contains(".")) {
+							uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim().replaceAll(".", "_").replaceAll(" ", ""));
+						} else {
+							uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim().replaceAll(" ", ""));
+						}
 
 						// XXX Handling of meta nodes is weird
 						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {

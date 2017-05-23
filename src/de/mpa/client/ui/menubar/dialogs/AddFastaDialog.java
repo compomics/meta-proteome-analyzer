@@ -253,7 +253,7 @@ public class AddFastaDialog extends JDialog {
 				// progress bar reset
 				progressbar.setMinimum(0);
 				progressbar.setMaximum(100);
-				progressbar.setValue(10);
+				progressbar.setValue(5);
 				// add fasta
 				FastaLoader.addFastaDatabases(fastaFile, dbName, UniProtUtilities.BATCH_SIZE, progressbar);
 				

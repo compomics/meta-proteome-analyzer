@@ -206,7 +206,6 @@ public class PeptideDigester {
 	 */
 	public void createPeptidDB(String dbFile, String outFile,
 			int missedCleavage, int minLength, int maxLength) {
-		
 		// NEW IDEA:
 		// 3. TODO: Later: the number of aminoacids necassary (1, 2 ,3 or 4) should be estimated by fasta-file-size
 		
@@ -229,7 +228,6 @@ public class PeptideDigester {
 						+ Character.toString(AminoAcid2));
 			}
 		}
-
 		// catch IO-Exceptions
 		try {
 			// Setup pep-file folder
@@ -304,7 +302,6 @@ public class PeptideDigester {
 			// Close the reader and writer
 			reader.close();
 			writer_1.close();
-			
 			int count = 0;
 			// Create multiple writers/readers for 21^2 different files
 			for (String AminoAcids : FileExtensions) {

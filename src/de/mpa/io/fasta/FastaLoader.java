@@ -650,8 +650,8 @@ public class FastaLoader {
 		// Container for the sequence
 		String sequenceContainer;
 		sequenceContainer = fastaEntry.getSequence();
-
 		// Keep database Format
+		// TODO: FIX NCBI ENTRIES
 		if (fastaEntry.getType().equals(DigFASTAEntry.Type.UNIPROTSPROT)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(1));
@@ -661,12 +661,13 @@ public class FastaLoader {
 		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.NCBIGENBANK)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + fastaEntry.getSubHeader().get(3));
-		}
-		// else if (getType().equals(Type.NCBIREFERENCE)) {
-		// bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
-		// bw.write("|" + getSubHeader().get(3));
-		// }
-		else if (fastaEntry.getType().equals(DigFASTAEntry.Type.Database)) {
+		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.NCBIREFERENCE)) {
+			// TODO: FIX NCBI ENTRIES
+			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
+//			bw.write("|" + fastaEntry.getSubHeader().get(2));
+//			bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
+//			bw.write("|" + getSubHeader().get(3));
+		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.Database)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + "Metagenome unknown");
 		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.SILICO_PEPTIDE)) {
@@ -685,7 +686,7 @@ public class FastaLoader {
 			bw.write("|" + "Metagenome unknown");
 		}
 		bw.newLine();
-
+		
 		// Makes a linebreak each 80 chars
 		while (sequenceContainer.length() > 80) {
 			bw.append(sequenceContainer.subSequence(0, 79));

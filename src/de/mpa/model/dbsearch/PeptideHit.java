@@ -89,7 +89,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.peptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>();
 		this.visPeptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>();
-		this.addPeptideSpectrumMatch(sequence, psm);
+		this.addPeptideSpectrumMatch(psm);
 		this.experimentIDs = new HashSet<Long>();
 		this.proteinHits = new ArrayList<ProteinHit>();
 	}
@@ -175,9 +175,18 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * Adds a spectrum match to the PeptideHit. 
 	 * @param sm The spectrum match.
 	 */
-	public void addPeptideSpectrumMatch(String peptideSequence, PeptideSpectrumMatch psm) {
-		this.peptideSpectrumMatches.add(psm);
-		this.visPeptideSpectrumMatches.add(psm);
+	public void addPeptideSpectrumMatch(PeptideSpectrumMatch new_psm) {
+		boolean addThisPSM = true;
+		for (PeptideSpectrumMatch old_psm : peptideSpectrumMatches) {
+			if (old_psm.equals(new_psm)) {
+				addThisPSM = false;
+				break;
+			}
+		} 
+		if (addThisPSM) {
+			this.peptideSpectrumMatches.add(new_psm);
+			this.visPeptideSpectrumMatches.add(new_psm);
+		}
 	}
 	
 	/**

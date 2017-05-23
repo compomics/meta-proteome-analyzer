@@ -239,36 +239,39 @@ public class DbSearchResult implements Serializable {
 					} else {
 						// new psm
 						psm = new PeptideSpectrumMatch(spectrumid, hit);
-						psm.addExperimentID(experiment.getID());
 						psm_mapping.put(psm_key, psm);
+						psm.setTitle(spectrum_titlehash.toString());
+						this.psms.add(psm);
+						this.visPsms.add(psm);
 					}
 					psm.addExperimentID(expID);
-					psm.setTitle(spectrum_titlehash.toString());
-					this.psms.add(psm);
-					this.visPsms.add(psm);
 
 					// DEALS WITH PEPTIDE
 					PeptideHit pephit = null;
 					if (peptide_mapping.containsKey(pep_seq)) {
 						pephit = peptide_mapping.get(pep_seq);
-						pephit.addPeptideSpectrumMatch(pep_seq, psm);
+						pephit.addPeptideSpectrumMatch(psm);
 					} else {
+						// new pepitde
 						pephit = new PeptideHit(pep_seq, psm);
 						pephit.addExperimentID(expID);
 						peptide_mapping.put(pep_seq, pephit);
+						this.peptides.add(pephit);
+						this.visPeptides.add(pephit);
 					}
+					pephit.addExperimentID(expID);
 					psm.setPeptideHit(pephit);
-					this.peptides.add(pephit);
-					this.visPeptides.add(pephit);
 
-					// DEALS WITH PROTEIN
+					// DEALS WITH PROTEIN, UNPROT ANNOTATION AND TAXONOMY
 					ProteinHit prot = null;
 					if (protein_mapping.containsKey(accession)) {
 						prot = protein_mapping.get(accession);
 						prot.addPeptideHit(pephit);
 						pephit.addProteinHit(prot);
+						// TODO: requires common ancestor taxonomy
 						pephit.setTaxonomyNode(prot.getTaxonomyNode());
 						psm.setTaxonomyNode(prot.getTaxonomyNode());
+						
 					} else {
 						prot = new ProteinHit(accession);
 						protein_mapping.put(accession, prot);
@@ -286,7 +289,7 @@ public class DbSearchResult implements Serializable {
 						this.proteins.add(prot);
 						this.visProteins.add(prot);
 						
-						// make metaprotein and finalize
+						// make One metaprotein for Each Protein
 						String metaprot_str = "Meta-Protein " + prot.getAccession();
 						MetaProteinHit mph = new MetaProteinHit(metaprot_str, prot, uniprot);
 						mph.setTaxonomyNode(taxonode);
