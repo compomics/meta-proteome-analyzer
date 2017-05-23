@@ -1074,7 +1074,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 				}
 
 				// process results
-				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(client.getResultParameters());
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), client.getResultParameters());
 				Client.getInstance().getDatabaseSearchResult().setRaw(false);
 
 

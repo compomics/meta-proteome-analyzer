@@ -167,8 +167,15 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * Returns the list of spectrum matches.
 	 * @return the list of spectrum matches.
 	 */
-	public ArrayList<PeptideSpectrumMatch> getPeptideSpectrumMatches() {
+	public ArrayList<PeptideSpectrumMatch> getVisPeptideSpectrumMatches() {
 		return visPeptideSpectrumMatches;
+	}
+	/**
+	 * Returns the list of spectrum matches.
+	 * @return the list of spectrum matches.
+	 */
+	public ArrayList<PeptideSpectrumMatch> getPeptideSpectrumMatches() {
+		return peptideSpectrumMatches;
 	}
 	
 	/**
@@ -233,7 +240,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 
 	@Override
 	public List<? extends Taxonomic> getTaxonomicChildren() {
-		return null;
+		return this.getPeptideSpectrumMatches();
 	}
 	
 	/*

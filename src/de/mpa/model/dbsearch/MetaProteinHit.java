@@ -131,6 +131,14 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	 * @return the protein list
 	 */
 	public ArrayList<ProteinHit> getProteinHitList() {
+		return this.proteinHits;
+	}
+	
+	/**
+	 * Returns the list of proteins associated with this meta-protein.
+	 * @return the protein list
+	 */
+	public ArrayList<ProteinHit> getVisProteinHitList() {
 		return this.visProteinHits;
 	}
 	

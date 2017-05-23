@@ -182,6 +182,14 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 	 * @return The list of search hits.
 	 */
 	public ArrayList<SearchHit> getSearchHits() {
+		return this.searchHits;
+	}
+	
+	/**
+	 * Returns the list of search hits.
+	 * @return The list of search hits.
+	 */
+	public ArrayList<SearchHit> getVisSearchHits() {
 		return this.visSearchHits;
 	}
 	

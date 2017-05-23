@@ -382,6 +382,18 @@ public class TaxonomyUtils {
 				}
 
 			// find common taxonomy node
+				System.out.println("list: " + taxonNodes.toString());
+				System.out.println("Children: " + children.toString());
+				if (taxonomic instanceof PeptideHit) {
+					System.out.println("PepHit: " + ((PeptideHit) taxonomic).getSequence());
+				} else if (taxonomic instanceof ProteinHit) {
+					ProteinHit ph = ((ProteinHit) taxonomic);
+					System.out.println("ProtHit: " + ph.getAccession());
+					System.out.println("ph-tax: " + ph.getTaxonomyNode().getName());
+					System.out.println("ph-peplist: " + ph.getPeptideHitList().toString());
+				} else if (taxonomic instanceof PeptideSpectrumMatch) {
+					System.out.println("PeptideSpectrumMatch: " + ((PeptideSpectrumMatch) taxonomic).getSpectrumID());
+				}
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			if (ancestor == null) {
 				System.err.println("ERROR: no taxonomic ancestor found for " + taxonomic);

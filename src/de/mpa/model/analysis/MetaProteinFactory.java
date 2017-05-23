@@ -516,10 +516,10 @@ public class MetaProteinFactory {
 	 * @param result the database search result
 	 * @param params the result parameter settings
 	 */
-	public static void determineTaxonomyAndCreateMetaProteins(ResultParameters params) {
+	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ResultParameters params) {
 		// Create metaproteins for the new result object.
 		Client client = Client.getInstance();
-		DbSearchResult result = Client.getInstance().getDatabaseSearchResult();
+//		DbSearchResult result = Client.getInstance().getDatabaseSearchResult();
 
 		// Get various hit lists from result object
 		ArrayList<MetaProteinHit> metaProteins = result.getMetaProteins();

@@ -276,6 +276,13 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return The peptide hits as list.
 	 */
 	public List<PeptideHit> getPeptideHitList() {
+		return new ArrayList<PeptideHit> (peptideHits.values());
+	}
+	/**
+	 * Returns the peptide hits as list.
+	 * @return The peptide hits as list.
+	 */
+	public List<PeptideHit> getVisPeptideHitList() {
 		return new ArrayList<PeptideHit> (visPeptideHits.values());
 	}
 	

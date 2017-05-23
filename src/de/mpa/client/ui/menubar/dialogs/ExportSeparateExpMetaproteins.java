@@ -289,7 +289,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			DbSearchResult dbSearchResult = new DbSearchResult(null, null, null);
 			
 			// Create Metaproteins
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(this.metaParams);
+			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), this.metaParams);
 			// Export Metaproteins
 			ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle(), dbSearchResult, exportHeaders);
 

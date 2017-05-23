@@ -161,7 +161,7 @@ public class SpectrumResultPanel extends JPanel {
 
 		if (result != null && !result.isEmpty()) {
 			// Get spectrum List
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(new ResultParameters());
+			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), new ResultParameters());
 			ArrayList<PeptideSpectrumMatch> specSet = result.getAllPSMS();
 
 			// Notify status bar

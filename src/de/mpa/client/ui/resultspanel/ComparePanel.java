@@ -82,6 +82,7 @@ import de.mpa.db.mysql.ProjectManager;
 import de.mpa.db.neo4j.insert.GraphDatabaseHandler;
 import de.mpa.model.MPAExperiment;
 import de.mpa.model.MPAProject;
+import de.mpa.model.analysis.MetaProteinFactory;
 import de.mpa.model.compare.CompareExperiments;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.Hit;
@@ -677,7 +678,7 @@ public class ComparePanel extends JPanel {
 		/**
 		 * The complete metaprotein list of all experiments.
 		 */
-		private ArrayList<MetaProteinHit> metaProtList;
+//		private ArrayList<MetaProteinHit> metaProtList;
 
 		/**
 		 * Constructs a compare worker from the specified list of experiments to be compared.
@@ -712,8 +713,10 @@ public class ComparePanel extends JPanel {
 //				this.metaProtList = dbSearchResult.getMetaProteins();
 				
 				// TODO: different implementation here
-				DbSearchResult dbSearchResult = new DbSearchResult(null, null, null);
-				this.metaProtList = dbSearchResult.getMetaProteins();
+				DbSearchResult dbSearchResult = new DbSearchResult("title", ComparePanel.this.experiments, "fasta");
+				dbSearchResult.getSearchResultByView();
+				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);
+//				this.metaProtList = dbSearchResult.getMetaProteins();
 //				this.metaProtList.addAll();
 				
 //				for (MPAExperiment experiment : ComparePanel.this.experiments) {
@@ -728,7 +731,7 @@ public class ComparePanel extends JPanel {
 				// Compare the experiments.
 				// complete new compare classes
 				
-				this.cmpExp = new CompareExperiments(ComparePanel.this.experiments, this.metaProtList, chartType, countLevel);
+				this.cmpExp = new CompareExperiments(ComparePanel.this.experiments, dbSearchResult, chartType, countLevel);
 //				this.expComparison = new ExperimentComparison(ComparePanel.this.experiments, this.metaProtList, graphDatabaseHandler, chartType, countLevel);
 				
 			} catch (Exception e) {
