@@ -1,16 +1,18 @@
 package de.mpa.model.compare;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import de.mpa.client.ui.sharedelements.chart.ChartType;
 import de.mpa.client.ui.sharedelements.chart.TaxonomyChart.TaxonomyChartType;
+import de.mpa.model.MPAExperiment;
 import de.mpa.model.taxonomy.TaxonomyNode;
 
 public class CompareUtil {
 
-	protected static void countMolFunctionElements(HashMap<Long, Integer> experimentIndexMap, Set<Long> experiments,
+	protected static void countFunctionElements(HashMap<Long, Integer> experimentIndexMap, Set<Long> experiments,
 			Set<Object> props, Map<String, Long[]> results) {
 		for (Object property : props) {
 			for (long psLong : experiments) {
@@ -67,4 +69,16 @@ public class CompareUtil {
 		}
 		return array;
 	}
+	
+	protected static HashMap<Long, Integer> createIndexHashMapForExperiments(ArrayList<MPAExperiment> experiments)
+	{
+		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
+		int i = 0;
+		for (MPAExperiment exper : experiments) {
+			experimentIndexMap.put(exper.getID(), i);
+			i++;
+		}
+		return experimentIndexMap;
+	}
+	
 }
