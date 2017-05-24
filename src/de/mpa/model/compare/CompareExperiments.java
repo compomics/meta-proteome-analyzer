@@ -146,7 +146,7 @@ public class CompareExperiments {
 	private void compareTaxonomyCountPeptides() {
 		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
-		
+
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
 
@@ -220,7 +220,7 @@ public class CompareExperiments {
 
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
-		
+
 		// loop every metaproteine
 		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
 			// loop every psm
@@ -235,7 +235,7 @@ public class CompareExperiments {
 	private void compareCellCompCountPeptides() {
 		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
-		
+
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
 
@@ -277,15 +277,47 @@ public class CompareExperiments {
 	}
 
 	private void compareBioProcessCountPeptides() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		// hashset to get rid of dublicates
+		HashSet<PeptideHit> set = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			// loop peptide list, but it contains dublicates
+			for (PeptideHit peptide : metaprotein.getPeptides()) {
+				// if not already processed
+				if (!set.contains(peptide)) {
+					// count the value
+					CompareUtil.countFunctionElements(experimentIndexMap, peptide.getExperimentIDs(),
+							peptide.getProperties(OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS), results);
+					// add to already processed set of peptides
+					set.add(peptide);
+				}
+			}
+			// clear the set
+			set.clear();
+		}
 	}
 
 	private void compareBioProcessCountSpectra() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
-
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			// loop every psm
+			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
+				// increase the result
+				CompareUtil.countFunctionElements(experimentIndexMap, psm.getExperimentIDs(),
+						psm.getPeptideHit().getProperties(OntologyChart.OntologyChartType.BIOLOGICAL_PROCESS), results);
+			}
+		}
 	}
 
 	private void comparePeptidesCountPeptides() {
