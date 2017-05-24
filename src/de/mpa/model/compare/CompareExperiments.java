@@ -14,6 +14,7 @@ import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
 import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
+import de.mpa.model.dbsearch.ProteinHit;
 
 public class CompareExperiments {
 
@@ -314,27 +315,142 @@ public class CompareExperiments {
 	}
 
 	private void comparePeptidesCountPeptides() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		// hashset to get rid of dublicates
+		HashSet<PeptideHit> set = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			// loop peptide list, but it contains dublicates
+			for (PeptideHit peptide : metaprotein.getPeptides()) {
+				// if not already processed
+				if (!set.contains(peptide)) {
+					for (long psLong : peptide.getExperimentIDs()) {
+						// is already inside just increase
+
+						if (results.containsKey(peptide.getSequence())) {
+							results.get(peptide.getSequence())[experimentIndexMap.get(psLong)]++;
+						} else {
+							// else put new row and increase
+							results.put(peptide.getSequence(),
+									CompareUtil.cleanLongArray(new Long[experimentIndexMap.size()]));
+							results.get(peptide.getSequence())[(int) experimentIndexMap.get(psLong)]++;
+						}
+					}
+					// add to already processed set of peptides
+					set.add(peptide);
+				}
+			}
+			// clear the set
+			set.clear();
+		}
 	}
 
 	private void comparePeptidesCountSpectra() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
-
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			// loop every psm
+			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
+				// increase the result
+				for (long psLong : psm.getExperimentIDs()) {
+					// is already inside just increase
+					if (results.containsKey(psm.getTitle())) {
+						results.get(psm.getTitle())[experimentIndexMap.get(psLong)]++;
+					} else {
+						// else put new row and increase
+						results.put(psm.getTitle(), CompareUtil.cleanLongArray(new Long[experimentIndexMap.size()]));
+						results.get(psm.getTitle())[(int) experimentIndexMap.get(psLong)]++;
+					}
+				}
+			}
+		}
 	}
 
 	private void compareProteinsCountPeptides() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		// hashset to get rid of dublicates of proteins
+		HashSet<ProteinHit> proteinSet = new HashSet<>();
+
+		// hashset to get rid of dublicates of peptides
+		HashSet<PeptideHit> peptideSet = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			for (ProteinHit protein : metaprotein.getProteinHitList()) {
+				// if not already processed protein
+				if (!proteinSet.contains(protein)) {
+					// loop every peptide of the protein
+					for (PeptideHit peptide : protein.getPeptideHitList()) {
+						// if not already processed peptide
+						if (!peptideSet.contains(peptide)) {
+							// increase the result
+							CompareUtil.countProteinElements(experimentIndexMap, protein, results, peptide.getExperimentIDs());
+							// add to already processed set of peptides
+							peptideSet.add(peptide);
+						}
+					}
+					// clear the peptide Set
+					peptideSet.clear();
+					// add to already processed set of proteins
+					proteinSet.add(protein);
+				}
+			}
+			// clear the protein Set
+			proteinSet.clear();
+		}
 	}
 
 	private void compareProteinsCountSpectra() {
-		// TODO Auto-generated method stub
+		// create index experimentIDs to Index of the column map
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 
+		// init the result map
+		this.results = new HashMap<String, Long[]>();
+
+		// hashset to get rid of dublicates of proteins
+		HashSet<ProteinHit> proteinSet = new HashSet<>();
+
+		// hashset to get rid of dublicates of peptides
+		HashSet<PeptideSpectrumMatch> psmSet = new HashSet<>();
+
+		// loop every metaproteine
+		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+			for (ProteinHit protein : metaprotein.getProteinHitList()) {
+				// if not already processed protein
+				if (!proteinSet.contains(protein)) {
+					// loop every peptide of the protein
+					for (PeptideSpectrumMatch psm : protein.getPSMs()) {
+						// if not already processed peptide
+						if (!psmSet.contains(psm)) {
+							// increase the result
+							CompareUtil.countProteinElements(experimentIndexMap, protein, results, psm.getPeptideHit().getExperimentIDs());
+							// add to already processed set of peptides
+							psmSet.add(psm);
+						}
+					}
+					// clear the peptide Set
+					psmSet.clear();
+					// add to already processed set of proteins
+					proteinSet.add(protein);
+				}
+			}
+			// clear the protein Set
+			proteinSet.clear();
+		}
 	}
 
 	public Map<String, Long[]> getResults() {
