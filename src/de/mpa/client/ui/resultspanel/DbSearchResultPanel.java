@@ -455,11 +455,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						Set<PeptideHit> peptides = new LinkedHashSet<PeptideHit>();
 						if (proteins != null) {
 							for (ProteinHit protein : proteins) {
-								peptides.addAll(protein.getPeptideHitList());
+								peptides.addAll(protein.getVisPeptideHitList());
 							}
 						}
                         DbSearchResultPanel.this.refreshPeptideViews(peptides);
 					}
+					refreshChart(true);
 				}
 
 				/**
@@ -975,7 +976,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					for (int row : rows) {
 						PhylogenyTreeTableNode thisNode =
 								(PhylogenyTreeTableNode) treeTbl.getPathForRow(row).getLastPathComponent();
-						peptides.add(((PeptideSpectrumMatch) thisNode.getUserObject()).getPeptideHit());
+						if ((((PeptideSpectrumMatch) thisNode.getUserObject()).getPeptideHit()).isVisible()) {
+							peptides.add(((PeptideSpectrumMatch) thisNode.getUserObject()).getPeptideHit());
+						}
 					}
 					refreshPeptideViews(peptides);
 					// Update protein highlighting
@@ -1366,7 +1369,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (focusPeptideBtn.isSelected()) {
 					focusSpectraBtn.setSelected(false);
 					view = DbSearchResultPanel.focus.PEPTIDE;
-					refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getAllPeptideHits());
+					refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getVisiblePeptideHits());
 				} else {
 					view = DbSearchResultPanel.focus.PROTEIN;
 				}

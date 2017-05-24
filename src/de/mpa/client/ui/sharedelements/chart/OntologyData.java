@@ -263,35 +263,41 @@ public class OntologyData implements ChartData {
 	 * Utility method to return size of hierarchically grouped data in a protein
 	 * hit list.
 	 *
-	 * @param mphl
+	 * @param proteinHits
 	 *            the meta-protein hit list
 	 * @param hl
 	 *            the hierarchy level, one of <code>PROTEIN_LEVEL</code>,
 	 *            <code>PEPTIDE_LEVEL</code> or <code>SPECTRUM_LEVEL</code>
 	 * @return the data size
 	 */
-	private int getSizeByHierarchy(ArrayList<ProteinHit> mphl, HierarchyLevel hl) {
+	private int getSizeByHierarchy(ArrayList<ProteinHit> proteinHits, HierarchyLevel hl) {
 		switch (hl) {
 		case META_PROTEIN_LEVEL:
-			return mphl.size();
-		case PROTEIN_LEVEL: {
-//			Set<ProteinHit> proteinSet = mphl.getProteinSet();
-			int count = 0;
-			for (ProteinHit prot : mphl) {
-				if (prot.isSelected()) {
-					count++;
+			HashSet<String> mpSet = new HashSet<String>();
+			for (ProteinHit prot : proteinHits) {
+				if (prot.isSelected() && prot.isVisible()) {
+					mpSet.add(prot.getMetaProteinHit().getAccession());
 				}
 			}
-			return count;
-			// return proteinSet.size();
+			System.out.println("mp set " + mpSet.size());
+			return mpSet.size();
+		case PROTEIN_LEVEL: {
+			HashSet<ProteinHit> proteinSet = new HashSet<ProteinHit>();
+			int count = 0;
+			for (ProteinHit prot : proteinHits) {
+				if (prot.isSelected() && prot.isVisible()) {
+					proteinSet.add(prot);
+				}
+			}
+			return proteinSet.size();
 		}
 		case PEPTIDE_LEVEL: {
 //			Set<ProteinHit> proteinSet = mphl.getProteinSet();
 			Set<PeptideHit> peptideSet = new HashSet<PeptideHit>();
-			for (ProteinHit prot : mphl) {
-				if (prot.isSelected()) {
+			for (ProteinHit prot : proteinHits) {
+				if (prot.isSelected() && prot.isVisible()) { 
 					for (PeptideHit pep : prot.getPeptideHitList()) {
-						if (pep.isSelected()) {
+						if (pep.isSelected() && pep.isVisible()) {
 							peptideSet.add(pep);
 						}
 					}
@@ -302,7 +308,7 @@ public class OntologyData implements ChartData {
 		case SPECTRUM_LEVEL: {
 //			Set<ProteinHit> proteinSet = mphl.getProteinSet();
 			Set<PeptideSpectrumMatch> matchSet = new HashSet<PeptideSpectrumMatch>();
-			for (ProteinHit prot : mphl) {
+			for (ProteinHit prot : proteinHits) {
 				if (prot.isSelected() && prot.isVisible()) {
 					for (PeptideHit pep : prot.getPeptideHitList()) {
 						if (pep.isSelected() && pep.isVisible()) {
@@ -332,6 +338,7 @@ public class OntologyData implements ChartData {
 				if (this.hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
 					return phl;
 				} else {
+					System.out.println("other hierarchy level");
 					// TODO: other hierarchy levels need to be properly processed?
 					return phl;
 				}

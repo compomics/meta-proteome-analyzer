@@ -148,24 +148,38 @@ public class TaxonomyData implements ChartData {
 			boolean selected = false;
 			if (hit instanceof PeptideHit) {
 				PeptideHit pephit = (PeptideHit) hit;
-				for (ProteinHit protein : pephit.getProteinHits()) {
-					if (protein.isSelected()) {
-						selected = true;
-						break;
+				if (pephit.isSelected() && pephit.isVisible()) {
+					for (ProteinHit protein : pephit.getProteinHits()) {
+						if (protein.isSelected() && protein.isVisible()) {
+							selected = true;
+							break;
+						}
 					}
 				}
 			} else if (hit instanceof PeptideSpectrumMatch) {
 				PeptideSpectrumMatch spec = (PeptideSpectrumMatch) hit;
 				PeptideHit pephit = spec.getPeptideHit();
-				for (ProteinHit protein : pephit.getProteinHits()) {
-					if (protein.isSelected()) {
-						selected = true;
-						break;
+				if (hit.isSelected() && hit.isVisible() && pephit.isSelected() && pephit.isVisible()) {
+					for (ProteinHit protein : pephit.getProteinHits()) {
+						if (protein.isSelected() && protein.isVisible()) {
+							selected = true;
+							break;
+						}
 					}
 				}
-			} else {
-				if (hit.isSelected()) {
+			} else if (hit instanceof ProteinHit) {
+				if (hit.isSelected() && hit.isVisible()) {
 					selected = true;
+				}
+			} else if (hit instanceof MetaProteinHit) {
+				MetaProteinHit mp = (MetaProteinHit) hit;
+				if (hit.isSelected() && hit.isVisible()) {
+					for (ProteinHit prot : mp.getProteinHitList()) {
+						if (prot.isSelected() && prot.isVisible()) {
+							selected = true;
+							break;
+						}
+					}
 				}
 			}
 			if (selected) {

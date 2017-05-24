@@ -23,6 +23,7 @@ import javax.swing.JProgressBar;
 
 import com.compomics.util.protein.Header;
 
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.db.mysql.DBManager;
 import de.mpa.db.mysql.accessor.ProteinAccessor;
@@ -445,7 +446,7 @@ public class FastaLoader {
 
 		// Initialize a list of FASTA entries to store them as bulk
 		ArrayList<DigFASTAEntry> fastaEntryList = new ArrayList<DigFASTAEntry>();
-
+		Client.getInstance().firePropertyChange("new message", null, "READING FASTA FILE " + fastaFile);
 		// Start the parsing of the FASTA file
 		line = br.readLine();
 		// Check if first line is formatted correctly
@@ -495,6 +496,9 @@ public class FastaLoader {
 		} else {
 			System.err.println("Fasta File is formatted wrong");
 		}
+		
+		Client.getInstance().firePropertyChange("new message", null, "SAVING PROTEINS TO DB");
+		
 		progressbar.setValue(25);
 		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 		FastaLoader.createNewUniprotEntries(empty_up, conn, progressbar);
@@ -526,7 +530,7 @@ public class FastaLoader {
 
 		// fasta formatter script is progress from 50% to 75%
 		progressbar.setValue(50);
-		
+		Client.getInstance().firePropertyChange("new message", null, "CREATING DECOY DATABASES");
 		// Runs the fastaformater script
 		RunFastaFormater fastaFromater = new RunFastaFormater();
 		fastaFromater.formatFastaDatabase(outputFastaFile.toPath().toString());
@@ -543,6 +547,8 @@ public class FastaLoader {
 			pep_out = outputFastaFile.getAbsolutePath().substring(outputFastaFile.getAbsolutePath().lastIndexOf("/"),
 					outputFastaFile.getAbsolutePath().lastIndexOf(".")) + ".pep";
 		}
+		
+		Client.getInstance().firePropertyChange("new message", null, "CREATING PEPTIDE DATABASE");
 		PeptideDigester digester = new PeptideDigester(progressbar);
 		digester.createPeptidDB(outputFastaFile.getAbsolutePath(), pep_out, 1, 5, 50);
 		

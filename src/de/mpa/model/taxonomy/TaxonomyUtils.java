@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ParameterMap;
@@ -15,7 +14,6 @@ import de.mpa.model.analysis.UniProtUtilities;
 import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.model.dbsearch.ProteinHit;
-import de.mpa.model.unused.ProteinHitList;
 
 /**
  * This class serves as utility class for various methods handling taxonomic issues.
@@ -331,16 +329,16 @@ public class TaxonomyUtils {
 		}
 	}
 
-	/**
-	 * Sets the taxonomy of meta-proteins contained in the specified list to the
-	 * common taxonomy based on their child protein taxonomies.
-	 * @param metaProteins the list of meta-proteins for which common protein
-	 *  taxonomies shall be determined
-	 * @param params the parameter map containing taxonomy definition rules
-	 */
-	public static void determineMetaProteinTaxonomy(ProteinHitList metaProteins, ParameterMap params) {
-		TaxonomyUtils.determineTaxonomy(metaProteins, (TaxonomyUtils.TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
-	}
+//	/**
+//	 * Sets the taxonomy of meta-proteins contained in the specified list to the
+//	 * common taxonomy based on their child protein taxonomies.
+//	 * @param metaProteins the list of meta-proteins for which common protein
+//	 *  taxonomies shall be determined
+//	 * @param params the parameter map containing taxonomy definition rules
+//	 */
+//	public static void determineMetaProteinTaxonomy(ProteinHitList metaProteins, ParameterMap params) {
+//		TaxonomyUtils.determineTaxonomy(metaProteins, (TaxonomyUtils.TaxonomyDefinition) params.get("metaProteinTaxonomy").getValue());
+//	}
 
 	/**
 	 * Sets the taxonomy of proteins contained in the specified list to the
@@ -382,18 +380,6 @@ public class TaxonomyUtils {
 				}
 
 			// find common taxonomy node
-				System.out.println("list: " + taxonNodes.toString());
-				System.out.println("Children: " + children.toString());
-				if (taxonomic instanceof PeptideHit) {
-					System.out.println("PepHit: " + ((PeptideHit) taxonomic).getSequence());
-				} else if (taxonomic instanceof ProteinHit) {
-					ProteinHit ph = ((ProteinHit) taxonomic);
-					System.out.println("ProtHit: " + ph.getAccession());
-					System.out.println("ph-tax: " + ph.getTaxonomyNode().getName());
-					System.out.println("ph-peplist: " + ph.getPeptideHitList().toString());
-				} else if (taxonomic instanceof PeptideSpectrumMatch) {
-					System.out.println("PeptideSpectrumMatch: " + ((PeptideSpectrumMatch) taxonomic).getSpectrumID());
-				}
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			if (ancestor == null) {
 				System.err.println("ERROR: no taxonomic ancestor found for " + taxonomic);

@@ -552,7 +552,14 @@ public class MetaProteinFactory {
 
 		// Combine proteins to metaproteins
 		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
-
+		
+		// re set all proteinhits to their respective metaproteins
+		for (MetaProteinHit mph : result.getMetaProteins()) {
+			for (ProteinHit ph : mph.getProteinHitList()) {
+				ph.setMetaProteinHit(mph);
+			}
+		}
+		
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
 	}
 

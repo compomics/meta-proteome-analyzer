@@ -459,7 +459,7 @@ public class ResultExporter {
 		int pepCount = 0;
 		ArrayList<ProteinHit> proteinHitList = result.getAllProteinHits();
 		for (ProteinHit proteinHit : proteinHitList) {
-			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
+			for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
 				if (peptideHit.isSelected() && !peptideSet.contains(peptideHit)) {
 					if (uniquePeptidesOnly) {
 						if (peptideHit.getProteinCount() > 1) {

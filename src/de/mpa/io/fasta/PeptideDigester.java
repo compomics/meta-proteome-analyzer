@@ -305,6 +305,7 @@ public class PeptideDigester {
 			int count = 0;
 			// Create multiple writers/readers for 21^2 different files
 			for (String AminoAcids : FileExtensions) {
+				count++;
 				// read temp file
 				BufferedReader read_1 = new BufferedReader(new FileReader(temp_file));
 				// init peptide2protein map
@@ -361,8 +362,7 @@ public class PeptideDigester {
 				
 				// peptideparser progress is from 75% to 100%
 				if (progressbar != null) {
-					
-					int progress = (int) (75 + (count*1.0 / (FileExtensions.size())*1.0) * 25 ); 
+					int progress = (int) (75 + (count*1.0 / (FileExtensions.size())*1.0) * 25 );
 					this.progressbar.setValue(progress);
 				}
 				

@@ -101,40 +101,40 @@ public class DbSearchResult implements Serializable {
 	 */
 	private final ArrayList<ProteinHit> proteins = new ArrayList<ProteinHit>();
 
-	/**
-	 * The list of visible proteins.
-	 */
-	private ArrayList<ProteinHit> visProteins = new ArrayList<ProteinHit>();
+//	/**
+//	 * The list of visible proteins.
+//	 */
+//	private ArrayList<ProteinHit> visProteins = new ArrayList<ProteinHit>();
 	
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<PeptideHit> peptides = new ArrayList<PeptideHit>();
 
-	/**
-	 * The list of visible peptides.
-	 */
-	private ArrayList<PeptideHit> visPeptides = new ArrayList<PeptideHit>();
+//	/**
+//	 * The list of visible peptides.
+//	 */
+//	private ArrayList<PeptideHit> visPeptides = new ArrayList<PeptideHit>();
 	
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<PeptideSpectrumMatch> psms = new ArrayList<PeptideSpectrumMatch>();
 
-	/**
-	 * The list of visible peptides.
-	 */
-	private ArrayList<PeptideSpectrumMatch> visPsms = new ArrayList<PeptideSpectrumMatch>();
+//	/**
+//	 * The list of visible peptides.
+//	 */
+//	private ArrayList<PeptideSpectrumMatch> visPsms = new ArrayList<PeptideSpectrumMatch>();
 	
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<SearchHit> searchHits = new ArrayList<SearchHit>();
 
-	/**
-	 * The list of visible peptides.
-	 */
-	private ArrayList<SearchHit> visSearchHits = new ArrayList<SearchHit>();
+//	/**
+//	 * The list of visible peptides.
+//	 */
+//	private ArrayList<SearchHit> visSearchHits = new ArrayList<SearchHit>();
 	
 	/**
 	 * The total amount of spectra.
@@ -224,7 +224,7 @@ public class DbSearchResult implements Serializable {
 						break;							
 					}
 					this.searchHits.add(hit);
-					this.visSearchHits.add(hit);
+//					this.visSearchHits.add(hit);
 
 					// DEALS WITH PSM
 					// construct PSM key
@@ -242,7 +242,7 @@ public class DbSearchResult implements Serializable {
 						psm_mapping.put(psm_key, psm);
 						psm.setTitle(spectrum_titlehash.toString());
 						this.psms.add(psm);
-						this.visPsms.add(psm);
+//						this.visPsms.add(psm);
 					}
 					psm.addExperimentID(expID);
 
@@ -257,7 +257,7 @@ public class DbSearchResult implements Serializable {
 						pephit.addExperimentID(expID);
 						peptide_mapping.put(pep_seq, pephit);
 						this.peptides.add(pephit);
-						this.visPeptides.add(pephit);
+//						this.visPeptides.add(pephit);
 					}
 					pephit.addExperimentID(expID);
 					psm.setPeptideHit(pephit);
@@ -287,7 +287,7 @@ public class DbSearchResult implements Serializable {
 						pephit.setTaxonomyNode(taxonode);
 						psm.setTaxonomyNode(taxonode);
 						this.proteins.add(prot);
-						this.visProteins.add(prot);
+//						this.visProteins.add(prot);
 						
 						// make One metaprotein for Each Protein
 						String metaprot_str = "Meta-Protein " + prot.getAccession();
@@ -312,36 +312,36 @@ public class DbSearchResult implements Serializable {
 		}
 		this.setTotalSpectrumCount(spectralCount);
 		
-//		// XXX: DEBUG OUTPUT POPULATING TABLES
-		System.out.println("MP: " + this.metaProteins.size());
-		System.out.println("VMP: " + this.visMetaProteins.size());
-		System.out.println("P: " + this.proteins.size());
-		System.out.println("VP: " + this.visProteins.size());
-		System.out.println("p: " + this.peptides.size());
-		System.out.println("Vp: " + this.visPeptides.size());
-		System.out.println("psm: " + this.searchHits.size());
-		System.out.println("Vpsm: " + this.visSearchHits.size());
+////		// XXX: DEBUG OUTPUT POPULATING TABLES
+//		System.out.println("MP: " + this.metaProteins.size());
+////		System.out.println("VMP: " + this.visMetaProteins.size());
+//		System.out.println("P: " + this.proteins.size());
+////		System.out.println("VP: " + this.visProteins.size());
+//		System.out.println("p: " + this.peptides.size());
+////		System.out.println("Vp: " + this.visPeptides.size());
+//		System.out.println("psm: " + this.searchHits.size());
+////		System.out.println("Vpsm: " + this.visSearchHits.size());
+////		
+//		for (MetaProteinHit mp : this.getMetaProteins()) {ph-tax:
+//			System.out.println("MP : " + mp.getAccession());
+//			System.out.println("MP : " + mp.getDescription());
+//			System.out.println("MP : " + mp.getProteinHitList().size());
+//			for (ProteinHit ph : mp.getProteinHitList()) {
+//				System.out.println("P : " + ph.getAccession());
+//				System.out.println("P : " + ph.getDescription());
+//				for (PeptideHit pep : ph.getPeptideHitList()) {
+//					System.out.println("PEP : "+pep.getSequence());
+//					System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
+//					System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
+//					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
+//						System.out.println("PSM : " + psm.getSpectrumID());
+//						System.out.println("PSM : " + psm.getTitle());
+//						System.out.println("PSM : " + psm.getSearchHits());
+//					}
+//				}
+//			}
+//		}
 //		
-		for (MetaProteinHit mp : this.getMetaProteins()) {
-			System.out.println("MP : " + mp.getAccession());
-			System.out.println("MP : " + mp.getDescription());
-			System.out.println("MP : " + mp.getProteinHitList().size());
-			for (ProteinHit ph : mp.getProteinHitList()) {
-				System.out.println("P : " + ph.getAccession());
-				System.out.println("P : " + ph.getDescription());
-				for (PeptideHit pep : ph.getPeptideHitList()) {
-					System.out.println("PEP : "+pep.getSequence());
-					System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
-					System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
-					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
-						System.out.println("PSM : " + psm.getSpectrumID());
-						System.out.println("PSM : " + psm.getTitle());
-						System.out.println("PSM : " + psm.getSearchHits());
-					}
-				}
-			}
-		}
-		
 	}
 	
 	/**
@@ -442,7 +442,8 @@ public class DbSearchResult implements Serializable {
 	 * @return <code>true</code> if empty, <code>false</code> otherwise.
 	 */
 	public boolean isEmpty() {
-		return visMetaProteins.isEmpty();
+		// TODO: what is this used for??
+		return metaProteins.isEmpty();
 	}
 
 	/**
@@ -453,16 +454,56 @@ public class DbSearchResult implements Serializable {
 		return metaProteins;
 	}
 	
+	public ArrayList<MetaProteinHit> getVisibleMetaProteins() {
+		ArrayList<MetaProteinHit> mplist = new ArrayList<MetaProteinHit>();
+		for (MetaProteinHit mp : this.metaProteins) {
+			if (mp.isVisible()) {
+				mplist.add(mp);
+			}
+		}
+		return mplist;
+	}
+	
 	public ArrayList<ProteinHit> getAllProteinHits() {
 		return this.proteins;
+	}
+	
+	public ArrayList<ProteinHit> getVisibleProteinHits() {
+		ArrayList<ProteinHit> plist = new ArrayList<ProteinHit>();
+		for (ProteinHit prot : this.proteins) {
+			if (prot.isVisible()) {
+				plist.add(prot);
+			}
+		}
+		return plist;
 	}
 	
 	public ArrayList<PeptideHit> getAllPeptideHits() {
 		return this.peptides;
 	}
 	
+	public ArrayList<PeptideHit> getVisiblePeptideHits() {
+		ArrayList<PeptideHit> peplist = new ArrayList<PeptideHit>();
+		for (PeptideHit pep : this.peptides) {
+			if (pep.isVisible()) {
+				peplist.add(pep);
+			}
+		}
+		return peplist;
+	}
+	
 	public ArrayList<PeptideSpectrumMatch> getAllPSMS() {
 		return this.psms;
+	}
+	
+	public ArrayList<PeptideSpectrumMatch> getVisiblePSMS() {
+		ArrayList<PeptideSpectrumMatch> psmlist = new ArrayList<PeptideSpectrumMatch>();
+		for (PeptideSpectrumMatch psm : this.psms) {
+			if (psm.isVisible()) {
+				psmlist.add(psm);
+			}
+		}
+		return psmlist;
 	}
 	
 //	/**
