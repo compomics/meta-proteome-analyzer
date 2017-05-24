@@ -949,10 +949,13 @@ public enum ProteinTreeTables {
 					return IconConstants.PROTEIN_TREE_ICON;
 				} else if (node != null) {
 					if (node.isProtein()) {
-						ProteinHit ph = (ProteinHit) node.getUserObject();
-						if (ph.getAccession().startsWith("Meta-Protein")) {
-							return IconConstants.METAPROTEIN_TREE_ICON;
-						}
+						return IconConstants.PROTEIN_TREE_ICON;
+//						ProteinHit ph = (ProteinHit) node.getUserObject();
+//						if (ph.getAccession().startsWith("Meta-Protein")) {
+//							return IconConstants.METAPROTEIN_TREE_ICON;
+//						}
+					} else if (node.isMetaProtein()) {
+						return IconConstants.METAPROTEIN_TREE_ICON;
 					}
 				}
 				// fall back to defaults

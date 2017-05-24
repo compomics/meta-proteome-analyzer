@@ -4,21 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import de.mpa.client.ui.sharedelements.chart.ChartType;
 import de.mpa.client.ui.sharedelements.chart.HierarchyLevel;
 import de.mpa.client.ui.sharedelements.chart.OntologyChart;
 import de.mpa.client.ui.sharedelements.chart.TaxonomyChart;
-import de.mpa.client.ui.sharedelements.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.model.MPAExperiment;
-import de.mpa.model.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
 import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
-import de.mpa.model.dbsearch.ProteinHit;
-import de.mpa.model.taxonomy.TaxonomyNode;
 
 public class CompareExperiments {
 
@@ -171,8 +166,6 @@ public class CompareExperiments {
 
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
-
-		HashSet<PeptideSpectrumMatch> set = new HashSet<>();
 
 		// loop every metaproteine
 		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {

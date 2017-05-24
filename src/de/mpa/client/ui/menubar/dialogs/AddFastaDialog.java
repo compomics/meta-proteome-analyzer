@@ -254,7 +254,9 @@ public class AddFastaDialog extends JDialog {
 				progressbar.setMinimum(0);
 				progressbar.setMaximum(100);
 				progressbar.setValue(5);
+				
 				// add fasta
+				// TODO: Client Feedback during add Fasta
 				FastaLoader.addFastaDatabases(fastaFile, dbName, UniProtUtilities.BATCH_SIZE, progressbar);
 				
 				// progress bar finished
@@ -262,20 +264,19 @@ public class AddFastaDialog extends JDialog {
 
 				// Show finished message
 				StringBuilder message = new StringBuilder();
-				message.append("Database successfully uploaded");
-				message.append("\n\n");
-				message.append("Please restart the MPA before you can use the new database.");
-				message.append("\n\n");
+				message.append("Fasta Upload successful");
+				message.append("\n");
 				JOptionPane.showMessageDialog(ClientFrame.getInstance(), message, "About " + Constants.APPTITLE,
 						JOptionPane.INFORMATION_MESSAGE);
 				
 				Client.getInstance().firePropertyChange("indeterminate", true, false);
-				Client.getInstance().firePropertyChange("new message", null, "Adding new *.fasta finished");
+				Client.getInstance().firePropertyChange("new message", null, "FASTA UPLOAD FINISHED");
 				
 			} catch (IOException | SQLException err) {
 				err.printStackTrace();
 			}
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
+			ClientFrame.getInstance().restart();
 			AddFastaDialog.this.close();
 			return 0;
 		}
