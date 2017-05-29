@@ -131,7 +131,7 @@ public class OmssaStorager extends BasicStorager {
 						} 
 					}
 
-					if (qValue < 0.1) {
+					if (qValue <= 1.0) {
 						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);
 
 						// Get the MSPepHit (for the accession)
@@ -223,7 +223,6 @@ public class OmssaStorager extends BasicStorager {
 		// buffered reasder for target files
 		BufferedReader targetFileReader;
 		if (this.qValueFile.exists()) {
-
 			try {
 				qValueFileReader = new BufferedReader(new FileReader(this.qValueFile));
 				targetFileReader = new BufferedReader(new FileReader(this.targetScoreFile));
@@ -239,7 +238,7 @@ public class OmssaStorager extends BasicStorager {
 					while (tokenizer.hasMoreTokens()) {
 						tokenList.add(tokenizer.nextToken());
 					}
-
+					
 					ValidatedPSMScore validatedPSMScore = new ValidatedPSMScore(Double.valueOf(tokenList.get(0)), Double.valueOf(tokenList.get(1)), Double.valueOf(tokenList.get(2)));
 
 					// Get original target score

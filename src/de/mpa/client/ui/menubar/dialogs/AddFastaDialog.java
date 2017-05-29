@@ -175,6 +175,7 @@ public class AddFastaDialog extends JDialog {
 		});
 
 		this.progressbar = new JProgressBar();
+		progressbar.setStringPainted(true);
 
 		// add components
 		addFastaDlgPnl.add(descriptionTextArea, CC.xy(1, 1));
@@ -254,6 +255,7 @@ public class AddFastaDialog extends JDialog {
 				progressbar.setMinimum(0);
 				progressbar.setMaximum(100);
 				progressbar.setValue(5);
+				progressbar.setString("0%");
 				
 				// add fasta
 				// TODO: Client Feedback during add Fasta
@@ -261,6 +263,7 @@ public class AddFastaDialog extends JDialog {
 				
 				// progress bar finished
 				progressbar.setValue(100);
+				progressbar.setString("100%");
 
 				// Show finished message
 				StringBuilder message = new StringBuilder();

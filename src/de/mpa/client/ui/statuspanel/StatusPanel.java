@@ -216,6 +216,9 @@ public class StatusPanel extends JPanel {
                     this.curProgress = ((Number) pce.getNewValue()).longValue();
                     this.totProgress = this.totProgressTillNow + this.curProgress;
                     this.updateTime();
+				} else if (name.equalsIgnoreCase("finishprogress")) {
+					StatusPanel.this.currentPrg.setValue(100);
+                    StatusPanel.this.totalPrg.setValue(100);
 //				} else if (name.equalsIgnoreCase("orientation")) {
 //					currentPrg.setComponentOrientation((ComponentOrientation) pce.getNewValue());
 //				} else if (name.equalsIgnoreCase("reverseprogress")) {

@@ -364,6 +364,7 @@ public class PeptideDigester {
 				if (progressbar != null) {
 					int progress = (int) (75 + (count*1.0 / (FileExtensions.size())*1.0) * 25 );
 					this.progressbar.setValue(progress);
+					progressbar.setString(progress+ "%");
 				}
 				
 			}

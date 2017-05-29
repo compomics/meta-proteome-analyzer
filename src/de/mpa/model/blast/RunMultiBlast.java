@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JProgressBar;
+
 import de.mpa.client.Client;
 import de.mpa.client.ui.menubar.dialogs.BlastDialog;
 import de.mpa.db.mysql.DBManager;
@@ -200,12 +202,13 @@ public class RunMultiBlast {
 	 * @param resultOption
 	 *            . The result option, defining which BLAST hits are used such
 	 *            as "All hits", "Best evalue" etc.
+	 * @param progressbar 
 	 * @throws SQLException
 	 * @throws IOException
 	 */
 	public static void performBLAST4Experiments(String blastFile,
 			String database, double evalue, long experimentID, boolean blastAllDBProteins,
-			BlastDialog.BlastResultOption resultOption) throws SQLException,
+			BlastDialog.BlastResultOption resultOption, JProgressBar progressbar) throws SQLException,
 			IOException {
 		
 		// Show progress
@@ -276,6 +279,9 @@ public class RunMultiBlast {
 				// report progress
 				Client.getInstance().firePropertyChange("progressmade", true, false);
 				Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
+				int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
+				progressbar.setValue((int) progress);
+				progressbar.setString("Progress: " + progress + "%");
 			}
 			
 		} else {
@@ -291,6 +297,7 @@ public class RunMultiBlast {
 			}
 			// loop experiments
 			for (Long expID : expIDList) {
+				progressbar.setValue(0);
 				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID);
 				// gather all proteins from the experiment
 				List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(
@@ -347,17 +354,26 @@ public class RunMultiBlast {
 						// report progress
 						Client.getInstance().firePropertyChange("progressmade", true, false);
 						Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS");
+
 						// remove old batch
 						blastBatchList.clear();
 						protaccessors.clear();
 					}
+					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
+//					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
+					progressbar.setValue((int) progress);
+					progressbar.setString("Experiment " + expID + " Progress: " + progress + "%");
 				}
+				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS");
+				progressbar.setValue(100);
+				progressbar.setString("Experiment " + expID + " Progress: 100%");
 			}
 		}
 		// Finish progress
 		if (Client.getInstance() != null) {
 			Client.getInstance().firePropertyChange("new message", null,
 					"BLAST FINISHED ");
+			Client.getInstance().firePropertyChange("finishprogress", 100L, 100L);
 		}
 	}
 
@@ -542,7 +558,7 @@ public class RunMultiBlast {
 	 *            . The database against which the BLAST is executed
 	 * @throws SQLException
 	 */
-	private static void storeBLASTinDB(
+	private static void storeBLASTinDB (
 			HashMap<String, BlastResult> resultMapBLAST, double evalue,
 			BlastDialog.BlastResultOption resultOption,
 			Map<Long, Taxonomy> taxonomyMap,

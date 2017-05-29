@@ -491,6 +491,7 @@ public class FastaLoader {
 					// first 25% is the DB-stuff
 					int progress = (int) ((entryNo*1.0 / totalCountEntries*1.0) * 25);
 					progressbar.setValue(progress);
+					progressbar.setString(progress+ "%");
 				}
 			}
 		} else {
@@ -500,6 +501,7 @@ public class FastaLoader {
 		Client.getInstance().firePropertyChange("new message", null, "SAVING PROTEINS TO DB");
 		
 		progressbar.setValue(25);
+		progressbar.setString("25%");
 		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 		FastaLoader.createNewUniprotEntries(empty_up, conn, progressbar);
 		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
@@ -530,6 +532,7 @@ public class FastaLoader {
 
 		// fasta formatter script is progress from 50% to 75%
 		progressbar.setValue(50);
+		progressbar.setString("50%");
 		Client.getInstance().firePropertyChange("new message", null, "CREATING DECOY DATABASES");
 		// Runs the fastaformater script
 		RunFastaFormater fastaFromater = new RunFastaFormater();
@@ -537,6 +540,7 @@ public class FastaLoader {
 
 		// fasta formatter script is progress from 50% to 75%
 		progressbar.setValue(75);
+		progressbar.setString("75%");
 		
 		// create peptide fasta
 		String pep_out = "";
@@ -628,6 +632,7 @@ public class FastaLoader {
 			// progress from 25% to 50%
 			int progress = (int) (25 + (count*1.0 / (proteinid_List.size()*1.0)) * 25);
 			progressbar.setValue(progress);
+			progressbar.setString(progress + "%");
 		}
 	}
 

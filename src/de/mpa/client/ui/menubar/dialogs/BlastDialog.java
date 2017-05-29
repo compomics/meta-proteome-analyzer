@@ -10,6 +10,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
@@ -17,6 +18,7 @@ import javax.swing.SwingWorker;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.sharedelements.ScreenConfig;
@@ -73,6 +75,10 @@ public class BlastDialog extends JDialog {
 	 * The result option checkbox
 	 */
 	private JComboBox<BlastDialog.BlastResultOption> resultOptionCbx;
+	
+	private JProgressBar progressbar;
+	private JButton cancelBtn;
+	private JButton okBtn;
 
 	/**
 	 * ENUM for the BLAST options
@@ -125,11 +131,11 @@ public class BlastDialog extends JDialog {
 
 		// Create BLAST dialog
 		JPanel blastDlgPnl = new JPanel(new FormLayout("5dlu, p:g, 5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
-		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
+		JPanel blastSettingsPnl 	= new JPanel(new FormLayout("5dlu, p:g, 5dlu", "5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p:g, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu, p, 5dlu,p, 5dlu, p, 5dlu, p , 5dlu"));
 		JLabel blastLbl 		= new JLabel("Path of the BLAST Algorithms");
 		blastTxt = new JTextField(Constants.BLAST_FILE);
 		// BLAST db path - the database against which you perform the BLAST (must be a uniprot)
-		JLabel dbLbl 			= new JLabel("Path of the preformatted db (See BLAST Manual");
+		JLabel dbLbl 			= new JLabel("Path of the preformatted db (See BLAST Manual)");
 		dbTxt = new JTextField(Constants.BLAST_UNIPROT_DB);
 		// Textfield for the userinput: evalue
 		JLabel eValueLbl 		= new JLabel("E-Value cut-off");
@@ -158,6 +164,13 @@ public class BlastDialog extends JDialog {
 			}
 		});
 		
+		this.progressbar = new JProgressBar();
+		this.progressbar.setMaximum(100);
+		this.progressbar.setMinimum(0);
+		this.progressbar.setStringPainted(true);
+		this.progressbar.setString("0%");
+		this.progressbar.setValue(0);
+
 		// Add Components to the BLAST panel
 		blastSettingsPnl.add(blastLbl, 	CC.xy(2, 2));
 		blastSettingsPnl.add(blastTxt, 	CC.xy(2, 4));
@@ -170,9 +183,10 @@ public class BlastDialog extends JDialog {
 		blastSettingsPnl.add(allProteinsCheckbox, 	CC.xy(2, 18));
 		blastSettingsPnl.add(resultOptionLbl,	CC.xy(2, 20));
 		blastSettingsPnl.add(resultOptionCbx, 	CC.xy(2, 22));
+		blastSettingsPnl.add(progressbar, 	CC.xy(2, 24));
 
 		// Configure 'OK' button
-		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
+		okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
 		okBtn.setPressedIcon(IconConstants.CHECK_PRESSED_ICON);
 		okBtn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -182,12 +196,13 @@ public class BlastDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 					BlastWorker blastWorker = new BlastWorker();
 					blastWorker.execute();
-					close();
 			}
 		});
+		
+		
 
 		// Configure 'Cancel' button
-		JButton cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
+		cancelBtn = new JButton("Cancel", IconConstants.CROSS_ICON);
 		cancelBtn.setRolloverIcon(IconConstants.CROSS_ROLLOVER_ICON);
 		cancelBtn.setPressedIcon(IconConstants.CROSS_PRESSED_ICON);
 		cancelBtn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -233,7 +248,20 @@ public class BlastDialog extends JDialog {
 		protected Object doInBackground() throws Exception {
 			// TODO: Manage malformed user input
 			// just run the static method for BLAST searches and finished
-			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), BlastDialog.this.allProteinsCBValue, (BlastDialog.BlastResultOption) BlastDialog.this.resultOptionCbx.getSelectedItem());
+			
+			BlastDialog.this.okBtn.setEnabled(false);
+			BlastDialog.this.cancelBtn.setEnabled(false);
+
+			BlastDialog.this.allProteinsCheckbox.setEnabled(false);
+			BlastDialog.this.resultOptionCbx.setEnabled(false);
+			
+			BlastDialog.this.dbTxt.setEnabled(false);
+			BlastDialog.this.expTxt.setEnabled(false);
+			BlastDialog.this.eValueTxt.setEnabled(false);
+			BlastDialog.this.blastTxt.setEnabled(false);
+			
+			RunMultiBlast.performBLAST4Experiments(blastTxt.getText(), dbTxt.getText(), Double.parseDouble(eValueTxt.getText()), Long.valueOf(expTxt.getText()), BlastDialog.this.allProteinsCBValue, (BlastDialog.BlastResultOption) BlastDialog.this.resultOptionCbx.getSelectedItem(), progressbar);
+			BlastDialog.this.close();
 			return null;
 		}
 		
