@@ -8,6 +8,7 @@ import java.util.Set;
 import de.mpa.client.ui.sharedelements.chart.ChartType;
 import de.mpa.client.ui.sharedelements.chart.TaxonomyChart.TaxonomyChartType;
 import de.mpa.model.MPAExperiment;
+import de.mpa.model.dbsearch.ProteinHit;
 import de.mpa.model.taxonomy.TaxonomyNode;
 
 public class CompareUtil {
@@ -24,6 +25,20 @@ public class CompareUtil {
 					results.put(property.toString(), cleanLongArray(new Long[experimentIndexMap.size()]));
 					results.get(property.toString())[(int) experimentIndexMap.get(psLong)]++;
 				}
+			}
+		}
+	}
+
+	protected static void countProteinElements(HashMap<Long, Integer> experimentIndexMap, ProteinHit protein,
+			Map<String, Long[]> results, Set<Long> experimentIDs) {
+		for (long psLong : experimentIDs) {
+			// is already inside just increase
+			if (results.containsKey(protein.getAccession())) {
+				results.get(protein.getAccession())[experimentIndexMap.get(psLong)]++;
+			} else {
+				// else put new row and increase
+				results.put(protein.getAccession(), CompareUtil.cleanLongArray(new Long[experimentIndexMap.size()]));
+				results.get(protein.getAccession())[(int) experimentIndexMap.get(psLong)]++;
 			}
 		}
 	}
@@ -63,15 +78,14 @@ public class CompareUtil {
 		return false;
 	}
 
-	private static Long[] cleanLongArray(Long[] array) {
+	protected static Long[] cleanLongArray(Long[] array) {
 		for (int i = 0; i < array.length; i++) {
 			array[i] = (long) 0;
 		}
 		return array;
 	}
-	
-	protected static HashMap<Long, Integer> createIndexHashMapForExperiments(ArrayList<MPAExperiment> experiments)
-	{
+
+	protected static HashMap<Long, Integer> createIndexHashMapForExperiments(ArrayList<MPAExperiment> experiments) {
 		HashMap<Long, Integer> experimentIndexMap = new HashMap<Long, Integer>();
 		int i = 0;
 		for (MPAExperiment exper : experiments) {
@@ -80,5 +94,5 @@ public class CompareUtil {
 		}
 		return experimentIndexMap;
 	}
-	
+
 }
