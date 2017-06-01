@@ -1116,22 +1116,24 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 					// gather K and EC numbers for pathway lookup
 					for (ProteinHit ph : Client.getInstance().getDatabaseSearchResult().getAllProteinHits()) {
-						speciesNames.add(ph.getTaxonomyNode().getName());
+						if (ph.isVisible()) {
+							speciesNames.add(ph.getTaxonomyNode().getName());
 
-						// gather K and EC numbers for pathway lookup
-						List<String> keys = new ArrayList<>();
-						UniProtEntryMPA upe = ph.getUniProtEntry();
-						if (upe != null) {
-							keys.addAll(upe.getKonumbers());
-							keys.addAll(upe.getEcnumbers());
-						}
+							// gather K and EC numbers for pathway lookup
+							List<String> keys = new ArrayList<>();
+							UniProtEntryMPA upe = ph.getUniProtEntry();
+							if (upe != null) {
+								keys.addAll(upe.getKonumbers());
+								keys.addAll(upe.getEcnumbers());
+							}
 
-						// perform pathway lookup
-						for (String key : keys) {
-							List<KEGGNode> nodes = Constants.KEGG_ORTHOLOGY_MAP.get(key);
-							if (nodes != null) {
-								for (KEGGNode node : nodes) {
-									pwNodes.add((KEGGNode) node.getParent());
+							// perform pathway lookup
+							for (String key : keys) {
+								List<KEGGNode> nodes = Constants.KEGG_ORTHOLOGY_MAP.get(key);
+								if (nodes != null) {
+									for (KEGGNode node : nodes) {
+										pwNodes.add((KEGGNode) node.getParent());
+									}
 								}
 							}
 						}
@@ -1139,12 +1141,12 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 					// Update statistics labels
                     ResultsPanel.this.totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
-                    ResultsPanel.this.identSpecLbl.setText("" + dbSearchResult.getIdentifiedSpectrumCount());
-                    ResultsPanel.this.distPepLbl.setText("" + dbSearchResult.getAllPeptideHits().size());
+                    ResultsPanel.this.identSpecLbl.setText("" + dbSearchResult.getVisibleIdentifiedSpectrumCount());
+                    ResultsPanel.this.distPepLbl.setText("" + dbSearchResult.getVisiblePeptideHits().size());
 					//TODO does throw errors due to concurrent methods interaction
                     ResultsPanel.this.uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-                    ResultsPanel.this.totalProtLbl.setText("" + dbSearchResult.getAllProteinHits().size());
-                    ResultsPanel.this.metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
+                    ResultsPanel.this.totalProtLbl.setText("" + dbSearchResult.getVisibleProteinHits().size());
+                    ResultsPanel.this.metaProtLbl.setText("" + dbSearchResult.getVisibleMetaProteins().size());
                     ResultsPanel.this.speciesLbl.setText("" + speciesNames.size());
                     ResultsPanel.this.enzymesLbl.setText("" + ecNumbers.size());
                     ResultsPanel.this.pathwaysLbl.setText("" + pwNodes.size());

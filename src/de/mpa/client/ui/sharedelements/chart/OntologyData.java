@@ -279,7 +279,6 @@ public class OntologyData implements ChartData {
 					mpSet.add(prot.getMetaProteinHit().getAccession());
 				}
 			}
-			System.out.println("mp set " + mpSet.size());
 			return mpSet.size();
 		case PROTEIN_LEVEL: {
 			HashSet<ProteinHit> proteinSet = new HashSet<ProteinHit>();

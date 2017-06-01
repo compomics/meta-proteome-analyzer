@@ -14,13 +14,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import de.mpa.client.Constants;
 import de.mpa.db.mysql.MapContainer;
 import de.mpa.db.mysql.accessor.ProteinAccessor;
 import de.mpa.db.mysql.accessor.XtandemhitTableAccessor;
@@ -134,30 +134,18 @@ public class XTandemStorager extends BasicStorager {
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
             
-//            for (Entry<String, Long> lala : MapContainer.SpectrumTitle2IdMap.entrySet()) {
-//            	System.out.println("String " + lala.getKey() + " Long " + lala.getValue());
-//            }
             // Iterate over all peptide identifications aka. domains
             for (Peptide peptide : pepList) {
             	List<Domain> domains = peptide.getDomains();
             	for (Domain domain : domains) {
-//            		System.out.println("Domain : " + domain.getDomainHyperScore());
                    	String sequence = domain.getDomainSequence();
 					if (!peptides.contains(sequence)) {
-//						System.out.println("sequence " + sequence);
                         peptides.add(sequence);
                 	    HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
-//                	    System.out.println("Looking for searchspectrumid : " + spectrumTitle);
-//						System.out.println("Contains Spectrum : " + MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle.trim()));
-//						System.out.println("Contains Spectrum : " + MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle));
-//						for (Entry<String, Long> entr : MapContainer.SpectrumTitle2IdMap.entrySet()) {
-//							if (entr.getKey().trim().equals(spectrumTitle.trim())) {
-//								System.out.println("Double trim: " + entr.getValue());
 
                 	    // Only store if the search spectrum id is referenced.
 						if (MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
-//							long searchspectrumID = entr.getValue();
                 	        Double qValue = 1.0;
             	            Double pep = 1.0;
                 	    	if (this.validatedPSMScores != null) {
@@ -167,8 +155,7 @@ public class XTandemStorager extends BasicStorager {
                 	    	    	pep = validatedPSMScore.getPep();
                 	    	    } 
                 	    	}
-//                	    	System.out.println("Qvalue " + qValue);
-            				if (qValue <= 1.0) {
+            				if (qValue <= Constants.getDefaultQvalueAccepted()) {
         						hitdata.put(XtandemhitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);  
                      	    	  
                                 // Set the domain id  
@@ -207,9 +194,6 @@ public class XTandemStorager extends BasicStorager {
         						} else {
 									accessionSet.add(accession);
 								}
-        						System.out.println("Qvalue : " + hitdata.get(XtandemhitTableAccessor.QVALUE));
-        						System.out.println("Stored : " + hitdata.get(XtandemhitTableAccessor.PEP));
-        						System.out.println("Stored : " + hitdata.get(XtandemhitTableAccessor.HYPERSCORE));
                      	    	
         						for (String acc : accessionSet) {
         							ProteinAccessor protSql = ProteinAccessor.findFromAttributes(acc, this.conn);
@@ -230,10 +214,7 @@ public class XTandemStorager extends BasicStorager {
 								}
                                  
             				}
-            				// changed if clause to loop+if
                 	    }
-//							}
-//						}
 					}
 				}
             }      

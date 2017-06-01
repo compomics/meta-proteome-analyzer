@@ -230,7 +230,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	private enum focus {SPECTRUM, PEPTIDE, PROTEIN}
 
-    public DbSearchResultPanel.focus view = DbSearchResultPanel.focus.PROTEIN;
+	public DbSearchResultPanel.focus view = DbSearchResultPanel.focus.PROTEIN;
 	public JToggleButton focusSpectraBtn, focusPeptideBtn;
 
 	/**
@@ -246,7 +246,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * Initializes the components of the database search results panel
 	 */
 	private void initComponents() {
-		
+
 		// Define layout
 		this.setLayout(new FormLayout("5dlu, p:g, 5dlu", "5dlu, f:p:g, 5dlu"));
 
@@ -458,7 +458,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								peptides.addAll(protein.getVisPeptideHitList());
 							}
 						}
-                        DbSearchResultPanel.this.refreshPeptideViews(peptides);
+						DbSearchResultPanel.this.refreshPeptideViews(peptides);
 					}
 					refreshChart(true);
 				}
@@ -490,7 +490,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			treeTbl.addPropertyChangeListener("checkboxSelectionDone", new PropertyChangeListener() {
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-                    DbSearchResultPanel.this.refreshChart(true);
+					DbSearchResultPanel.this.refreshChart(true);
 				}
 			});
 
@@ -499,7 +499,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 			// install protein count highlighter
 			Color protCountCol = new Color(232, 122, 55, 132);
-            this.protCountHighlighter = new ColorHighlighter(
+			this.protCountHighlighter = new ColorHighlighter(
 					new DbSearchResultPanel.ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
 			treeTbl.addHighlighter(protCountHighlighter);
 
@@ -1781,7 +1781,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// Goes thorugh all columns and puts them in the parameter map
 				for (Integer index : indexes) {
 					TableColumnExt column = (TableColumnExt) columns.get(index);
-//					Object id = column.getIdentifier();
+					//					Object id = column.getIdentifier();
 					selected[index] = column.isVisible();
 					names[index] = column.getToolTipText();
 				}
@@ -1880,7 +1880,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				treeTblMdl.sort();
 				treeTblMdl.setRoot(root);
 			}
-			
+
 			// Adjust highlighters
 			peptideTbl.updateHighlighters(1, 0, maxProtCount);
 			peptideTbl.updateHighlighters(3, 0, maxSpecCount);
@@ -1974,7 +1974,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		if (selRow != -1) {
 			sequence = (String) peptideTbl.getValueAt(selRow, peptideTbl.getHierarchicalColumn());
 			// Extract spectrum file
-//			if (!Client.isViewer()) {
+			//			if (!Client.isViewer()) {
 			// Get spectrum file from database when connected
 			try {
 				mgf = Client.getInstance().getSpectrumBySpectrumID(psm.getSpectrumID());
@@ -1982,13 +1982,13 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				JXErrorPane.showDialog(ClientFrame.getInstance(),
 						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
-//			} else {
-//				// Read spectrum from MGF file accompanying imported result object, if possible
-//				FileExperiment experiment =
-//						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
-//				mgf = Client.getInstance().readSpectrumFromFile(
-//						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
-//			}
+			//			} else {
+			//				// Read spectrum from MGF file accompanying imported result object, if possible
+			//				FileExperiment experiment =
+			//						(FileExperiment) ClientFrame.getInstance().getProjectPanel().getCurrentExperiment();
+			//				mgf = Client.getInstance().readSpectrumFromFile(
+			//						experiment.getSpectrumFile().getPath(), psm.getStartIndex(), psm.getEndIndex());
+			//			}
 		}
 		spectrumPnl.refreshSpectrum(mgf, sequence);
 	}
@@ -2001,16 +2001,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	protected void refreshChart(boolean refreshData) {
 		// refreshData-Flag is obsolete !!
 		// get new proteinlist
-//		ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
+		//		ProteinHitList metaProteins = new ProteinHitList(Client.getInstance().getDatabaseSearchResult().getMetaProteins());
 		// TODO : check if it is ok to use the same list
-//		ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
+		//		ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 		// update chart data containers
-		
+
 		// goes somewhere else
 		ontologyData.init();
 		taxonomyData.init();
-		
-		
+
+
 		Chart chart = null;
 		// create chart instance
 		if (chartType instanceof OntologyChart.OntologyChartType) {
@@ -2054,9 +2054,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					TableConfig.clearTable(ptt.getTreeTable());
 				}
 				TableConfig.clearTable(DbSearchResultPanel.this.peptideTbl);
-                DbSearchResultPanel.this.coveragePane.clear();
+				DbSearchResultPanel.this.coveragePane.clear();
 				TableConfig.clearTable(DbSearchResultPanel.this.psmTbl);
-                DbSearchResultPanel.this.spectrumPnl.clearSpectrum();
+				DbSearchResultPanel.this.spectrumPnl.clearSpectrum();
 
 				// Fetch search result object				
 				//				resultPnl.dbSearchResult = 	Client.getInstance().fetchResults();	
@@ -2065,7 +2065,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				resultPnl.ontologyData = new OntologyData(hl);
 				resultPnl.taxonomyData = new TaxonomyData(hl);
 				// Insert new result data into tables
-                refreshProteinTables();
+				refreshProteinTables();
 				// Refresh chart
 				resultPnl.refreshChart(true);
 			} catch (Exception e) {
@@ -2082,79 +2082,91 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			if (Client.getInstance().getDatabaseSearchResult() != null) {
 				ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 				long metaProtCount = metaProteins.size();
-				
+
 				// Notify status bar
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES");
 				Client.getInstance().firePropertyChange("resetall", null, metaProtCount);
 				Client.getInstance().firePropertyChange("resetcur", null, metaProtCount);
-				
+
 				// Values for construction of highlighter
 				int protCount = 0, maxPeptideCount = 0, maxSpecCount = 0;
 				double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
 				/* Build tree table trees from (meta-)proteins */
 				// Iterate meta-proteins
 				for (MetaProteinHit metaProtein : metaProteins) {
-					PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
-					ArrayList<ProteinHit> proteinHits = metaProtein.getProteinHitList();
-					for (ProteinHit proteinHit : proteinHits) {	
-						// Calculate NSAF
-						// Determine maximum values for visualization later on
-						double nsaf = proteinHit.getNSAF();
-						maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
-						maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
-						// nsaf and empai calculations can be skipped through this flag
-						if (!(Client.getInstance().isfast_results())) {
-							maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
-							max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
-							min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
-							maxNSAF = Math.max(maxNSAF, nsaf);
-							if (nsaf < 0.0) {
+					if (metaProtein.isVisible()) {
+						PhylogenyTreeTableNode metaNode = new PhylogenyTreeTableNode(metaProtein);
+						ArrayList<ProteinHit> proteinHits = metaProtein.getProteinHitList();
+						for (ProteinHit proteinHit : proteinHits) {
+							if (proteinHit.isVisible()) {
 								// Calculate NSAF
-								nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), Client.getInstance().getDatabaseSearchResult().getAllProteinHits(),	proteinHit);
-								proteinHit.setNSAF(nsaf);
+								// Determine maximum values for visualization later on
+								double nsaf = proteinHit.getNSAF();
+								maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
+								maxSpecCount = Math.max(maxSpecCount, proteinHit.getSpectralCount());
+								// nsaf and empai calculations can be skipped through this flag
+								if (!(Client.getInstance().isfast_results())) {
+									maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
+									max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
+									min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
+									maxNSAF = Math.max(maxNSAF, nsaf);
+									if (nsaf < 0.0) {
+										// Calculate NSAF
+										nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), Client.getInstance().getDatabaseSearchResult().getAllProteinHits(),	proteinHit);
+										proteinHit.setNSAF(nsaf);
+									}
+								} else {
+									if (nsaf < 0.0) {
+										proteinHit.setNSAF(1.0);
+									}
+								}
+								// Wrap protein data in table node clones and insert them into the relevant trees
+								URI uri;
+								if (proteinHit.getAccession().contains(".")) {
+									uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession()
+													.trim()
+													.replaceAll(".", "_")
+													.replaceAll(" ", "")
+													.replaceAll("\\[", "(")
+													.replaceAll("\\]", ""));;
+								} else {
+									uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession()
+													.trim().replaceAll(" ", "")
+													.replaceAll("\\[", "(")
+													.replaceAll("\\]", ""));
+								}
+
+								// XXX Handling of meta nodes is weird
+								for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+									if (ptt == ProteinTreeTables.META) {
+										continue;
+									}
+									PhylogenyTreeTableNode node = new PhylogenyTreeTableNode(proteinHit);
+									node.setURI(uri);
+									ptt.insertNode(node);
+								}
+
+								// // Link nodes to each other
+								// linkNodes(flatPath, taxonPath, enzymePath);
+
+								PhylogenyTreeTableNode metaChildNode = new PhylogenyTreeTableNode(proteinHit);
+								metaChildNode.setURI(uri);
+								metaNode.add(metaChildNode);
+
+								//						if ((proteinHit.getUniProtEntry() == null) || (proteinHit.getUniProtEntry().getAccession() == null)) {
+								if ((proteinHit.getUniProtEntry() == null)) {
+									System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
+								}
+								protCount++;
 							}
-						} else {
-							if (nsaf < 0.0) {
-								proteinHit.setNSAF(1.0);
-							}
 						}
-						// Wrap protein data in table node clones and insert them into the relevant trees
-						URI uri;
-						if (proteinHit.getAccession().contains(".")) {
-							uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim().replaceAll(".", "_").replaceAll(" ", ""));
-						} else {
-							uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession().trim().replaceAll(" ", ""));
-						}
+						ProteinTreeTables.META.insertNode(metaNode);
 
-						// XXX Handling of meta nodes is weird
-						for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-							if (ptt == ProteinTreeTables.META) {
-								continue;
-							}
-							PhylogenyTreeTableNode node = new PhylogenyTreeTableNode(proteinHit);
-							node.setURI(uri);
-							ptt.insertNode(node);
-						}
-
-						// // Link nodes to each other
-						// linkNodes(flatPath, taxonPath, enzymePath);
-
-						PhylogenyTreeTableNode metaChildNode = new PhylogenyTreeTableNode(proteinHit);
-						metaChildNode.setURI(uri);
-						metaNode.add(metaChildNode);
-
-//						if ((proteinHit.getUniProtEntry() == null) || (proteinHit.getUniProtEntry().getAccession() == null)) {
-						if ((proteinHit.getUniProtEntry() == null)) {
-							System.err.println("Missing UniProt entry: " + proteinHit.getAccession());
-						}
-						protCount++;
+						Client.getInstance().firePropertyChange("progressmade", false, true);
 					}
-					ProteinTreeTables.META.insertNode(metaNode);
-
-					Client.getInstance().firePropertyChange("progressmade", false, true);
 				}
 				// Display number of proteins in title area
-                DbSearchResultPanel.this.protTtlPnl.setTitle("Proteins (" + protCount + ")");
+				DbSearchResultPanel.this.protTtlPnl.setTitle("Proteins (" + protCount + ")");
 
 				if (protCount > 0) {
 					// Refresh tree tables by resetting root node
@@ -2164,7 +2176,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						sttm.setRoot(sttm.getRoot());
 					}
 
-                    DbSearchResultPanel.this.refreshPathwayStrings();
+					DbSearchResultPanel.this.refreshPathwayStrings();
 
 					// Adjust highlighters
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
@@ -2202,7 +2214,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Stop appearing busy
-            setBusy(false);
+			setBusy(false);
 			// Set up graph database contents
 			ResultsPanel resPnl =
 					(ResultsPanel) getParent().getParent();
@@ -2339,7 +2351,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	public void setBusy(boolean busy) {
 		Cursor cursor = (busy) ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
 		ClientFrame.getInstance().setCursor(cursor);
-        this.split.setCursor(cursor);
+		this.split.setCursor(cursor);
 
 		ButtonTabbedPane tabPane = (ButtonTabbedPane) getParent();
 		int index = tabPane.indexOfComponent(this);

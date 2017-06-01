@@ -73,6 +73,10 @@ public class PropertyLoader {
 	// mysql
 	public static final String PATH_MYSQL = "win_mysql";
 	public static final String PATH_MYSQLDUMP = "win_mysqldump";
+	
+	public static final String DEFAULT_ACCEPTED_QVALUE = "default_qvalue_accepted";
+	public static final String DEFAULT_FDR = "default_fdr";
+	
 
 	static {
 		// load the property file

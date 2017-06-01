@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import de.mpa.client.Constants;
 import de.mpa.db.mysql.MapContainer;
 import de.mpa.db.mysql.accessor.OmssahitTableAccessor;
 import de.mpa.db.mysql.accessor.ProteinAccessor;
@@ -131,7 +132,7 @@ public class OmssaStorager extends BasicStorager {
 						} 
 					}
 
-					if (qValue <= 1.0) {
+					if (qValue <= Constants.getDefaultQvalueAccepted()) {
 						hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, searchspectrumID);
 
 						// Get the MSPepHit (for the accession)

@@ -1,16 +1,13 @@
 package de.mpa.client;
 
 import java.awt.Color;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,8 +17,6 @@ import java.util.Map.Entry;
 
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
-
-import com.thoughtworks.xstream.XStream;
 
 import de.mpa.client.ui.menubar.dialogs.DelegateColor;
 import de.mpa.client.ui.sharedelements.ExtensionFileFilter;
@@ -244,7 +239,30 @@ public class Constants {
 	 * Evalue for the BLAST query
 	 */
 	public static final double BLAST_EVALUE = 0.0001;
+	
+	
+	/**
+	 * The FDR which is used as a default when loading results
+	 */
+	public static final String DEFAULT_FDR = PropertyLoader.getProperty(PropertyLoader.DEFAULT_FDR);
+	
+	/**
+	 * The maximum QValue which is used when considering results from X!Tandem and Omssa
+	 */
+	public static final String DEFAULT_ACCEPTED_QVALUE = PropertyLoader.getProperty(PropertyLoader.DEFAULT_ACCEPTED_QVALUE);
 
+	
+	/**
+	 * 
+	 */
+	public static double getDefaultFDR() {
+		return 2.0; 
+	}
+	
+	public static double getDefaultQvalueAccepted() {
+		return 2.0;
+	}
+	
 	/**
 	 * Convenience method to initialize the enzyme definition tree.
 	 * 

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.mpa.client.Client;
+import de.mpa.client.Constants;
 import de.mpa.db.mysql.accessor.Mascothit;
 import de.mpa.db.mysql.accessor.Omssahit;
 import de.mpa.db.mysql.accessor.SearchHit;
@@ -34,7 +35,7 @@ import de.mpa.model.taxonomy.TaxonomyUtils;
 public class DbSearchResult implements Serializable {
 	
 	/*
-	 * FIELDS  Unknown Taxonomic instance:
+	 * FIELDS
 	 */
 	
 	/**
@@ -311,6 +312,7 @@ public class DbSearchResult implements Serializable {
 			spectralCount+=Searchspectrum.getSpectralCountFromExperimentID(experiment.getID(), conn);
 		}
 		this.setTotalSpectrumCount(spectralCount);
+		this.setFDR(Constants.getDefaultFDR());
 		
 ////		// XXX: DEBUG OUTPUT POPULATING TABLES
 //		System.out.println("MP: " + this.metaProteins.size());
@@ -677,6 +679,18 @@ public class DbSearchResult implements Serializable {
 		for (PeptideHit pephit : this.getAllPeptideHits()) {
 			for (PeptideSpectrumMatch psm : pephit.getPeptideSpectrumMatches()) {
 				specIDs.add(psm.getSpectrumID());
+			}
+		}
+		return (long) specIDs.size();
+	}
+	
+	public Long getVisibleIdentifiedSpectrumCount() {
+		HashSet<Long> specIDs = new HashSet<Long>();
+		for (PeptideHit pephit : this.getAllPeptideHits()) {
+			for (PeptideSpectrumMatch psm : pephit.getPeptideSpectrumMatches()) {
+				if (psm.isVisible()) {
+					specIDs.add(psm.getSpectrumID());
+				}
 			}
 		}
 		return (long) specIDs.size();
