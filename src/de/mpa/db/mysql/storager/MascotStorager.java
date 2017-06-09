@@ -482,7 +482,7 @@ public class MascotStorager extends BasicStorager {
 												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 											} else {
 												String accession = protein_map.get(prot_acc).getAccession();
-
+												System.out.println("Accession . " + accession);
 												// Get the protein description from fasta or from the dat file
 												String description = protein_map.get(prot_acc).getDescription();
 												if (!(description == null || description.length()<1)) {
@@ -522,7 +522,7 @@ public class MascotStorager extends BasicStorager {
 												}
 											}
 										}
-										if (proteinID !=null) {
+										if (proteinID != null) {
 											// finally we submit the mascothit
 											this.storeMascotHit(searchspectrumID, peptideID, proteinID, current_query, current_pephit);
 

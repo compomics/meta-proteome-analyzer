@@ -543,7 +543,8 @@ public class MetaProteinFactory {
 		client.firePropertyChange("resetcur", -1L, (long) proteinList.size());
 
 		// Define protein taxonomy by common tax ID of peptides
-		TaxonomyUtils.determineProteinTaxonomy(proteinList, params);
+		// XXX: proteins keep a fixed taxonomy
+//		TaxonomyUtils.determineProteinTaxonomy(proteinList, params);
 
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 

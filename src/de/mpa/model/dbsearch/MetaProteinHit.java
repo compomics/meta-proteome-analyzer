@@ -369,6 +369,11 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 		this.accession = accession;
 	}
 	
+	@Override
+	public String toString() {
+		return (getAccession() + " | " + getDescription());
+	}
+	
 	public String getDescription() {
 		return this.description;
 	}

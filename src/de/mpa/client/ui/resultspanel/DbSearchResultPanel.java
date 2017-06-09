@@ -2010,7 +2010,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		ontologyData.init();
 		taxonomyData.init();
 
-
 		Chart chart = null;
 		// create chart instance
 		if (chartType instanceof OntologyChart.OntologyChartType) {

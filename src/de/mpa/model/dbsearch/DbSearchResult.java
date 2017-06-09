@@ -17,7 +17,6 @@ import de.mpa.client.Constants;
 import de.mpa.db.mysql.accessor.Mascothit;
 import de.mpa.db.mysql.accessor.Omssahit;
 import de.mpa.db.mysql.accessor.SearchHit;
-import de.mpa.db.mysql.accessor.Searchspectrum;
 import de.mpa.db.mysql.accessor.Taxonomy;
 import de.mpa.db.mysql.accessor.UniprotentryAccessor;
 import de.mpa.db.mysql.accessor.XTandemhit;
@@ -34,8 +33,8 @@ import de.mpa.model.taxonomy.TaxonomyUtils;
  */
 public class DbSearchResult implements Serializable {
 	
-	/*
-	 * FIELDS
+	/* Protein hit for
+	 * FIELDS 
 	 */
 	
 	/**
@@ -307,11 +306,7 @@ public class DbSearchResult implements Serializable {
 			// next experiment
 		}
 		// determine total spectral count
-		int spectralCount = 0;
-		for (MPAExperiment experiment : experimentList) {
-			spectralCount+=Searchspectrum.getSpectralCountFromExperimentID(experiment.getID(), conn);
-		}
-		this.setTotalSpectrumCount(spectralCount);
+		this.setTotalSpectrumCount(this.countTotalSpectraFromExperimentList(conn));
 		this.setFDR(Constants.getDefaultFDR());
 		
 ////		// XXX: DEBUG OUTPUT POPULATING TABLES
@@ -639,6 +634,28 @@ public class DbSearchResult implements Serializable {
 	 */
 	public int getTotalSpectrumCount() {
 		return this.totalSpectra;
+	}
+	
+	/**
+	 * Returns the non-redundant count of ms-spectra from the experiment list of this result-object 
+	 * @throws SQLException 
+	 */
+	public int countTotalSpectraFromExperimentList(Connection conn) throws SQLException {
+		HashSet<Long> spectrumids = new HashSet<Long>();
+		for (MPAExperiment experiment : experimentList) {
+			PreparedStatement ps = conn.prepareStatement("SELECT spectrum.spectrumid FROM spectrum "
+					+ "INNER JOIN searchspectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid "
+					+ "WHERE searchspectrum.fk_experimentid = ?");
+			ps.setLong(1, experiment.getID());
+	    	ResultSet rs = ps.executeQuery();
+	    	while (rs.next()) {
+	    		spectrumids.add(rs.getLong("spectrum.spectrumid"));
+	    	}
+	    	rs.close();
+	    	ps.close();
+		}
+		int spectralCount = spectrumids.size();
+		return spectralCount;
 	}
 	
 	/**
