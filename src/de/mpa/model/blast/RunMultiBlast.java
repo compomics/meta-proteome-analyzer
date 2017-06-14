@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -229,6 +230,7 @@ public class RunMultiBlast {
 		// get total Protein count for BLAST-tasks OR get all proteins right away if single-experiment
 		Long totalProtCount = 0L;
 		List<ProteinAccessor> proteins = new ArrayList<ProteinAccessor>();
+		HashSet <Long> proteinIds = new HashSet<Long>(); 
 		
 		// TODO:
 		/* 
@@ -257,6 +259,7 @@ public class RunMultiBlast {
 				ArrayList<DigFASTAEntry> blastBatchList = new ArrayList<DigFASTAEntry>();
 				// get batch directly from DB
 				proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(conn, limit, offset);
+				
 				for (ProteinAccessor proteinAcc : proteins) {
 					DigFASTAEntry fastaProt = new DigFASTAEntry(
 							("" + proteinAcc.getProteinid()),
@@ -278,7 +281,7 @@ public class RunMultiBlast {
 						taxonomyMap, protaccessors, database);
 				// report progress
 				Client.getInstance().firePropertyChange("progressmade", true, false);
-				Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
+				//Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
 				int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
 				progressbar.setValue((int) progress);
 				progressbar.setString("Progress: " + progress + "%");
@@ -316,7 +319,11 @@ public class RunMultiBlast {
 							hit.getFk_proteinid(), conn);
 					// add proteins which have no uniprotentry (condition: fk = -1)
 					if (aProt.getFK_UniProtID() == -1) {
-						proteins.add(aProt);
+						if(!proteinIds.contains(aProt.getProteinid())){
+							proteins.add(aProt);
+							proteinIds.add(aProt.getProteinid());
+						}
+						
 					}
 				}
 				// prepare progress bar
@@ -359,8 +366,9 @@ public class RunMultiBlast {
 						blastBatchList.clear();
 						protaccessors.clear();
 					}
+				
 					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
-//					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
+					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
 					progressbar.setValue((int) progress);
 					progressbar.setString("Experiment " + expID + " Progress: " + progress + "%");
 				}
@@ -370,11 +378,11 @@ public class RunMultiBlast {
 			}
 		}
 		// Finish progress
-		if (Client.getInstance() != null) {
+//		if (Client.getInstance() != null) {
 			Client.getInstance().firePropertyChange("new message", null,
 					"BLAST FINISHED ");
 			Client.getInstance().firePropertyChange("finishprogress", 100L, 100L);
-		}
+//		}
 	}
 
 	//

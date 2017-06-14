@@ -65,7 +65,8 @@ public class QvalityJob extends Job {
         this.procCommands.add(this.qvaluedOutput);
         this.procCommands.trimToSize();
 
-        Job.log.info("qvality commands: " + this.procCommands);
+        
+//        Job.log.info("qvality commands: " + this.procCommands);
         this.procBuilder = new ProcessBuilder(this.procCommands);
 
 		// set error out and std out to same stream

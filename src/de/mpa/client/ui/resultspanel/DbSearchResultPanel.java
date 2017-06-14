@@ -1819,9 +1819,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							"Export Success", JOptionPane.INFORMATION_MESSAGE);
 				} catch (IOException e) {
 					// show error message
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(),
-									"I/O Error", e, ErrorLevel.SEVERE, null));
+					e.printStackTrace();
+//					JXErrorPane.showDialog(ClientFrame.getInstance(),
+//							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(),
+//									"I/O Error", e, ErrorLevel.SEVERE, null));
 				} finally {
 					// restore visibility state of columns
 					int i = 0;
@@ -1979,8 +1980,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			try {
 				mgf = Client.getInstance().getSpectrumBySpectrumID(psm.getSpectrumID());
 			} catch (SQLException e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				e.printStackTrace();
+//				JXErrorPane.showDialog(ClientFrame.getInstance(),
+//						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 			//			} else {
 			//				// Read spectrum from MGF file accompanying imported result object, if possible

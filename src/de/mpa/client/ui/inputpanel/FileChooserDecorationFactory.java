@@ -140,8 +140,9 @@ public class FileChooserDecorationFactory {
 							textArea.setText(text);
 							textArea.setCaretPosition(0);
 						} catch (IOException e) {
-							JXErrorPane.showDialog(ClientFrame.getInstance(),
-									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+							e.printStackTrace();
+//							JXErrorPane.showDialog(ClientFrame.getInstance(),
+//									new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 							textArea.setText(null);
 						}
 					} else {

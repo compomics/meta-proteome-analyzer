@@ -315,7 +315,8 @@ public class ClientFrameMenuBar extends JMenuBar {
 				        JOptionPane.WARNING_MESSAGE);
 				if ("DELETE".equals(confirmCode)) {
 					try {						
-						UniProtUtilities.deleteblasthits();						
+						UniProtUtilities.deleteblasthits();		
+						ClientFrame.getInstance().restart();
 					} catch (SQLException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

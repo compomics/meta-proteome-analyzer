@@ -1025,8 +1025,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 			try {
 				res = get().intValue();
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				e.printStackTrace();
+//				JXErrorPane.showDialog(ClientFrame.getInstance(),
+//						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 			// If new results have been fetched...
 			if (res == 1) {
@@ -1080,8 +1081,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 				return 1;
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+				e.printStackTrace();
+//				JXErrorPane.showDialog(ClientFrame.getInstance(),
+//						new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 			}
 			return 0;
 		}
@@ -1164,8 +1166,16 @@ public class ResultsPanel extends JPanel implements Busyable {
 					return 1;
 					
 				} catch (Exception e) {
-					JXErrorPane.showDialog(ClientFrame.getInstance(),
-							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+//					e.printStackTrace();
+					try {
+						Thread.sleep(1000);
+						ResultsPanel.this.heatMapPn.updateData();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
+//					JXErrorPane.showDialog(ClientFrame.getInstance(),
+//							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 				}
 			} 
 			return 0;
@@ -1178,8 +1188,9 @@ public class ResultsPanel extends JPanel implements Busyable {
 			try {
 				res = get().intValue();
 			} catch (Exception e) {
-				JXErrorPane.showDialog(ClientFrame.getInstance(),
-						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+				e.printStackTrace();
+//				JXErrorPane.showDialog(ClientFrame.getInstance(),
+//						new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 			// If new results have been fetched...
 			if (res == 1) {

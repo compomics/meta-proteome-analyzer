@@ -19,6 +19,7 @@ import javax.xml.ws.soap.MTOM;
 
 import org.apache.log4j.Logger;
 
+import de.mpa.client.Client;
 import de.mpa.client.settings.DbSearchSettings;
 import de.mpa.client.settings.SearchSettings;
 import de.mpa.db.mysql.DBManager;
@@ -249,6 +250,7 @@ public class ServerImpl implements Server {
 				// Initialize the job manager
                 this.jobManager = JobManager.getInstance();
 				List<String> filenames = settings.getFilenames();
+				Client.getInstance().firePropertyChange("indeterminate", false, true);
 				
 				// Iterate uploaded files
 				int i = 1;
@@ -270,15 +272,16 @@ public class ServerImpl implements Server {
 //					if (settings.isSpecSim()) {
 //						addSpecSimSearchJob(storager.getSpectra(), settings.getSss());
 //					}
-
-                    this.msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
+					
+                    this.msgQueue.add(new Message(new CommonJob(JobStatus.RUNNING, "SEARCH "+ settings.getCurrentMgfNumber() + "/" + settings.getMgfCount() +" BATCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
                     this.jobManager.run();
 
-                    this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "BATCH SEARCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
+                    this.msgQueue.add(new Message(new CommonJob(JobStatus.FINISHED, "SEARCH "+ settings.getCurrentMgfNumber() + "/" + settings.getMgfCount() +" BATCH " + i + "/" + filenames.size()), new Date()), ServerImpl.log);
                     // hackish ...
                     this.runOptions.setRunCount(1);
                     i++;
 				}
+				Client.getInstance().firePropertyChange("indeterminate", true, false);
 //                this.jobManager.run();
 //			}
 		} catch (Exception e) {

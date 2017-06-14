@@ -490,7 +490,9 @@ public class SettingsPanel extends JPanel {
 							client.uploadFile(batchFile.getName(), client.getBytesFromFile(batchFile));
 							batchFile.delete();
 //							client.firePropertyChange("new message", null, "PACKING AND SENDING FILES FINISHED");
-							client.firePropertyChange("new message", null, "SEARCH " + i + " OF " + mgfcount + " RUNNING");
+							client.firePropertyChange("new message", null, "SEARCH " + i + "/" + mgfcount + " RUNNING");
+							settings.setCurrentMgfNumber(i);
+							settings.setMgfCount(mgfcount);
 							// dispatch search request
 //							client.firePropertyChange("indeterminate", false, true);
 							client.runSearches(filenames, settings);

@@ -37,20 +37,20 @@ import de.mpa.util.PropertyLoader;
  */
 public class Constants {
 
-	static{
-		
+	static {
+
 	}
-	
+
 	/**
-	 * Flag denoting whether results should be loaded including nsaf and empai calculation.
-	 * This greatly improves loading times
+	 * Flag denoting whether results should be loaded including nsaf and empai
+	 * calculation. This greatly improves loading times
 	 */
 	public static final boolean fast_results = true;
-	
+
 	/**
 	 * User directory of the MPA
 	 */
-//	public static final String DIR = System.getProperty("user.dir");
+	// public static final String DIR = System.getProperty("user.dir");
 	public static final String DIR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH);
 
 	/**
@@ -61,12 +61,12 @@ public class Constants {
 	/**
 	 * The application title.
 	 */
-    public static final String APPTITLE = PropertyLoader.getProperty(PropertyLoader.APPTITLE);
+	public static final String APPTITLE = PropertyLoader.getProperty(PropertyLoader.APPTITLE);
 
 	/**
 	 * The application version number.
 	 */
-    public static final String VER_NUMBER = "2-beta18";
+	public static final String VER_NUMBER = "2.0";
 
 	/**
 	 * The client frame minimum width in pixels.
@@ -88,8 +88,9 @@ public class Constants {
 	 * <img src="../resources/images/mpa.png">
 	 */
 	public static final String SPLASHSCREEN_IMAGE_LOCATION = Constants.DIR + Constants.SEP + "metaprot/software/";
-//	public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP
-//			+ "images" + SEP + "mpa.png";
+	// public static final String SPLASHSCREEN_IMAGE_LOCATION = SEP + "de" + SEP
+	// + "mpa" + SEP + "resources" + SEP
+	// + "images" + SEP + "mpa.png";
 
 	/**
 	 * Entities for the graph query dialog (Compound section: First parameter
@@ -126,53 +127,62 @@ public class Constants {
 	 * Path string of folder containing configuration resources.<br>
 	 * <i>/de/mpa/resources/conf/</i>
 	 */
-//	public static final String CONFIGURATION_PATH = SEP + "de" + SEP + "mpa" + SEP + "resources" + SEP + "conf" + SEP;
-//	public static final String CONFIGURATION_PATH = DIR + SEP + "software/MPApackage/conf" + SEP;
-//
-//	
-//	public static final String CONFIGURATION_DIR_PATH = System.getProperty("user.dir") + SEP + "bin" + SEP + "de" + SEP + "mpa" + SEP + "resources"
-//			+ SEP + "conf" + SEP;
-	
+	// public static final String CONFIGURATION_PATH = SEP + "de" + SEP + "mpa"
+	// + SEP + "resources" + SEP + "conf" + SEP;
+	// public static final String CONFIGURATION_PATH = DIR + SEP +
+	// "software/MPApackage/conf" + SEP;
+	//
+	//
+	// public static final String CONFIGURATION_DIR_PATH =
+	// System.getProperty("user.dir") + SEP + "bin" + SEP + "de" + SEP + "mpa" +
+	// SEP + "resources"
+	// + SEP + "conf" + SEP;
 
 	/**
 	 * Path string of folder containing configuration resources for the jar
 	 * build.<br>
 	 * <i>conf</i>
 	 */
-	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "software" + Constants.SEP
-			+ "MPApackage" + Constants.SEP + "conf";
+	public static final String CONFIGURATION_PATH_JAR = PropertyLoader.getProperty(PropertyLoader.BASE_PATH)
+			+ Constants.SEP + "software" + Constants.SEP + "MPApackage" + Constants.SEP + "conf";
 
 	/**
 	 * Path string of folder containing spectrum resources.
 	 */
-	public static final String DEFAULT_SPECTRA_PATH = "test" + Constants.SEP + "de" + Constants.SEP + "mpa" + Constants.SEP + "resources" + Constants.SEP;
+	public static final String DEFAULT_SPECTRA_PATH = "test" + Constants.SEP + "de" + Constants.SEP + "mpa"
+			+ Constants.SEP + "resources" + Constants.SEP;
 
 	/**
 	 * Path string of the temporary backup database search result object.
 	 */
-	public static final String BACKUP_RESULT_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "tmp.mpa";
+	public static final String BACKUP_RESULT_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP
+			+ "tmp.mpa";
 
 	/**
 	 * Path of the FASTA directory
 	 */
-	public static final String FASTA_PATHS = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "fasta" + Constants.SEP;
+	public static final String FASTA_PATHS = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP
+			+ "data" + Constants.SEP + "fasta" + Constants.SEP;
 
 	/**
 	 * Path of the fastaformater script
 	 */
-	public static final String FASTA_FORMATER_PATH = Constants.FASTA_PATHS + PropertyLoader.getProperty(PropertyLoader.FASTA_FORMATER_PATH);
+	public static final String FASTA_FORMATER_PATH = Constants.FASTA_PATHS
+			+ PropertyLoader.getProperty(PropertyLoader.FASTA_FORMATER_PATH);
 
 	/**
 	 * This constant is used for database backups, the executable file is used
 	 * to run mysql-scripts for restoring databases
 	 */
-	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "dump_database.sh";
+	public static final String DB_DUMPER_SH_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP
+			+ "data" + Constants.SEP + "dump_database.sh";
 
 	/**
 	 * This constant is used for database backups, the Sql-Query file is run by
 	 * the sh script DB_DUMPER_SH_PATH
 	 */
-	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + "data" + Constants.SEP + "dump_database.sql";
+	public static final String DB_DUMPER_SQL_PATH = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP
+			+ "data" + Constants.SEP + "dump_database.sql";
 
 	/**
 	 * Map of KEGG Orthology tree leaves.
@@ -214,21 +224,24 @@ public class Constants {
 	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, UniProtUtilities.TaxonomyRank.NO_RANK, "none");
 
 	public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
-	
+
 	/**
 	 * Database for BLAST queries
 	 */
-	public static final String BLAST_UNIPROT_DB = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data" + SEP + "fasta" + SEP + PropertyLoader.getProperty(PropertyLoader.BLAST_DB);
+	public static final String BLAST_UNIPROT_DB = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + SEP + "data"
+			+ SEP + "fasta" + SEP + PropertyLoader.getProperty(PropertyLoader.BLAST_DB);
 
 	/**
 	 * File of the BLAST algorithm
 	 */
-	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP + PropertyLoader.getProperty(PropertyLoader.BLAST_FILE);
+	public static final String BLAST_FILE = PropertyLoader.getProperty(PropertyLoader.BASE_PATH) + Constants.SEP
+			+ PropertyLoader.getProperty(PropertyLoader.BLAST_FILE);
 
 	/**
 	 * File for a dummy fasta for each BLAST query
 	 */
-	public static final String BLAST_DUMMY_FASTA_FILE = Constants.DIR + Constants.SEP + "out" + Constants.SEP + "dummy.fasta";
+	public static final String BLAST_DUMMY_FASTA_FILE = Constants.DIR + Constants.SEP + "out" + Constants.SEP
+			+ "dummy.fasta";
 
 	/**
 	 * Output file for the results of each BLAST query
@@ -239,30 +252,40 @@ public class Constants {
 	 * Evalue for the BLAST query
 	 */
 	public static final double BLAST_EVALUE = 0.0001;
-	
-	
+
 	/**
 	 * The FDR which is used as a default when loading results
 	 */
 	public static final String DEFAULT_FDR = PropertyLoader.getProperty(PropertyLoader.DEFAULT_FDR);
-	
-	/**
-	 * The maximum QValue which is used when considering results from X!Tandem and Omssa
-	 */
-	public static final String DEFAULT_ACCEPTED_QVALUE = PropertyLoader.getProperty(PropertyLoader.DEFAULT_ACCEPTED_QVALUE);
 
-	
+	/**
+	 * The maximum QValue which is used when considering results from X!Tandem
+	 * and Omssa
+	 */
+	public static final String DEFAULT_ACCEPTED_QVALUE = PropertyLoader
+			.getProperty(PropertyLoader.DEFAULT_ACCEPTED_QVALUE);
+
+	public static final boolean VERBOSE_LOG_OUTPUT = false;
+
 	/**
 	 * 
 	 */
 	public static double getDefaultFDR() {
-		return 2.0; 
+		try {
+			return Double.valueOf(DEFAULT_FDR);
+		} catch (Exception e) {
+			return 1.0;
+		}
 	}
-	
+
 	public static double getDefaultQvalueAccepted() {
-		return 2.0;
+		try {
+			return Double.valueOf(DEFAULT_ACCEPTED_QVALUE);
+		} catch (Exception e) {
+			return 1.0;
+		}
 	}
-	
+
 	/**
 	 * Convenience method to initialize the enzyme definition tree.
 	 * 
@@ -401,17 +424,17 @@ public class Constants {
 		 * @param description
 		 *            the descriptive string
 		 */
-        UIColor(String key, String description) {
+		UIColor(String key, String description) {
 			this.key = key;
 			this.description = description;
-            reset();
+			reset();
 		}
 
 		/**
 		 * Resets the associated color to its default value.
 		 */
 		public void reset() {
-            setColor(defaultColor);
+			setColor(defaultColor);
 		}
 
 		/**
@@ -439,7 +462,7 @@ public class Constants {
 		 */
 		public DelegateColor getDelegateColor() {
 			if (this.delegate == null) {
-                this.delegate = new DelegateColor(this);
+				this.delegate = new DelegateColor(this);
 			}
 			return this.delegate;
 		}
@@ -473,7 +496,8 @@ public class Constants {
 	/**
 	 * The folder containing theme files.
 	 */
-//	public static final String THEME_FOLDER = Constants.CONFIGURATION_DIR_PATH + "themes";
+	// public static final String THEME_FOLDER =
+	// Constants.CONFIGURATION_DIR_PATH + "themes";
 
 	/**
 	 * The folder containing theme files.
@@ -490,8 +514,8 @@ public class Constants {
 	 * is missing.
 	 */
 	@SuppressWarnings("serial")
-	public static final Constants.UITheme DEFAULT_THEME = new Constants.UITheme(Constants.DEFAULT_THEME_NAME, new Color(195, 212, 232),
-			new HashMap<Constants.UIColor, Color>() {
+	public static final Constants.UITheme DEFAULT_THEME = new Constants.UITheme(Constants.DEFAULT_THEME_NAME,
+			new Color(195, 212, 232), new HashMap<Constants.UIColor, Color>() {
 				{
 					put(Constants.UIColor.BUTTON_FOCUS_COLOR, new Color(195, 212, 232));
 					put(Constants.UIColor.TEXT_SELECTION_FONT_COLOR, new Color(0, 0, 0));
@@ -531,10 +555,10 @@ public class Constants {
 	 * The list of UI themes.
 	 */
 	public static List<Constants.UITheme> THEMES = new ArrayList<Constants.UITheme>(); // is
-																	// finalized
-																	// in
-																	// starter
-																	// class
+	// finalized
+	// in
+	// starter
+	// class
 
 	/**
 	 * Class for parsing and storing UI themes.

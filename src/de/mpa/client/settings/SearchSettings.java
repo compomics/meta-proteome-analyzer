@@ -26,6 +26,8 @@ import de.mpa.client.SpecSimSettings;
  *         &lt;element name="expID" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="sss" type="{http://webservice.mpa.de/}specSimSettings" minOccurs="0"/>
  *         &lt;element name="filenames" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="mgfCount" type="{http://www.w3.org/2001/XMLSchema}int"/>
+ *         &lt;element name="currentMgfNumber" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -39,7 +41,9 @@ import de.mpa.client.SpecSimSettings;
     "dbss",
     "expID",
     "sss",
-    "filenames"
+    "filenames",
+    "mgfCount",
+    "currentMgfNumber"
 })
 public class SearchSettings {
 
@@ -48,13 +52,59 @@ public class SearchSettings {
     protected SpecSimSettings sss;
     @XmlElement(nillable = true)
     protected List<String> filenames;
+    protected int mgfCount;
+    protected int currentMgfNumber;
     
     /**
      * Class constructor to shut up web service!
      */
     public SearchSettings() {}
    
-    /**
+    
+    
+    
+    public SearchSettings(DbSearchSettings dbss, long expID, SpecSimSettings sss, List<String> filenames, int mgfCount,
+			int currentMgfNumber) {
+		super();
+		this.dbss = dbss;
+		this.expID = expID;
+		this.sss = sss;
+		this.filenames = filenames;
+		this.mgfCount = mgfCount;
+		this.currentMgfNumber = currentMgfNumber;
+	}
+
+
+
+	public int getMgfCount() {
+		return mgfCount;
+	}
+
+
+
+
+	public void setMgfCount(int mgfCount) {
+		this.mgfCount = mgfCount;
+	}
+
+
+
+
+	public int getCurrentMgfNumber() {
+		return currentMgfNumber;
+	}
+
+
+
+
+	public void setCurrentMgfNumber(int currentMgfNumber) {
+		this.currentMgfNumber = currentMgfNumber;
+	}
+
+
+
+
+	/**
      * Class constructor.
      * @param dbss
      * @param sss
