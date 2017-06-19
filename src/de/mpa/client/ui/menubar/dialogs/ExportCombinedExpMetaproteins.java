@@ -35,6 +35,7 @@ import de.mpa.client.ExportFields;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.inputpanel.dialogs.AdvancedSettingsDialog;
+import de.mpa.client.ui.resultspanel.ComparePanel;
 import de.mpa.client.ui.sharedelements.ScreenConfig;
 import de.mpa.client.ui.sharedelements.dialogs.ConfirmFileChooser;
 import de.mpa.client.ui.sharedelements.icons.IconConstants;
@@ -237,9 +238,10 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		}
 
 		// TODO: implement new, get results directly
-//		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(expList, "MultipleExperimentObject", new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
+		//		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(expList, "MultipleExperimentObject", new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		// Export the Data for the individual Experiments
-		DbSearchResult dbSearchResult = new DbSearchResult(null, null, null);
+		DbSearchResult dbSearchResult = new DbSearchResult("title", ExportCombinedExpMetaproteins.expList, "fasta");
+		dbSearchResult.getSearchResultByView();
 
 		// Get the path for the export
 		ExportFields exportFields = ExportFields.getInstance();
@@ -285,7 +287,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 
 		// Get DB Search Result Object
 		// Create Metaproteins
-		MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), this.metaParams);
+		MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, this.metaParams);
 		// Export Metaproteins
 		ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle(), dbSearchResult, exportHeaders);
 

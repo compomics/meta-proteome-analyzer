@@ -283,15 +283,17 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 		client.firePropertyChange("resetcur", 0L, experiments.size());
 		for (MPAExperiment exp : experiments) {
 			client.firePropertyChange("progressmade", true, false);
-			
+			ArrayList<MPAExperiment> single_exp_as_list = new ArrayList<MPAExperiment>();
+			single_exp_as_list.add(exp);
 			// TODO: fill up with stuff
 			// Get DB Search Result Object
-			DbSearchResult dbSearchResult = new DbSearchResult(null, null, null);
+			DbSearchResult dbSearchResult = new DbSearchResult("title", single_exp_as_list, "fasta");
+			dbSearchResult.getSearchResultByView();
 			
 			// Create Metaproteins
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), this.metaParams);
+			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, this.metaParams);
 			// Export Metaproteins
-			ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle(), dbSearchResult, exportHeaders);
+			ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" + exp.getTitle(), dbSearchResult, exportHeaders);
 
 			// Get metaprotein list.
 			ArrayList<MetaProteinHit> metaProteins = dbSearchResult.getMetaProteins();
@@ -362,7 +364,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			}
 
 			// Export Ontologies
-			BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+			BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_" + exp.getTitle())));
 			for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : biolFuncMap.entrySet()) {
 				ontoWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
 				ontoWriter.newLine();
@@ -371,7 +373,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			ontoWriter.close();
 
 			// Export Taxonomy
-			BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+			BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_" + exp.getTitle())));
 			for (Map.Entry<TaxonomyNode, Set<PeptideSpectrumMatch>> taxEntry : taxMap.entrySet()) {
 				TaxonomyNode taxnode = taxEntry.getKey();
 				String superkingdom;
@@ -407,7 +409,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 
 			// Export Species Taxonomy
 			//TODO ADD Taxonomic path
-			BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+			BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" + exp.getTitle())));
 			for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : speciesMap.entrySet()) {
 				taxSpeciesWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
 				taxSpeciesWriter.newLine();

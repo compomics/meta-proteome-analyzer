@@ -153,18 +153,21 @@ public class ResultExporter {
 			String uniref90 = "UNKNOWN";
 			String uniref50 = "UNKNOWN";
 			if (metaProtein.getUniProtEntry() != null
+					&& metaProtein.getUniProtEntry().getUniRefMPA() != null 
 					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100() != null) {
 				uniref100 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100();
 			} else {
 				uniref100 = "unknown";
 			}
 			if (metaProtein.getUniProtEntry() != null
+					&& metaProtein.getUniProtEntry().getUniRefMPA() != null
 					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90() != null) {
 				uniref90 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90();
 			} else {
 				uniref90 = "unknown";
 			}
 			if (metaProtein.getUniProtEntry() != null
+					&& metaProtein.getUniProtEntry().getUniRefMPA() != null
 					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50() != null) {
 				uniref50 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50();
 			} else {
