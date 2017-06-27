@@ -187,7 +187,7 @@ public class XTandemStorager extends BasicStorager {
         						// Scan for additional protein hits
                      	    	HashSet<String> accessionSet = new HashSet<String>();
         						FastaLoader loader = FastaLoader.getInstance();
-        						if (loader.getPepFile()!=null) {
+        						if (loader.getPepFile() != null) {
         							// There is a separate digested peptide file available
 									accessionSet = loader.getProtHits(sequence);
 									accessionSet.add(accession);

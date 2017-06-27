@@ -35,7 +35,6 @@ import de.mpa.client.ExportFields;
 import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.inputpanel.dialogs.AdvancedSettingsDialog;
-import de.mpa.client.ui.resultspanel.ComparePanel;
 import de.mpa.client.ui.sharedelements.ScreenConfig;
 import de.mpa.client.ui.sharedelements.dialogs.ConfirmFileChooser;
 import de.mpa.client.ui.sharedelements.icons.IconConstants;
@@ -237,11 +236,11 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			experiments.add(exp);
 		}
 
-		// TODO: implement new, get results directly
-		//		MultipleDatabaseExperiments multipleDatabaseExperiments = new MultipleDatabaseExperiments(expList, "MultipleExperimentObject", new Timestamp(Calendar.getInstance().getTime().getTime()), ClientFrame.getInstance().getProjectPanel().getSelectedProject());
 		// Export the Data for the individual Experiments
 		DbSearchResult dbSearchResult = new DbSearchResult("title", ExportCombinedExpMetaproteins.expList, "fasta");
 		dbSearchResult.getSearchResultByView();
+		System.out.println((double) this.metaParams.get("FDR").getValue());
+		dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
 
 		// Get the path for the export
 		ExportFields exportFields = ExportFields.getInstance();
@@ -303,14 +302,10 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		client.firePropertyChange("resetcur", 0L, metaProteins.size());
 		// Iterate over metaprotein hits
 		for (MetaProteinHit mp : metaProteins) {
-			client.firePropertyChange("progressmade", true, false);
-			// Check for taxonomy level
-			TaxonomyNode taxNode = mp.getTaxonomyNode();
-			// Bacteria ==2 | Archaea == 2157 
-			boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
-			boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
-			boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
-			if (bacteria || archaea) {
+			if (mp.isVisible() && mp.isSelected()) {
+				client.firePropertyChange("progressmade", true, false);
+				// Check for taxonomy level
+				TaxonomyNode taxNode = mp.getTaxonomyNode();
 				if (mp.getUniProtEntry() != null) {
 					// Add ontology
 					List<String> keywords = mp.getUniProtEntry().getKeywords();
@@ -320,7 +315,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 							if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
 								if (biolFuncMap.get(keyword)== null) {
 									biolFuncMap.put(keyword, mp.getPSMS());
-								}else{
+								} else {
 									Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
 									ontoSet.addAll(mp.getPSMS());
 									biolFuncMap.put(keyword, ontoSet);
@@ -350,7 +345,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
 					if (speciesMap.get(this.taxonSpecies)== null) {
 						speciesMap.put(this.taxonSpecies, mp.getPSMS());
-					}else{
+					} else {
 						Set<PeptideSpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
 						taxSet.addAll(mp.getPSMS());
 						speciesMap.put(this.taxonSpecies, taxSet);
@@ -383,7 +378,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				phylum			= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.PHYLUM).getName();
 				classe 		= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.CLASS).getName();
 				order 			= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER).getName();
-			}else {
+			} else {
 				superkingdom	= "unknown";
 				kingdom		= "unknown";
 				phylum			= "unknown";

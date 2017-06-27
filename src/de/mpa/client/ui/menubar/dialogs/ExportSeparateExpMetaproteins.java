@@ -217,10 +217,6 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 		client.firePropertyChange("new message", null, "EXPORT IN PROGRESS");
 		client.firePropertyChange("indeterminate", false, true); 
 		ClientFrame clientFrame = ClientFrame.getInstance();
-
-
-
-
 		clientFrame.setEnabled(false);
 
 		// Get the experiments		
@@ -278,7 +274,6 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 		Map<String, UniProtUtilities.Keyword> ontologyMap = UniProtUtilities.ONTOLOGY_MAP;
 		// Export the Data for the individual Experiments
 
-
 		client.firePropertyChange("resetall", 0L, experiments.size());
 		client.firePropertyChange("resetcur", 0L, experiments.size());
 		for (MPAExperiment exp : experiments) {
@@ -289,7 +284,9 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			// Get DB Search Result Object
 			DbSearchResult dbSearchResult = new DbSearchResult("title", single_exp_as_list, "fasta");
 			dbSearchResult.getSearchResultByView();
-			
+			System.out.println((double) this.metaParams.get("FDR").getValue());
+			dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
+
 			// Create Metaproteins
 			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, this.metaParams);
 			// Export Metaproteins
@@ -305,14 +302,9 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 
 			// Iterate over metaprotein hits
 			for (MetaProteinHit mp : metaProteins) {
-
-				// Check for taxonomy level
-				TaxonomyNode taxNode = mp.getTaxonomyNode();
-				// Bacteria ==2 | Archaea == 2157 
-				boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
-				boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
-				boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
-				if (bacteria || archaea) {
+				if (mp.isVisible() && mp.isSelected()) {
+					// Check for taxonomy level
+					TaxonomyNode taxNode = mp.getTaxonomyNode();
 					if (mp.getUniProtEntry() != null) {
 						// Add ontology
 						List<String> keywords = mp.getUniProtEntry().getKeywords();
@@ -323,7 +315,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 								if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
 									if (biolFuncMap.get(keyword)== null) {
 										biolFuncMap.put(keyword, mp.getPSMS());
-									}else{
+									} else {
 										Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
 										Set<PeptideSpectrumMatch> matchSet = mp.getPSMS();
 										ontoSet.addAll(mp.getPSMS());
@@ -345,7 +337,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 
 						if (alreadyInMap == false) {
 							taxMap.put(orderTaxNode, mp.getPSMS());
-						}else{
+						} else {
 							Set<PeptideSpectrumMatch> taxSet = taxMap.get(orderTaxNode);
 							taxSet.addAll(mp.getPSMS());
 							taxMap.put(orderTaxNode, taxSet);
@@ -354,7 +346,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 						taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
 						if (speciesMap.get(this.taxonSpecies)== null) {
 							speciesMap.put(this.taxonSpecies, mp.getPSMS());
-						}else{
+						} else {
 							Set<PeptideSpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
 							taxSet.addAll(mp.getPSMS());
 							speciesMap.put(this.taxonSpecies, taxSet);
@@ -387,7 +379,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 					phylum			= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.PHYLUM).getName();
 					classe 		= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.CLASS).getName();
 					order 			= taxnode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER).getName();
-				}else {
+				} else {
 					superkingdom	= "unknown";
 					kingdom		= "unknown";
 					phylum			= "unknown";

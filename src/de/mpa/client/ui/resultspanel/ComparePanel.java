@@ -1,3 +1,4 @@
+
 package de.mpa.client.ui.resultspanel;
 
 import java.awt.Component;
@@ -715,6 +716,7 @@ public class ComparePanel extends JPanel {
 				// TODO: different implementation here
 				DbSearchResult dbSearchResult = new DbSearchResult("title", ComparePanel.this.experiments, "fasta");
 				dbSearchResult.getSearchResultByView();
+				dbSearchResult.setFDR((double) ComparePanel.this.metaParams.get("FDR").getValue());
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);
 //				this.metaProtList = dbSearchResult.getMetaProteins();
 //				this.metaProtList.addAll();
