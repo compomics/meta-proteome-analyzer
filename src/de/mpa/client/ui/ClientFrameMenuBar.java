@@ -44,6 +44,7 @@ import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
 import de.mpa.client.ui.icons.IconConstants;
 import de.mpa.client.ui.panels.ProjectPanel;
 import de.mpa.io.GenericContainer;
+import de.mpa.io.parser.mzid.MzidParser;
 import de.mpa.task.instances.UniProtTask;
 
 /**
@@ -67,10 +68,17 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 * The 'Export' menu.
 	 */
 	private JMenu exportMenu;
+	
+	/**
+	 * The 'Import' menu.
+	 */
+	private JMenu importMenu;
 
 	private JMenuItem updateUniProtItem;
 
 	private JMenuItem importExperimentItem;
+
+	private JMenuItem importMzIdentMLItem;
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
@@ -93,19 +101,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		JMenu fileMenu = new JMenu();
 		fileMenu.setText("File");
 		
-		// create Import experiment item
-		importExperimentItem = new JMenuItem();
-		importExperimentItem.setText("Import MPA Experiment...");
-		importExperimentItem.setIcon(IconConstants.IMPORT_ICON);
-		importExperimentItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				importExperiment();
-			}
-		});
-		
-		importExperimentItem.setEnabled(false);
-		
-		fileMenu.add(importExperimentItem);
+
 		
 		// create Exit item
 		JMenuItem exitItem = new JMenuItem();
@@ -131,7 +127,34 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 
 		settingsMenu.add(colorSettingsItem);
-
+		
+		importMenu = new JMenu("Import");
+		
+		// create Import experiment item
+		importExperimentItem = new JMenuItem();
+		importExperimentItem.setText("MPA Experiment...");
+		importExperimentItem.setIcon(IconConstants.IMPORT_ICON);
+		importExperimentItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				importExperiment();
+			}
+		});
+		
+		importExperimentItem.setEnabled(false);
+		importMenu.add(importExperimentItem);
+		
+		// create Import experiment item
+		importMzIdentMLItem = new JMenuItem();
+		importMzIdentMLItem.setText("MzIdentML File...");
+		importMzIdentMLItem.setIcon(IconConstants.SPECTRUM_ICON);
+		importMzIdentMLItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				importMzIdentMLFile();
+			}
+		});
+		importExperimentItem.setEnabled(false);
+		importMenu.add(importMzIdentMLItem);
+		
 		/* create Export menu */
 		exportMenu = new JMenu("Export");
 		
@@ -237,9 +260,84 @@ public class ClientFrameMenuBar extends JMenuBar {
 		
 		this.add(fileMenu);
 		this.add(settingsMenu);
+		this.add(importMenu);
 		this.add(exportMenu);
 		this.add(updateMenu);
 		this.add(helpMenu);
+	}
+	
+	/**
+	 * This method is executed when the import MzIdentML menu item is selected. 
+	 * The user can select the destination of the imported MzIdentML file.
+	 */
+	private void importMzIdentMLFile() {
+		SwingWorker<String, Void> swingWorker = new SwingWorker<String, Void>() {
+			@Override
+			protected String doInBackground() throws Exception {
+				String selectedFilePath = null;
+				JFileChooser chooser = new JFileChooser(new File(Constants.PROJECTS_PATH));
+				chooser.setFileFilter(Constants.MZID_FILE_FILTER);
+				chooser.setMultiSelectionEnabled(false);
+				chooser.setApproveButtonText("Open");
+				if (chooser.showOpenDialog(ClientFrame.getInstance()) == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = chooser.getSelectedFile();
+					// Check whether user has approved the file.
+					if (selectedFile != null) {
+						if (selectedFile.canRead() && selectedFile.exists()) {
+							selectedFilePath = selectedFile.toString();
+							
+							// Get the project panel.
+							ProjectPanel projectPanel = ClientFrame.getInstance().getProjectPanel();
+							
+							// Get the list of existing experiments.							
+							FileProject selectedProject = projectPanel.getSelectedProject();
+							
+							// Step 1: add new experiment to the list.
+							FileExperiment experiment;
+							experiment = new FileExperiment();
+							experiment.setTitle(selectedFile.getName().substring(0, selectedFile.getName().indexOf(".mzid")));
+							experiment.setProject(selectedProject);
+							experiment.setCreationDate(new Date());
+							// Show experiment creation dialog
+							GeneralDialog dialog = new GeneralDialog(DialogType.NEW_EXPERIMENT, experiment);
+							int res = dialog.showDialog();
+							
+							// Check if new experiment has been created (setting a title is mandatory).
+							if (res == GeneralDialog.RESULT_SAVED) {
+								projectPanel.refreshExperimentTable(selectedProject);
+								projectPanel.setSelectedExperiment(experiment);
+							}
+							// Step 2: create project specific folder.
+							String experimentPath = Constants.PROJECTS_PATH + File.separator + experiment.getTitle();
+							GenericContainer.CurrentExperimentPath = experimentPath;
+							File experimentDir = new File(experimentPath);
+							if (!experimentDir.exists()) {
+								experimentDir.mkdir();
+							}
+							File resultFile = new File(experimentPath + File.separator + experiment.getTitle() + ".mpa");
+							MzidParser parser = new MzidParser(selectedFile);
+							parser.parse();
+							
+							// Store the new experiment file.
+							DbSearchResult dbSearchResult = experiment.getSearchResult();
+							experiment.setResultFile(resultFile);
+							experiment.serialize();
+							Client.getInstance().dumpDatabaseSearchResult(dbSearchResult, resultFile.getAbsolutePath());
+							
+							projectPanel.refreshExperimentTable(selectedProject);
+							projectPanel.setSelectedExperiment(experiment);
+							projectPanel.setResultsButtonState(true);
+						} else {
+							JOptionPane.showMessageDialog(ClientFrame.getInstance(),
+									"The file does not exist or is not readable.",
+									"Selection Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				}
+				return selectedFilePath;
+			}
+		};
+		swingWorker.execute();
 	}
 	
 	/**
@@ -307,6 +405,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 							} catch (Exception e) {
 								JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 							}
+							
 							List<String> newSpectrumFilePaths = new ArrayList<>();
 							// Iterate over all spectrum file path and copy spectrum files to their new destination.
 							for (String spectrumFilePath : spectrumFilePaths) {
@@ -318,12 +417,18 @@ public class ClientFrameMenuBar extends JMenuBar {
 								File createdSpectrumFile = new File(experimentPath + File.separator + spectrumFile.getName());
 								
 								// Check whether spectrum file is not already existing
-								if (!createdSpectrumFile.exists()) {
+								if (spectrumFile.exists() && !createdSpectrumFile.exists()) {
 									Files.copy(spectrumFile.toPath(), createdSpectrumFile.toPath());
 								}
-								newSpectrumFilePaths.add(createdSpectrumFile.getAbsolutePath());
+								
+								if (createdSpectrumFile.exists()) {
+									newSpectrumFilePaths.add(createdSpectrumFile.getAbsolutePath());
+								}
 							}
-							experiment.setSpectrumFilePaths(newSpectrumFilePaths);
+							if (!newSpectrumFilePaths.isEmpty()) {
+								experiment.setSpectrumFilePaths(newSpectrumFilePaths);
+							} 
+							
 							experiment.setResultFile(createdFile);
 							experiment.serialize();
 							projectPanel.refreshExperimentTable(selectedProject);

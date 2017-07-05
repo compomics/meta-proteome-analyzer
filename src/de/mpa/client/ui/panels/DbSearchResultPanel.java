@@ -2035,6 +2035,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	public MascotGenericFile readSpectrumFromFile(String filename, int index) throws IOException {
 		File mgfFile = new File(GenericContainer.CurrentExperimentPath + File.separator + filename);
 		MascotGenericFileReader currentReader = GenericContainer.MGFReaders.get(mgfFile.getAbsolutePath());
+		if (currentReader == null) return null;
 		return currentReader.loadSpectrum(index - 1);
 	}
 	
@@ -2173,7 +2174,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
 						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
 						maxNSAF = Math.max(maxNSAF, nsaf);
-		
+						
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
 						

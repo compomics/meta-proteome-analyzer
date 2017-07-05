@@ -27,6 +27,7 @@ import de.mpa.client.settings.MSGFParameters;
 import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.PostProcessingParameters;
 import de.mpa.client.settings.XTandemParameters;
+import de.mpa.client.settings.Parameter.BooleanParameter;
 import de.mpa.io.ExportHeader;
 import de.mpa.io.GenericContainer;
 import de.mpa.io.ResultExporter;
@@ -114,8 +115,15 @@ public class CmdLineInterface {
 			// Collect search settings.
 			DbSearchSettings searchSettings = new DbSearchSettings();
 			searchSettings.setXTandem(cliInput.isXTandemEnabled());
+			
 			if (searchSettings.useXTandem()) {
 				XTandemParameters xTandemParams = new XTandemParameters();
+				
+				// Account for semi-tryptic cleavage.
+				if (cliInput.isSemiTrypticCleavageEnabled()) {
+					xTandemParams.put("protein, cleavage semi", new BooleanParameter(true, "Semi-tryptic cleavage", "Use semi-tryptic cleavage as enzyme parameter.", "Protein"));
+					
+				}
 				Parameter threadsParameter = xTandemParams.get("spectrum, threads");
 				threadsParameter.setValue(cliInput.getNumberOfThreads());
 				xTandemParams.setValue("spectrum, threads", threadsParameter);

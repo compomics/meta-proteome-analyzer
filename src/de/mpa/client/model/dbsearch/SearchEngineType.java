@@ -6,6 +6,7 @@ public enum SearchEngineType implements Serializable {
 	MSGF("MS-GF+"),
 	XTANDEM("X!Tandem"), 
 	COMET("Comet"),
+	MZID("MzIdentML"),
 	FIRSTROUND("First Round");
 
 	SearchEngineType(final String searchEngineName){

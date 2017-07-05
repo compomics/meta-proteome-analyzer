@@ -133,10 +133,10 @@ public class XTandemParser extends GenericContainer {
                             	accessions.add(accession);
                             }
                             Protein protein;
-                            Map<String, Set<String>> peptideIndex = GenericContainer.PeptideIndex;
-                            if (peptideIndex.get(peptideSequence) != null) {
-								accessions.addAll(peptideIndex.get(peptideSequence));
-							}
+//                            Map<String, Set<String>> peptideIndex = GenericContainer.PeptideIndex;
+//                            if (peptideIndex.get(peptideSequence) != null) {
+//								accessions.addAll(peptideIndex.get(peptideSequence));
+//							}
 							
 							for (String acc : accessions) {
 								try {

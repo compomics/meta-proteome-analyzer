@@ -56,7 +56,7 @@ public class Constants {
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "12/05/2017";
+	public final static String VER_DATE = "07/07/2017";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -162,6 +162,8 @@ public class Constants {
 			"Mascot Generic Format File (*.mgf)");
 	public static final FileFilter MPA_FILE_FILTER = new ExtensionFileFilter(".mpa", false,
 			"MetaProteomeAnalyzer Experiment File (*.mpa)");
+	public static final FileFilter MZID_FILE_FILTER = new ExtensionFileFilter(".mzid", false,
+			"MzIdentML File (*.mzid)");
 	public static final FileFilter CSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,
 			"CSV File, comma-separated (*.csv)");
 	public static final FileFilter TSV_FILE_FILTER = new ExtensionFileFilter(".csv", false,

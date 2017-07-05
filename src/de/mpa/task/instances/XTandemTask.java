@@ -184,7 +184,6 @@ public class XTandemTask extends Task {
 
         parameterFile = new File(xTandemExecutable, PARAMETER_FILE);
         String[] parameters = params.split(";");
-        
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(parameterFile));
             bw.write(

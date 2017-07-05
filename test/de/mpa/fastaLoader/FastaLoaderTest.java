@@ -41,6 +41,7 @@ public class FastaLoaderTest extends TestCase {
 			}
 			
 			Protein proteinFirst = fastaLoader.getProteinFromFasta("Q8U4R3");
+			System.out.println(proteinFirst.getHeader().toString());
 			
 			// ProteinFirst
 			assertEquals("1A1D_PYRFU Putative 1-aminocyclopropane-1-carboxylate deaminase OS=Pyrococcus furiosus (strain ATCC 43587 / DSM 3638 / JCM 8422 / Vc1) GN=PF0010 PE=3 SV=2", proteinFirst.getHeader().getDescription());

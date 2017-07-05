@@ -47,6 +47,11 @@ public class CmdLineInterfaceInput {
 	    private String fragmentIonTol;
 	    
 	    /**
+	     * Enables semi-tryptic cleavage, default == false.
+	     */
+	    private boolean semiTrypticCleavage = false;
+	    
+	    /**
 	     * Enables X!Tandem, default == true.
 	     */
 	    private boolean xTandemEnabled = true;
@@ -126,6 +131,10 @@ public class CmdLineInterfaceInput {
 	        if (line.hasOption(CmdLineInterfaceParams.MSGF.id)) {
 	            String msgfOption = line.getOptionValue(CmdLineInterfaceParams.MSGF.id);
 	            msgfEnabled = msgfOption.trim().equals("1");
+	        }
+	        if (line.hasOption(CmdLineInterfaceParams.SEMI_TRYPTIC.id)) {
+	        	String semiTrypticOption = line.getOptionValue(CmdLineInterfaceParams.SEMI_TRYPTIC.id);
+	            semiTrypticCleavage = semiTrypticOption.trim().equals("1");
 	        }
 	        if (line.hasOption(CmdLineInterfaceParams.ITERATIVE_SEARCH.id)) {
 	            String iterativeOption = line.getOptionValue(CmdLineInterfaceParams.ITERATIVE_SEARCH.id);
@@ -216,7 +225,14 @@ public class CmdLineInterfaceInput {
 	        extentions.add(".mgf");
 	        return CommandLineUtils.getFiles(optionInput, extentions);
 	    }
-
+	    
+	    /**
+	     * Returns whether semi-tryptic cleavage is enabled.
+	     * @return true if semi-tryptic cleavage is enabled.
+	     */
+	    public boolean isSemiTrypticCleavageEnabled() {
+	    	return semiTrypticCleavage;
+	    }
 	    /**
 	     * Returns whether X!Tandem is enabled.
 	     * @return true if X!Tandem is enabled

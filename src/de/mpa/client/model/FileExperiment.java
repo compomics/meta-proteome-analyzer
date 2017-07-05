@@ -282,28 +282,29 @@ public class FileExperiment implements ProjectExperiment {
 			client.firePropertyChange("indeterminate", true, false);
 			
 			// Iterate one or multiple spectrum files.
-			for (String filePath : this.getSpectrumFilePaths()) {
-				File file = new File(filePath);
-				String pathname = file.getAbsolutePath();
-				// Check if reader already has the current experiment selected.
-				if (GenericContainer.MGFReaders.get(pathname) == null || !file.getName().equals(GenericContainer.MGFReaders.get(pathname).getFilename())) {
-					client.firePropertyChange("new message", null, "INDEXING SPECTRA");
-					try {
-						client.firePropertyChange("resetcur", -1L, file.length());
-						MascotGenericFileReader mgfReader = new MascotGenericFileReader(new File(pathname));
-						
-						GenericContainer.SpectrumPosMap.put(pathname, mgfReader.getSpectrumPositions(false));
-						client.firePropertyChange("indeterminate", true, false);
-						client.firePropertyChange("new message", null, "INDEXING SPECTRA FINISHED");
-						mgfReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
-						GenericContainer.MGFReaders.put(pathname, mgfReader);
-					} catch (IOException e) {
-						e.printStackTrace();
-						Client.getInstance().firePropertyChange("new message", null, "INDEXING SPECTRA FAILED");
+			if (this.getSpectrumFilePaths() != null) {
+				for (String filePath : this.getSpectrumFilePaths()) {
+					File file = new File(filePath);
+					String pathname = file.getAbsolutePath();
+					// Check if reader already has the current experiment selected.
+					if (GenericContainer.MGFReaders.get(pathname) == null || !file.getName().equals(GenericContainer.MGFReaders.get(pathname).getFilename())) {
+						client.firePropertyChange("new message", null, "INDEXING SPECTRA");
+						try {
+							client.firePropertyChange("resetcur", -1L, file.length());
+							MascotGenericFileReader mgfReader = new MascotGenericFileReader(new File(pathname));
+							
+							GenericContainer.SpectrumPosMap.put(pathname, mgfReader.getSpectrumPositions(false));
+							client.firePropertyChange("indeterminate", true, false);
+							client.firePropertyChange("new message", null, "INDEXING SPECTRA FINISHED");
+							mgfReader.setSpectrumPositions(GenericContainer.SpectrumPosMap.get(pathname));
+							GenericContainer.MGFReaders.put(pathname, mgfReader);
+						} catch (IOException e) {
+							e.printStackTrace();
+							Client.getInstance().firePropertyChange("new message", null, "INDEXING SPECTRA FAILED");
+						}
 					}
 				}
 			}
-			
 		} else {
 			try {
 				// Initialize the result object

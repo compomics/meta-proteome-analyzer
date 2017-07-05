@@ -70,13 +70,18 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 		String nextLine = null;
 		boolean firstline = true;
 		String header = null;
+		int count = 0;
 		StringBuffer stringBf = new StringBuffer();
 		while ((nextLine = reader.readLine()) != null) {
 			if (!nextLine.isEmpty() && nextLine.charAt(0) == '>') {
 				if (firstline) {
 					header = nextLine.trim();
 					firstline = false;
-				} else {			
+				} else {
+					count++;
+					if (count % 1000 == 0) {	
+						de.mpa.client.Client.getInstance().firePropertyChange("new message", null, count + " PROTEINS INSERTED INTO PEPTIDE INDEX...");
+					} 
 					addToIndex(header, stringBf.toString());
 					stringBf = new StringBuffer();
 					header = nextLine.trim();
