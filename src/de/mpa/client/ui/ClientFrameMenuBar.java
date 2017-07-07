@@ -152,7 +152,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 				importMzIdentMLFile();
 			}
 		});
-		importExperimentItem.setEnabled(false);
+		importMzIdentMLItem.setEnabled(false);
 		importMenu.add(importMzIdentMLItem);
 		
 		/* create Export menu */
@@ -526,5 +526,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	 */
 	public void setImportExperimentMenuItemEnabled(boolean enabled) {
 		importExperimentItem.setEnabled(enabled);
+		importMzIdentMLItem.setEnabled(enabled);
 	}
 }
