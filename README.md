@@ -26,13 +26,15 @@
  * Added the feature to import MPA experiment files without requiring the corresponding MGF files.
  * Added the indexing of peptide sequences for FASTA databases: this feature allows to retrieve all protein identifications contained in the reference proteomes (and more than the default hits suggested by the search engines).
  
- 
+---
+
 *MPA Portable version 1.5.0* has been released with the following updates:
 * Added "Import MPA Experiment" feature: saved experiment files (*.mpa) can now be loaded into into a project
 * Updated "Export MPA Experiment" feature: experiment files (*.mpa) are stored together with the original MS/MS spectra
 * Added "Update UniProt Entries" feature (see MetaProteomeAnalyzerCLI for details)
 * Various bugfixes and GUI improvements
 
+---
 
 *MPA Portable version 1.4.2* has been released with the following updates:
 * Added command line interface to MPA (see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details)
