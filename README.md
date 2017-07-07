@@ -20,6 +20,12 @@
 
 ## News ##
 
+*MPA Portable version 1.6.0* has been released with the following new features: 
+* Added new import function for mzIdentML files: this feature supports the re-analysis of result identification data stored in mzIdentML format. 
+ * Added new Import menu which contains the import function for "MPA Experiment" (see Release version 1.5.0). 
+ * Added the feature to import MPA experiment files without requiring the corresponding MGF files.
+ * Added the indexing of peptide sequences for FASTA databases: this feature allows to retrieve all protein identifications contained in the reference proteomes (and more than the default hits suggested by the search engines).
+ 
 *MPA Portable version 1.5.0* has been released with the following updates:
 * Added "Import MPA Experiment" feature: saved experiment files (*.mpa) can now be loaded into into a project
 * Updated "Export MPA Experiment" feature: experiment files (*.mpa) are stored together with the original MS/MS spectra
@@ -36,7 +42,7 @@
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.5.0/mpa-portable-1.5.zip)  *MPA Portable version 1.5.0 - Windows and Linux 32-bit/64-bit - released on May 03, 2017*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.6.0/mpa-portable-1.6.0.zip)  *MPA Portable version 1.6.0 - Windows and Linux 32-bit/64-bit - released on July 07, 2017*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
@@ -73,6 +79,7 @@ The MPA metaproteomics software comes with the following key features:
   * Project management for MS/MS experiments
   * Shotgun protomics data analysis tool
   * Integrates the search algorithms Comet, MS-GF+ and X!Tandem
+  * Import and re-analysis of results stored in mzIdentML data format: cross compatibility with various proteomics tools.
   * Detailed analysis of taxa, ontologies, pathways and enzymes
   * Grouping of redundant protein hits to so-called "meta-proteins" (protein groups)
   * Label-free quantification methods
@@ -86,7 +93,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.5.0/mpa-portable-1.5.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.6.0/mpa-portable-1.6.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
