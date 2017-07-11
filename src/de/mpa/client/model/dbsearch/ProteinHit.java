@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import de.mpa.algorithms.quantification.ExponentiallyModifiedProteinAbundanceIndex;
 import de.mpa.analysis.ProteinAnalysis;
 import de.mpa.analysis.UniProtUtilities;
 import de.mpa.analysis.UniProtUtilities.Keyword;
@@ -97,16 +96,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * The sequence coverage ratio of the protein hit.
 	 */
 	private double coverage = -1.0;
-	
-	/**
-	 * The normalized spectral abundance factor of the protein hit.
-	 */
-	private double nsaf = -1.0;
-	
-	/**
-	 * The Exponentially Modified Protein Abundance Index of the protein hit.
-	 */
-	private double empai = -1.0;
 
 	/**
 	 * The UniProt entry hit object containing additional meta-data.
@@ -330,47 +319,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 			this.specCount = matches.size();
 		}
 		return specCount;
-	}
-
-	/**
-	 * Gets the emPAI of the protein
-	 * @return the emPAI
-	 */
-	public double getEmPAI() {
-//		empai = 0.0;
-		if (empai < 0.0) {
-			empai = ProteinAnalysis.calculateLabelFree(new ExponentiallyModifiedProteinAbundanceIndex(), this);
-		}
-		return empai;
-	}
-	
-	/**
-	 * Sets the emPAI of the protein.
-	 * @param emPAI the emPAI to set
-	 */
-	public void setEmPAI(double emPAI) {
-		this.empai = emPAI;
-	}
-
-	/**
-	 * Returns the NSAF protein quantification value.
-	 * @return the NSAF
-	 */
-	public double getNSAF() {
-//		if (nsaf < 0.0) {
-//			Exception e = new Exception("NSAF has not been calculated yet. Call ProteinAnalysis.calculateLabelFree() first.");
-//			JXErrorPane.showDialog(ClientFrame.getInstance(),
-//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-//		}
-		return nsaf;
-	}
-	
-	/**
-	 * Sets the NSAF protein quantification value
-	 * @param NSAF the NSAF to set
-	 */
-	public void setNSAF(double nsaf) {
-		this.nsaf = nsaf;
 	}
 	
 	/**

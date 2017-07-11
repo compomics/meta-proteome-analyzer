@@ -557,19 +557,9 @@ public enum ProteinTreeTables {
 	public static final int SPECTRAL_COUNT_COLUMN = 9;
 	
 	/**
-	 * The model index of the emPAI column.
-	 */
-	public static final int EMPAI_COLUMN = 10;
-	
-	/**
-	 * The model index of the NSAF column.
-	 */
-	public static final int NSAF_COLUMN = 11;
-	
-	/**
 	 * The model index of the web resources column.
 	 */
-	public static final int WEB_RESOURCES_COLUMN = 12;
+	public static final int WEB_RESOURCES_COLUMN = 10;
 	
 	/**
 	 * The descriptive label of the protein tree table.
@@ -653,7 +643,7 @@ public enum ProteinTreeTables {
 			{
 				setColumnIdentifiers(Arrays.asList(new String[] {
 						"Accession", "Description", "Taxonomy", "UniRef", "Sequence",
-						"SC", "MW", "pI", "PepC", "SpC", "emPAI", "NSAF", null }));
+						"SC", "MW", "pI", "PepC", "SpC", null }));
 			}
 			// Fool-proof table by allowing only one type of node
 			@Override
@@ -789,10 +779,6 @@ public enum ProteinTreeTables {
 				"Isoelectric Point",
 				"Peptide Count",
 				"Spectral Count",
-//				"Exponentially Modified Protein Abundance Index",
-				"emPAI",
-//				"Normalized Spectral Abundance Factor",
-				"NSAF",
 				"External Web Resources"
 		};
 		final ComponentTableHeader ch = new ComponentTableHeader(tcm, columnToolTips);
@@ -812,7 +798,7 @@ public enum ProteinTreeTables {
 		
 		// Initialize table column aggregate functions (all NONE except for accession, description 
 		// and web resource columns, which are not aggregatable)
-		for (int i = SEQUENCE_COVERAGE_COLUMN; i <= NSAF_COLUMN; i++) {
+		for (int i = SEQUENCE_COVERAGE_COLUMN; i < WEB_RESOURCES_COLUMN; i++) {
 			((TableColumnExt2) tcm.getColumn(i)).setAggregateFunction(AggregateFunction.NONE);
 		}
 		((TableColumnExt2) tcm.getColumn(PEPTIDE_COUNT_COLUMN)).setAggregateFunction(AggregateFunction.DISTINCT);
@@ -959,12 +945,6 @@ public enum ProteinTreeTables {
 		treeTbl.getColumnExt(PEPTIDE_COUNT_COLUMN).addHighlighter(new BarChartHighlighter());
 
 		treeTbl.getColumnExt(SPECTRAL_COUNT_COLUMN).addHighlighter(new BarChartHighlighter());
-
-		treeTbl.getColumnExt(EMPAI_COLUMN).addHighlighter(new BarChartHighlighter(
-				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00")));
-
-		treeTbl.getColumnExt(NSAF_COLUMN).addHighlighter(new BarChartHighlighter(
-				ColorUtils.DARK_RED, ColorUtils.LIGHT_RED, new DecimalFormat("0.00000")));
 		
 		// Install non-leaf highlighter
 		Color hlCol = new Color(237, 246, 255);	// light blue

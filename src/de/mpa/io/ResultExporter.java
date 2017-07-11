@@ -276,7 +276,7 @@ public class ResultExporter {
 	public static void exportProteins(String filePath, DbSearchResult result, List<ExportHeader> exportHeaders) throws IOException{
 		// Init the buffered writer.
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
-		boolean hasFeature[] = new boolean[13];		
+		boolean hasFeature[] = new boolean[11];		
 
 		// Protein header
 		for (ExportHeader exportHeader : exportHeaders) {
@@ -301,13 +301,11 @@ public class ResultExporter {
 				if (hasFeature[3]) writer.append(proteinHit.getSpecies() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[4]) writer.append(proteinHit.getCoverage() * 100 + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[5]) writer.append(proteinHit.getPeptideCount() + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[6]) writer.append(proteinHit.getNSAF() + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[7]) writer.append(proteinHit.getEmPAI() + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[8]) writer.append(proteinHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[9]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[10]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[11]) writer.append(proteinHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-				if (hasFeature[12]) {
+				if (hasFeature[6]) writer.append(proteinHit.getSpectralCount() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[7]) writer.append((Math.round(proteinHit.getIsoelectricPoint() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[8]) writer.append((Math.round(proteinHit.getMolecularWeight() * 100.0) / 100.0) + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[9]) writer.append(proteinHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[10]) {
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (int i = 0; i < peptideHitList.size(); i++) {
 						writer.append(peptideHitList.get(i).getSequence());
@@ -780,13 +778,11 @@ public class ResultExporter {
 		exportHeaders.add(new ExportHeader(4, "Protein Taxonomy", ExportHeaderType.PROTEINS));
 		exportHeaders.add(new ExportHeader(5, "Sequence Coverage", ExportHeaderType.PROTEINS));
 		exportHeaders.add(new ExportHeader(6, "Peptide Count", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(7, "NSAF", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(8, "emPAI", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(9, "Spectral Count", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(10, "Isoelectric Point", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(11, "Molecular Weight", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(12, "Protein Sequence", ExportHeaderType.PROTEINS));
-		exportHeaders.add(new ExportHeader(13, "Peptides", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(7, "Spectral Count", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(8, "Isoelectric Point", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(9, "Molecular Weight", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(10, "Protein Sequence", ExportHeaderType.PROTEINS));
+		exportHeaders.add(new ExportHeader(11, "Peptides", ExportHeaderType.PROTEINS));
 
 		// Peptides
 		exportHeaders.add(new ExportHeader(1, "Peptide No.", ExportHeaderType.PEPTIDES));

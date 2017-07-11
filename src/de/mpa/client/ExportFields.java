@@ -24,8 +24,6 @@ public class ExportFields {
 	public boolean proteinPi = true;
 	public boolean proteinPepCount = true;
 	public boolean proteinSpecCount = true;
-	public boolean proteinEmPAI = false;
-	public boolean proteinNSAF = true;
 	public boolean proteinSequence = false;
 	public boolean proteinPeptides = true;
 	

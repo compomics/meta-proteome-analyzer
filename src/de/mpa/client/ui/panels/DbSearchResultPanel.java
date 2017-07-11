@@ -2146,10 +2146,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				Client.getInstance().firePropertyChange("new message", null, "POPULATING TABLES");
 				Client.getInstance().firePropertyChange("resetall", null, metaProtCount);
 				Client.getInstance().firePropertyChange("resetcur", null, metaProtCount);
-				
 				// Values for construction of highlighter
 				int protCount = 0, maxPeptideCount = 0, maxSpecCount = 0;
-				double maxCoverage = 0.0, maxNSAF = 0.0, max_emPAI = 0.0, min_emPAI = Double.MAX_VALUE;
+				double maxCoverage = 0.0;
 		
 				/* Build tree table trees from (meta-)proteins */
 				// Iterate meta-proteins
@@ -2158,22 +2157,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					
 					ProteinHitList proteinHits = ((MetaProteinHit) metaProtein).getProteinHitList();
 					for (ProteinHit proteinHit : proteinHits) {
-						
-						// Calculate NSAF
-						double nsaf = proteinHit.getNSAF();
-						if (nsaf < 0.0) {
-							// Calculate NSAF
-							nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), dbSearchResult.getProteinHits(),	proteinHit);
-							proteinHit.setNSAF(nsaf);
-						}
-		
-						// Determine maximum values for visualization later on
-						maxCoverage = Math.max(maxCoverage,	proteinHit.getCoverage());
-						maxPeptideCount = Math.max(maxPeptideCount, proteinHit.getPeptideCount());
-						maxSpecCount = Math.max(maxSpecCount,proteinHit.getSpectralCount());
-						max_emPAI = Math.max(max_emPAI, proteinHit.getEmPAI());
-						min_emPAI = Math.min(min_emPAI, proteinHit.getEmPAI());
-						maxNSAF = Math.max(maxNSAF, nsaf);
 						
 						// Wrap protein data in table node clones and insert them into the relevant trees
 						URI uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession());
@@ -2226,8 +2209,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						treeTbl.updateHighlighters(ProteinTreeTables.SEQUENCE_COVERAGE_COLUMN, 0, maxCoverage);
 						treeTbl.updateHighlighters(ProteinTreeTables.PEPTIDE_COUNT_COLUMN, 0, maxPeptideCount);
 						treeTbl.updateHighlighters(ProteinTreeTables.SPECTRAL_COUNT_COLUMN, 0, maxSpecCount);
-						treeTbl.updateHighlighters(ProteinTreeTables.EMPAI_COLUMN, min_emPAI, max_emPAI);
-						treeTbl.updateHighlighters(ProteinTreeTables.NSAF_COLUMN, 0, maxNSAF);
 						
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override

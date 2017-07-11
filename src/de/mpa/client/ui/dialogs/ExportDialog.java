@@ -72,8 +72,6 @@ public class ExportDialog extends JDialog {
 	private JCheckBox proteinPiCbx;
 	private JCheckBox proteinPepCountCbx;
 	private JCheckBox proteinSpecCountCbx;
-	private JCheckBox proteinEmPAICbx;
-	private JCheckBox proteinNSAFCbx;
 	private JCheckBox proteinSequenceCbx;
 	private JCheckBox proteinPeptidesCbx;
 
@@ -206,12 +204,6 @@ public class ExportDialog extends JDialog {
 		proteinSpecCountCbx = new JCheckBox();
 		proteinSpecCountCbx.setText("Spectral Count");
 		proteinSpecCountCbx.setSelected(exportFields.proteinSpecCount);
-		proteinEmPAICbx = new JCheckBox();
-		proteinEmPAICbx.setText("emPAI");
-		proteinEmPAICbx.setSelected(exportFields.proteinEmPAI);
-		proteinNSAFCbx = new JCheckBox();
-		proteinNSAFCbx.setText("NSAF");
-		proteinNSAFCbx.setSelected(exportFields.proteinNSAF);
 		proteinPeptidesCbx = new JCheckBox();
 		proteinPeptidesCbx.setText("Peptides");
 		proteinPeptidesCbx.setSelected(exportFields.proteinPeptides);
@@ -222,13 +214,11 @@ public class ExportDialog extends JDialog {
 		proteinFeaturePnl.add(proteinSpeciesCbx, CC.xy(2,  8));
 		proteinFeaturePnl.add(proteinSeqCoverageCbx, CC.xy(2,  10));
 		proteinFeaturePnl.add(proteinPepCountCbx, CC.xy(2,  12));
-		proteinFeaturePnl.add(proteinNSAFCbx, CC.xy(4,  2));
-		proteinFeaturePnl.add(proteinEmPAICbx, CC.xy(4,  4));
-		proteinFeaturePnl.add(proteinSpecCountCbx, CC.xy(4,  6));
-		proteinFeaturePnl.add(proteinPiCbx, CC.xy(4,  8));
-		proteinFeaturePnl.add(proteinMolWeightCbx, CC.xy(4,  10));
-		proteinFeaturePnl.add(proteinSequenceCbx, CC.xy(4,  12));
-		proteinFeaturePnl.add(proteinPeptidesCbx, CC.xy(2, 14));
+		proteinFeaturePnl.add(proteinSpecCountCbx, CC.xy(4,  2));
+		proteinFeaturePnl.add(proteinPiCbx, CC.xy(4,  4));
+		proteinFeaturePnl.add(proteinMolWeightCbx, CC.xy(4,  6));
+		proteinFeaturePnl.add(proteinSequenceCbx, CC.xy(4,  8));
+		proteinFeaturePnl.add(proteinPeptidesCbx, CC.xy(4, 10));
 		// Protein button function
 		JPanel proteinButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
 		// Protein export button
@@ -992,13 +982,11 @@ public class ExportDialog extends JDialog {
 		if(proteinSpeciesCbx.isSelected()) exportHeaders.add(new ExportHeader(4, proteinSpeciesCbx.getText(), ExportHeaderType.PROTEINS));
 		if(proteinSeqCoverageCbx.isSelected()) exportHeaders.add(new ExportHeader(5, proteinSeqCoverageCbx.getText(), ExportHeaderType.PROTEINS));
 		if(proteinPepCountCbx.isSelected()) exportHeaders.add(new ExportHeader(6, proteinPepCountCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinNSAFCbx.isSelected()) exportHeaders.add(new ExportHeader(7, proteinNSAFCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinEmPAICbx.isSelected()) exportHeaders.add(new ExportHeader(8, proteinEmPAICbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(9, proteinSpecCountCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinPiCbx.isSelected()) exportHeaders.add(new ExportHeader(10, proteinPiCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinMolWeightCbx.isSelected()) exportHeaders.add(new ExportHeader(11, proteinMolWeightCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinSequenceCbx.isSelected()) exportHeaders.add(new ExportHeader(12, proteinSequenceCbx.getText(), ExportHeaderType.PROTEINS));
-		if(proteinPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(13, proteinPeptidesCbx.getText(), ExportHeaderType.PROTEINS));
+		if(proteinSpecCountCbx.isSelected()) exportHeaders.add(new ExportHeader(7, proteinSpecCountCbx.getText(), ExportHeaderType.PROTEINS));
+		if(proteinPiCbx.isSelected()) exportHeaders.add(new ExportHeader(8, proteinPiCbx.getText(), ExportHeaderType.PROTEINS));
+		if(proteinMolWeightCbx.isSelected()) exportHeaders.add(new ExportHeader(9, proteinMolWeightCbx.getText(), ExportHeaderType.PROTEINS));
+		if(proteinSequenceCbx.isSelected()) exportHeaders.add(new ExportHeader(10, proteinSequenceCbx.getText(), ExportHeaderType.PROTEINS));
+		if(proteinPeptidesCbx.isSelected()) exportHeaders.add(new ExportHeader(11, proteinPeptidesCbx.getText(), ExportHeaderType.PROTEINS));
 
 		// Peptides
 		if(peptideNumberCbx.isSelected()) exportHeaders.add(new ExportHeader(1, peptideNumberCbx.getText(), ExportHeaderType.PEPTIDES));
@@ -1044,8 +1032,6 @@ public class ExportDialog extends JDialog {
 		exportFields.proteinPi				= proteinPiCbx.isSelected();
 		exportFields.proteinPepCount		= proteinPepCountCbx.isSelected();
 		exportFields.proteinSpecCount		= proteinSpecCountCbx.isSelected();
-		exportFields.proteinEmPAI			= proteinEmPAICbx.isSelected();
-		exportFields.proteinNSAF			= proteinNSAFCbx.isSelected();
 		exportFields.proteinSequence		= proteinSequenceCbx.isSelected();
 		exportFields.proteinPeptides		= proteinPeptidesCbx.isSelected();
 

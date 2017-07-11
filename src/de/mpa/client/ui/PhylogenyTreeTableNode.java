@@ -108,10 +108,6 @@ public class PhylogenyTreeTableNode extends SortableCheckBoxTreeTableNode implem
 					return ph.getPeptideCount();
 				case ProteinTreeTables.SPECTRAL_COUNT_COLUMN:
 					return ph.getSpectralCount();
-				case ProteinTreeTables.EMPAI_COLUMN:
-					return ph.getEmPAI();
-				case ProteinTreeTables.NSAF_COLUMN:
-					return ph.getNSAF();
 				case ProteinTreeTables.WEB_RESOURCES_COLUMN:
 					return IconConstants.WEB_RESOURCE_ICON;
 				default:
