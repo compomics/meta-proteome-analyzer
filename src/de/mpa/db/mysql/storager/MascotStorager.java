@@ -292,12 +292,19 @@ public class MascotStorager extends BasicStorager {
 											String[] accession_split = prot_substring.split("\"");
 											// we might need to go one level deeper before adding the accession (we do here)
 											String[] accession = accession_split[1].split("[|]");
-											if (accession.length>1) {
+											if ((accession.length > 1)) {
 												// TODO: does it work? (fix from 0 -> 1)
-												proteinlist.add(accession[0]);
+												if (accession[0].equals("tr") || accession[0].equals("sp")) {
+//													System.out.println("if clause 1");
+													proteinlist.add(accession[1]);	
+												} else {
+													proteinlist.add(accession[0]);	
+													System.out.println("WTF");
+												}
 											} else {
 												proteinlist.add(accession_split[1]);
 											}
+											
 
 										}
 										// lastly we put it all into the map
@@ -340,6 +347,13 @@ public class MascotStorager extends BasicStorager {
 									String[] split = line.split("[=]",2);
 									if (!(split[0].contains("_tax"))) {
 										String accession = split[0].split("[|]")[1].replace("\"","");
+										if (accession.contains("|")) {
+											System.out.println("wrong accession: " + accession);
+											String[] accession_split = accession.split("|");
+											if (accession_split.length == 3) {
+												accession = accession_split[1];
+											}
+										}
 										String description = split[1].split("[,]",2)[1];
 										// If map does not contain this entry, it was filtered out.
 										if (protein_map.containsKey(accession)) {
@@ -474,7 +488,9 @@ public class MascotStorager extends BasicStorager {
 										// we need accession protein description and full sequence and the proteinID
 										Long proteinID = null;
 										// get all accessions from current peptide
+
 										for (String prot_acc : peptidemap.get(peptide_number).getProteinAccessions()) {
+											System.out.println("protacc " + prot_acc);
 											// if protein was already submitted, just update pep2prot ref
 											if (protein_map.get(prot_acc).was_this_protein_submitted()) {
 												proteinID = protein_map.get(prot_acc).getProteinID();
@@ -512,13 +528,14 @@ public class MascotStorager extends BasicStorager {
 													protein_map.get(prot_acc).set_this_protein_is_in_DB();
 													protein_map.get(prot_acc).setProteinID(proteinID);
 													// this is a new protein so we mark for uniprot lookup
-													if (uniProtCandidates.containsKey(accession)) {
-														uniProtCandidates.get(accession).add(proteinID);
-													} else {
-														List<Long> prot_id_list = new ArrayList<Long>();
-														prot_id_list.add(proteinID);
-														uniProtCandidates.put(accession, prot_id_list);
-													}
+													// TODO: DEAD CODE?
+//													if (uniProtCandidates.containsKey(accession)) {
+//														uniProtCandidates.get(accession).add(proteinID);
+//													} else {
+//														List<Long> prot_id_list = new ArrayList<Long>();
+//														prot_id_list.add(proteinID);
+//														uniProtCandidates.put(accession, prot_id_list);
+//													}
 												}
 											}
 										}

@@ -206,8 +206,13 @@ public class TaxonomyUtils {
 				current = Taxonomy.findFromTaxID(currentID, conn);
 				taxonomyMap.put(currentID, current);
 			}
-
+			if (current == null) {
+				System.out.println("ID: " + currentID);
+			} else if (current.getRank() == null) {
+				System.out.println("Current: " + current.getTaxonomyid());
+			}
 			// Check for rank being contained in the main categories (from superkingdom to species)
+			
 			UniProtUtilities.TaxonomyRank taxonomyRank = targetRanks.get(current.getRank());
 			if (taxonomyRank == null) {
 				// TODO: Check whether the general category "species" holds true for all available ranks.

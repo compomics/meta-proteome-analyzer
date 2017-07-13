@@ -117,8 +117,7 @@ public class OmssaStorager extends BasicStorager {
 
 				// Get the spectrum id for the given spectrumName for the OmssaFile    
 				String spectrumTitle = msSpectrum.MSSpectrum_ids.MSSpectrum_ids_E.get(0).toString();
-
-				spectrumTitle = this.formatSpectrumTitle(spectrumTitle);
+				spectrumTitle = this.formatSpectrumTitle(spectrumTitle).trim();
 				if (MapContainer.SpectrumTitle2IdMap.get(spectrumTitle) != null) {
 					long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
 

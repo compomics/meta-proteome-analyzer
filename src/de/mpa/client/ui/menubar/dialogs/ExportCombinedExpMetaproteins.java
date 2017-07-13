@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -69,6 +70,10 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 	 */
 	private final ResultParameters metaParams;
 
+	/**
+	 * Flag for denoting use of eucaryotes or not
+	 */
+	private boolean noEucaryotes = false;
 	//	/**
 	//	 * Textfield for project ID
 	//	 */
@@ -98,11 +103,11 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 	 */
 	private void initComponents() {
 		// Create BLAST dialog
-		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));		
+		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JXTable expTbl 			= new JXTable(this.createExpTable());
-		expTbl.setAutoResizeMode(JXTable.AUTO_RESIZE_LAST_COLUMN);
+		expTbl.setAutoResizeMode(JXTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		JScrollPane expTblSp = new JScrollPane(expTbl);		
-		selectExperimentsDlgPnl.add(expTblSp, CC.xyw(2,  2,7));
+		selectExperimentsDlgPnl.add(expTblSp, CC.xyw(2, 2, 7));
 		// Configure 'OK' button
 		JButton okBtn = new JButton("OK", IconConstants.CHECK_ICON);
 		okBtn.setRolloverIcon(IconConstants.CHECK_ROLLOVER_ICON);
@@ -162,10 +167,23 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				}
 			}
 		});
-
+		JCheckBox noEucaryoteCheckbox = new JCheckBox("Only include Archaea and Bacteria");
+		noEucaryoteCheckbox.setSelected(false);
+		noEucaryoteCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (noEucaryoteCheckbox.isSelected()) {
+					noEucaryotes = true;
+				} else {
+					noEucaryotes = false;
+				}
+			}
+		});
 		selectExperimentsDlgPnl.add(okBtn,CC.xy(2, 4) );
 		selectExperimentsDlgPnl.add(cancelBtn,CC.xy(4, 4) );
 		selectExperimentsDlgPnl.add(settingsBtn,CC.xy(6, 4) );
+		selectExperimentsDlgPnl.add(noEucaryoteCheckbox,CC.xy(2, 6) );
+		this.pack();
 		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));
 		cp.setPreferredSize(new Dimension(500,500));
@@ -301,54 +319,60 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		client.firePropertyChange("resetall", 0L, metaProteins.size());
 		client.firePropertyChange("resetcur", 0L, metaProteins.size());
 		// Iterate over metaprotein hits
+		// Bacteria ==2 | Archaea == 2157 
 		for (MetaProteinHit mp : metaProteins) {
 			if (mp.isVisible() && mp.isSelected()) {
 				client.firePropertyChange("progressmade", true, false);
 				// Check for taxonomy level
 				TaxonomyNode taxNode = mp.getTaxonomyNode();
 				if (mp.getUniProtEntry() != null) {
-					// Add ontology
-					List<String> keywords = mp.getUniProtEntry().getKeywords();
-					for (String keyword : keywords) {
-						if (ontologyMap.containsKey(keyword)) {
-							UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
-							if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
-								if (biolFuncMap.get(keyword)== null) {
-									biolFuncMap.put(keyword, mp.getPSMS());
-								} else {
-									Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
-									ontoSet.addAll(mp.getPSMS());
-									biolFuncMap.put(keyword, ontoSet);
+					boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
+					boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
+					boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
+					if (!noEucaryotes || bacteria || archaea) {			
+						// Add ontology
+						List<String> keywords = mp.getUniProtEntry().getKeywords();
+						for (String keyword : keywords) {
+							if (ontologyMap.containsKey(keyword)) {
+								UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
+								if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
+									if (biolFuncMap.get(keyword)== null) {
+										biolFuncMap.put(keyword, mp.getPSMS());
+									} else {
+										Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
+										ontoSet.addAll(mp.getPSMS());
+										biolFuncMap.put(keyword, ontoSet);
+									}
 								}
 							}
 						}
-					}
 
-					// Add taxonomy Data
-					TaxonomyNode orderTaxNode = taxNode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER);
-					// check whether alread in the map
-					boolean alreadyInMap = false;
-					for (TaxonomyNode taxMapNode : taxMap.keySet()) {
-						if (taxMapNode.getID() == orderTaxNode.getID()) {
-							alreadyInMap = true;
+						// Add taxonomy Data
+						TaxonomyNode orderTaxNode = taxNode.getParentNode(UniProtUtilities.TaxonomyRank.ORDER);
+						// check whether alread in the map
+						boolean alreadyInMap = false;
+						for (TaxonomyNode taxMapNode : taxMap.keySet()) {
+							if (taxMapNode.getID() == orderTaxNode.getID()) {
+								alreadyInMap = true;
+							}
 						}
-					}
 
-					if (alreadyInMap == false) {
-						taxMap.put(orderTaxNode, mp.getPSMS());
-					} else {
-						Set<PeptideSpectrumMatch> taxSet = taxMap.get(orderTaxNode);
-						taxSet.addAll(mp.getPSMS());
-						taxMap.put(orderTaxNode, taxSet);
-					}
-					// Add taxonomy Data
-					taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
-					if (speciesMap.get(this.taxonSpecies)== null) {
-						speciesMap.put(this.taxonSpecies, mp.getPSMS());
-					} else {
-						Set<PeptideSpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
-						taxSet.addAll(mp.getPSMS());
-						speciesMap.put(this.taxonSpecies, taxSet);
+						if (alreadyInMap == false) {
+							taxMap.put(orderTaxNode, mp.getPSMS());
+						} else {
+							Set<PeptideSpectrumMatch> taxSet = taxMap.get(orderTaxNode);
+							taxSet.addAll(mp.getPSMS());
+							taxMap.put(orderTaxNode, taxSet);
+						}
+						// Add taxonomy Data
+						taxonSpecies = TaxonomyUtils.getTaxonNameByRank(taxNode, UniProtUtilities.TaxonomyRank.SPECIES);
+						if (speciesMap.get(this.taxonSpecies)== null) {
+							speciesMap.put(this.taxonSpecies, mp.getPSMS());
+						} else {
+							Set<PeptideSpectrumMatch> taxSet = speciesMap.get(this.taxonSpecies);
+							taxSet.addAll(mp.getPSMS());
+							speciesMap.put(this.taxonSpecies, taxSet);
+						}
 					}
 				}
 			}
@@ -399,7 +423,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		taxWriter.close();
 
 		// Export Species Taxonomy
-		//TODO ADD Taxonomic path
+		// TODO ADD Taxonomic path
 		BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
 		for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : speciesMap.entrySet()) {
 			taxSpeciesWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());

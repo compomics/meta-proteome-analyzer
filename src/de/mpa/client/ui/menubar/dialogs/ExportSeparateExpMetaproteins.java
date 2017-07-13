@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -69,6 +70,11 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 	 * The local map of meta-protein generation-related parameters.
 	 */
 	private final ResultParameters metaParams;
+	
+	/**
+	 * Flag for denoting use of eucaryotes or not
+	 */
+	private boolean noEucaryotes = false;
 
 	//	/**
 	//	 * Textfield for project ID
@@ -99,7 +105,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 	 */
 	private void initComponents() {
 		// Create BLAST dialog
-		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));		
+		JPanel selectExperimentsDlgPnl 	= new JPanel(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu"));
 		JXTable expTbl = new JXTable(this.createExpTable());
 		expTbl.setAutoResizeMode(JXTable.AUTO_RESIZE_LAST_COLUMN);
 		JScrollPane expTblSp = new JScrollPane(expTbl);		
@@ -158,10 +164,23 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 
 			}
 		});
+		JCheckBox noEucaryoteCheckbox = new JCheckBox("Only include Archaea and Bacteria");
+		noEucaryoteCheckbox.setSelected(false);
+		noEucaryoteCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (noEucaryoteCheckbox.isSelected()) {
+					noEucaryotes = true;
+				} else {
+					noEucaryotes = false;
+				}
+			}
+		});
 
 		selectExperimentsDlgPnl.add(okBtn,CC.xy(2, 4) );
 		selectExperimentsDlgPnl.add(cancelBtn,CC.xy(4, 4) );
 		selectExperimentsDlgPnl.add(settingsBtn,CC.xy(6, 4) );
+		selectExperimentsDlgPnl.add(noEucaryoteCheckbox,CC.xy(2, 6) );
 		Container cp = getContentPane();
 		cp.setLayout(new FormLayout("5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g", "5dlu, f:p:g, 5dlu, f:p:g, 5dlu, f:p:g"));
 		cp.setPreferredSize(new Dimension(500,500));
@@ -306,20 +325,25 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 					// Check for taxonomy level
 					TaxonomyNode taxNode = mp.getTaxonomyNode();
 					if (mp.getUniProtEntry() != null) {
-						// Add ontology
-						List<String> keywords = mp.getUniProtEntry().getKeywords();
-						for (String keyword : keywords) {
-							if (ontologyMap.containsKey(keyword)) {
-								UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
+						boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
+						boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
+						boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
+						if (!noEucaryotes || bacteria || archaea) {	
+							// Add ontology
+							List<String> keywords = mp.getUniProtEntry().getKeywords();
+							for (String keyword : keywords) {
+								if (ontologyMap.containsKey(keyword)) {
+									UniProtUtilities.KeywordCategory KeyWordtype = UniProtUtilities.KeywordCategory.valueOf(ontologyMap.get(keyword).getCategory());
 
-								if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
-									if (biolFuncMap.get(keyword)== null) {
-										biolFuncMap.put(keyword, mp.getPSMS());
-									} else {
-										Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
-										Set<PeptideSpectrumMatch> matchSet = mp.getPSMS();
-										ontoSet.addAll(mp.getPSMS());
-										biolFuncMap.put(keyword, ontoSet);
+									if (KeyWordtype.equals(UniProtUtilities.KeywordCategory.BIOLOGICAL_PROCESS)) {
+										if (biolFuncMap.get(keyword)== null) {
+											biolFuncMap.put(keyword, mp.getPSMS());
+										} else {
+											Set<PeptideSpectrumMatch> ontoSet = biolFuncMap.get(keyword);
+											Set<PeptideSpectrumMatch> matchSet = mp.getPSMS();
+											ontoSet.addAll(mp.getPSMS());
+											biolFuncMap.put(keyword, ontoSet);
+										}
 									}
 								}
 							}

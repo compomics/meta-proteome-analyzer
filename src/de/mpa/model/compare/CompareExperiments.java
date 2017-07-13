@@ -97,7 +97,7 @@ public class CompareExperiments {
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 
 		this.results = new HashMap<String, Long[]>();
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// save metaprotein name as string
 			String mpString = metaprotein.getAccession() + metaprotein.getDescription();
 			Long[] experiments = new Long[this.experiments.size()];
@@ -123,7 +123,7 @@ public class CompareExperiments {
 	private void compareMetaproteinsCountPeptides() {
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
 		this.results = new HashMap<String, Long[]>();
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// save metaprotein name as string
 			String mpString = metaprotein.getAccession() + metaprotein.getDescription();
 			Long[] experiments = new Long[this.experiments.size()];
@@ -148,7 +148,7 @@ public class CompareExperiments {
 
 		HashSet<PeptideHit> set = new HashSet<>();
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			for (PeptideHit peptide : metaprotein.getPeptides()) {
 				set.add(peptide);
 			}
@@ -169,7 +169,7 @@ public class CompareExperiments {
 		this.results = new HashMap<String, Long[]>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop all psms
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
 				// counts the nodex with the searched taxonomyrank
@@ -190,7 +190,7 @@ public class CompareExperiments {
 		HashSet<PeptideHit> set = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop peptide list, but it contains dublicates
 			for (PeptideHit peptide : metaprotein.getPeptides()) {
 				// if not already processed
@@ -216,7 +216,7 @@ public class CompareExperiments {
 		this.results = new HashMap<String, Long[]>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop every psm
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
 				// increase the result
@@ -237,7 +237,7 @@ public class CompareExperiments {
 		HashSet<PeptideHit> set = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop peptide list, but it contains dublicates
 			for (PeptideHit peptide : metaprotein.getPeptides()) {
 				// if not already processed
@@ -260,7 +260,7 @@ public class CompareExperiments {
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop every psm
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
 				// increase the result
@@ -281,7 +281,7 @@ public class CompareExperiments {
 		HashSet<PeptideHit> set = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop peptide list, but it contains dublicates
 			for (PeptideHit peptide : metaprotein.getPeptides()) {
 				// if not already processed
@@ -304,7 +304,7 @@ public class CompareExperiments {
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop every psm
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
 				// increase the result
@@ -325,7 +325,7 @@ public class CompareExperiments {
 		HashSet<PeptideHit> set = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop peptide list, but it contains dublicates
 			for (PeptideHit peptide : metaprotein.getPeptides()) {
 				// if not already processed
@@ -357,7 +357,7 @@ public class CompareExperiments {
 		// init the result map
 		this.results = new HashMap<String, Long[]>();
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			// loop every psm
 			for (PeptideSpectrumMatch psm : metaprotein.getPSMS()) {
 				// increase the result
@@ -389,7 +389,7 @@ public class CompareExperiments {
 		HashSet<PeptideHit> peptideSet = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			for (ProteinHit protein : metaprotein.getProteinHitList()) {
 				// if not already processed protein
 				if (!proteinSet.contains(protein)) {
@@ -428,7 +428,7 @@ public class CompareExperiments {
 		HashSet<PeptideSpectrumMatch> psmSet = new HashSet<>();
 
 		// loop every metaproteine
-		for (MetaProteinHit metaprotein : dbSearchResult.getMetaProteins()) {
+		for (MetaProteinHit metaprotein : dbSearchResult.getVisibleMetaProteins()) {
 			for (ProteinHit protein : metaprotein.getProteinHitList()) {
 				// if not already processed protein
 				if (!proteinSet.contains(protein)) {

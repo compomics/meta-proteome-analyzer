@@ -178,7 +178,7 @@ public class SpectrumStorager extends BasicStorager {
             Long searchspectrumid = (Long) searchSpectrum.getGeneratedKeys()[0];
 
             // Fill the cache maps
-            this.title2SearchIdMap.put(query.getTitle(), searchspectrumid);
+            this.title2SearchIdMap.put(query.getTitle().trim(), searchspectrumid);
             this.fileName2IdMap.put(mgf.getFilename(), searchspectrumid);
         	// commit if count reaches batch-value
             commit_counter++;
