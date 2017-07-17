@@ -80,6 +80,16 @@ public class ClientFrameMenuBar extends JMenuBar {
 		fileMenu.setText("File");
 
 		// create Exit item
+		JMenuItem restartItem = new JMenuItem();
+		restartItem.setText("Restart");
+		restartItem.setIcon(IconConstants.EXIT_ICON);
+		restartItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				ClientFrame.getInstance().restart();
+			}
+		});
+		
+		// create Exit item
 		JMenuItem exitItem = new JMenuItem();
 		exitItem.setText("Exit");
 		exitItem.setIcon(IconConstants.EXIT_ICON);
@@ -168,6 +178,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		fileMenu.add(dumpItem);
 		fileMenu.add(restoreItem);
 		fileMenu.addSeparator();
+		fileMenu.add(restartItem);
 		fileMenu.add(exitItem);
 
 		/* create Settings menu */

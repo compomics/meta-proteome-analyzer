@@ -116,6 +116,7 @@ public class XTandemStorager extends BasicStorager {
         // Prepare everything for the peptides.
         PeptideMap pepMap = this.xTandemFile.getPeptideMap();
         
+        
         // ProteinMap protMap 
         ProteinMap protMap = this.xTandemFile.getProteinMap();
         
@@ -129,7 +130,7 @@ public class XTandemStorager extends BasicStorager {
             int spectrumNumber = spectrum.getSpectrumNumber();
             
             String spectrumTitle = this.xTandemFile.getSupportData(spectrumNumber).getFragIonSpectrumDescription();
-            spectrumTitle = this.formatSpectrumTitle(spectrumTitle);
+            spectrumTitle = this.formatSpectrumTitle(spectrumTitle).trim();
             // Get all identifications from the spectrum
             ArrayList<Peptide> pepList = pepMap.getAllPeptides(spectrumNumber);
             List<String> peptides = new ArrayList<String>();
@@ -142,7 +143,6 @@ public class XTandemStorager extends BasicStorager {
 					if (!peptides.contains(sequence)) {
                         peptides.add(sequence);
                 	    HashMap<Object, Object> hitdata = new HashMap<Object, Object>(17);
-
                 	    // Only store if the search spectrum id is referenced.
 						if (MapContainer.SpectrumTitle2IdMap.containsKey(spectrumTitle)) {
                 	    	long searchspectrumID = MapContainer.SpectrumTitle2IdMap.get(spectrumTitle);
@@ -187,7 +187,7 @@ public class XTandemStorager extends BasicStorager {
         						// Scan for additional protein hits
                      	    	HashSet<String> accessionSet = new HashSet<String>();
         						FastaLoader loader = FastaLoader.getInstance();
-        						if (loader.getPepFile()!=null) {
+        						if (loader.getPepFile() != null) {
         							// There is a separate digested peptide file available
 									accessionSet = loader.getProtHits(sequence);
 									accessionSet.add(accession);
@@ -212,7 +212,6 @@ public class XTandemStorager extends BasicStorager {
         								System.err.println("Protein: " + acc + " not found in the database.");
         							}
 								}
-                                 
             				}
                 	    }
 					}

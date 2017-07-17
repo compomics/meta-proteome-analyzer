@@ -75,170 +75,172 @@ public class ResultExporter {
 		// Filling the format with data
 		int metaProtCount = 0;
 		for (MetaProteinHit metaProtein : result.getMetaProteins()) {
-			if (hasFeature[0])
-				writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[1])
-				writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[2])
-				writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
-			TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
-			if (hasFeature[3])
-				writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			// TaxTree
-			TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
-			if (spNode != null) {
-				if (hasFeature[4])
-					writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[4])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
-			if (kingNode != null) {
-				if (hasFeature[5])
-					writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[5])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
-			if (phNode != null) {
-				if (hasFeature[6])
-					writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[6])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
-			if (classNode != null) {
-				if (hasFeature[7])
-					writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[7])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
-			if (orderNode != null) {
-				if (hasFeature[8])
-					writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[8])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
-			if (famNode != null) {
-				if (hasFeature[9])
-					writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[9])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
-			if (genusNode != null) {
-				if (hasFeature[10])
-					writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[10])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
-			if (specNode != null) {
-				if (hasFeature[11])
-					writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
-			} else {
-				if (hasFeature[11])
-					writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
-			}
-			String uniref100 = "UNKNOWN";
-			String uniref90 = "UNKNOWN";
-			String uniref50 = "UNKNOWN";
-			if (metaProtein.getUniProtEntry() != null
-					&& metaProtein.getUniProtEntry().getUniRefMPA() != null 
-					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100() != null) {
-				uniref100 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100();
-			} else {
-				uniref100 = "unknown";
-			}
-			if (metaProtein.getUniProtEntry() != null
-					&& metaProtein.getUniProtEntry().getUniRefMPA() != null
-					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90() != null) {
-				uniref90 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90();
-			} else {
-				uniref90 = "unknown";
-			}
-			if (metaProtein.getUniProtEntry() != null
-					&& metaProtein.getUniProtEntry().getUniRefMPA() != null
-					&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50() != null) {
-				uniref50 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50();
-			} else {
-				uniref50 = "unknown";
-			}
-			if (hasFeature[12])
-				writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[13])
-				writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[14])
-				writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
-			// Get KOs
-			String kOs = "";
-			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getKonumbers() != null) {
-				List<String> kNumbers = metaProtein.getUniProtEntry().getKonumbers();
-				for (String ko : kNumbers) {
-					kOs += ko.replace(";", "") + "|";
+			if (metaProtein.isVisible() && metaProtein.isSelected()) {
+				if (hasFeature[0])
+					writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[1])
+					writer.append(metaProtein.getAccession() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[2])
+					writer.append(metaProtein.getDescription() + Constants.TSV_FILE_SEPARATOR);
+				TaxonomyNode taxNode = metaProtein.getTaxonomyNode();
+				if (hasFeature[3])
+					writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				// TaxTree
+				TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
+				if (spNode != null) {
+					if (hasFeature[4])
+						writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[4])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
-				if (kOs.equals("")) {
-					kOs = "UNKNOWN";
+				TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
+				if (kingNode != null) {
+					if (hasFeature[5])
+						writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[5])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
-			}
-			if (hasFeature[15])
-				writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
-			// Get ECs
-			String ECs = "";
-			if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcnumbers() != null
-					&& (!metaProtein.getUniProtEntry().getEcnumbers().isEmpty())) {
-				List<String> ECNumbers = metaProtein.getUniProtEntry().getEcnumbers();
-				for (String ec : ECNumbers) {
-
-					ECs += ec.replace(";", "") + "|";
+				TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
+				if (phNode != null) {
+					if (hasFeature[6])
+						writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[6])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
-			} else {
-				ECs = "UNKNOWN";
-			}
-			if (hasFeature[8])
-				writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
-
-			if (hasFeature[16])
-				writer.append(metaProtein.getPeptides().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[17])
-				writer.append(metaProtein.getPSMS().size() + Constants.TSV_FILE_SEPARATOR);
-			if (hasFeature[18]) {
-				ArrayList<ProteinHit> proteinHits = metaProtein.getProteinHitList();
-				int i = 0;
-				for (ProteinHit proteinHit : proteinHits) {
-					++i;
-					writer.append(proteinHit.getAccession());
-					// Append separator, except the last entry
-					if ((i < proteinHits.size())) {
-						writer.append(", ");
+				TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
+				if (classNode != null) {
+					if (hasFeature[7])
+						writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[7])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+				}
+				TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
+				if (orderNode != null) {
+					if (hasFeature[8])
+						writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[8])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+				}
+				TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
+				if (famNode != null) {
+					if (hasFeature[9])
+						writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[9])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+				}
+				TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
+				if (genusNode != null) {
+					if (hasFeature[10])
+						writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[10])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+				}
+				TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
+				if (specNode != null) {
+					if (hasFeature[11])
+						writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
+				} else {
+					if (hasFeature[11])
+						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
+				}
+				String uniref100 = "UNKNOWN";
+				String uniref90 = "UNKNOWN";
+				String uniref50 = "UNKNOWN";
+				if (metaProtein.getUniProtEntry() != null
+						&& metaProtein.getUniProtEntry().getUniRefMPA() != null 
+						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100() != null) {
+					uniref100 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100();
+				} else {
+					uniref100 = "unknown";
+				}
+				if (metaProtein.getUniProtEntry() != null
+						&& metaProtein.getUniProtEntry().getUniRefMPA() != null
+						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90() != null) {
+					uniref90 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90();
+				} else {
+					uniref90 = "unknown";
+				}
+				if (metaProtein.getUniProtEntry() != null
+						&& metaProtein.getUniProtEntry().getUniRefMPA() != null
+						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50() != null) {
+					uniref50 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50();
+				} else {
+					uniref50 = "unknown";
+				}
+				if (hasFeature[12])
+					writer.append(uniref100 + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[13])
+					writer.append(uniref90 + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[14])
+					writer.append(uniref50 + Constants.TSV_FILE_SEPARATOR);
+				// Get KOs
+				String kOs = "";
+				if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getKonumbers() != null) {
+					List<String> kNumbers = metaProtein.getUniProtEntry().getKonumbers();
+					for (String ko : kNumbers) {
+						kOs += ko.replace(";", "") + "|";
+					}
+					if (kOs.equals("")) {
+						kOs = "UNKNOWN";
 					}
 				}
-				writer.append(Constants.TSV_FILE_SEPARATOR);
-			}
-			if (hasFeature[19]) {
-				ArrayList<PeptideHit> peptideSet = metaProtein.getPeptides();
-				int j = 0;
-				for (PeptideHit peptideHit : peptideSet) {
-					++j;
-					writer.append(peptideHit.getSequence());
-					// Append separator, except the last entry
-					if ((j < peptideSet.size() - 1)) {
-						writer.append(", ");
+				if (hasFeature[15])
+					writer.append(kOs + Constants.TSV_FILE_SEPARATOR);
+				// Get ECs
+				String ECs = "";
+				if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getEcnumbers() != null
+						&& (!metaProtein.getUniProtEntry().getEcnumbers().isEmpty())) {
+					List<String> ECNumbers = metaProtein.getUniProtEntry().getEcnumbers();
+					for (String ec : ECNumbers) {
+
+						ECs += ec.replace(";", "") + "|";
 					}
+				} else {
+					ECs = "UNKNOWN";
 				}
-				writer.append(Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[8])
+					writer.append(ECs + Constants.TSV_FILE_SEPARATOR);
+
+				if (hasFeature[16])
+					writer.append(metaProtein.getPeptides().size() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[17])
+					writer.append(metaProtein.getPSMS().size() + Constants.TSV_FILE_SEPARATOR);
+				if (hasFeature[18]) {
+					ArrayList<ProteinHit> proteinHits = metaProtein.getProteinHitList();
+					int i = 0;
+					for (ProteinHit proteinHit : proteinHits) {
+						++i;
+						writer.append(proteinHit.getAccession());
+						// Append separator, except the last entry
+						if ((i < proteinHits.size())) {
+							writer.append(", ");
+						}
+					}
+					writer.append(Constants.TSV_FILE_SEPARATOR);
+				}
+				if (hasFeature[19]) {
+					ArrayList<PeptideHit> peptideSet = metaProtein.getPeptides();
+					int j = 0;
+					for (PeptideHit peptideHit : peptideSet) {
+						++j;
+						writer.append(peptideHit.getSequence());
+						// Append separator, except the last entry
+						if ((j < peptideSet.size() - 1)) {
+							writer.append(", ");
+						}
+					}
+					writer.append(Constants.TSV_FILE_SEPARATOR);
+				}
+				writer.newLine();
+				writer.flush();
 			}
-			writer.newLine();
-			writer.flush();
 		}
 		writer.close();
 	}
@@ -282,18 +284,20 @@ public class ResultExporter {
 
 		// Collect peptides and spectra from taxonomy hits.
 		for (MetaProteinHit metaProtein : result.getMetaProteins()) {
-			HashSet<PeptideSpectrumMatch> spectrumIDs = metaProtein.getPSMS();
-			ArrayList<PeptideHit> peptideSet = metaProtein.getPeptides();
-			if (taxonomySpectra.get(metaProtein.getTaxonomyNode()) != null) {
-				Set<PeptideSpectrumMatch> spectraSet = taxonomySpectra.get(metaProtein.getTaxonomyNode());
-				spectrumIDs.addAll(spectraSet);
+			if (metaProtein.isVisible() && metaProtein.isSelected()) {
+				HashSet<PeptideSpectrumMatch> spectrumIDs = metaProtein.getPSMS();
+				ArrayList<PeptideHit> peptideSet = metaProtein.getPeptides();
+				if (taxonomySpectra.get(metaProtein.getTaxonomyNode()) != null) {
+					Set<PeptideSpectrumMatch> spectraSet = taxonomySpectra.get(metaProtein.getTaxonomyNode());
+					spectrumIDs.addAll(spectraSet);
+				}
+				if (taxonomyPeptides.get(metaProtein.getTaxonomyNode()) != null) {
+					ArrayList<PeptideHit> peptideSet2 = taxonomyPeptides.get(metaProtein.getTaxonomyNode());
+					peptideSet.addAll(peptideSet2);
+				}
+				taxonomySpectra.put(metaProtein.getTaxonomyNode(), spectrumIDs);
+				taxonomyPeptides.put(metaProtein.getTaxonomyNode(), peptideSet);
 			}
-			if (taxonomyPeptides.get(metaProtein.getTaxonomyNode()) != null) {
-				ArrayList<PeptideHit> peptideSet2 = taxonomyPeptides.get(metaProtein.getTaxonomyNode());
-				peptideSet.addAll(peptideSet2);
-			}
-			taxonomySpectra.put(metaProtein.getTaxonomyNode(), spectrumIDs);
-			taxonomyPeptides.put(metaProtein.getTaxonomyNode(), peptideSet);
 		}
 
 		Map<TaxonomyRank, Integer> rankMap = new LinkedHashMap<TaxonomyRank, Integer>();
@@ -372,11 +376,9 @@ public class ResultExporter {
 		// Filling the format with data
 		int protCount = 0;
 		for (ProteinHit proteinHit : result.getAllProteinHits()) {
-			if (proteinHit.isSelected()) {
-
+			if (proteinHit.isVisible() && proteinHit.isSelected()) {
 				// Export not metagenomic hits
 				// if(!proteinHit.getAccession().matches("^\\d*$")) {
-
 				if (hasFeature[0])
 					writer.append(++protCount + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[1])
@@ -463,7 +465,7 @@ public class ResultExporter {
 		ArrayList<ProteinHit> proteinHitList = result.getAllProteinHits();
 		for (ProteinHit proteinHit : proteinHitList) {
 			for (PeptideHit peptideHit : proteinHit.getPeptideHitList()) {
-				if (peptideHit.isSelected() && !peptideSet.contains(peptideHit)) {
+				if (peptideHit.isVisible() && peptideHit.isSelected() && !peptideSet.contains(peptideHit)) {
 					if (uniquePeptidesOnly) {
 						if (peptideHit.getProteinCount() > 1) {
 							continue;
@@ -549,34 +551,36 @@ public class ResultExporter {
 		ArrayList<PeptideSpectrumMatch> spectrumMatches = result.getAllPSMS();
 
 		for (PeptideSpectrumMatch sm : spectrumMatches) {
-			// if (!Client.isViewer()) {
-			MascotGenericFile mgf = Client.getInstance().getSpectrumBySpectrumID(sm.getSpectrumID());
-			sm.setTitle(mgf.getTitle());
-			// }
-			PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
+			if (sm.isVisible() && sm.isSelected()) {
+				// if (!Client.isViewer()) {
+				MascotGenericFile mgf = Client.getInstance().getSpectrumBySpectrumID(sm.getSpectrumID());
+				sm.setTitle(mgf.getTitle());
+				// }
+				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 
-			PeptideHit peptideHit = sm.getPeptideHit();
-			List<ProteinHit> proteinHits = peptideHit.getProteinHits();
-			for (ProteinHit ph : proteinHits) {
-				List<SearchHit> searchHits = psm.getSearchHits();
-				for (SearchHit searchHit : searchHits) {
-					if (hasFeature[0])
-						writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[1])
-						writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[2])
-						writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[3])
-						writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[4])
-						writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[5])
-						writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[6])
-						writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
-					if (hasFeature[7])
-						writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
-					writer.newLine();
+				PeptideHit peptideHit = sm.getPeptideHit();
+				List<ProteinHit> proteinHits = peptideHit.getProteinHits();
+				for (ProteinHit ph : proteinHits) {
+					List<SearchHit> searchHits = psm.getSearchHits();
+					for (SearchHit searchHit : searchHits) {
+						if (hasFeature[0])
+							writer.append(++smCount + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[1])
+							writer.append(ph.getAccession() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[2])
+							writer.append(peptideHit.getSequence() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[3])
+							writer.append(psm.getTitle() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[4])
+							writer.append(psm.getCharge() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[5])
+							writer.append(searchHit.getType().toString() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[6])
+							writer.append(searchHit.getQvalue().doubleValue() + Constants.TSV_FILE_SEPARATOR);
+						if (hasFeature[7])
+							writer.append(searchHit.getScore() + Constants.TSV_FILE_SEPARATOR);
+						writer.newLine();
+					}
 				}
 			}
 		}
@@ -622,18 +626,20 @@ public class ResultExporter {
 			for (PeptideHit peptideHit : peptideHits) {
 
 				for (PeptideSpectrumMatch sm : peptideHit.getPeptideSpectrumMatches()) {
-					// if (!Client.isViewer()) {
-					MascotGenericFile mgf = Client.getInstance().getSpectrumBySpectrumID(sm.getSpectrumID());
-					sm.setTitle(mgf.getTitle());
-					// }
-					List<PeptideSpectrumMatch> currentPSMs = null;
-					if (spectraToPSMs.get(sm.getTitle()) != null) {
-						currentPSMs = spectraToPSMs.get(sm.getTitle());
-					} else {
-						currentPSMs = new ArrayList<PeptideSpectrumMatch>();
+					if (sm.isVisible() && sm.isSelected()) {
+						// if (!Client.isViewer()) {
+						MascotGenericFile mgf = Client.getInstance().getSpectrumBySpectrumID(sm.getSpectrumID());
+						sm.setTitle(mgf.getTitle());
+						// }
+						List<PeptideSpectrumMatch> currentPSMs = null;
+						if (spectraToPSMs.get(sm.getTitle()) != null) {
+							currentPSMs = spectraToPSMs.get(sm.getTitle());
+						} else {
+							currentPSMs = new ArrayList<PeptideSpectrumMatch>();
+						}
+						currentPSMs.add(sm);
+						spectraToPSMs.put(sm.getTitle(), currentPSMs);
 					}
-					currentPSMs.add(sm);
-					spectraToPSMs.put(sm.getTitle(), currentPSMs);
 				}
 			}
 		}
@@ -821,11 +827,11 @@ public class ResultExporter {
 										// the children (except leaves!)
 										if (!childNode.isLeaf()) {
 											specificSpectrumIDs
-													.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
+											.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										}
 										if (childNode.isLeaf()) {
 											unspecificSpectrumIDs
-													.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
+											.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										}
 									}
 									// Get the asymmetric set difference of the
@@ -868,7 +874,7 @@ public class ResultExporter {
 						spectrumIDs.add(psm.getSpectrumID());	
 					}
 				}
-				
+
 			} else {
 				Enumeration<? extends TreeTableNode> children = tableNode.children();
 				while (children.hasMoreElements()) {

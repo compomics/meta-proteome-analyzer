@@ -37,7 +37,7 @@ public class RunFastaFormater {
 		// May not include ".fasta"
 		fastaFormatQuery.add(fastaPath.split("[.]")[0]);
 		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
-		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BLAST_MAKE_DB));
+		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.BASE_PATH));
 		//third path to xampp installation
 		fastaFormatQuery.add(PropertyLoader.getProperty(PropertyLoader.XAMPP_PATH));
 
