@@ -221,7 +221,6 @@ public class DbSearchResult implements Serializable {
 						break;
 					case MASCOT:
 						hit = new Mascothit(rs, false); // MEMORY: may have to deal with pep-sequence and prot-accession
-						System.out.println("New Mascothit " + hit.getAccession());
 						break;							
 					}
 					this.searchHits.add(hit);

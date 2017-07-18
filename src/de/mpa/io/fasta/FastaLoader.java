@@ -27,6 +27,7 @@ import de.mpa.client.Client;
 import de.mpa.client.Constants;
 import de.mpa.db.mysql.DBManager;
 import de.mpa.db.mysql.accessor.ProteinAccessor;
+import de.mpa.db.mysql.accessor.TaxonomyTableAccessor;
 import de.mpa.db.mysql.accessor.UniprotentryAccessor;
 import de.mpa.db.mysql.storager.MascotStorager;
 import de.mpa.model.analysis.UniProtUtilities;
@@ -611,13 +612,15 @@ public class FastaLoader {
 						UniProtEntryMPA up_entry = uniprotentries.get(protein);
 						ProteinAccessor prot_entry = protein_acc2prot_map.get(protein);
 						// create/add stuff to sql-objects
-						Long upid = UniprotentryAccessor.addProtein(up_entry, conn);
-						prot_entry.setFK_uniProtID(upid);
-						try {
-							prot_entry.update(conn);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						if(TaxonomyTableAccessor.taxIDExists(conn, up_entry.getTaxid())){
+							Long upid = UniprotentryAccessor.addProtein(up_entry, conn);
+							prot_entry.setFK_uniProtID(upid);
+							try {
+								prot_entry.update(conn);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}						
 					}
 					// commit all 200 together
 					conn.commit();
@@ -635,6 +638,8 @@ public class FastaLoader {
 			progressbar.setString(progress + "%");
 		}
 	}
+
+	
 
 	/**
 	 * Write a FASTA database entry.

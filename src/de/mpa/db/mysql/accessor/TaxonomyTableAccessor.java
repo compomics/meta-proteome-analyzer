@@ -49,24 +49,20 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	protected long iTaxonomyid = Long.MIN_VALUE;
 
-
 	/**
 	 * This variable represents the contents for the 'parentid' column.
 	 */
 	protected long iParentid = Long.MIN_VALUE;
-
 
 	/**
 	 * This variable represents the contents for the 'description' column.
 	 */
 	protected String iDescription;
 
-
 	/**
 	 * This variable represents the contents for the 'rank' column.
 	 */
 	protected String iRank;
-
 
 	/**
 	 * This variable represents the key for the 'taxonomyid' column.
@@ -88,9 +84,6 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	 */
 	public static final String RANK = "RANK";
 
-
-
-
 	/**
 	 * Default constructor.
 	 */
@@ -98,49 +91,53 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	}
 
 	/**
-	 * This constructor allows the creation of the 'TaxonomyTableAccessor' object based on a set of values in the HashMap.
+	 * This constructor allows the creation of the 'TaxonomyTableAccessor'
+	 * object based on a set of values in the HashMap.
 	 *
-	 * @param	aParams	HashMap with the parameters to initialize this object with.
-	 *		<i>Please use only constants defined on this class as keys in the HashMap!</i>
+	 * @param aParams
+	 *            HashMap with the parameters to initialize this object with.
+	 *            <i>Please use only constants defined on this class as keys in
+	 *            the HashMap!</i>
 	 */
 	public TaxonomyTableAccessor(HashMap aParams) {
-		if(aParams.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
-            iTaxonomyid = ((Long)aParams.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
+		if (aParams.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
+			iTaxonomyid = ((Long) aParams.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
 		}
-		if(aParams.containsKey(TaxonomyTableAccessor.PARENTID)) {
-            iParentid = ((Long)aParams.get(TaxonomyTableAccessor.PARENTID)).longValue();
+		if (aParams.containsKey(TaxonomyTableAccessor.PARENTID)) {
+			iParentid = ((Long) aParams.get(TaxonomyTableAccessor.PARENTID)).longValue();
 		}
-		if(aParams.containsKey(TaxonomyTableAccessor.DESCRIPTION)) {
-            iDescription = (String)aParams.get(TaxonomyTableAccessor.DESCRIPTION);
+		if (aParams.containsKey(TaxonomyTableAccessor.DESCRIPTION)) {
+			iDescription = (String) aParams.get(TaxonomyTableAccessor.DESCRIPTION);
 		}
-		if(aParams.containsKey(TaxonomyTableAccessor.RANK)) {
-            iRank = (String)aParams.get(TaxonomyTableAccessor.RANK);
+		if (aParams.containsKey(TaxonomyTableAccessor.RANK)) {
+			iRank = (String) aParams.get(TaxonomyTableAccessor.RANK);
 		}
-        iUpdated = true;
+		iUpdated = true;
 	}
-
 
 	/**
-	 * This constructor allows the creation of the 'TaxonomyTableAccessor' object based on a resultset
-	 * obtained by a 'select * from Taxonomy' query.
+	 * This constructor allows the creation of the 'TaxonomyTableAccessor'
+	 * object based on a resultset obtained by a 'select * from Taxonomy' query.
 	 *
-	 * @param	aResultSet	ResultSet with the required columns to initialize this object with.
-	 * @exception	SQLException	when the ResultSet could not be read.
+	 * @param aResultSet
+	 *            ResultSet with the required columns to initialize this object
+	 *            with.
+	 * @exception SQLException
+	 *                when the ResultSet could not be read.
 	 */
 	public TaxonomyTableAccessor(ResultSet aResultSet) throws SQLException {
-        iTaxonomyid = aResultSet.getLong("taxonomyid");
-        iParentid = aResultSet.getLong("parentid");
-        iDescription = (String)aResultSet.getObject("description");
-        iRank = (String)aResultSet.getObject("rank");
+		iTaxonomyid = aResultSet.getLong("taxonomyid");
+		iParentid = aResultSet.getLong("parentid");
+		iDescription = (String) aResultSet.getObject("description");
+		iRank = (String) aResultSet.getObject("rank");
 
-        iUpdated = true;
+		iUpdated = true;
 	}
-
 
 	/**
 	 * This method returns the value for the 'Taxonomyid' column
 	 * 
-	 * @return	long	with the value for the Taxonomyid column.
+	 * @return long with the value for the Taxonomyid column.
 	 */
 	public long getTaxonomyid() {
 		return iTaxonomyid;
@@ -149,7 +146,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'Parentid' column
 	 * 
-	 * @return	long	with the value for the Parentid column.
+	 * @return long with the value for the Parentid column.
 	 */
 	public long getParentid() {
 		return iParentid;
@@ -158,7 +155,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'Description' column
 	 * 
-	 * @return	String	with the value for the Description column.
+	 * @return String with the value for the Description column.
 	 */
 	public String getDescription() {
 		return iDescription;
@@ -167,7 +164,7 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method returns the value for the 'Rank' column
 	 * 
-	 * @return	String	with the value for the Rank column.
+	 * @return String with the value for the Rank column.
 	 */
 	public String getRank() {
 		return iRank;
@@ -176,50 +173,53 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 	/**
 	 * This method sets the value for the 'Taxonomyid' column
 	 * 
-	 * @param	aTaxonomyid	long with the value for the Taxonomyid column.
+	 * @param aTaxonomyid
+	 *            long with the value for the Taxonomyid column.
 	 */
 	public void setTaxonomyid(long aTaxonomyid) {
-        iTaxonomyid = aTaxonomyid;
-        iUpdated = true;
+		iTaxonomyid = aTaxonomyid;
+		iUpdated = true;
 	}
 
 	/**
 	 * This method sets the value for the 'Parentid' column
 	 * 
-	 * @param	aParentid	long with the value for the Parentid column.
+	 * @param aParentid
+	 *            long with the value for the Parentid column.
 	 */
 	public void setParentid(long aParentid) {
-        iParentid = aParentid;
-        iUpdated = true;
+		iParentid = aParentid;
+		iUpdated = true;
 	}
 
 	/**
 	 * This method sets the value for the 'Description' column
 	 * 
-	 * @param	aDescription	String with the value for the Description column.
+	 * @param aDescription
+	 *            String with the value for the Description column.
 	 */
 	public void setDescription(String aDescription) {
-        iDescription = aDescription;
-        iUpdated = true;
+		iDescription = aDescription;
+		iUpdated = true;
 	}
 
 	/**
 	 * This method sets the value for the 'Rank' column
 	 * 
-	 * @param	aRank	String with the value for the Rank column.
+	 * @param aRank
+	 *            String with the value for the Rank column.
 	 */
 	public void setRank(String aRank) {
-        iRank = aRank;
-        iUpdated = true;
+		iRank = aRank;
+		iUpdated = true;
 	}
-
-
 
 	/**
 	 * This method allows the caller to delete the data represented by this
 	 * object in a persistent store.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param aConn
+	 *            Connection to the persitent store.
 	 */
 	public int delete(Connection aConn) throws SQLException {
 		PreparedStatement lStat = aConn.prepareStatement("DELETE FROM taxonomy WHERE taxonomyid = ?");
@@ -229,61 +229,66 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 		return result;
 	}
 
-
 	/**
-	 * This method allows the caller to read data for this
-	 * object from a persistent store based on the specified keys.
+	 * This method allows the caller to read data for this object from a
+	 * persistent store based on the specified keys.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param aConn
+	 *            Connection to the persitent store.
 	 */
 	public void retrieve(Connection aConn, HashMap aKeys) throws SQLException {
 		// First check to see whether all PK fields are present.
-		if(!aKeys.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
+		if (!aKeys.containsKey(TaxonomyTableAccessor.TAXONOMYID)) {
 			throw new IllegalArgumentException("Primary key field 'TAXONOMYID' is missing in HashMap!");
 		} else {
-            this.iTaxonomyid = ((Long)aKeys.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
+			this.iTaxonomyid = ((Long) aKeys.get(TaxonomyTableAccessor.TAXONOMYID)).longValue();
 		}
-		// In getting here, we probably have all we need to continue. So let's...
+		// In getting here, we probably have all we need to continue. So
+		// let's...
 		PreparedStatement lStat = aConn.prepareStatement("SELECT * FROM taxonomy WHERE taxonomyid = ?");
 		lStat.setLong(1, this.iTaxonomyid);
 		ResultSet lRS = lStat.executeQuery();
 		int hits = 0;
-		while(lRS.next()) {
+		while (lRS.next()) {
 			hits++;
-            this.iTaxonomyid = lRS.getLong("taxonomyid");
-            this.iParentid = lRS.getLong("parentid");
-            this.iDescription = (String)lRS.getObject("description");
-            this.iRank = (String)lRS.getObject("rank");
+			this.iTaxonomyid = lRS.getLong("taxonomyid");
+			this.iParentid = lRS.getLong("parentid");
+			this.iDescription = (String) lRS.getObject("description");
+			this.iRank = (String) lRS.getObject("rank");
 		}
 		lRS.close();
 		lStat.close();
-		if(hits>1) {
-			throw new SQLException("More than one hit found for the specified primary keys in the 'taxonomy' table! Object is initialized to last row returned.");
-		} else if(hits == 0) {
-			throw new SQLException("No hits found for the specified primary keys in the 'taxonomy' table! Object is not initialized correctly!");
+		if (hits > 1) {
+			throw new SQLException(
+					"More than one hit found for the specified primary keys in the 'taxonomy' table! Object is initialized to last row returned.");
+		} else if (hits == 0) {
+			throw new SQLException(
+					"No hits found for the specified primary keys in the 'taxonomy' table! Object is not initialized correctly!");
 		}
 	}
+
 	/**
 	 * This method allows the caller to obtain a basic select for this table.
 	 *
-	 * @return   String with the basic select statement for this table.
+	 * @return String with the basic select statement for this table.
 	 */
-	public static String getBasicSelect(){
+	public static String getBasicSelect() {
 		return "select * from taxonomy";
 	}
 
 	/**
-	 * This method allows the caller to obtain all rows for this
-	 * table from a persistent store.
+	 * This method allows the caller to obtain all rows for this table from a
+	 * persistent store.
 	 *
-	 * @param   aConn Connection to the persitent store.
-	 * @return   ArrayList<TaxonomyTableAccessor>   with all entries for this table.
+	 * @param aConn
+	 *            Connection to the persitent store.
+	 * @return ArrayList<TaxonomyTableAccessor> with all entries for this table.
 	 */
 	public static ArrayList<TaxonomyTableAccessor> retrieveAllEntries(Connection aConn) throws SQLException {
-		ArrayList<TaxonomyTableAccessor>  entities = new ArrayList<TaxonomyTableAccessor>();
+		ArrayList<TaxonomyTableAccessor> entities = new ArrayList<TaxonomyTableAccessor>();
 		Statement stat = aConn.createStatement();
 		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());
-		while(rs.next()) {
+		while (rs.next()) {
 			entities.add(new TaxonomyTableAccessor(rs));
 		}
 		rs.close();
@@ -291,19 +296,19 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 		return entities;
 	}
 
-
-
 	/**
 	 * This method allows the caller to update the data represented by this
 	 * object in a persistent store.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param aConn
+	 *            Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
-		if(!iUpdated) {
+		if (!iUpdated) {
 			return 0;
 		}
-		PreparedStatement lStat = aConn.prepareStatement("UPDATE taxonomy SET taxonomyid = ?, parentid = ?, description = ?, rank = ? WHERE taxonomyid = ?");
+		PreparedStatement lStat = aConn.prepareStatement(
+				"UPDATE taxonomy SET taxonomyid = ?, parentid = ?, description = ?, rank = ? WHERE taxonomyid = ?");
 		lStat.setLong(1, this.iTaxonomyid);
 		lStat.setLong(2, this.iParentid);
 		lStat.setObject(3, this.iDescription);
@@ -311,35 +316,37 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 		lStat.setLong(5, this.iTaxonomyid);
 		int result = lStat.executeUpdate();
 		lStat.close();
-        iUpdated = false;
+		iUpdated = false;
 		return result;
 	}
-
 
 	/**
 	 * This method allows the caller to insert the data represented by this
 	 * object in a persistent store.
 	 *
-	 * @param   aConn Connection to the persitent store.
+	 * @param aConn
+	 *            Connection to the persitent store.
 	 */
 	public int persist(Connection aConn) throws SQLException {
-		PreparedStatement lStat = aConn.prepareStatement("INSERT INTO taxonomy (taxonomyid, parentid, description, rank) values(?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
-		if(this.iTaxonomyid == Long.MIN_VALUE) {
+		PreparedStatement lStat = aConn.prepareStatement(
+				"INSERT INTO taxonomy (taxonomyid, parentid, description, rank) values(?, ?, ?, ?)",
+				Statement.RETURN_GENERATED_KEYS);
+		if (this.iTaxonomyid == Long.MIN_VALUE) {
 			lStat.setNull(1, 4);
 		} else {
 			lStat.setLong(1, this.iTaxonomyid);
 		}
-		if(this.iParentid == Long.MIN_VALUE) {
+		if (this.iParentid == Long.MIN_VALUE) {
 			lStat.setNull(2, 4);
 		} else {
 			lStat.setLong(2, this.iParentid);
 		}
-		if(this.iDescription == null) {
+		if (this.iDescription == null) {
 			lStat.setNull(3, 12);
 		} else {
 			lStat.setObject(3, this.iDescription);
 		}
-		if(this.iRank == null) {
+		if (this.iRank == null) {
 			lStat.setNull(4, 12);
 		} else {
 			lStat.setObject(4, this.iRank);
@@ -350,33 +357,58 @@ public class TaxonomyTableAccessor implements Deleteable, Retrievable, Updateabl
 		ResultSet lrsKeys = lStat.getGeneratedKeys();
 		ResultSetMetaData lrsmKeys = lrsKeys.getMetaData();
 		int colCount = lrsmKeys.getColumnCount();
-        this.iKeys = new Object[colCount];
-		while(lrsKeys.next()) {
-			for(int i = 0; i< this.iKeys.length; i++) {
-                this.iKeys[i] = lrsKeys.getObject(i+1);
+		this.iKeys = new Object[colCount];
+		while (lrsKeys.next()) {
+			for (int i = 0; i < this.iKeys.length; i++) {
+				this.iKeys[i] = lrsKeys.getObject(i + 1);
 			}
 		}
 		lrsKeys.close();
 		lStat.close();
 		// Verify that we have a single, generated key.
-		if(this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
+		if (this.iKeys != null && this.iKeys.length == 1 && this.iKeys[0] != null) {
 			// Since we have exactly one key specified, and only
 			// one Primary Key column, we can infer that this was the
 			// generated column, and we can therefore initialize it here.
-            this.iTaxonomyid = ((Number) this.iKeys[0]).longValue();
+			this.iTaxonomyid = ((Number) this.iKeys[0]).longValue();
 		}
-        iUpdated = false;
+		iUpdated = false;
 		return result;
 	}
 
 	/**
-	 * This method will return the automatically generated key for the insert if 
+	 * This method will return the automatically generated key for the insert if
 	 * one was triggered, or 'null' otherwise.
 	 *
-	 * @return	Object[]	with the generated keys.
+	 * @return Object[] with the generated keys.
 	 */
 	public Object[] getGeneratedKeys() {
 		return iKeys;
 	}
 
+	public static boolean taxIDExists(Connection conn, long taxid) {
+
+		ResultSet rs = null;
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("SELECT COUNT(*) FROM taxonomy WHERE taxonomyid=?");
+			stmt.setLong(1, taxid);
+			rs = stmt.executeQuery();
+			// get the number of rows from the result set
+			rs.next();
+			return (rs.getInt(1) > 0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				rs.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
 }
