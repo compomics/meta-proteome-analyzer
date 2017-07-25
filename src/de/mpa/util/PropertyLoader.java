@@ -31,6 +31,7 @@ public class PropertyLoader {
 	public static final String FILES_FASTA = "file.fastalist";
 	public static final String PATH_FASTA = "path.fasta";
 	public static final String BLAST_DB = "path.blastdb";
+	public static final String BLAST_MAKE_DB = "blast.makeblastdb";
 	//NEW
 	public static final String FASTA_FORMATER_PATH = "fasta.formater.path";
 	public static final String BLAST_FILE = "blast.file";

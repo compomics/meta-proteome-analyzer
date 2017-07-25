@@ -420,7 +420,7 @@ public class ExportDialog extends JDialog {
         this.psmQValueCbx.setSelected(this.exportFields.psmQValue);
         this.psmScoreCbx = new JCheckBox();
         this.psmScoreCbx.setText("Score");
-        this.psmScoreCbx.setSelected(this.exportFields.psmScore);
+        this.psmScoreCbx.setSelected(false);
 
         // Add to PSM features panel.
         psmFeaturesPanel.add(this.psmNumberCbx, CC.xy(2, 2));
@@ -430,7 +430,7 @@ public class ExportDialog extends JDialog {
         psmFeaturesPanel.add(this.psmChargeCbx, CC.xy(4, 2));
         psmFeaturesPanel.add(this.psmSearchEngineCbx, CC.xy(4, 4));
         psmFeaturesPanel.add(this.psmQValueCbx, CC.xy(4, 6));
-        psmFeaturesPanel.add(this.psmScoreCbx, CC.xy(4, 8));
+//        psmFeaturesPanel.add(this.psmScoreCbx, CC.xy(4, 8));
         // PSM button bar
         JPanel psmButtonPnl = new JPanel(new FormLayout("5dlu, p, 5dlu, p, 5dlu, p, 5dlu", "5dlu, p, 5dlu"));
         // PSM export button
