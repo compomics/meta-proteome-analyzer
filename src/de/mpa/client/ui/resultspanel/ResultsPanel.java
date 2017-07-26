@@ -1067,7 +1067,6 @@ public class ResultsPanel extends JPanel implements Busyable {
                 setBusy(true);
                 ResultsPanel.this.dbPnl.setBusy(true);
                 ResultsPanel.this.gdbPnl.setBusy(true);
-
 				// restore result object from backup file if it was processed before
 				Client client = Client.getInstance();
 				if (!Client.getInstance().getDatabaseSearchResult().isRaw()) {
@@ -1076,9 +1075,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 
 				// process results
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), client.getResultParameters());
-				System.out.println("Process Results Finished");
 				Client.getInstance().getDatabaseSearchResult().setRaw(false);
-
 
 				return 1;
 			} catch (Exception e) {

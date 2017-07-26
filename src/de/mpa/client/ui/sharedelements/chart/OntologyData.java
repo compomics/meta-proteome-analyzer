@@ -128,7 +128,11 @@ public class OntologyData implements ChartData {
 																			.valueOf(ontologyMap.get(keyword)
 																			.getCategory());
 								found[ontologyTypes.indexOf(ontology)] = true;
-								this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
+								if (occMaps.get(ontology) == null) {
+									System.out.println("Fatal error ontology: " + ontology);	
+								} else {
+								 this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
+								}	
 							}
 						}
 					}
@@ -158,6 +162,9 @@ public class OntologyData implements ChartData {
 	 *            the protein hit list to append
 	 */
 	protected void appendHit(String keyword, Map<String, ArrayList<ProteinHit>> occMap, MetaProteinHit metaProtein) {
+		if (occMap == null) {
+			System.out.println("fatal error occmap");
+		}
 		ArrayList<ProteinHit> prots = new ArrayList<ProteinHit>(); 
 		for (ProteinHit ph : metaProtein.getProteinHitList()) {
 			prots.add(ph);

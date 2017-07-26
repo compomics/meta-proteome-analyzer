@@ -543,17 +543,15 @@ public class MetaProteinFactory {
 		client.firePropertyChange("resetcur", -1L, (long) proteinList.size());
 
 		// Define protein taxonomy by common tax ID of peptides
-		// XXX: proteins keep a fixed taxonomy
+		// XXX: proteins keep a fixed taxonomy 
 //		TaxonomyUtils.determineProteinTaxonomy(proteinList, params);
 
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
 		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-
 		// Combine proteins to metaproteins
 		MetaProteinFactory.condenseMetaProteins(result.getMetaProteins(), params);
-		
 		// re set all proteinhits to their respective metaproteins
 		for (MetaProteinHit mph : result.getMetaProteins()) {
 			for (ProteinHit ph : mph.getProteinHitList()) {
@@ -590,7 +588,6 @@ public class MetaProteinFactory {
 
 			// Iterate (initially single-protein) meta-proteins
 			Iterator<MetaProteinHit> rowIter = metaProteins.iterator();
-
 			while (rowIter.hasNext()) {
 				MetaProteinHit rowMP = rowIter.next();
 
@@ -671,7 +668,6 @@ public class MetaProteinFactory {
 				// Fire progress notification
 				Client.getInstance().firePropertyChange("progressmade", false, true);
 			}
-	
 			// Re-number condensed meta-proteins
 			int metaIndex = 1;
 			for (MetaProteinHit mph : metaProteins) {

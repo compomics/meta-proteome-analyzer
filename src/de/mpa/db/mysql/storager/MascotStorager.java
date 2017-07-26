@@ -490,7 +490,6 @@ public class MascotStorager extends BasicStorager {
 										// get all accessions from current peptide
 
 										for (String prot_acc : peptidemap.get(peptide_number).getProteinAccessions()) {
-											System.out.println("protacc " + prot_acc);
 											// if protein was already submitted, just update pep2prot ref
 											if (protein_map.get(prot_acc).was_this_protein_submitted()) {
 												proteinID = protein_map.get(prot_acc).getProteinID();
@@ -498,7 +497,7 @@ public class MascotStorager extends BasicStorager {
 												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 											} else {
 												String accession = protein_map.get(prot_acc).getAccession();
-												System.out.println("Accession . " + accession);
+//												System.out.println("Accession . " + accession);
 												// Get the protein description from fasta or from the dat file
 												String description = protein_map.get(prot_acc).getDescription();
 												if (!(description == null || description.length()<1)) {
@@ -513,6 +512,7 @@ public class MascotStorager extends BasicStorager {
 													if (accession.length() == 6 || accession.length() == 10 ) {
 														ArrayList<String> this_accession_as_list = new ArrayList<String>();
 														this_accession_as_list.add(accession);
+														// TODO: is this correct?
 														TreeMap<String, UniProtEntryMPA> uniprotentry_as_map = uniprotweb.fetchUniProtEntriesByAccessions(this_accession_as_list, true);
 														for (UniProtEntryMPA mpa_entry : uniprotentry_as_map.values()) {
 															TreeMap<Long, UniProtEntryMPA> prot_id_2_uniprotentry = new TreeMap<Long, UniProtEntryMPA>();
