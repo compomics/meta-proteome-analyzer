@@ -368,7 +368,7 @@ public class RunMultiBlast {
 					}
 				
 					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
-					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
+//					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
 					progressbar.setValue((int) progress);
 					progressbar.setString("Experiment " + expID + " Progress: " + progress + "%");
 				}

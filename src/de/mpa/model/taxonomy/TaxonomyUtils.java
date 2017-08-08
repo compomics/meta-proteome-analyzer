@@ -207,9 +207,9 @@ public class TaxonomyUtils {
 				taxonomyMap.put(currentID, current);
 			}
 			if (current == null) {
-				System.out.println("ID: " + currentID);
+				System.err.println("ERROR: TaxID: " + currentID);
 			} else if (current.getRank() == null) {
-				System.out.println("Current: " + current.getTaxonomyid());
+				System.err.println("ERROR: CurrentTax: " + current.getTaxonomyid());
 			}
 			// Check for rank being contained in the main categories (from superkingdom to species)
 			
@@ -219,7 +219,7 @@ public class TaxonomyUtils {
 				taxonomyRank = UniProtUtilities.TaxonomyRank.SPECIES;
 			}
 
-			// Create leaf node
+			// Create leaf node ERROR: unre
 			TaxonomyNode leafNode = new TaxonomyNode(
 					(int) current.getTaxonomyid(), taxonomyRank, current.getDescription());
 

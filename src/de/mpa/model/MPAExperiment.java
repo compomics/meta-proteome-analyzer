@@ -129,7 +129,6 @@ public class MPAExperiment implements Serializable {
 		manager.modifyExperimentName(this.getID(), contentName);
 		// modify the experiment properties
 		manager.modifyExperimentProperties(this.getID(), properties2, operations);
-		System.out.println("Updated");
 	}
 
 	public boolean hasSearchResult() throws SQLException {

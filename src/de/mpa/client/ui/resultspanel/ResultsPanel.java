@@ -36,14 +36,11 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.MultiSplitLayout.Node;
-import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.error.ErrorLevel;
 import org.jdesktop.swingx.hyperlink.AbstractHyperlinkAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
@@ -61,6 +58,7 @@ import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.inputpanel.dialogs.AdvancedSettingsDialog;
 import de.mpa.client.ui.inputpanel.dialogs.SelectExperimentDialog;
 import de.mpa.client.ui.menubar.ClientFrameMenuBar;
+import de.mpa.client.ui.resultspanel.DbSearchResultPanel.RefreshTablesTask;
 import de.mpa.client.ui.sharedelements.Busyable;
 import de.mpa.client.ui.sharedelements.PanelConfig;
 import de.mpa.client.ui.sharedelements.RolloverButtonUI;
@@ -1063,7 +1061,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			try {
 				Thread.currentThread().setName("ProcessResultsThread");
 
-				// begin appearing busy
+				// begin appearing busy System.out.println(
                 setBusy(true);
                 ResultsPanel.this.dbPnl.setBusy(true);
                 ResultsPanel.this.gdbPnl.setBusy(true);
@@ -1089,12 +1087,24 @@ public class ResultsPanel extends JPanel implements Busyable {
 		@Override
 		protected void done() {
 			// Update overview panel
-            updateOverview();
+//			updateOverview();
+			
+	 		UpdateOverviewTask uot = new UpdateOverviewTask();
+	 		uot.execute();
+			while (!uot.isDone()) {
+				// waiting
+			}
 			// Populate tables in database search result panel
-            ResultsPanel.this.dbPnl.refreshProteinViews();
+			RefreshTablesTask rtt = ResultsPanel.this.dbPnl.returnRefreshTableTask();
+			rtt.execute();
+			while (!rtt.isDone()) {
+				// waiting
+			}
             ResultsPanel.this.dbPnl.refreshChart(true);
+				
 		}
 	}
+	
 
 	/**
 	 * Worker class to process search results and generate statistics from it in
@@ -1159,28 +1169,29 @@ public class ResultsPanel extends JPanel implements Busyable {
                     ResultsPanel.this.updateChart(ResultsPanel.this.chartType);
 
 					// Refresh heat map
-                    ResultsPanel.this.heatMapPn.updateData();
+//                    ResultsPanel.this.heatMapPn.updateData();
 					
 					return 1;
 					
 				} catch (Exception e) {
-//					e.printStackTrace();
+//					e.printStackTrace(); System.out.println(
 					try {
-						Thread.sleep(1000);
+//						Thread.sleep(1000);
 						ResultsPanel.this.heatMapPn.updateData();
-					} catch (InterruptedException e1) {
+					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}					
 //					JXErrorPane.showDialog(ClientFrame.getInstance(),
 //							new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 				}
-			} 
+			}
 			return 0;
 		}
 
 		@Override
 		protected void done() {
+			
 			// Get worker result
 			int res = 0;
 			try {

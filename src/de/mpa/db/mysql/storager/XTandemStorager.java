@@ -109,7 +109,6 @@ public class XTandemStorager extends BasicStorager {
      * @throws SQLException
      */
     public void store() throws IOException, SQLException {
-    	System.out.println("Store method");
         // Iterate over all the spectra
 		Iterator<Spectrum> iter = this.xTandemFile.getSpectraIterator();
 

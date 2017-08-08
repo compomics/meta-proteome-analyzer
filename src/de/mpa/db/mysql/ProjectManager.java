@@ -176,7 +176,6 @@ public class ProjectManager {
 				properties.get(i).update(conn);
 				break;
 			case DELETE:
-				System.out.println("Delete action");
 				properties.get(i).delete(conn);
 				break;
 			case ADD:
@@ -250,7 +249,6 @@ public class ProjectManager {
 		ExperimentTableAccessor experiment = ExperimentTableAccessor.findExperimentByID(experimentId, conn);
 		// only modify title if it actually differs from the provided string
 		if (!title.equals(experiment.getTitle())) {
-			System.out.println("updating title");
 			experiment.setTitle(title);
 			experiment.update(conn);
 			conn.commit();

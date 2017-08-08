@@ -2008,10 +2008,12 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		//		ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 		// update chart data containers
 
+		
 		// goes somewhere else
 		ontologyData.init();
 		taxonomyData.init();
 
+		
 		Chart chart = null;
 		// create chart instance
 		if (chartType instanceof OntologyChart.OntologyChartType) {
@@ -2019,6 +2021,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		} else if (chartType instanceof TaxonomyChartType) {
 			chart = ChartFactory.createTaxonomyChart(taxonomyData, chartType);
 		}
+		
+		
 		// the highlighting kind of works
 		if (chart != null) {
 			// insert chart into panel
@@ -2037,13 +2041,17 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			System.err.println("Chart type could not be determined!");
 		}
 	}
+	
+	public RefreshTablesTask returnRefreshTableTask() {
+		return new RefreshTablesTask();
+	}
 
 	/**
 	 * Worker implementation to refresh all detail view tables.
 	 * 
 	 * @author A. Behne
 	 */
-	private class RefreshTablesTask extends SwingWorker {
+	public class RefreshTablesTask extends SwingWorker {
 
 		@Override
 		protected Object doInBackground() throws Exception {
@@ -2072,7 +2080,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 			return null;
 		}
 

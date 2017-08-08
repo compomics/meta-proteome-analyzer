@@ -32,11 +32,11 @@ import de.mpa.model.taxonomy.TaxonomyUtils;
  * @author T. Muth, R. Heyer
  */
 public class DbSearchResult implements Serializable {
-	
+
 	/* Protein hit for
 	 * FIELDS 
 	 */
-	
+
 	/**
 	 * 
 	 */
@@ -47,17 +47,17 @@ public class DbSearchResult implements Serializable {
 	 * further processing.
 	 */
 	private boolean raw = true;
-	
+
 	/**
 	 * Taxonomy map containing all entries from taxonomy db table.
 	 */
 	private Map<Long, Taxonomy> taxonomyMap;
-	
+
 	/**
 	 * The shared taxonomy node instance for undefined taxonomies.
 	 */
 	private TaxonomyNode unclassifiedNode;
-	
+
 	/**
 	 * The project title.
 	 */
@@ -68,13 +68,13 @@ public class DbSearchResult implements Serializable {
 	 */
 	@Deprecated
 	private String experimentTitle = "";
-//	private final String experimentTitle;
-	
+	//	private final String experimentTitle;
+
 	/**
 	 * The experiment list.
 	 */
 	private ArrayList<MPAExperiment> experimentList;
-//	private final String experimentTitle;
+	//	private final String experimentTitle;
 
 	/**
 	 * The fastaDB.
@@ -89,58 +89,58 @@ public class DbSearchResult implements Serializable {
 	/**
 	 * The list of meta-proteins.
 	 */
-	private final ArrayList<MetaProteinHit> metaProteins = new ArrayList<MetaProteinHit>();
+	private ArrayList<MetaProteinHit> metaProteins = new ArrayList<MetaProteinHit>();
 
 	/**
 	 * The list of visible meta-proteins.
 	 */
 	private ArrayList<MetaProteinHit> visMetaProteins = new ArrayList<MetaProteinHit>();
-	
+
 	/**
 	 * The list of proteins.
 	 */
 	private final ArrayList<ProteinHit> proteins = new ArrayList<ProteinHit>();
 
-//	/**
-//	 * The list of visible proteins.
-//	 */
-//	private ArrayList<ProteinHit> visProteins = new ArrayList<ProteinHit>();
-	
+	//	/**
+	//	 * The list of visible proteins.
+	//	 */
+	//	private ArrayList<ProteinHit> visProteins = new ArrayList<ProteinHit>();
+
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<PeptideHit> peptides = new ArrayList<PeptideHit>();
 
-//	/**
-//	 * The list of visible peptides.
-//	 */
-//	private ArrayList<PeptideHit> visPeptides = new ArrayList<PeptideHit>();
-	
+	//	/**
+	//	 * The list of visible peptides.
+	//	 */
+	//	private ArrayList<PeptideHit> visPeptides = new ArrayList<PeptideHit>();
+
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<PeptideSpectrumMatch> psms = new ArrayList<PeptideSpectrumMatch>();
 
-//	/**
-//	 * The list of visible peptides.
-//	 */
-//	private ArrayList<PeptideSpectrumMatch> visPsms = new ArrayList<PeptideSpectrumMatch>();
-	
+	//	/**
+	//	 * The list of visible peptides.
+	//	 */
+	//	private ArrayList<PeptideSpectrumMatch> visPsms = new ArrayList<PeptideSpectrumMatch>();
+
 	/**
 	 * The list of peptides.
 	 */
 	private final ArrayList<SearchHit> searchHits = new ArrayList<SearchHit>();
 
-//	/**
-//	 * The list of visible peptides.
-//	 */
-//	private ArrayList<SearchHit> visSearchHits = new ArrayList<SearchHit>();
-	
+	//	/**
+	//	 * The list of visible peptides.
+	//	 */
+	//	private ArrayList<SearchHit> visSearchHits = new ArrayList<SearchHit>();
+
 	/**
 	 * The total amount of spectra.
 	 */
 	private int totalSpectra;
-	
+
 
 	/**
 	 * Constructs a result object from the specified project title, experiment
@@ -154,9 +154,9 @@ public class DbSearchResult implements Serializable {
 		this.experimentList = expList;
 		this.taxonomyMap = new HashMap<>();
 		this.fastaDB = fastaDB;
-        this.searchDate = new Date();
+		this.searchDate = new Date();
 	}
-	
+
 	/**
 	 * Quickly return search results by using 3 views: omssaresult, mascotresult, xtandemresult.
 	 * The enum 'SearchEngineView' encodes the names of the views.
@@ -165,7 +165,7 @@ public class DbSearchResult implements Serializable {
 	 * @return searchResult - returns this object search result, which is filled with data in this method 
 	 */
 	public void getSearchResultByView() throws SQLException {
-		
+
 		// initialize stuff
 		Client client = Client.getInstance();
 		Connection conn = client.getConnection();
@@ -206,8 +206,8 @@ public class DbSearchResult implements Serializable {
 					Long spectrum_titlehash = rs.getLong("titlehash");
 					Long uniprotid = rs.getLong("fk_uniprotentryid");
 					// search algorithm specific vars
-					
-					
+
+
 					// DEALS WITH SEARCHHIT
 					SearchHit hit = null;
 					switch (current_view) {
@@ -221,87 +221,88 @@ public class DbSearchResult implements Serializable {
 						break;
 					case MASCOT:
 						hit = new Mascothit(rs, false); // MEMORY: may have to deal with pep-sequence and prot-accession
-						System.out.println("New Mascothit " + hit.getAccession());
 						break;							
 					}
-					this.searchHits.add(hit);
-//					this.visSearchHits.add(hit);
+					if (hit.getQvalue().doubleValue() < Constants.getDefaultFDR()) {
 
-					// DEALS WITH PSM
-					// construct PSM key
-					// new psm-key spec-titlehash + pepseq
-					String psm_key = spectrum_titlehash.toString() + pep_seq;
-					PeptideSpectrumMatch psm;
-					// check psm redundancy and find psm
-					if (psm_mapping.containsKey(psm_key)) {
-						// existing psm
-						psm = psm_mapping.get(psm_key);
-						psm.addSearchHit(hit);
-					} else {
-						// new psm
-						psm = new PeptideSpectrumMatch(spectrumid, hit);
-						psm_mapping.put(psm_key, psm);
-						psm.setTitle(spectrum_titlehash.toString());
-						this.psms.add(psm);
-//						this.visPsms.add(psm);
-					}
-					psm.addExperimentID(expID);
+						this.searchHits.add(hit);
+						//					this.visSearchHits.add(hit);
 
-					// DEALS WITH PEPTIDE
-					PeptideHit pephit = null;
-					if (peptide_mapping.containsKey(pep_seq)) {
-						pephit = peptide_mapping.get(pep_seq);
-						pephit.addPeptideSpectrumMatch(psm);
-					} else {
-						// new pepitde
-						pephit = new PeptideHit(pep_seq, psm);
+						// DEALS WITH PSM
+						// construct PSM key
+						// new psm-key spec-titlehash + pepseq
+						String psm_key = spectrum_titlehash.toString() + pep_seq;
+						PeptideSpectrumMatch psm;
+						// check psm redundancy and find psm
+						if (psm_mapping.containsKey(psm_key)) {
+							// existing psm
+							psm = psm_mapping.get(psm_key);
+							psm.addSearchHit(hit);
+						} else {
+							// new psm
+							psm = new PeptideSpectrumMatch(spectrumid, hit);
+							psm_mapping.put(psm_key, psm);
+							psm.setTitle(spectrum_titlehash.toString());
+							this.psms.add(psm);
+							//						this.visPsms.add(psm);
+						}
+						psm.addExperimentID(expID);
+
+						// DEALS WITH PEPTIDE
+						PeptideHit pephit = null;
+						if (peptide_mapping.containsKey(pep_seq)) {
+							pephit = peptide_mapping.get(pep_seq);
+							pephit.addPeptideSpectrumMatch(psm);
+						} else {
+							// new pepitde
+							pephit = new PeptideHit(pep_seq, psm);
+							pephit.addExperimentID(expID);
+							peptide_mapping.put(pep_seq, pephit);
+							this.peptides.add(pephit);
+							//						this.visPeptides.add(pephit);
+						}
 						pephit.addExperimentID(expID);
-						peptide_mapping.put(pep_seq, pephit);
-						this.peptides.add(pephit);
-//						this.visPeptides.add(pephit);
-					}
-					pephit.addExperimentID(expID);
-					psm.setPeptideHit(pephit);
+						psm.setPeptideHit(pephit);
 
-					// DEALS WITH PROTEIN, UNPROT ANNOTATION AND TAXONOMY
-					ProteinHit prot = null;
-					if (protein_mapping.containsKey(accession)) {
-						prot = protein_mapping.get(accession);
-						prot.addPeptideHit(pephit);
-						pephit.addProteinHit(prot);
-						// TODO: requires common ancestor taxonomy
-						pephit.setTaxonomyNode(prot.getTaxonomyNode());
-						psm.setTaxonomyNode(prot.getTaxonomyNode());
-						
-					} else {
-						prot = new ProteinHit(accession);
-						protein_mapping.put(accession, prot);
-						prot.addPeptideHit(pephit);
-						pephit.addProteinHit(prot);
-						prot.setSequence(prot_seq);
-						prot.setDescription(prot_description);
-						prot.addExperimentID(expID);
-						UniProtEntryMPA uniprot = this.makeUPEntry(uniprotid, conn);
-						TaxonomyNode taxonode = uniprot.getTaxonomyNode();
-						prot.setUniprotEntry(uniprot);
-						prot.setTaxonomyNode(taxonode);
-						pephit.setTaxonomyNode(taxonode);
-						psm.setTaxonomyNode(taxonode);
-						this.proteins.add(prot);
-//						this.visProteins.add(prot);
-						
-						// make One metaprotein for Each Protein
-						String metaprot_str = "Meta-Protein " + prot.getAccession();
-						MetaProteinHit mph = new MetaProteinHit(metaprot_str, prot, uniprot);
-						mph.setTaxonomyNode(taxonode);
-						mph.setUniprotEntry(uniprot);
-						mph.addProteinHit(prot);
-						mph.addExperimentID(expID);
-						prot.setMetaProteinHit(mph);
-						this.addMetaProtein(mph);
+						// DEALS WITH PROTEIN, UNPROT ANNOTATION AND TAXONOMY
+						ProteinHit prot = null;
+						if (protein_mapping.containsKey(accession)) {
+							prot = protein_mapping.get(accession);
+							prot.addPeptideHit(pephit);
+							pephit.addProteinHit(prot);
+							// TODO: requires common ancestor taxonomy
+							pephit.setTaxonomyNode(prot.getTaxonomyNode());
+							psm.setTaxonomyNode(prot.getTaxonomyNode());
+
+						} else {
+							prot = new ProteinHit(accession);
+							protein_mapping.put(accession, prot);
+							prot.addPeptideHit(pephit);
+							pephit.addProteinHit(prot);
+							prot.setSequence(prot_seq);
+							prot.setDescription(prot_description);
+							prot.addExperimentID(expID);
+							UniProtEntryMPA uniprot = this.makeUPEntry(uniprotid, conn);
+							TaxonomyNode taxonode = uniprot.getTaxonomyNode();
+							prot.setUniprotEntry(uniprot);
+							prot.setTaxonomyNode(taxonode);
+							pephit.setTaxonomyNode(taxonode);
+							psm.setTaxonomyNode(taxonode);
+							this.proteins.add(prot);
+							//						this.visProteins.add(prot);
+
+							// make One metaprotein for Each Protein
+							String metaprot_str = "Meta-Protein " + prot.getAccession();
+							MetaProteinHit mph = new MetaProteinHit(metaprot_str, prot, uniprot);
+							mph.setTaxonomyNode(taxonode);
+							mph.setUniprotEntry(uniprot);
+							mph.addExperimentID(expID);
+							prot.setMetaProteinHit(mph);
+							this.addMetaProtein(mph);
+						}
+						// report progress
+						client.firePropertyChange("progressmade", true, false);
 					}
-					// report progress
-					client.firePropertyChange("progressmade", true, false);
 				}
 			}
 			// next experiment
@@ -309,39 +310,39 @@ public class DbSearchResult implements Serializable {
 		// determine total spectral count
 		this.setTotalSpectrumCount(this.countTotalSpectraFromExperimentList(conn));
 		this.setFDR(Constants.getDefaultFDR());
-		
-////		// XXX: DEBUG OUTPUT POPULATING TABLES
-//		System.out.println("MP: " + this.metaProteins.size());
-////		System.out.println("VMP: " + this.visMetaProteins.size());
-//		System.out.println("P: " + this.proteins.size());
-////		System.out.println("VP: " + this.visProteins.size());
-//		System.out.println("p: " + this.peptides.size());
-////		System.out.println("Vp: " + this.visPeptides.size());
-//		System.out.println("psm: " + this.searchHits.size());
-////		System.out.println("Vpsm: " + this.visSearchHits.size());
-////		
-//		for (MetaProteinHit mp : this.getMetaProteins()) {ph-tax:
-//			System.out.println("MP : " + mp.getAccession());
-//			System.out.println("MP : " + mp.getDescription());
-//			System.out.println("MP : " + mp.getProteinHitList().size());
-//			for (ProteinHit ph : mp.getProteinHitList()) {
-//				System.out.println("P : " + ph.getAccession());
-//				System.out.println("P : " + ph.getDescription());
-//				for (PeptideHit pep : ph.getPeptideHitList()) {
-//					System.out.println("PEP : "+pep.getSequence());
-//					System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
-//					System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
-//					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
-//						System.out.println("PSM : " + psm.getSpectrumID());
-//						System.out.println("PSM : " + psm.getTitle());
-//						System.out.println("PSM : " + psm.getSearchHits());
-//					}
-//				}
-//			}
-//		}
-//		
+
+		////		// XXX: DEBUG OUTPUT POPULATING TABLES
+		//		System.out.println("MP: " + this.metaProteins.size());
+		////		System.out.println("VMP: " + this.visMetaProteins.size());
+		//		System.out.println("P: " + this.proteins.size());
+		////		System.out.println("VP: " + this.visProteins.size());
+		//		System.out.println("p: " + this.peptides.size());
+		////		System.out.println("Vp: " + this.visPeptides.size());
+		//		System.out.println("psm: " + this.searchHits.size());
+		////		System.out.println("Vpsm: " + this.visSearchHits.size());
+		////		
+		//		for (MetaProteinHit mp : this.getMetaProteins()) {ph-tax:
+		//			System.out.println("MP : " + mp.getAccession());
+		//			System.out.println("MP : " + mp.getDescription());
+		//			System.out.println("MP : " + mp.getProteinHitList().size());
+		//			for (ProteinHit ph : mp.getProteinHitList()) {
+		//				System.out.println("P : " + ph.getAccession());
+		//				System.out.println("P : " + ph.getDescription());
+		//				for (PeptideHit pep : ph.getPeptideHitList()) {
+		//					System.out.println("PEP : "+pep.getSequence());
+		//					System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
+		//					System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
+		//					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
+		//						System.out.println("PSM : " + psm.getSpectrumID());
+		//						System.out.println("PSM : " + psm.getTitle());
+		//						System.out.println("PSM : " + psm.getSearchHits());
+		//					}
+		//				}
+		//			}
+		//		}
+		//		
 	}
-	
+
 	/**
 	 * Constructs an uniprotentry from the uniprotentry-id by quering SQL and creating a taxonomy node.
 	 * 
@@ -373,7 +374,7 @@ public class DbSearchResult implements Serializable {
 		uniprot.setTaxonomyNode(taxonomyNode);
 		return uniprot;
 	}
-	
+
 	private Long findMaxProgress(Connection conn) throws SQLException {
 		Long maxProgress = 0L;
 		for (MPAExperiment experiment : experimentList) {
@@ -414,8 +415,8 @@ public class DbSearchResult implements Serializable {
 	}
 
 	public void addMetaProtein(MetaProteinHit mph) {
-        this.metaProteins.add(mph);
-        this.visMetaProteins.add(mph);
+		this.metaProteins.add(mph);
+		this.visMetaProteins.add(mph);
 	}	
 
 	/**
@@ -451,7 +452,15 @@ public class DbSearchResult implements Serializable {
 	public ArrayList<MetaProteinHit> getMetaProteins() {
 		return metaProteins;
 	}
-	
+
+	/**
+	 * Set the list of metaproteins containing grouped protein hits.
+	 * @return the list of metaproteins.
+	 */
+	public void setMetaProteins(ArrayList<MetaProteinHit> metaproteinlist) {
+		this.metaProteins = metaproteinlist;
+	}
+
 	public ArrayList<MetaProteinHit> getVisibleMetaProteins() {
 		ArrayList<MetaProteinHit> mplist = new ArrayList<MetaProteinHit>();
 		for (MetaProteinHit mp : this.metaProteins) {
@@ -461,11 +470,11 @@ public class DbSearchResult implements Serializable {
 		}
 		return mplist;
 	}
-	
+
 	public ArrayList<ProteinHit> getAllProteinHits() {
 		return this.proteins;
 	}
-	
+
 	public ArrayList<ProteinHit> getVisibleProteinHits() {
 		ArrayList<ProteinHit> plist = new ArrayList<ProteinHit>();
 		for (ProteinHit prot : this.proteins) {
@@ -475,11 +484,11 @@ public class DbSearchResult implements Serializable {
 		}
 		return plist;
 	}
-	
+
 	public ArrayList<PeptideHit> getAllPeptideHits() {
 		return this.peptides;
 	}
-	
+
 	public ArrayList<PeptideHit> getVisiblePeptideHits() {
 		ArrayList<PeptideHit> peplist = new ArrayList<PeptideHit>();
 		for (PeptideHit pep : this.peptides) {
@@ -489,11 +498,11 @@ public class DbSearchResult implements Serializable {
 		}
 		return peplist;
 	}
-	
+
 	public ArrayList<PeptideSpectrumMatch> getAllPSMS() {
 		return this.psms;
 	}
-	
+
 	public ArrayList<PeptideSpectrumMatch> getVisiblePSMS() {
 		ArrayList<PeptideSpectrumMatch> psmlist = new ArrayList<PeptideSpectrumMatch>();
 		for (PeptideSpectrumMatch psm : this.psms) {
@@ -503,42 +512,42 @@ public class DbSearchResult implements Serializable {
 		}
 		return psmlist;
 	}
-	
-//	/**
-//	 * Resets the mapping of visible meta-proteins.
-//	 */
-//	public void clearVisibleMetaProteins() {
-//        visMetaProteins.clear();
-//	}
 
-//	/**
-//	 * Returns the list of protein hits.
-//	 * 
-//	 * @return the list of protein hits.
-//	 */
-//	public List<ProteinHit> getProteinHitList() {
-//		ProteinHitList metaProteins =
-//				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
-//		ProteinHitList proteinHits = new ProteinHitList();
-//		for (ProteinHit mph : metaProteins) {
-//			proteinHits.addAll(((MetaProteinHit) mph).getProteinHitList());
-//		}
-//		return proteinHits;
-//	}
+	//	/**
+	//	 * Resets the mapping of visible meta-proteins.
+	//	 */
+	//	public void clearVisibleMetaProteins() {
+	//        visMetaProteins.clear();
+	//	}
 
-//	/**
-//	 * Returns the map of protein hits.
-//	 * @return the map of protein hits
-//	 */
-//	public Map<String, ProteinHit> getProteinHits() {
-//		ProteinHitList metaProteins =
-//				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
-//		Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
-//		for (ProteinHit mph : metaProteins) {
-//			proteinHits.putAll(((MetaProteinHit) mph).getProteinHits());
-//		}
-//		return proteinHits ;
-//	}
+	//	/**
+	//	 * Returns the list of protein hits.
+	//	 * 
+	//	 * @return the list of protein hits.
+	//	 */
+	//	public List<ProteinHit> getProteinHitList() {
+	//		ProteinHitList metaProteins =
+	//				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
+	//		ProteinHitList proteinHits = new ProteinHitList();
+	//		for (ProteinHit mph : metaProteins) {
+	//			proteinHits.addAll(((MetaProteinHit) mph).getProteinHitList());
+	//		}
+	//		return proteinHits;
+	//	}
+
+	//	/**
+	//	 * Returns the map of protein hits.
+	//	 * @return the map of protein hits
+	//	 */
+	//	public Map<String, ProteinHit> getProteinHits() {
+	//		ProteinHitList metaProteins =
+	//				(this.visMetaProteins == null) ? this.metaProteins : visMetaProteins;
+	//		Map<String, ProteinHit> proteinHits = new LinkedHashMap<String, ProteinHit>();
+	//		for (ProteinHit mph : metaProteins) {
+	//			proteinHits.putAll(((MetaProteinHit) mph).getProteinHits());
+	//		}
+	//		return proteinHits ;
+	//	}
 
 	/**
 	 * Returns the protein hit for a particular accession.
@@ -555,7 +564,7 @@ public class DbSearchResult implements Serializable {
 		}
 		return ph;
 	}
-	
+
 	/**
 	 * Returns the peptide hit for a particular sequence.
 	 * @param sequence the peptide sequence
@@ -571,23 +580,23 @@ public class DbSearchResult implements Serializable {
 		}
 		return peptideHit;
 	}
-	
-//	/**
-//	 * Returns the spectrum match for a particular search spectrum ID.
-//	 * @param key the search spectrum database key
-//	 * @return the spectrum match or <code>null</code> if no such match exists
-//	 */
-//	public PeptideSpectrumMatch getSpectrumMatch(String key) {
-//		for (ProteinHit proteinHit : getProteinHits().values()) {
-//			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
-//				PeptideSpectrumMatch psm = peptideHit.getPeptideSpectrumMatch(key);
-//				if (psm != null) {
-//					return psm;
-//				}
-//			}
-//		}
-//		return null;
-//	}
+
+	//	/**
+	//	 * Returns the spectrum match for a particular search spectrum ID.
+	//	 * @param key the search spectrum database key
+	//	 * @return the spectrum match or <code>null</code> if no such match exists
+	//	 */
+	//	public PeptideSpectrumMatch getSpectrumMatch(String key) {
+	//		for (ProteinHit proteinHit : getProteinHits().values()) {
+	//			for (PeptideHit peptideHit : proteinHit.getPeptideHits().values()) {
+	//				PeptideSpectrumMatch psm = peptideHit.getPeptideSpectrumMatch(key);
+	//				if (psm != null) {
+	//					return psm;
+	//				}
+	//			}
+	//		}
+	//		return null;
+	//	}
 
 	/**
 	 * Returns the project title.
@@ -636,7 +645,7 @@ public class DbSearchResult implements Serializable {
 	public int getTotalSpectrumCount() {
 		return this.totalSpectra;
 	}
-	
+
 	/**
 	 * Returns the non-redundant count of ms-spectra from the experiment list of this result-object 
 	 * @throws SQLException 
@@ -648,17 +657,17 @@ public class DbSearchResult implements Serializable {
 					+ "INNER JOIN searchspectrum ON searchspectrum.fk_spectrumid = spectrum.spectrumid "
 					+ "WHERE searchspectrum.fk_experimentid = ?");
 			ps.setLong(1, experiment.getID());
-	    	ResultSet rs = ps.executeQuery();
-	    	while (rs.next()) {
-	    		spectrumids.add(rs.getLong("spectrum.spectrumid"));
-	    	}
-	    	rs.close();
-	    	ps.close();
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				spectrumids.add(rs.getLong("spectrum.spectrumid"));
+			}
+			rs.close();
+			ps.close();
 		}
 		int spectralCount = spectrumids.size();
 		return spectralCount;
 	}
-	
+
 	/**
 	 * Sets the total amount of queried spectra.
 	 * @param totalSpectra The total spectral count.
@@ -666,21 +675,21 @@ public class DbSearchResult implements Serializable {
 	public void setTotalSpectrumCount(int totalSpectra) {
 		this.totalSpectra = totalSpectra;
 	}
-	
+
 	/**
 	 * Sets the FDR threshold for the visible metaproteins.
 	 * @param fdr the FDR threshold.
 	 */
 	public void setFDR(double fdr) {
-        visMetaProteins.clear();
+		visMetaProteins.clear();
 		for (MetaProteinHit mph : this.metaProteins) {
 			mph.setFDR(fdr);
 			if (mph.isVisible()) {
-                visMetaProteins.add(mph);
+				visMetaProteins.add(mph);
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = (obj instanceof DbSearchResult);
@@ -701,7 +710,7 @@ public class DbSearchResult implements Serializable {
 		}
 		return (long) specIDs.size();
 	}
-	
+
 	public Long getVisibleIdentifiedSpectrumCount() {
 		HashSet<Long> specIDs = new HashSet<Long>();
 		for (PeptideHit pephit : this.getAllPeptideHits()) {
@@ -725,5 +734,5 @@ public class DbSearchResult implements Serializable {
 		}
 		return uniquePeps;
 	}
-	
+
 }

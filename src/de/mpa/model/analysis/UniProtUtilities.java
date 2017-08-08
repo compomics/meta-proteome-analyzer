@@ -77,11 +77,11 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void startUniProtService() {
-        this.silenceOutput(true);
+		this.silenceOutput(true);
 		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();
-        uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
-        this.uniProtQueryService.start();
-        this.silenceOutput(false);
+		uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
+		this.uniProtQueryService.start();
+		this.silenceOutput(false);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void stopUniProtService() {
-        uniProtQueryService.stop();
+		uniProtQueryService.stop();
 	}	
 
 	/**
@@ -98,8 +98,8 @@ public class UniProtUtilities {
 	 */	
 	public void startUniRefService() {
 		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();
-        uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
-        uniRefQueryService.start();
+		uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
+		uniRefQueryService.start();
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class UniProtUtilities {
 	 * @author K.Schallert
 	 */	
 	public void stopUniRefService() {
-        uniRefQueryService.stop();
+		uniRefQueryService.stop();
 	}
 
 	/**
@@ -430,7 +430,7 @@ public class UniProtUtilities {
 				Client.getInstance().firePropertyChange("resetcur", -1L, (long) batchAccessions.size());
 			}
 			// start uniprotservice
-            startUniProtService();
+			startUniProtService();
 
 
 			// Query UniProt
@@ -446,9 +446,9 @@ public class UniProtUtilities {
 				// take the next uniprot entry
 
 				// Avoid output stream
-                this.silenceOutput(true);
+				this.silenceOutput(true);
 				UniProtEntry entry = entryIterator.next();
-                this.silenceOutput(false);
+				this.silenceOutput(false);
 
 				// Add a new entry to the map
 				UniProtEntryMPA uniProtEntryMPA = new UniProtEntryMPA(entry, null);
@@ -461,7 +461,7 @@ public class UniProtUtilities {
 			}	
 
 			// stop uniprotservice
-            stopUniProtService();
+			stopUniProtService();
 		}
 
 		// Add uniRefs
@@ -609,7 +609,7 @@ public class UniProtUtilities {
 		}
 
 		// start the uniref service
-        startUniRefService();
+		startUniRefService();
 
 		// Fetch all uniRef entries from the list
 		for (String acc : accessionLists) {
@@ -622,7 +622,7 @@ public class UniProtUtilities {
 
 		}		
 		// stop the unirefservice and return
-        stopUniRefService();
+		stopUniRefService();
 
 		return uniRefMap;
 	}
@@ -898,7 +898,7 @@ public class UniProtUtilities {
 		 * Creates a keyword category from the specified keyword.
 		 * @param keyword the keyword wrapping the category data
 		 */
-        KeywordCategory(UniProtUtilities.Keyword keyword) {
+		KeywordCategory(UniProtUtilities.Keyword keyword) {
 			this.keyword = keyword;
 		}
 
@@ -976,7 +976,7 @@ public class UniProtUtilities {
 
 		private final String val;
 		TaxonomyRank(String value) {
-            val = value;
+			val = value;
 		}
 
 		@Override
@@ -994,7 +994,7 @@ public class UniProtUtilities {
 		// turn off or on? 
 		if (silence) {
 			// make a backup of the output stream
-            this.original = System.out;
+			this.original = System.out;
 			System.setOut(new PrintStream(new OutputStream() {
 				public void write(int b) {
 				}
@@ -1040,21 +1040,21 @@ public class UniProtUtilities {
 		String common_uniref50 = "EMPTY"; 
 		if (uniRef100s.contains("EMPTY")) {
 			uniRef100s.remove("EMPTY");
-			if (uniRef100s.size() == 1) {
-				common_uniref100 = uniRef100s.iterator().next();
-			}
+		}
+		if (uniRef100s.size() == 1) {
+			common_uniref100 = uniRef100s.iterator().next();
 		}
 		if (uniRef90s.contains("EMPTY")) {
 			uniRef90s.remove("EMPTY");
-			if (uniRef90s.size() == 1) {
-				common_uniref90 = uniRef90s.iterator().next();
-			}
+		}
+		if (uniRef90s.size() == 1) {
+			common_uniref90 = uniRef90s.iterator().next();
 		}
 		if (uniRef50s.contains("EMPTY")) {
 			uniRef50s.remove("EMPTY");
-			if (uniRef50s.size() == 1) {
-				common_uniref50 = uniRef50s.iterator().next();
-			}
+		}
+		if (uniRef50s.size() == 1) {
+			common_uniref50 = uniRef50s.iterator().next();
 		}
 		// construct new common uniprotMPAEntry
 		UniRefEntryMPA uniRefMPA = new UniRefEntryMPA(common_uniref100, common_uniref90, common_uniref50);

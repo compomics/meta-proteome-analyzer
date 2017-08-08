@@ -299,7 +299,7 @@ public class MascotStorager extends BasicStorager {
 													proteinlist.add(accession[1]);	
 												} else {
 													proteinlist.add(accession[0]);	
-													System.out.println("WTF");
+													System.err.println("WTF");
 												}
 											} else {
 												proteinlist.add(accession_split[1]);
@@ -1010,7 +1010,7 @@ public class MascotStorager extends BasicStorager {
             deltamass = dmass;
             Evalue = eval;
             this.protAccs = proteins;
-		}		
+		}	
 		
 		public ArrayList<String> getProteinAccessions() {
 			return protAccs;

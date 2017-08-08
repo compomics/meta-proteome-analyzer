@@ -49,7 +49,7 @@ public class RunFastaFormater {
         this.log.info("FASTAFORMATER:  Database:");
         this.log.info("FASTAFORMATER:  " + fastaPath);
         
-		System.out.println(fastaFormatQuery.toString());
+//		System.out.println(fastaFormatQuery.toString());
 		
         
 		// Construct Process

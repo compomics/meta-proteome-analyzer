@@ -312,7 +312,9 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 							res.add(kw);
 						}
 					} else {
-						System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
+						if (!kw.equals("")) {
+							System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
+						}
 					}
 				}
 			}
@@ -321,17 +323,14 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 			switch (hl) {
 			case META_PROTEIN_LEVEL:
 				res.add(this.getAccession());
-				System.out.println("MP " + this.getAccession());
 				break;
 			case PROTEIN_LEVEL:
-				System.out.println("P ");
 				// get protein accessions
 				for (ProteinHit ph : this.getProteinHitList()) {
 					res.add(ph.getAccession());
 				}
 				break;
 			case PEPTIDE_LEVEL:
-				System.out.println("pep");
 				// get peptide sequences
 				for (PeptideHit pep : this.getPeptides()) {
 					res.add(pep.getSequence());
@@ -342,7 +341,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 					for (PeptideSpectrumMatch sm : ph.getPeptideSpectrumMatches()) {
 						// TODO: implement title caching for spectrum matches
 						// XXX: is this working properly using spectrum IDs instead of seachspectrum ids??
-						System.out.println("Spec " + sm.getSpectrumID());
 						res.add(sm.getSpectrumID());
 					}
 				}

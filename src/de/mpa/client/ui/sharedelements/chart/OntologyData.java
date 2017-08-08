@@ -107,7 +107,6 @@ public class OntologyData implements ChartData {
 		for (OntologyChart.OntologyChartType type : chartTypes) {
 			this.occMaps.put(type.getOntology(), new HashMap<String, ArrayList<ProteinHit>>());
 		}
-
 		// Go through DB search result object and add taxonomy information to
 		// taxanomy maps --> this is the ontology map ????????
 		DbSearchResult data = Client.getInstance().getDatabaseSearchResult();
@@ -129,18 +128,17 @@ public class OntologyData implements ChartData {
 																			.getCategory());
 								found[ontologyTypes.indexOf(ontology)] = true;
 								if (occMaps.get(ontology) == null) {
-									System.out.println("Fatal error ontology: " + ontology);	
+									System.err.println("Fatal error ontology: " + ontology);	
 								} else {
-								 this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
-								}	
+									this.appendHit(keyword, this.occMaps.get(ontology), metaProtein);
+								}
 							}
 						}
 					}
 					for (int i = 0; i < ontologyTypes.size(); i++) {
 						UniProtUtilities.KeywordCategory ontology = ontologyTypes.get(i);
 						if (!found[i]) {
-							this.appendHit("Unknown",
-									this.occMaps.get(ontology), metaProtein);
+							this.appendHit("Unknown", this.occMaps.get(ontology), metaProtein);
 						}
 					}
 				}
@@ -163,17 +161,19 @@ public class OntologyData implements ChartData {
 	 */
 	protected void appendHit(String keyword, Map<String, ArrayList<ProteinHit>> occMap, MetaProteinHit metaProtein) {
 		if (occMap == null) {
-			System.out.println("fatal error occmap");
+			System.err.println("fatal error occmap");
 		}
-		ArrayList<ProteinHit> prots = new ArrayList<ProteinHit>(); 
 		for (ProteinHit ph : metaProtein.getProteinHitList()) {
-			prots.add(ph);
+			if (occMap.get(keyword) == null) {
+				occMap.put(keyword, new ArrayList<ProteinHit>());
+			}
+			
+			if (!occMap.get(keyword).contains(ph)) {
+				occMap.get(keyword).add(ph);
+			}
+			
 		}
-		if (occMap.get(keyword) == null) {
-			occMap.put(keyword, prots);
-		} else {
-			occMap.get(keyword).addAll(metaProtein.getProteinHitList());
-		}
+		
 //		ArrayList<ProteinHit> metaProteins = occMap.get(keyword);
 //		if (metaProteins == null) {
 //			metaProteins = new ArrayList<MetaProteinHit>();
@@ -182,6 +182,7 @@ public class OntologyData implements ChartData {
 //			metaProteins.add(metaProtein);
 //		}
 //		occMap.put(keyword, metaProteins);
+		
 	}
 
 	/**
@@ -344,7 +345,6 @@ public class OntologyData implements ChartData {
 				if (this.hierarchyLevel == HierarchyLevel.META_PROTEIN_LEVEL) {
 					return phl;
 				} else {
-					System.out.println("other hierarchy level");
 					// TODO: other hierarchy levels need to be properly processed?
 					return phl;
 				}
