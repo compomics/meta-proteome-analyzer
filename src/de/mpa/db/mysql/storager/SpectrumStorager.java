@@ -20,7 +20,7 @@ import de.mpa.io.MascotGenericFileReader;
 import de.mpa.io.SixtyFourBitStringSupport;
 
 /**
- * This class handles the storage of the spectrum files.
+ * This class handles the storage of the spectrum files. input String
  * 
  * @author T.Muth
  * 

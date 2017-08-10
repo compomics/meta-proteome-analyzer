@@ -762,8 +762,12 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)");
 			titleHash = Long.parseLong((parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim()));
 		} else if (title.contains("Cmpd")) {
-			// weird case (old versions?)
-			titleHash = Long.parseLong(title.replaceAll("\\D+",""));
+			// weird case (bruker versions?)
+			if (title.replaceAll("\\D+","").length() > 18) {
+				titleHash = Long.parseLong(title.replaceAll("\\D+","").substring(0, 17));
+			} else {
+				titleHash = Long.parseLong(title.replaceAll("\\D+",""));
+			}
 		} else {
 			// completely different case: parse out ALL numbers, Use the precursor_mz
 			// get 4 digits from precursor mz
