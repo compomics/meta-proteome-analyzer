@@ -52,7 +52,7 @@
 
 [[Download example FASTA database]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/fasta/uniprot_methanomicrobiales.fasta)  *Methanomicrobiales protein sequence database (UniProtKB FASTA format)*
 
-[[Download MPA tutorial]](https://github.com/compomics/meta-proteome-analyzer/raw/master/docu/MPA_Portable_Tutorial.pdf)  *Guided MPA portable tutorial including graphical and command line interface usage*
+[[Download MPA tutorial]](https://github.com/compomics/meta-proteome-analyzer/raw/master/docu/MPA_Portable_Tutorial_082017.pdf)  *Guided MPA portable tutorial including graphical and command line interface usage*
 
 ---
 
