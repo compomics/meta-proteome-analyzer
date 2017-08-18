@@ -20,6 +20,15 @@
 
 ## News ##
 
+*MPA Portable version 1.7.0* has been released with the following new features:
+
+* Added taxon-based two-step searching feature (in addition to the protein-based strategy).
+* MapDB was updated to the latest version (ver. 3.0.5) to accelerate the peptide indexing.
+* Peptide indexing is now available as optional feature on the command line.
+* Disabled emPAI and NSAF quantification features in the GUI to accelerate the results retrieval.
+
+---
+
 *MPA Portable version 1.6.0* has been released with the following new features: 
 * Added new import function for mzIdentML files: this feature supports the re-analysis of result identification data stored in mzIdentML format. 
  * Added new Import menu which contains the import function for "MPA Experiment" (see Release version 1.5.0). 
@@ -34,19 +43,10 @@
 * Added "Update UniProt Entries" feature (see MetaProteomeAnalyzerCLI for details)
 * Various bugfixes and GUI improvements
 
----
-
-*MPA Portable version 1.4.2* has been released with the following updates:
-* Added command line interface to MPA (see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details)
-* Various bugfixes regarding the FASTA indexing and two-step searching workflow
-* X!Tandem was updated to the latest version ALANINE (2017.02.01)
-* X!Tandem parsing now fully supports homologous proteins for the same peptide.
-
----
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.6.0/mpa-portable-1.6.0.zip)  *MPA Portable version 1.6.0 - Windows and Linux 32-bit/64-bit - released on July 07, 2017*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.7.0/mpa-portable-1.7.0.zip)  *MPA Portable version 1.7.0 - Windows and Linux 32-bit/64-bit - released on August 18, 2017*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
@@ -97,7 +97,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.6.0/mpa-portable-1.6.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.7.0/mpa-portable-1.7.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
