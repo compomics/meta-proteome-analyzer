@@ -7,7 +7,7 @@
    To check your current java version, please type in any console:
    java -version
    
-   To start the MetaProteomeAnalyzer Viewer application simply double-click:
+   To start the MetaProteomeAnalyzer Portable application simply double-click:
    - mpa-portable.bat (Windows)
    - mpa-portable.sh (Linux)
    
@@ -15,7 +15,7 @@
    chmod +x mpa-portable.sh
 
    From the command line use 'java -jar mpa-portable-X.Y.Z.jar'. 
-   (Replace X.Y.Z with the MetaProteomeAnalyzer Viewer version number.)
+   (Replace X.Y.Z with the MetaProteomeAnalyzer Portable version number.)
 
    Please make sure to have enough memory on your machine. 2 GB should be enough for the application.
    The memory can be changed by the -Xmx argument in the mpa-viewer.bat and mpa-viewer.sh file,
@@ -27,14 +27,14 @@
 
    For updated information and documentation (including wiki) about the MetaProteomeAnalyzer project please visit:
 
-   http://meta-proteome-analyzer.googlecode.com
+   https://github.com/compomics/meta-proteome-analyzer
 
 
    =========
     License
    =========
    
-   Copyright Thilo Muth, Alexander Behne, Robert Heyer, Fabian Kohrs, Dirk Benndorf and Lennart Martens.
+   Copyright Thilo Muth, Fabian Kohrs, Robert Heyer, Dirk Benndorf, Erdmann Rapp, Udo Reichl, Lennart Martens and Bernhard Renard.
 
 
    Licensed under the Apache License, Version 2.0 (the "License");
