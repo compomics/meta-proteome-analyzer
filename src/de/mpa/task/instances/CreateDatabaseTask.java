@@ -4,7 +4,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 
 import com.compomics.util.protein.Protein;
 
@@ -42,19 +46,38 @@ public class CreateDatabaseTask extends Task {
 			File fastaFile = new File(filename);
 			BufferedWriter bWriter = new BufferedWriter(new FileWriter(fastaFile));
 			Iterator<String> iter = GenericContainer.ProteinAccs.iterator();
+			Set<String> speciesSet = new HashSet<>();
 			
 			// Iterate over the provided protein accessions.
 			while (iter.hasNext()) {
 				String accession = iter.next();
-				// TODO: Use two different protein sequence extraction methods properly!
 				if (iterativeSearchSettings.contains("0")) {
 					Protein fastaProtein = GenericContainer.FastaLoader.getProteinFromFasta(accession);
 					bWriter.append(fastaProtein.getHeader().toString());
 					bWriter.newLine();
 					bWriter.append(fastaProtein.getSequence().getSequence());
 					bWriter.newLine();
-				} else {
-					// Choose either on the 
+				} else if (iterativeSearchSettings.contains("1")) {
+					Protein fastaProtein = GenericContainer.FastaLoader.getProteinFromFasta(accession);
+					String taxonomy = fastaProtein.getHeader().getTaxonomy();
+					// Add to set of already identified species and parse information only once.
+					if (!speciesSet.contains(taxonomy)) {
+						speciesSet.add(taxonomy);
+						Set<String> speciesAccessions = new HashSet<>();
+						SortedSet<Object[]> subSet = GenericContainer.SpeciesIndex.subSet(new Object[]{taxonomy}, new Object[]{taxonomy, null});
+						for (Object[] objects : subSet) {
+							speciesAccessions.add(objects[1].toString());
+						}
+						
+						// Lookup all proteins for a specific taxonomy.
+						for (String speciesAccession : speciesAccessions) {
+							Protein speciesProtein = GenericContainer.FastaLoader.getProteinFromFasta(speciesAccession);
+							bWriter.append(speciesProtein.getHeader().toString());
+							bWriter.newLine();
+							bWriter.append(speciesProtein.getSequence().getSequence());
+							bWriter.newLine();
+						}
+					}
 				}
 			}
 			bWriter.flush();

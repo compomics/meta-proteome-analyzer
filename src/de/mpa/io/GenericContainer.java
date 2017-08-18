@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -98,7 +99,12 @@ public class GenericContainer {
 	/**
 	 * The peptide index.
 	 */
-	public static Map<String, Set<String>> PeptideIndex;
+	public static NavigableSet<Object[]> PeptideIndex;
+	
+	/**
+	 * The species index.
+	 */
+	public static NavigableSet<Object[]> SpeciesIndex;
 	
 	/**
 	 * The current TargetDecoyAnalysis instance.

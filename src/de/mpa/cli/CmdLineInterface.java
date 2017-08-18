@@ -163,9 +163,14 @@ public class CmdLineInterface {
 				searchSettings.setPrecIonTol(precursorTol);
 				searchSettings.setPrecIonTolPPM(true);
 			}
-			searchSettings.setIterativeSearch(cliInput.isIterativeSearchEnabled());
-			// TODO: Check second iterative search option, once provided.
-			searchSettings.setIterativeSearchSettings("0");
+			int iterativeSearch = cliInput.getIterativeSearch();
+			if (iterativeSearch != -1) {
+				searchSettings.setIterativeSearch(true);
+				searchSettings.setIterativeSearchSettings(Integer.toString(iterativeSearch));
+			} else {
+				searchSettings.setIterativeSearch(false);
+			}			
+			searchSettings.setPeptideIndexing(cliInput.isPeptideIndexingEnabled());
 			
 			// Create default CLI project + experiment.
 			FileProject cliProject = new FileProject();
@@ -201,11 +206,14 @@ public class CmdLineInterface {
             		System.out.println(new Date() + " FASTA decoy file creation finished...");
             	}
             	
-            	// Load (or also create) peptide off-heap index.
-            	System.out.println(new Date() + " Creating peptide index file...");
-            	OffHeapIndex offHeapIndex = new OffHeapIndex(fastaFile, 2);
-            	GenericContainer.PeptideIndex = offHeapIndex.getPeptideIndex();
-        		System.out.println(new Date() + " Peptide index creation finished...");
+            	// Optionally: load (or also create) peptide off-heap index.
+            	if (searchSettings.isPeptideIndexing()) {
+            		System.out.println(new Date() + " Creating peptide index file...");
+            		OffHeapIndex offHeapIndex = new OffHeapIndex(fastaFile, 2);
+                	GenericContainer.PeptideIndex = offHeapIndex.getPeptideIndex();
+                	GenericContainer.SpeciesIndex = offHeapIndex.getSpeciesIndex();
+            		System.out.println(new Date() + " Peptide index creation finished...");
+            	}
 			}
 			
 			// Set MGF files within the client.

@@ -33,8 +33,6 @@ public class UniProtUtilitiesTest extends TestCase {
 	    uniprotService.start();
 	}
 	
-	
-	
 	@Test 
 	public void testFetchSingleProteinEntry() throws ServiceException {
 		System.out.println("Test");

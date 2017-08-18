@@ -15,7 +15,7 @@ public class IterativeSearchParams extends ParameterMap {
 	}
 	@Override
 	public void initDefaults() {
-		this.put("method", new OptionParameter(new Object[] {"Protein-based", "Taxonomy-based"}, 0, "Database Reduction Method", "Database search space reduction based on protein or taxonomy.", "First search round"));
+		this.put("method", new OptionParameter(new Object[] {"Protein-based", "Taxon-based"}, 0, "Database Reduction Method", "Database search space reduction based on protein or taxonomy.", "First search round"));
 	}
 
 	@Override
@@ -35,6 +35,7 @@ public class IterativeSearchParams extends ParameterMap {
 			Object value = param.getValue();
 			if (param instanceof OptionParameter) {
 				value = ((OptionParameter) param).getIndex();
+				
 			}
 			if (value instanceof Boolean[]) {
 				Boolean[] selections = (Boolean[]) value;

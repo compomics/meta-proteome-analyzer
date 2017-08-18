@@ -2,9 +2,8 @@ package de.mpa.io.fasta.index;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.NavigableSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,32 +18,34 @@ public class OffHeapIndexTest extends TestCase {
 	
 	@Before
 	public void setUp() {
-		fastaFile = new File("test/de/mpa/resources/yeast_ups.fasta");
+		
+		fastaFile = new File("S:\\OE\\MF1\\staff\\Thilo\\Projects\\MPA_Portable\\Databases\\uniprot_sprot_ecoli.fasta");
+//		fastaFile = new File("test/de/mpa/resources/test.fasta");
 		try {
-			index = new OffHeapIndex(fastaFile, 2);
+			index = new OffHeapIndex(fastaFile, 1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	@Test
-	public void testPeptideIndex() throws ServiceException {
-		Map<String, Set<String>> peptideIndex = index.getPeptideIndex();
-		assertNotNull(peptideIndex);
-		assertEquals(726183, peptideIndex.keySet().size());
-		assertEquals(726183, peptideIndex.values().size());
+	public void testSpeciesIndex() throws ServiceException {
+		NavigableSet<Object[]> speciesIndex = index.getSpeciesIndex();
+		assertNotNull(speciesIndex);
 		
-		Set<Entry<String, Set<String>>> entries = peptideIndex.entrySet();
-		for (Entry<String, Set<String>> e : entries) {
-			Set<String> values = e.getValue();
-			if (values.size() > 1) {
-				System.out.println(e.getKey());
-				for (String accession : values) {
-					System.out.print(accession + " ");
-				}
-				System.out.println();
-			}
+		Iterator<Object[]> iterator = speciesIndex.iterator();
+		while (iterator.hasNext()) {
+			Object[] objects = (Object[]) iterator.next();
+			System.out.println(objects[0] + " : " + objects[1]);
+		}
+		
+		NavigableSet<Object[]> peptideIndex = index.getPeptideIndex();
+		assertNotNull(peptideIndex);
+		
+		Iterator<Object[]> iterator2 = peptideIndex.iterator();
+		while (iterator2.hasNext()) {
+			Object[] objects = (Object[]) iterator2.next();
+			System.out.println(objects[0] + " : " + objects[1]);
 		}
 	}
-
 }

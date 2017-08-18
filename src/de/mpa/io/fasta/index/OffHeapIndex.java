@@ -7,12 +7,20 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
+import org.mapdb.serializer.SerializerArray;
+import org.mapdb.serializer.SerializerArrayTuple;
 
 import com.compomics.util.protein.Header;
+
+import de.mpa.client.Client;
 
 /**
  * The OffHeapIndex constructs a file-based mapping database and stores
@@ -31,7 +39,12 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 	/**
 	 * The peptide string index is based on lock-free concurrent B-Linked-Tree.
 	 */
-	private Map<String, Set<String>> peptideIndex;
+	private NavigableSet<Object[]> peptideIndex;
+	
+	/**
+	 * The species index maps from species to protein accessions. 
+	 */
+	private NavigableSet<Object[]> speciesIndex;
 	
 	/**
 	 * Constructs an off-heap index on the basis of peptide strings mapping to sets of protein accessions.
@@ -52,12 +65,16 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 	private void setupDatabase() throws IOException {
 		File file = new File(fastaFile.getAbsolutePath() + ".db");
 		boolean dbExists = file.exists();
-		mapDb = DBMaker.newFileDB(file).transactionDisable().closeOnJvmShutdown().mmapFileEnableIfSupported().make();
-		peptideIndex = mapDb.createTreeMap("peptideToProteins").makeOrGet();
+		mapDb = DBMaker.fileDB(file).closeOnJvmShutdown().make();
+		
+		// Initialize multi maps 
+		peptideIndex = mapDb.treeSet("peptideToProteins").serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).counterEnable().counterEnable().counterEnable().createOrOpen();
+		speciesIndex = mapDb.treeSet("speciesToProteins").serializer(new SerializerArrayTuple(Serializer.STRING, Serializer.STRING)).counterEnable().counterEnable().counterEnable().createOrOpen();
 		
 		// If database does not exist, create a new index.
 		if(!dbExists) {
 			generateIndex();
+			mapDb.commit();
 		}
 	}
 	
@@ -71,7 +88,7 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 		boolean firstline = true;
 		String header = null;
 		int count = 0;
-		StringBuffer stringBf = new StringBuffer();
+		StringBuilder builder = new StringBuilder();
 		while ((nextLine = reader.readLine()) != null) {
 			if (!nextLine.isEmpty() && nextLine.charAt(0) == '>') {
 				if (firstline) {
@@ -79,18 +96,20 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 					firstline = false;
 				} else {
 					count++;
-					if (count % 1000 == 0) {	
-						de.mpa.client.Client.getInstance().firePropertyChange("new message", null, count + " PROTEINS INSERTED INTO PEPTIDE INDEX...");
+					if (count % 1000 == 0) {
+						System.out.println(count + " proteins inserted into index.");
+						if (Client.getInstance() != null)
+							Client.getInstance().firePropertyChange("new message", null, count + " PROTEINS INSERTED INTO PEPTIDE INDEX...");
 					} 
-					addToIndex(header, stringBf.toString());
-					stringBf = new StringBuffer();
+					addToPeptideIndex(header, builder.toString());
+					builder = new StringBuilder();
 					header = nextLine.trim();
 				}
 			} else {
-				stringBf.append(nextLine.trim());
+				builder.append(nextLine.trim());
 			}
 		}
-		addToIndex(header, stringBf.toString());
+		addToPeptideIndex(header, builder.toString());
 		reader.close();
 	}
 	
@@ -99,42 +118,38 @@ public class OffHeapIndex extends StandardIndex implements DatabaseIndex {
 	 * @param accession	Protein	header
 	 * @param sequence	Protein	sequence
 	 */
-	private void addToIndex(String header, String sequence) {
+	private void addToPeptideIndex(String header, String sequence) {
 		// Digest peptides with tryptic cleavage.		
 		List<String> peptides = performTrypticCleavage(sequence, 6, 40);
 		String accession = Header.parseFromFASTA(header).getAccession();
-		
+		String species = Header.parseFromFASTA(header).getTaxonomy();
 		// Iterate all digested peptides and add them to the index (including protein accessions).
 		for (String peptideSequence : peptides) {
-			Set<String> proteins = getProteins(peptideSequence);
-			proteins.add(accession);
-			peptideIndex.put(peptideSequence, proteins);
+			peptideIndex.add(new Object[]{peptideSequence, accession});
 		}
+		speciesIndex.add(new Object[]{species, accession});
 		nProteins++;
 	}
 	
+	
+	
 	/**
-	 * This method retrieves the proteins for each peptide.
-	 * 
-	 * @param peptideSequence	The peptide sequence
-	 * @return Set of protein accessions
+	 * Returns the peptide-to-proteins index (based on a multi map). 
+	 * @return The peptide index
 	 */
-	public Set<String> getProteins(String peptideSequence) {
-		if (peptideIndex.isEmpty()) {
-			return new HashSet<>();
-		} else {
-			if (!peptideIndex.containsKey(peptideSequence)) {
-				return new HashSet<>();
-			}
-			return new HashSet<>(this.peptideIndex.get(peptideSequence));
-		}
+	public NavigableSet<Object[]> getPeptideIndex() {
+		return peptideIndex;
 	}
 	
 	/**
-	 * Returns the peptide index (based on a tree map). 
-	 * @return The peptide index
+	 * Returns the protein-to-species index (based on a tree map). 
+	 * @return The species index
 	 */
-	public Map<String, Set<String>> getPeptideIndex() {
-		return peptideIndex;
+	public NavigableSet<Object[]> getSpeciesIndex() {
+		return speciesIndex;
+	}
+	
+	public void close() {
+		mapDb.close();
 	}
 }

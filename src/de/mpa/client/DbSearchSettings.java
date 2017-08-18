@@ -20,6 +20,7 @@ public class DbSearchSettings {
 	private String cometParams;
 	private String msgfParams;
 	private String iterativeSearchSettings;
+	private boolean peptideIndexing;
 	
 	/**
 	 * Returns the value of the iterative search property.
@@ -37,6 +38,23 @@ public class DbSearchSettings {
 		this.iterativeSearch = iterativeSearch;
 	}
 	
+	/**
+	 * Returns the value of the peptide indexing flag
+	 * @return flag whether peptide indexing is used or not.
+	 */
+	public boolean isPeptideIndexing() {
+		return peptideIndexing;
+	}
+	
+	/**
+	 * Sets the boolean flag whether peptide indexing is used or not.
+	 */
+
+	public void setPeptideIndexing(boolean peptideIndexing) {
+		this.peptideIndexing = peptideIndexing;
+	}
+	
+
 	/**
 	 * Returns the iterative search settings.
 	 * @return Iterative search settings string.

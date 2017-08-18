@@ -42,8 +42,10 @@ import de.mpa.client.DbSearchSettings;
 import de.mpa.client.settings.CometParameters;
 import de.mpa.client.settings.IterativeSearchParams;
 import de.mpa.client.settings.MSGFParameters;
+import de.mpa.client.settings.Parameter;
 import de.mpa.client.settings.ParameterMap;
 import de.mpa.client.settings.XTandemParameters;
+import de.mpa.client.settings.Parameter.OptionParameter;
 import de.mpa.client.ui.ClientFrame;
 import de.mpa.client.ui.ComponentTitledBorder;
 import de.mpa.client.ui.RolloverButtonUI;
@@ -204,7 +206,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 		protDatabasePnl.add(fastaFileBtn, CC.xy(6, 2));
 
 		// Normal vs. iterative search.
-		String[] searchOptions = { "Normal Search", "Iterative (Two-Step) Search"};
+		String[] searchOptions = { "Normal Search", "Protein-based Two-Step Search", "Taxon-based Two-Step Search"};
 
 		searchModeCbx = new JComboBox<String>(searchOptions);
 		
@@ -227,10 +229,22 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 					if (searchModeCbx.getSelectedIndex() == 1) {
 						msgfChk.setEnabled(false);
 						msgfChk.setSelected(false);
-//						iterativeSearchSetBtn.setEnabled(true);
-					} else {
+						
+						Parameter param = iterativeSearchParams.get("method");
+						if (param instanceof OptionParameter) {
+							((OptionParameter) param).setIndex(0);
+						}
+						iterativeSearchParams.setValue("method", param);
+					} if (searchModeCbx.getSelectedIndex() == 2) {
+						msgfChk.setEnabled(false);
+						msgfChk.setSelected(false);
+						Parameter param = iterativeSearchParams.get("method");
+						if (param instanceof OptionParameter) {
+							((OptionParameter) param).setIndex(1);
+						}
+						iterativeSearchParams.put("method", param);
+					}else {
 						msgfChk.setEnabled(true);
-//						iterativeSearchSetBtn.setEnabled(false);
 					}
 				}
 			}
@@ -492,16 +506,17 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			
 			try {
 				// Create a peptide index from
-        		client.firePropertyChange("new message", null, "LOADING PEPTIDE INDEX");
+        		client.firePropertyChange("new message", null, "CREATING PEPTIDE AND SPECIES INDEX");
         		client.firePropertyChange("indeterminate", false, true);
 
         		OffHeapIndex offHeapIndex = new OffHeapIndex(fastaFile, 2);
 				GenericContainer.PeptideIndex = offHeapIndex.getPeptideIndex();
+				GenericContainer.SpeciesIndex = offHeapIndex.getSpeciesIndex();
 
         		return 1;
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-				client.firePropertyChange("new message", null, "LOADING PEPTIDE INDEX FAILED");
+				client.firePropertyChange("new message", null, "CREATING PEPTIDE AND SPECIES INDEX FAILED");
 				client.firePropertyChange("indeterminate", true, false);
 			}
 			return 0;
@@ -616,7 +631,7 @@ public class DatabaseSearchSettingsPanel extends JPanel {
 			searchSettings.setMSGFParams(msgfParams.toString());
 		}
 		
-		if (searchModeCbx.getSelectedIndex() == 1) {
+		if (searchModeCbx.getSelectedIndex() == 1 || searchModeCbx.getSelectedIndex() == 2) {
 			searchSettings.setIterativeSearch(true);;
 			searchSettings.setIterativeSearchSettings(iterativeSearchParams.toString());
 		}

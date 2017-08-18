@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
@@ -89,15 +90,17 @@ public class CometParser extends GenericContainer {
 							// Add peptide-to-protein relations.
 							Protein protein;
                             Set<String> accessions = new HashSet<>();
-                            if (accession.length() > 0){
+                            if (accession.length() > 0) {
                             	accessions.add(accession);
                             }
                             
-							Map<String, Set<String>> peptideIndex = GenericContainer.PeptideIndex;
+                            if (GenericContainer.PeptideIndex != null) {
+                            	SortedSet<Object[]> subSet = GenericContainer.PeptideIndex.subSet(new Object[]{peptideSequence}, new Object[]{peptideSequence, null});
+    							for (Object[] objects : subSet) {
+    								accessions.add(objects[1].toString());
+    							}
+                            }
 							
-							if (peptideIndex.get(peptideSequence) != null) {
-								accessions.addAll(peptideIndex.get(peptideSequence));
-							}
 							
 							for (String acc : accessions) {
 								protein = FastaLoader.getProteinFromFasta(acc);

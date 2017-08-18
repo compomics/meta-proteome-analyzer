@@ -65,6 +65,11 @@ public class CmdLineInterfaceInput {
 	     * Enables MS-GF+, default == false.
 	     */
 	    private boolean msgfEnabled = false;
+	    
+	    /**
+	     * Enables peptide indexing, default == true.
+	     */
+	    private boolean peptideIndexingEnabled = true;
 
 	    /**
 	     * Number of threads to use (optional parameter). Defaults to the number of cores available.
@@ -74,7 +79,7 @@ public class CmdLineInterfaceInput {
 	    /**
 	     * Enables iterative search, default == false (optional parameter).
 	     */
-	    private boolean iterativeSearchEnabled = false;
+	    private int iterativeSearch = -1;
 	    
 	    /**
 	     * Enables meta-protein generation, default == true (optional parameter).
@@ -128,18 +133,26 @@ public class CmdLineInterfaceInput {
 	            String cometOption = line.getOptionValue(CmdLineInterfaceParams.COMET.id);
 	            cometEnabled = cometOption.trim().equals("1");
 	        }
+	        
 	        if (line.hasOption(CmdLineInterfaceParams.MSGF.id)) {
 	            String msgfOption = line.getOptionValue(CmdLineInterfaceParams.MSGF.id);
 	            msgfEnabled = msgfOption.trim().equals("1");
 	        }
+	        
+	        if (line.hasOption(CmdLineInterfaceParams.PEPTIDE_INDEX.id)) {
+	            String peptidIndexOption = line.getOptionValue(CmdLineInterfaceParams.PEPTIDE_INDEX.id);
+	            peptideIndexingEnabled = peptidIndexOption.trim().equals("1");
+	        }
+	        
 	        if (line.hasOption(CmdLineInterfaceParams.SEMI_TRYPTIC.id)) {
 	        	String semiTrypticOption = line.getOptionValue(CmdLineInterfaceParams.SEMI_TRYPTIC.id);
 	            semiTrypticCleavage = semiTrypticOption.trim().equals("1");
 	        }
+	        
 	        if (line.hasOption(CmdLineInterfaceParams.ITERATIVE_SEARCH.id)) {
-	            String iterativeOption = line.getOptionValue(CmdLineInterfaceParams.ITERATIVE_SEARCH.id);
-	            iterativeSearchEnabled = iterativeOption.trim().equals("1");
+	            iterativeSearch = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.ITERATIVE_SEARCH.id).trim());
 	        }
+	        
 	        if (line.hasOption(CmdLineInterfaceParams.GENERATE_METAPROTEINS.id)) {
 	            String generateMetaproteinsOption = line.getOptionValue(CmdLineInterfaceParams.GENERATE_METAPROTEINS.id);
 	            metaProteinGenerationEnabled = generateMetaproteinsOption.trim().equals("1");
@@ -258,11 +271,20 @@ public class CmdLineInterfaceInput {
 		}
 		
 		/**
-		 * Returns whether iterative search option is enabled.
-		 * @return true if iterative search option is enabeld
+		 * Returns whether peptide indexing is enabled.
+		 * @return true if peptide indexing is enabled
 		 */
-		public boolean isIterativeSearchEnabled() {
-			return iterativeSearchEnabled;
+		public boolean isPeptideIndexingEnabled() {
+			return peptideIndexingEnabled;
+		}
+		
+
+		/**
+		 * Returns the iterative search identifier.
+		 * @return the iterative search identifier
+		 */
+		public int getIterativeSearch() {
+			return iterativeSearch;
 		}
 		
 		/**

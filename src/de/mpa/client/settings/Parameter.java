@@ -649,7 +649,15 @@ public abstract class Parameter {
 		public int getIndex() {
 			return index;
 		}
-	
+		
+		/**
+		 * Sets the selected index.
+		 * @param index
+		 */
+		public void setIndex(int index) {
+			this.index = index;
+		}
+
 		@Override
 		public void restoreDefaults() {
 			super.restoreDefaults();
