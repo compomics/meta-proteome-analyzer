@@ -705,7 +705,8 @@ public class UniProtUtilities {
 
 			// change back protein entry
 			prot.setFK_uniProtID(-1L);
-			prot.setDescription(prot.getDescription().replace("BLAST_", ""));
+//			prot.setDescription(prot.getDescription().replace("BLAST_", ""));
+			prot.setDescription("UNKNOWN");
 			String source_db_revert = prot.getSource().split("_")[1];
 			prot.setSource(source_db_revert);
 			prot.update(conn);

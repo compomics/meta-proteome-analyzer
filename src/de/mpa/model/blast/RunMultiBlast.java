@@ -19,6 +19,7 @@ import javax.swing.JProgressBar;
 
 import de.mpa.client.Client;
 import de.mpa.client.ui.menubar.dialogs.BlastDialog;
+import de.mpa.client.ui.menubar.dialogs.BlastDialog.BlastResultOption;
 import de.mpa.db.mysql.DBManager;
 import de.mpa.db.mysql.accessor.ExperimentTableAccessor;
 import de.mpa.db.mysql.accessor.Mascothit;
@@ -146,7 +147,7 @@ public class RunMultiBlast {
 		// parse line by line
 		while ((line = reader.readLine()) != null) {
 			// added a limit of 5?? splits, this should leave all commas in the
-			// description alone
+			// description alone --> TODO: no? this is messed up
 			String[] splits = line.split(",", 6);
 			String query = splits[0];
 			String subject = splits[1];
@@ -157,8 +158,8 @@ public class RunMultiBlast {
 			String[] sbjctsplit = subject.split("[|]");
 			String accession = sbjctsplit[1];
 			// get description from subject title
-			String[] titlesplit = splits[5].split("[ ]", 2);
-			String title = titlesplit[1];
+//			String[] titlesplit = splits[5].split("[ ]", 2);
+			String title = splits[5].split("[|]")[2];
 			// make or get the result object
 			BlastResult result;
 			if (blastResultMap.keySet().contains(query)) {
@@ -181,7 +182,7 @@ public class RunMultiBlast {
 		reader.close();
 		return blastResultMap;
 	}
-
+	
 	// /**
 	// * Gets the BLAST results map
 	// * @return. The BLSAT resultsmap
@@ -276,6 +277,7 @@ public class RunMultiBlast {
 				// 3. DO Batch
 				HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 						blastBatchList, blastFile, database, evalue);
+					
 				// 4. STORE
 				storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 						taxonomyMap, protaccessors, database);
@@ -355,6 +357,7 @@ public class RunMultiBlast {
 						// run BLAST
 						HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 								blastBatchList, blastFile, database, evalue);
+						
 						// STORE
 						storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 								taxonomyMap, protaccessors, database);
@@ -614,8 +617,8 @@ public class RunMultiBlast {
 				protAcc.setFK_uniProtID(addMultipleUniProtEntriesToDatabase
 						.get(protIDkey));
 				protAcc.setDescription("BLAST_"
-						+ blastResult.getBestEValueBlastHit().getName()
-						+ blastResult.getBestEValueBlastHit().getAccession());
+						+ blastResult.getSelectedBLASTHits(BlastResultOption.FIRST_IDENTITY).get(0).getName()
+						+ "_" + blastResult.getSelectedBLASTHits(BlastResultOption.FIRST_IDENTITY).get(0).getAccession());
 				protAcc.setSource("BLAST_" + protAcc.getSource() + "_"
 						+ Type.UNIPROTSPROT);
 				// Update the protein entry
