@@ -1,6 +1,6 @@
 
 package de.mpa.client;
-
+import de.mpa.task.FragmentationMethod;
 import de.mpa.task.SearchType;
 
 
@@ -16,6 +16,7 @@ public class DbSearchSettings {
 	private String fastaFilePath;
 	private long experimentid;
 	private SearchType searchType;
+	private FragmentationMethod fragmentationMethod;
 	private String xtandemParams;
 	private String cometParams;
 	private String msgfParams;
@@ -53,7 +54,6 @@ public class DbSearchSettings {
 	public void setPeptideIndexing(boolean peptideIndexing) {
 		this.peptideIndexing = peptideIndexing;
 	}
-	
 
 	/**
 	 * Returns the iterative search settings.
@@ -177,6 +177,14 @@ public class DbSearchSettings {
 
 	public void setSearchType(SearchType searchType) {
 		this.searchType = searchType;
+	}
+	
+	public FragmentationMethod getFragmentationMethod() {
+		return fragmentationMethod;
+	}
+	
+	public void setFragmentationMethod(FragmentationMethod fragmentationMethod) {
+		this.fragmentationMethod = fragmentationMethod;
 	}
 
 	public String getXTandemParams() {

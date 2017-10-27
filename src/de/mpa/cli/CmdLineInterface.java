@@ -34,6 +34,7 @@ import de.mpa.io.ResultExporter;
 import de.mpa.io.fasta.FastaLoader;
 import de.mpa.io.fasta.FastaUtilities;
 import de.mpa.io.fasta.index.OffHeapIndex;
+import de.mpa.task.FragmentationMethod;
 import de.mpa.task.TaskManager;
 import de.mpa.task.instances.SpectraTask;
 
@@ -169,7 +170,16 @@ public class CmdLineInterface {
 				searchSettings.setIterativeSearchSettings(Integer.toString(iterativeSearch));
 			} else {
 				searchSettings.setIterativeSearch(false);
-			}			
+			}
+			int fragmentationMethodId = cliInput.getFragmentationMethod();
+			if (fragmentationMethodId == 1) {
+				searchSettings.setFragmentationMethod(FragmentationMethod.CID);
+			} else if (fragmentationMethodId == 2) {
+				searchSettings.setFragmentationMethod(FragmentationMethod.HCD);
+			} else if (fragmentationMethodId == 3) {
+				searchSettings.setFragmentationMethod(FragmentationMethod.ETD);
+			}
+			
 			searchSettings.setPeptideIndexing(cliInput.isPeptideIndexingEnabled());
 			
 			// Create default CLI project + experiment.

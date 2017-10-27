@@ -14,6 +14,7 @@ public enum CmdLineInterfaceParams {
     PRECURSOR_TOL("prec_tol", "The precursor tolerance (in Dalton, e.g. 0.5Da or PPM, e.g. 10ppm).", true),
     FRAGMENTION_TOL("frag_tol", "The fragment ion tolerance (in Dalton, e.g. 0.5Da).", true),
     SEMI_TRYPTIC("semi_tryptic", "Turn semi-tryptic cleavage on or off (1: on, 0: off, default is '0').", false),
+    FRAGMENTATION_METHOD("fragment_method", "The fragmentation method chosen for the MS instrument (1: CID, 2: HCD, 3: ETD, default is '1' - CID).", false),
     OUTPUT_FOLDER("output_folder", "The output folder for exporting the results.", true),
     GENERATE_METAPROTEINS("generate_metaproteins", "Turn meta-protein generation (aka. protein grouping) on or off (1: on, 0: off, default is '1').", false),
     PEPTIDE_RULE("peptide_rule", "The peptide rule chosen for meta-protein generation (-1: off, 0: share-one-peptide, 1: shared-peptide-subset, default is '0').", false),
@@ -26,7 +27,8 @@ public enum CmdLineInterfaceParams {
     COMET("comet", "Turn Comet database search algorithm on or off (1: on, 0: off, default is '0'). (At least one search engine needs to be enabled.)", false),
     MSGF("msgf", "Turn MS-GF+ database search algorithm on or off (1: on, 0: off, default is '0'). (At least one search engine needs to be enabled.)", false),
 	PEPTIDE_INDEX("peptide_index", "Turn peptide indexing (of FASTA database) on or off (1: on, 0: off, default is '1').", true);
-
+	
+	
     /**
      * Short Id for the CLI parameter.
      */
@@ -90,6 +92,7 @@ public enum CmdLineInterfaceParams {
         output += "-" + String.format(formatter, FDR_THRESHOLD.id) + " " + FDR_THRESHOLD.description + "\n";
         output += "-" + String.format(formatter, THREADS.id) + " " + THREADS.description + "\n";
         output += "-" + String.format(formatter, SEMI_TRYPTIC.id) + " " + SEMI_TRYPTIC.description + "\n";
+        output += "-" + String.format(formatter, FRAGMENTATION_METHOD.id) + " " + FRAGMENTATION_METHOD.description + "\n";
         output += "-" + String.format(formatter, XTANDEM.id) + " " + XTANDEM.description + "\n";
         output += "-" + String.format(formatter, COMET.id) + " " + COMET.description + "\n";
         output += "-" + String.format(formatter, MSGF.id) + " " + MSGF.description + "\n";

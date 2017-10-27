@@ -280,7 +280,7 @@ public class CometTask extends Task {
             bw.newLine();
             bw.append("digest_mass_range = 600.0 5000.0       # MH+ peptide mass range to analyze");
             bw.newLine();
-            bw.append("num_results = 1                      # number of search hits to store internally");
+            bw.append("num_results = 100                      # number of search hits to store internally");
             bw.newLine();
             bw.append("skip_researching = 1                   # for '.out' file output only, 0=search everything again (default), 1=don't search if .out exists");
             bw.newLine();

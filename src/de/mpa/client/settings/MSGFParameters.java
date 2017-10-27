@@ -24,7 +24,7 @@ public class MSGFParameters extends ParameterMap {
 	@Override
 	public void initDefaults() {
 		// Spectrum section
-		this.put("m", new OptionParameter(new Object[] { "0 (default)", "1 (CID)", "2 (ETD)", "3 (HCD)"}, 0, "FragmentMethodID", "Fragmentation method from the MS instrument.", "Spectrum"));
+//		this.put("m", new OptionParameter(new Object[] { "0 (default)", "1 (CID)", "2 (ETD)", "3 (HCD)"}, 0, "FragmentMethodID", "Fragmentation method from the MS instrument.", "Spectrum"));
 		this.put("inst", new OptionParameter(new Object[] { "0 (low-res LCQ/LTQ default)", "1 (high-res LTQ)", "2 (TOF)", "3 (Q-Exactive)" }, 0, "InstrumentID", "MS Instrument Type", "Spectrum"));
 		this.put("protocol", new OptionParameter(new Object[] { "0 (No Protocol default)", "1 (Phoshorylation)", "2 (iTRAQ)", "3 (iTRAQPhospho)" }, 0, "ProtocolID", "MS Protocol, e.g. iTRAQ labeling", "Spectrum"));
 		this.put("ntt", new NumberParameter(2, 0, 2, "Number of tolerable termini", "E.g. for trypsin, 0: non-tryptic, 1: semi-tryptic, 2: fully-tryptic peptides only. ", "Spectrum")); 

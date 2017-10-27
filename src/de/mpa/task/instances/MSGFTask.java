@@ -3,6 +3,7 @@ package de.mpa.task.instances;
 import java.io.File;
 
 import de.mpa.client.DbSearchSettings;
+import de.mpa.task.FragmentationMethod;
 import de.mpa.task.Task;
 
 public class MSGFTask extends Task {
@@ -38,6 +39,9 @@ public class MSGFTask extends Task {
     // String of precursor ion tolerance unit (ppm versus Da)
     private boolean isPrecursorTolerancePpm;
     
+    // Fragmentation method
+    private FragmentationMethod fragmentationMethod;
+    
 	/**
 	 * Constructor for starting the MS-GF+ search engine.
 	 * @param mgfFile Spectrum file
@@ -48,6 +52,7 @@ public class MSGFTask extends Task {
 		this.searchDB = searchSettings.getFastaFilePath();
 		this.params = searchSettings.getMsgfParams();
 		this.precursorTol = searchSettings.getPrecIonTol();
+		this.fragmentationMethod = searchSettings.getFragmentationMethod();
 		this.isPrecursorTolerancePpm = searchSettings.isPrecIonTolPpm();
 		this.filename =  algorithmProperties.getProperty("path.msgf.output") + mgfFile.getName() + ".mzid";
 		this.msgfExecutable = new File(algorithmProperties.getProperty("path.msgf"));
@@ -76,6 +81,16 @@ public class MSGFTask extends Task {
         procCommands.add("-d");
         procCommands.add(searchDB);
         
+        // Fragmentation method (0: As written in the spectrum or CID if no info (Default), 1: CID, 2: ETD, 3: HCD)
+        procCommands.add("-m");
+        if (fragmentationMethod == FragmentationMethod.CID) {
+        	procCommands.add("1");
+        } else if (fragmentationMethod == FragmentationMethod.ETD) {
+        	procCommands.add("2");
+        } else if (fragmentationMethod == FragmentationMethod.HCD) {
+        	procCommands.add("3");
+        }
+        
         // Precursor Ion Tolerance 
         procCommands.add("-t");
         
@@ -97,7 +112,7 @@ public class MSGFTask extends Task {
        		}
        		procCommands.add(string);
 		}
-        
+       
         // Output file
         procCommands.add("-o");
         procCommands.add(filename);

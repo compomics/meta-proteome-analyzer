@@ -52,6 +52,14 @@ public class CmdLineInterfaceInput {
 	    private boolean semiTrypticCleavage = false;
 	    
 	    /**
+	     * Enables fragmentation method, default is 1 (CID), the following values are possible:
+	     * 1 = CID
+	     * 2 = HCD
+	     * 3 = ETD
+	     */	    
+	    private int fragmentationMethod = 1;
+	    
+	    /**
 	     * Enables X!Tandem, default == true.
 	     */
 	    private boolean xTandemEnabled = true;
@@ -147,6 +155,10 @@ public class CmdLineInterfaceInput {
 	        if (line.hasOption(CmdLineInterfaceParams.SEMI_TRYPTIC.id)) {
 	        	String semiTrypticOption = line.getOptionValue(CmdLineInterfaceParams.SEMI_TRYPTIC.id);
 	            semiTrypticCleavage = semiTrypticOption.trim().equals("1");
+	        }
+	        
+	        if (line.hasOption(CmdLineInterfaceParams.FRAGMENTATION_METHOD.id)) {
+	        	fragmentationMethod = Integer.parseInt(line.getOptionValue(CmdLineInterfaceParams.FRAGMENTATION_METHOD.id));
 	        }
 	        
 	        if (line.hasOption(CmdLineInterfaceParams.ITERATIVE_SEARCH.id)) {
@@ -246,7 +258,17 @@ public class CmdLineInterfaceInput {
 	    public boolean isSemiTrypticCleavageEnabled() {
 	    	return semiTrypticCleavage;
 	    }
+	    
 	    /**
+	     * Returns the fragmentation method id.
+	     * @return the fragmentation  method id
+	     */
+	    public int getFragmentationMethod() {
+			return fragmentationMethod;
+		}
+	    
+
+		/**
 	     * Returns whether X!Tandem is enabled.
 	     * @return true if X!Tandem is enabled
 	     */
@@ -277,7 +299,6 @@ public class CmdLineInterfaceInput {
 		public boolean isPeptideIndexingEnabled() {
 			return peptideIndexingEnabled;
 		}
-		
 
 		/**
 		 * Returns the iterative search identifier.
