@@ -217,7 +217,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 						try {
 							if (selectedExperiment.hasSearchResult()) {
 								client.dumpDatabaseSearchResult(dbSearchResult, selectedExperiment.getResultFile().getAbsolutePath());
-								System.out.println("write to file: " + selectedExperiment.getResultFile().getAbsolutePath());
 							}
 						} catch (IOException e) {
 							e.printStackTrace();
