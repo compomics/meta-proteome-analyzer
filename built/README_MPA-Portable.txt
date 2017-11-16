@@ -19,7 +19,7 @@
 
    Please make sure to have enough memory on your machine. 2 GB should be enough for the application.
    The memory can be changed by the -Xmx argument in the mpa-viewer.bat and mpa-viewer.sh file,
-   the default it set to -Xmx1500m (for 1500 MB RAM).
+   the default it set to -Xmx3000m (for 3 GB RAM).
 
    ===============================
     MetaProteomeAnalyzer Web Page
