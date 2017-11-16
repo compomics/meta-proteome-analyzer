@@ -11,7 +11,7 @@
 		<jar destfile="${build}/${distro-name}.jar" filesetmanifest="mergewithoutmain">
 			<manifest>
 				<attribute name="Main-Class" value="de.mpa.main.Starter"/>
-				<attribute name="Class-Path" value=". lib/junit-4.9.jar lib/jgoodies-forms-1.5.0.jar lib/jgoodies-common-1.3.0.jar lib/commons-codec-1.6.jar lib/swingx-all-1.6.4.jar lib/jcommon-1.0.16.jar lib/balloontip-1.2.1.jar lib/log4j-1.2.17.jar lib/swing-layout-1.0.3.jar lib/keggapi.jar lib/commons-discovery-0.2.jar lib/jfreechart-1.0.14.jar lib/jaligner.jar lib/frames-2.2.0.jar lib/geronimo-jta_1.1_spec-1.1.1.jar lib/jgoodies-looks-2.5.3.jar lib/ColorPicker.jar lib/xpp3-1.1.4c.jar lib/xtandem-parser-1.7.5.jar lib/xxindex-0.11.jar lib/commons-lang3-3.3.2.jar lib/server-api-1.9.9.jar lib/concurrentlinkedhashmap-lru-1.3.1.jar lib/jgoodies-binding-2.6.1.jar lib/jaxrpc.jar lib/trove-3.0.3.jar lib/commons-httpclient-3.1.jar lib/aopalliance-1.0.jar lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar lib/spring-aop-4.1.6.RELEASE.jar lib/spring-beans-4.1.6.RELEASE.jar lib/spring-context-4.1.6.RELEASE.jar lib/spring-core-4.1.6.RELEASE.jar lib/spring-expression-4.1.6.RELEASE.jar lib/spring-jdbc-4.1.6.RELEASE.jar lib/spring-orm-4.1.6.RELEASE.jar lib/spring-test-4.1.6.RELEASE.jar lib/spring-tx-4.1.6.RELEASE.jar lib/spring-web-4.1.6.RELEASE.jar lib/spring-webmvc-4.1.6.RELEASE.jar lib/activation-1.1.jar lib/antlr-runtime-3.5.jar lib/antlr4-annotations-4.3.jar lib/antlr4-runtime-4.3.jar lib/aopalliance-repackaged-2.4.0-b10.jar lib/avro-1.7.6.jar lib/avro-ipc-1.7.6.jar lib/axis2-1.6.2.jar lib/classmate-0.8.0.jar lib/commons-cli-1.2.jar lib/commons-collections-3.2.1.jar lib/commons-compress-1.4.1.jar lib/commons-lang-2.6.jar lib/commons-net-3.1.jar lib/guava-17.0.jar lib/guice-4.0.jar lib/guice-multibindings-4.0.jar lib/hamcrest-all-1.3.jar lib/hibernate-validator-5.0.1.Final.jar lib/hk2-api-2.4.0-b10.jar lib/hk2-locator-2.4.0-b10.jar lib/hk2-utils-2.4.0-b10.jar lib/httpmime-4.4.1.jar lib/jackson-annotations-2.7.0.jar lib/jackson-core-asl-1.9.13.jar lib/jackson-mapper-asl-1.9.13.jar lib/javassist-3.18.1-GA.jar lib/javax.annotation-api-1.2.jar lib/javax.inject-1.jar lib/javax.inject-2.4.0-b10.jar lib/javax.ws.rs-api-2.0.1.jar lib/jboss-logging-3.1.1.GA.jar lib/jcommander-1.32.jar lib/jersey-client-2.17.jar lib/jersey-common-2.17.jar lib/jersey-guava-2.17.jar lib/jersey-media-jaxb-2.17.jar lib/jetty-6.1.26.jar lib/jetty-util-6.1.26.jar lib/joda-convert-1.3.1.jar lib/joda-time-2.1.jar lib/jsr305-2.0.3.jar lib/logback-classic-1.1.2.jar lib/logback-core-1.1.2.jar lib/mail-1.4.7.jar lib/netty-3.4.0.Final.jar lib/noggit-0.6.jar lib/org.abego.treelayout.core-1.0.1.jar lib/osgi-resource-locator-1.0.1.jar lib/paranamer-2.3.jar lib/servlet-api-2.5-20081211.jar lib/snappy-java-1.0.5.jar lib/ST4-4.0.8.jar lib/stax2-api-3.1.4.jar lib/validation-api-1.1.0.Final.jar lib/velocity-1.7.jar lib/woodstox-core-asl-4.4.1.jar lib/xmlpull-1.1.3.1.jar lib/xz-1.0.jar lib/zookeeper-3.4.6.jar lib/mzjava-core-1.1.0.jar lib/jaxb2-basics-runtime-0.11.0.jar lib/slf4j-api-1.7.20.jar lib/solr-solrj-6.1.0.jar lib/commons-io-2.5.jar lib/commons-logging-1.1.1.jar lib/antlr4-4.5.3.jar lib/httpclient-4.4.1.jar lib/jackson-core-2.7.5.jar lib/japi-1.0.9.jar lib/httpcore-4.4.1.jar lib/jackson-databind-2.7.5.jar lib/jcl-over-slf4j-1.7.7.jar lib/xstream-1.4.9.jar lib/utilities-4.11.4.jar lib/braf-1.0.1.jar lib/jsuffixarrays-0.1.0.jar lib/fastutil-6.5.1.jar lib/xmlSchemaValidator-2.1.jar lib/jmzidentml-1.1.9.jar lib/ms-data-core-api-2.0.6.jar lib/pride-utilities-2.0.6.jar lib/mapdb-3.0.5.jar lib/lz4-1.3.0.jar lib/kotlin-stdlib-1.0.7.jar lib/kotlin-runtime-1.1.3.jar lib/elsa-3.0.0-M5.jar lib/eclipse-collections-8.2.0.jar lib/eclipse-collections-api-8.2.0.jar lib/eclipse-collections-forkjoin-8.2.0.jar"/>
+				<attribute name="Class-Path" value=". lib/junit-4.9.jar lib/jgoodies-forms-1.5.0.jar lib/jgoodies-common-1.3.0.jar lib/commons-codec-1.6.jar lib/swingx-all-1.6.4.jar lib/jcommon-1.0.16.jar lib/balloontip-1.2.1.jar lib/log4j-1.2.17.jar lib/swing-layout-1.0.3.jar lib/keggapi.jar lib/commons-discovery-0.2.jar lib/jfreechart-1.0.14.jar lib/jaligner.jar lib/frames-2.2.0.jar lib/geronimo-jta_1.1_spec-1.1.1.jar lib/jgoodies-looks-2.5.3.jar lib/ColorPicker.jar lib/xpp3-1.1.4c.jar lib/xtandem-parser-1.7.5.jar lib/xxindex-0.11.jar lib/commons-lang3-3.3.2.jar lib/server-api-1.9.9.jar lib/concurrentlinkedhashmap-lru-1.3.1.jar lib/jgoodies-binding-2.6.1.jar lib/jaxrpc.jar lib/trove-3.0.3.jar lib/commons-httpclient-3.1.jar lib/aopalliance-1.0.jar lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar lib/spring-aop-4.1.6.RELEASE.jar lib/spring-beans-4.1.6.RELEASE.jar lib/spring-context-4.1.6.RELEASE.jar lib/spring-core-4.1.6.RELEASE.jar lib/spring-expression-4.1.6.RELEASE.jar lib/spring-jdbc-4.1.6.RELEASE.jar lib/spring-orm-4.1.6.RELEASE.jar lib/spring-test-4.1.6.RELEASE.jar lib/spring-tx-4.1.6.RELEASE.jar lib/spring-web-4.1.6.RELEASE.jar lib/spring-webmvc-4.1.6.RELEASE.jar lib/activation-1.1.jar lib/antlr-runtime-3.5.jar lib/antlr4-annotations-4.3.jar lib/antlr4-runtime-4.3.jar lib/aopalliance-repackaged-2.4.0-b10.jar lib/avro-1.7.6.jar lib/avro-ipc-1.7.6.jar lib/axis2-1.6.2.jar lib/classmate-0.8.0.jar lib/commons-cli-1.2.jar lib/commons-collections-3.2.2.jar lib/commons-compress-1.12.jar lib/commons-lang-2.6.jar lib/commons-net-3.6.jar lib/guava-19.0.jar lib/guice-4.0.jar lib/guice-multibindings-4.0.jar lib/hamcrest-all-1.3.jar lib/hibernate-validator-5.0.1.Final.jar lib/hk2-api-2.4.0-b10.jar lib/hk2-locator-2.4.0-b10.jar lib/hk2-utils-2.4.0-b10.jar lib/httpmime-4.4.1.jar lib/jackson-annotations-2.7.0.jar lib/jackson-core-asl-1.9.13.jar lib/jackson-mapper-asl-1.9.13.jar lib/javassist-3.18.1-GA.jar lib/javax.annotation-api-1.2.jar lib/javax.inject-1.jar lib/javax.inject-2.4.0-b10.jar lib/javax.ws.rs-api-2.0.1.jar lib/jboss-logging-3.1.1.GA.jar lib/jcommander-1.32.jar lib/jersey-client-2.17.jar lib/jersey-common-2.17.jar lib/jersey-guava-2.17.jar lib/jersey-media-jaxb-2.17.jar lib/jetty-6.1.26.jar lib/jetty-util-6.1.26.jar lib/joda-convert-1.3.1.jar lib/joda-time-2.1.jar lib/jsr305-2.0.3.jar lib/logback-classic-1.1.7.jar lib/logback-core-1.1.7.jar lib/mail-1.4.7.jar lib/metrics-core-3.1.0.jar lib/netty-3.4.0.Final.jar lib/noggit-0.6.jar lib/org.abego.treelayout.core-1.0.1.jar lib/osgi-resource-locator-1.0.1.jar lib/paranamer-2.3.jar lib/servlet-api-2.5-20081211.jar lib/snappy-java-1.0.5.jar lib/ST4-4.0.8.jar lib/stax2-api-3.1.4.jar lib/validation-api-1.1.0.Final.jar lib/velocity-1.7.jar lib/woodstox-core-asl-4.4.1.jar lib/xmlpull-1.1.3.1.jar lib/xz-1.0.jar lib/zookeeper-3.4.6.jar lib/mzjava-core-1.1.0.jar lib/jaxb2-basics-runtime-0.11.0.jar lib/slf4j-api-1.7.20.jar lib/solr-solrj-6.1.0.jar lib/commons-io-2.5.jar lib/commons-logging-1.2.jar lib/antlr4-4.5.3.jar lib/httpclient-4.4.1.jar lib/jackson-core-2.7.5.jar lib/japi-1.0.16.jar lib/httpcore-4.4.1.jar lib/jackson-databind-2.7.5.jar lib/jcl-over-slf4j-1.7.7.jar lib/xstream-1.4.9.jar lib/utilities-4.11.4.jar lib/braf-1.0.1.jar lib/jsuffixarrays-0.1.0.jar lib/fastutil-6.5.1.jar lib/xmlSchemaValidator-2.1.jar lib/jmzidentml-1.1.9.jar lib/ms-data-core-api-2.0.6.jar lib/pride-utilities-2.0.6.jar lib/mapdb-3.0.5.jar lib/lz4-1.3.0.jar lib/kotlin-stdlib-1.0.7.jar lib/kotlin-runtime-1.1.3.jar lib/elsa-3.0.0-M5.jar lib/eclipse-collections-8.2.0.jar lib/eclipse-collections-api-8.2.0.jar lib/eclipse-collections-forkjoin-8.2.0.jar"/>
 			</manifest>
 			<fileset dir="bin"/>
 			</jar>
@@ -67,11 +67,11 @@
         <copy file="lib/axis2-1.6.2.jar" todir="${build}/lib"/>
         <copy file="lib/classmate-0.8.0.jar" todir="${build}/lib"/>
         <copy file="lib/commons-cli-1.2.jar" todir="${build}/lib"/>
-        <copy file="lib/commons-collections-3.2.1.jar" todir="${build}/lib"/>
-        <copy file="lib/commons-compress-1.4.1.jar" todir="${build}/lib"/>
+        <copy file="lib/commons-collections-3.2.2.jar" todir="${build}/lib"/>
+        <copy file="lib/commons-compress-1.12.jar" todir="${build}/lib"/>
         <copy file="lib/commons-lang-2.6.jar" todir="${build}/lib"/>
-        <copy file="lib/commons-net-3.1.jar" todir="${build}/lib"/>
-        <copy file="lib/guava-17.0.jar" todir="${build}/lib"/>
+        <copy file="lib/commons-net-3.6.jar" todir="${build}/lib"/>
+        <copy file="lib/guava-19.0.jar" todir="${build}/lib"/>
         <copy file="lib/guice-4.0.jar" todir="${build}/lib"/>
         <copy file="lib/guice-multibindings-4.0.jar" todir="${build}/lib"/>
         <copy file="lib/hamcrest-all-1.3.jar" todir="${build}/lib"/>
@@ -99,9 +99,10 @@
         <copy file="lib/joda-convert-1.3.1.jar" todir="${build}/lib"/>
         <copy file="lib/joda-time-2.1.jar" todir="${build}/lib"/>
         <copy file="lib/jsr305-2.0.3.jar" todir="${build}/lib"/>
-        <copy file="lib/logback-classic-1.1.2.jar" todir="${build}/lib"/>
-        <copy file="lib/logback-core-1.1.2.jar" todir="${build}/lib"/>
+        <copy file="lib/logback-classic-1.1.7.jar" todir="${build}/lib"/>
+        <copy file="lib/logback-core-1.1.7.jar" todir="${build}/lib"/>
         <copy file="lib/mail-1.4.7.jar" todir="${build}/lib"/>
+		<copy file="lib/metrics-core-3.1.0.jar" todir="${build}/lib"/>
         <copy file="lib/netty-3.4.0.Final.jar" todir="${build}/lib"/>
         <copy file="lib/noggit-0.6.jar" todir="${build}/lib"/>
         <copy file="lib/org.abego.treelayout.core-1.0.1.jar" todir="${build}/lib"/>
@@ -122,11 +123,11 @@
         <copy file="lib/slf4j-api-1.7.20.jar" todir="${build}/lib"/>
         <copy file="lib/solr-solrj-6.1.0.jar" todir="${build}/lib"/>
         <copy file="lib/commons-io-2.5.jar" todir="${build}/lib"/>
-        <copy file="lib/commons-logging-1.1.1.jar" todir="${build}/lib"/>
+        <copy file="lib/commons-logging-1.2.jar" todir="${build}/lib"/>
         <copy file="lib/antlr4-4.5.3.jar" todir="${build}/lib"/>
         <copy file="lib/httpclient-4.4.1.jar" todir="${build}/lib"/>
         <copy file="lib/jackson-core-2.7.5.jar" todir="${build}/lib"/>
-        <copy file="lib/japi-1.0.9.jar" todir="${build}/lib"/>
+        <copy file="lib/japi-1.0.16.jar" todir="${build}/lib"/>
         <copy file="lib/httpcore-4.4.1.jar" todir="${build}/lib"/>
         <copy file="lib/jackson-databind-2.7.5.jar" todir="${build}/lib"/>
         <copy file="lib/jcl-over-slf4j-1.7.7.jar" todir="${build}/lib"/>
