@@ -585,6 +585,7 @@ public class MetaProteinFactory {
 																		// distinct
 																		// peptides
 
+		
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
 		client.firePropertyChange("resetall", -1L,
 				(long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
@@ -592,7 +593,6 @@ public class MetaProteinFactory {
 
 		// Define common peptide taxonomy for each peptide
 		TaxonomyUtils.determinePeptideTaxonomy(peptideSet, TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR);
-
 		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 
 		// Apply FDR cut-off
@@ -607,7 +607,6 @@ public class MetaProteinFactory {
 		// TaxonomyUtils.determineProteinTaxonomy(proteinList, params);
 
 		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
-
 		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
 		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
 		// Combine proteins to metaproteins
@@ -658,10 +657,10 @@ public class MetaProteinFactory {
 		// TODO: update this section
 
 		// 0. --> listen mit indizes
-		// 1. große while schleife mit "no-merge"-boolean für abbruch
+		// 1. grosse while schleife mit "no-merge"-boolean fÃ¼r abbruch
 		// 2. doppelte for schleife auf selber liste --> nur vergleich,
 		// merge-liste anlegen
-		// 3. innerhalb while schleife: echten merge durchführen und wiederholen
+		// 3. innerhalb while schleife: echten merge durchfÃ¼hren und wiederholen
 
 		boolean keep_merging = true;
 		while (keep_merging) {
@@ -671,9 +670,6 @@ public class MetaProteinFactory {
 			keep_merging = false;
 			for (int outer_count = 0; outer_count < metaProteins.size(); outer_count++) {
 				Client.getInstance().firePropertyChange("progressmade", false, true);
-//				if ((outer_count % 1000) == 0) {
-//					System.out.println("Progress: " + ((double) outer_count/(1.0*metaProteins.size())*100));
-//				}
 				for (int inner_count = 0; inner_count < metaProteins.size(); inner_count++) {
 					if (outer_count != inner_count) {
 						MetaProteinHit outer_metaprotein = metaProteins.get(outer_count);
@@ -727,12 +723,10 @@ public class MetaProteinFactory {
 					}
 				}
 			}
+			
 			// processing mergelist, make it a non-redundant list of sets of
 			// proteins to be merged
 			for (Integer mapIndex : merge_map.keySet()) {
-//				if ((mapIndex % 1000) == 0) {
-//					System.out.println("Progress: " + ((double) mapIndex/(1.0*merge_map.size())*100));
-//				}
 				Queue<Integer> indexProcessing = new LinkedBlockingQueue<>();
 				indexProcessing.addAll(merge_map.get(mapIndex));
 
@@ -745,27 +739,16 @@ public class MetaProteinFactory {
 						merge_map.get(index).clear();
 					}
 				}
-
-				// while (merge_set.hasNext()) {
-				// int index = merge_set.next();
-				// if (index != mapIndex) {
-				// HashSet<Integer> currentMergeSet = merge_map.get(index);
-				// merge_map.get(mapIndex).addAll(currentMergeSet);
-				// merge_map.get(index).clear();
-				// }
-				// }
 			}
 			// create new metaproteinlist by merging entries
 			ArrayList<MetaProteinHit> metaproteins_new = new ArrayList<>();
 			int debugcount = 0;
-			for (HashSet<Integer> merge_set : merge_map.values()) {
+			for (Integer mergeMapIndex : merge_map.keySet()) {
+				HashSet<Integer> merge_set = merge_map.get(mergeMapIndex);
 				Client.getInstance().firePropertyChange("progressmade", false, true);
-//				if ((debugcount % 1000) == 0) {
-//					System.out.println("Progress: " + ((double) debugcount/(1.0*merge_map.size())*100));
-//				}
-				debugcount++;
 				MetaProteinHit merge_into_entry = null;
 				if (merge_set.size() > 0) {
+					// this is where the BUG is!! This loop is messed up and 
 					for (Integer index : merge_set) {
 						if (merge_into_entry == null) {
 							// the first list entry is the metaprotein we merge
@@ -786,6 +769,7 @@ public class MetaProteinFactory {
 									&& !current_entry_to_merge.getUniProtEntry().getUniProtID().equals(-1L)) {
 								uniprotList.add(current_entry_to_merge.getUniProtEntry());
 							}
+							// THIS IS THE BUG! for some reason it has uniprotid == -1 even if it should not 
 							if (merge_into_entry.getUniProtEntry() != null
 									&& !merge_into_entry.getUniProtEntry().getUniProtID().equals(-1L)) {
 								uniprotList.add(merge_into_entry.getUniProtEntry());
@@ -798,6 +782,7 @@ public class MetaProteinFactory {
 							} else if (uniprotList.size() == 1) {
 								commonUniprotEntry = uniprotList.get(0);
 							} else {
+								System.out.println("should never ever happen!");
 								commonUniprotEntry = null;
 							}
 							merge_into_entry.setUniprotEntry(commonUniprotEntry);
@@ -811,99 +796,6 @@ public class MetaProteinFactory {
 			}
 			metaProteins = metaproteins_new;
 		}
-		// // Iterate (initially single-protein) meta-proteins
-		// Iterator<MetaProteinHit> rowIter = metaProteins.iterator();
-		// while (rowIter.hasNext()) {
-		// MetaProteinHit rowMP = rowIter.next();
-		//
-		// // Get set of peptide sequences
-		// ArrayList<PeptideHit> rowPeps = rowMP.getPeptides();
-		// Set<String> rowPepSeqs = new HashSet<String>() ;
-		// for (PeptideHit peptideHit : rowPeps) {
-		// // Make copy of sequence string to avoid overwriting the original
-		// sequence
-		// String sequence = new String(peptideHit.getSequence());
-		// // Merge leucine and isoleucine if not considered distinct
-		// if (!distinctIL) {
-		// sequence = sequence.replaceAll("[IL]", "L");
-		// }
-		// rowPepSeqs.add(sequence);
-		// }
-		//
-		// // Nested iteration of the same meta-protein list, stop when outer
-		// and inner iteration element
-		// // are identical, iterate backwards from the end of the list
-		// ListIterator<MetaProteinHit> colIter =
-		// metaProteins.listIterator(metaProteins.size());
-		//
-		// while (colIter.hasPrevious()) {
-		// MetaProteinHit colMP = (MetaProteinHit) colIter.previous();
-		// // Check termination condition
-		// if (rowMP == colMP) {
-		// break;
-		// }
-		//
-		// // Get set of peptide sequences (of inner iteration element)
-		// ArrayList<PeptideHit> colPeps = colMP.getPeptides();
-		// Set<String> colPepSeqs = new HashSet<String>() ;
-		// for (PeptideHit peptideHit : colPeps) {
-		// // Make copy of sequence string to avoid overwriting the original
-		// sequence
-		// String sequence = new String(peptideHit.getSequence());
-		// // Merge leucine and isoleucine into one if desired
-		// if (!distinctIL) {
-		// sequence = sequence.replaceAll("[IL]", "L");
-		// }
-		// colPepSeqs.add(sequence);
-		// }
-		//
-		// // Merge meta-proteins if rules apply
-		// if (clusterRule.shouldCondense(rowMP, colMP)
-		// && peptideRule.shouldCondense(rowPepSeqs, colPepSeqs)
-		// && taxonomyRule.shouldCondense(rowMP, colMP)) {
-		//
-		// // Add all proteins of outer meta-protein to inner meta-protein
-		// colMP.getProteinHitList().addAll(rowMP.getProteinHitList());
-		//
-		// // Calculate common ancestor uniprot entry
-		// ArrayList<UniProtEntryMPA> uniprotList = new
-		// ArrayList<UniProtEntryMPA>();
-		//
-		// if (colMP.getUniProtEntry() != null &&
-		// !colMP.getUniProtEntry().getUniProtID().equals(-1L)) {
-		// uniprotList.add(colMP.getUniProtEntry());
-		// }
-		// if (rowMP.getUniProtEntry() != null &&
-		// !rowMP.getUniProtEntry().getUniProtID().equals(-1L)) {
-		// uniprotList.add(rowMP.getUniProtEntry());
-		// }
-		// UniProtEntryMPA commonUniprotEntry;
-		// if (uniprotList.size() > 1) {
-		// commonUniprotEntry =
-		// UniProtUtilities.getCommonUniprotEntry(uniprotList, taxonomyMap,
-		// (TaxonomyUtils.TaxonomyDefinition)
-		// params.get("metaProteinTaxonomy").getValue());
-		// } else if (uniprotList.size() == 1){
-		// commonUniprotEntry = uniprotList.get(0);
-		// } else {
-		// commonUniprotEntry = null;
-		// }
-		// colMP.setUniprotEntry(commonUniprotEntry);
-		// if (commonUniprotEntry != null) {
-		// colMP.setTaxonomyNode(commonUniprotEntry.getTaxonomyNode());
-		// }
-		//
-		// // Remove emptied outer meta-protein from list
-		// rowIter.remove();
-		// // Abort inner iteration as outer element has been removed and
-		// // therefore cannot be merged into another meta-protein again
-		// break;
-		// }
-		// }
-		//
-		// // Fire progress notification
-		// Client.getInstance().firePropertyChange("progressmade", false, true);
-		// }
 
 		// TODO: end of section
 

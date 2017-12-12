@@ -1033,7 +1033,7 @@ public class UniProtUtilities {
 			uniRef100s.add(uniProtEntryMPA.getUniRefMPA().getUniRef100());
 			uniRef90s.add(uniProtEntryMPA.getUniRefMPA().getUniRef90());
 			uniRef50s.add(uniProtEntryMPA.getUniRefMPA().getUniRef50());
-		}	
+		}
 		// common Unirefs are used if all non-"EMPTY" Unirefs are equal (there is just one of them) 
 		// If there are two different unirefs the common entry remains "EMPTY" denoting no common uniref cluster
 		String common_uniref100 = "EMPTY";
@@ -1064,7 +1064,10 @@ public class UniProtUtilities {
 				new ArrayList<String>(ecnumbers),
 				new ArrayList<String>(konumbers),
 				new ArrayList<String>(keywords),
-				uniRefMPA); 
+				uniRefMPA);
+		// this prevents this uniprotentry from being considered Empty
+		// this workaround may also be achieved in MetaProteinFactory by allowing mergeEntries to have -1 as ID
+		commonUniProtMPAentry.setUniProtID(-2L);
 		return commonUniProtMPAentry;
 	}
 }

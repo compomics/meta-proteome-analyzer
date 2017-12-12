@@ -287,7 +287,6 @@ public class TaxonomyUtils {
 				taxonNodes.add(proteinHit.getTaxonomyNode());
 			}
 
-
 			// Find common ancestor node
 			TaxonomyNode ancestor = taxonNodes.get(0);
 			for (int i = 0; i < taxonNodes.size(); i++) {

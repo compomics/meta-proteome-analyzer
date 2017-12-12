@@ -249,6 +249,16 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 	public void setUniRefMPA(UniRefEntryMPA uniRefMPA) {
 		this.uniRefMPA = uniRefMPA;
 	}
+	
+	/**
+	 * This setter can change the uniprotid, its use is to change it from -1 to something else (like -2) 
+	 * to prevent the entry from being classified as "None"
+	 * 
+	 * @param id
+	 */
+	public void setUniProtID(Long id) {
+		this.uniProtID = id;
+	}
 
 	/**
 	 * Get TaxonNode for this taxID
