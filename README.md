@@ -5,6 +5,7 @@
   * [Introduction](#introduction)
   * [MPA Portable](#mpa-portable)
   * [Command Line Usage](#command-line-usage)
+  * [MzIdentML Import](#mzidentml-import)
   * [Features](#features)
   * [System Requirements](#system-requirements)
   * [Conda Package](#conda-package)
