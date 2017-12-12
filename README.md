@@ -84,7 +84,13 @@
 
 MPA can also be used via the command line, see [MetaProteomeAnalyzerCLI](https://github.com/compomics/meta-proteome-analyzer/wiki/MetaProteomeAnalyzerCLI) for details.
 
---
+---
+
+## MzIdentML Import ##
+
+It is also possible to import results in mzIdentML format which have been generated in other database search tools, see [MzIdentML-Import](https://github.com/compomics/meta-proteome-analyzer/wiki/MzIdentML-Import) for details.
+
+---
 
 ## Features ##
 
@@ -99,7 +105,7 @@ The MPA metaproteomics software comes with the following key features:
   * Label-free quantification methods
   * Command line interface (for high-throughput processing tasks)
   * Interactive overview for each result set
-  * Portable application 
+  * Platform-independet portable application 
 
 ---
 
