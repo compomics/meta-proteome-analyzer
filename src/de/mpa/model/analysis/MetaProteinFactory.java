@@ -782,7 +782,6 @@ public class MetaProteinFactory {
 							} else if (uniprotList.size() == 1) {
 								commonUniprotEntry = uniprotList.get(0);
 							} else {
-								System.out.println("should never ever happen!");
 								commonUniprotEntry = null;
 							}
 							merge_into_entry.setUniprotEntry(commonUniprotEntry);
