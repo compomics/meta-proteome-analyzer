@@ -190,13 +190,19 @@ public class ClientFrame extends JFrame {
 		// Store tab icons, titles and corresponding panels in arrays
 		ImageIcon[] icons = { IconConstants.PROJECT_ICON, IconConstants.INPUT_ICON, IconConstants.RESULTS_ICON,
 				// IconConstants.RESULTS_ICON,
-				IconConstants.LOGGING_ICON , IconConstants.MPA_EMPTY_ICON, IconConstants.DENBI_ICON};
+				IconConstants.LOGGING_ICON 
+//				, IconConstants.MPA_EMPTY_ICON, IconConstants.DENBI_ICON
+				};
 		String[] titles = { "Project", "Input Spectra", "View Results",
 				// "Spectrum Results",
-				"Logging" , "", ""};
+				"Logging" 
+//				, "", ""
+				};
 		Component[] panels = { this.projectPnl, this.filePnl, this.resultPnl,
 				// spectrumResultPnl,
-				this.loggingPnl , null, null};
+				this.loggingPnl 
+//				, null, null
+				};
 
 		// Modify tab pane visuals for this single instance, restore defaults
 		// afterwards
@@ -212,13 +218,18 @@ public class ClientFrame extends JFrame {
 		// Add tabs with rollover-capable tab components
 		int maxWidth = 0, maxHeight = 0;
 		for (int i = 0; i < panels.length; i++) {
-			System.out.println(titles[i]);
 			this.tabPane.addTab(titles[i], icons[i], panels[i]);
 			
 			Component tabButton = this.tabPane.getTabComponentAt(i);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
 			maxHeight = Math.max(maxHeight, tabButton.getPreferredSize().height);
 		}
+		
+		//adjust the width with the Logo if needed
+		JLabel denbiLogo = new JLabel(IconConstants.DENBI_ICON);
+		maxWidth = Math.max(maxWidth, denbiLogo.getPreferredSize().width);
+		denbiLogo.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
+		
 		// Ensure proper tab component alignment by resizing them w.r.t. the
 		// largest component
 		for (int i = 0; i < panels.length; i++) {
@@ -226,26 +237,25 @@ public class ClientFrame extends JFrame {
 		}
 
 		// Add discrete little bevel border
-		this.tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
+		//this.tabPane.setBorder(new ThinBevelBorder(BevelBorder.LOWERED, new Insets(0, 1, 1, 1)));
 
 		for (int i = ClientFrame.INDEX_INPUT_PANEL; i < ClientFrame.INDEX_LOGGING_PANEL; i++) {
 			this.tabPane.setEnabledAt(i, false);
 		}
 		
-		
-		System.out.println(this.tabPane.getTabCount());
-	
-		
-		this.tabPane.getTabComponentAt(4).setPreferredSize(new Dimension(maxWidth, 450));
-		this.tabPane.getTabComponentAt(5).setPreferredSize(new Dimension(maxWidth, 50));
-		this.tabPane.setEnabledAt(4, false);
-		this.tabPane.setEnabledAt(5, true);
-		this.tabPane.setDisabledIconAt(5, IconConstants.DENBI_ICON);
-		
 		// Add components to content pane
 		setJMenuBar(this.menuBar);
 		cp.add(this.tabPane);
-		cp.add(this.statusPnl, BorderLayout.SOUTH);
+		
+		//panel for logo and status panel
+		JPanel southPanel = new JPanel();
+		southPanel.setLayout(new BorderLayout());
+		//add logo
+		southPanel.add(denbiLogo, BorderLayout.WEST);
+		//add statuspanel
+		southPanel.add(this.statusPnl, BorderLayout.SOUTH);
+		//add the logo + statuspanel to frame
+		cp.add(southPanel, BorderLayout.SOUTH);
 
 		// Set application icon
 		setIconImage(IconConstants.MPA_ICON.getImage());
