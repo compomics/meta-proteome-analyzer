@@ -12,10 +12,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -188,13 +190,13 @@ public class ClientFrame extends JFrame {
 		// Store tab icons, titles and corresponding panels in arrays
 		ImageIcon[] icons = { IconConstants.PROJECT_ICON, IconConstants.INPUT_ICON, IconConstants.RESULTS_ICON,
 				// IconConstants.RESULTS_ICON,
-				IconConstants.LOGGING_ICON };
+				IconConstants.LOGGING_ICON , IconConstants.MPA_EMPTY_ICON, IconConstants.DENBI_ICON};
 		String[] titles = { "Project", "Input Spectra", "View Results",
 				// "Spectrum Results",
-				"Logging" };
+				"Logging" , "", ""};
 		Component[] panels = { this.projectPnl, this.filePnl, this.resultPnl,
 				// spectrumResultPnl,
-				this.loggingPnl };
+				this.loggingPnl , null, null};
 
 		// Modify tab pane visuals for this single instance, restore defaults
 		// afterwards
@@ -206,10 +208,13 @@ public class ClientFrame extends JFrame {
 		UIManager.put("TabbedPane.tabInsets", tabInsets);
 		UIManager.put("TabbedPane.contentBorderInsets", contentBorderInsets);
 
+		
 		// Add tabs with rollover-capable tab components
 		int maxWidth = 0, maxHeight = 0;
 		for (int i = 0; i < panels.length; i++) {
+			System.out.println(titles[i]);
 			this.tabPane.addTab(titles[i], icons[i], panels[i]);
+			
 			Component tabButton = this.tabPane.getTabComponentAt(i);
 			maxWidth = Math.max(maxWidth, tabButton.getPreferredSize().width);
 			maxHeight = Math.max(maxHeight, tabButton.getPreferredSize().height);
@@ -226,7 +231,17 @@ public class ClientFrame extends JFrame {
 		for (int i = ClientFrame.INDEX_INPUT_PANEL; i < ClientFrame.INDEX_LOGGING_PANEL; i++) {
 			this.tabPane.setEnabledAt(i, false);
 		}
-
+		
+		
+		System.out.println(this.tabPane.getTabCount());
+	
+		
+		this.tabPane.getTabComponentAt(4).setPreferredSize(new Dimension(maxWidth, 450));
+		this.tabPane.getTabComponentAt(5).setPreferredSize(new Dimension(maxWidth, 50));
+		this.tabPane.setEnabledAt(4, false);
+		this.tabPane.setEnabledAt(5, true);
+		this.tabPane.setDisabledIconAt(5, IconConstants.DENBI_ICON);
+		
 		// Add components to content pane
 		setJMenuBar(this.menuBar);
 		cp.add(this.tabPane);

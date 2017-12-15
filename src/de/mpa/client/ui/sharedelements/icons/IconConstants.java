@@ -27,6 +27,10 @@ public class IconConstants {
 	/** <img src="../../../resources/icons/mpa01.png"> */
 	public static final ImageIcon MPA_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/mpa01.png"));
 	public static final ImageIcon MPA_SMALL_ICON = IconConstants.createRescaledIcon(IconConstants.MPA_ICON, 16, 16);
+	public static final ImageIcon MPA_EMPTY_ICON = IconConstants.createRescaledIcon(IconConstants.MPA_ICON, 1, 1);
+	
+	/** <img src="../../../resources/icons/denbi.png"> */
+	public static final ImageIcon DENBI_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/images/denbi_h50.png"));
 	
 	/** <img src="../../../resources/icons/project48.png"> */
 	public static final ImageIcon PROJECT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/project48.png"));
