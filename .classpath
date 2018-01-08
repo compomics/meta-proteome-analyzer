@@ -5,7 +5,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/javax.inject-2.4.0-b10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jboss-logging-3.1.1.GA.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/avro-ipc-1.7.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hamcrest-all-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.16.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-aop-4.1.6.RELEASE.jar"/>
@@ -23,7 +22,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/blueprints-neo4j-graph-2.2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/swing-layout-1.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/neo4j-lucene-index-1.9.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlpull-1.1.3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hk2-locator-2.4.0-b10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar"/>
@@ -57,15 +55,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/jcommander-1.32.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-4.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/utilities-3.17.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-net-3.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/zookeeper-3.4.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-17.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-context-4.1.6.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/keggapi.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/solr-solrj-6.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity-1.7.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/neo4j-cypher-1.9.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/woodstox-core-asl-4.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-annotations-2.7.0.jar"/>
@@ -81,7 +75,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-compress-1.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/noggit-0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guice-multibindings-4.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/antlr4-4.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/aopalliance.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis2-1.6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-webmvc-4.1.6.RELEASE.jar"/>
@@ -89,7 +82,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/logback-classic-1.1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-beans-4.1.6.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/netty-3.4.0.Final.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackson-databind-2.7.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb2-basics-runtime-0.9.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-util-6.1.26.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc.jar"/>
@@ -104,17 +96,14 @@
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ST4-4.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ColorPicker.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.3.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/validation-api-1.1.0.Final.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/stax2-api-3.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-discovery-0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgoodies-binding-2.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-jdbc-4.1.6.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/scala-library-2.10.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/neo4j-shell-1.9.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpcore-4.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/avro-1.7.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime-3.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.14.jar"/>
@@ -134,6 +123,21 @@
 	<classpathentry exported="true" kind="lib" path="lib/balloontip-1.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/classmate-0.8.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaligner.jar"/>
-	<classpathentry kind="lib" path="lib/japi-1.0.13.jar"/>
+	<classpathentry kind="lib" path="lib/antlr4-4.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-3.6.jar"/>
+	<classpathentry kind="lib" path="lib/guava-19.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.7.5.jar"/>
+	<classpathentry kind="lib" path="lib/japi-1.0.16.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail-api-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/jaxb2-basics-runtime-0.11.0.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-classic-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/logback-core-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/metrics-core-3.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.20.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
