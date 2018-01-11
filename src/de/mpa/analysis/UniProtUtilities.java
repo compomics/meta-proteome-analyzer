@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +19,15 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefDatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniref.UniRefEntry;
 import uk.ac.ebi.kraken.interfaces.uniref.member.UniRefRepresentativeMember;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryIterator;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-import uk.ac.ebi.kraken.uuw.services.remoting.Query;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
+import uk.ac.ebi.uniprot.dataservice.client.Client;
+import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
+import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
+import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefQueryBuilder;
+import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
+import uk.ac.ebi.uniprot.dataservice.query.Query;
 import de.mpa.client.Constants;
 import de.mpa.main.Starter;
 
@@ -33,19 +37,13 @@ import de.mpa.main.Starter;
  * @date 19-12-2013
  */
 public class UniProtUtilities {
-	
+
 	// Max clause count == BATCH SIZE is set to 1024
-	private static final int BATCH_SIZE = 1024;
-	
-	/**
-	 * The shared UniProt query service instance. 
-	 */
-	private static UniProtQueryService uniProtQueryService;
-	
-	/**
-	 * UniProt (single) entry retrieval service instance.
-	 */
-	private static EntryRetrievalService entryRetrievalService;
+	private static final int BATCH_SIZE = 256;
+
+	private UniProtService uniProtQueryService;
+	private UniRefService uniRefQueryService;
+	private ServiceFactory serviceFactoryInstance = Client.getServiceFactoryInstance();
 
 	/**
 	 * Enumeration holding ontology keywords.
@@ -61,12 +59,12 @@ public class UniProtUtilities {
 		MOLECULAR_FUNCTION(new Keyword("Molecular Function", null, null)),
 		PTM(new Keyword("PTM", null, null)),
 		TECHNICAL_TERM(new Keyword("Technical term", null, null));
-		
+
 		/**
 		 * The ontology keyword backing this category.
 		 */
 		private Keyword keyword;
-		
+
 		/**
 		 * Creates a keyword category from the specified keyword.
 		 * @param keyword the keyword wrapping the category data
@@ -74,7 +72,7 @@ public class UniProtUtilities {
 		private KeywordCategory(Keyword keyword) {
 			this.keyword = keyword;
 		}
-		
+
 		/**
 		 * Returns the keyword backing the category entry.
 		 * @return the keyword
@@ -82,7 +80,7 @@ public class UniProtUtilities {
 		public Keyword getKeyword() {
 			return keyword;
 		}
-		
+
 		@Override
 		public String toString() {
 			return keyword.getName();
@@ -102,23 +100,23 @@ public class UniProtUtilities {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Helper class for wrapping UniProt keyword-based ontology entries.
 	 * @author A. Behne
 	 */
 	public static class Keyword {
-		
+
 		/**
 		 * The name.
 		 */
 		private String name;
-		
+
 		/**
 		 * The description.
 		 */
 		private String description;
-		
+
 		/**
 		 * The parent keyword category.
 		 */
@@ -153,7 +151,7 @@ public class UniProtUtilities {
 		public String getDescription() {
 			return description;
 		}
-		
+
 		/**
 		 * Sets the description.
 		 * @param description the description to set
@@ -169,12 +167,12 @@ public class UniProtUtilities {
 		public Keyword getCategory() {
 			return category;
 		}
-		
+
 		@Override
 		public String toString() {
 			return name;
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Keyword) {
@@ -183,7 +181,7 @@ public class UniProtUtilities {
 			}
 			return false;
 		}
-		
+
 	}
 
 	/**
@@ -201,17 +199,37 @@ public class UniProtUtilities {
 		SPECIES("Species"), 
 		SUBSPECIES("Subspecies"),
 		NO_RANK("No rank"); 
-		
+
 		private String val;
 		private TaxonomyRank(String value) {
 			this.val = value;
 		}
-		
+
 		@Override
 		public String toString() {
 			return val;
 		}
-		
+
+	}
+
+
+	private void startUniprotService() {
+		this.serviceFactoryInstance = Client.getServiceFactoryInstance();
+		// start uniprot-service
+		this.uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
+		this.uniProtQueryService.start();
+		// unirefqueryservice
+		this.uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
+		this.uniRefQueryService.start();
+	}
+
+	private void stopUniprotService() {
+		this.uniRefQueryService.stop();
+		this.uniProtQueryService.stop();
+	}
+
+	public UniProtUtilities() {
+		// empty constructor
 	}
 
 	/**
@@ -219,66 +237,63 @@ public class UniProtUtilities {
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @return {@link Map} of ReducedProteinData objects.
 	 */
-	public static Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList, boolean doUniRefRetrieval) {
+	public Map<String, ReducedProteinData> retrieveProteinData(List<String> identifierList, boolean doUniRefRetrieval) {
+		// passes an arraylist<String> with accescions (and the boolean)
+		// returns TreeMap<String, ReducedProteinData>
 		Map<String, ReducedProteinData> proteinData = new TreeMap<String, ReducedProteinData>();
-		
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+		try {
+			// start uniprot service
+			this.startUniprotService();
+
+			// batches and retrieves entries
+			int maxClauseCount = BATCH_SIZE;
+			int maxBatchCount = identifierList.size() / maxClauseCount;		
+			for (int i = 0; i < maxBatchCount; i++) {
+				int startIndex = i * maxClauseCount;
+				int endIndex = (i + 1) * maxClauseCount - 1;
+				HashSet<String> shortList = new HashSet<String>(identifierList.subList(startIndex, endIndex));
+				startIndex = endIndex + 1;
+				queryUniProtEntriesByIdentifiers(shortList, proteinData, doUniRefRetrieval);
+				shortList.clear();
+			}
+			queryUniProtEntriesByIdentifiers(new HashSet<String>(identifierList.subList(maxBatchCount * maxClauseCount, identifierList.size())), proteinData, doUniRefRetrieval);
+			// stop uniprot service
+			this.stopUniprotService();
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		// Check whether UniProt query service has been established yet.
-		if (entryRetrievalService == null) {
-			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-		}
-		
-		int maxClauseCount = BATCH_SIZE;
-		int maxBatchCount = identifierList.size() / maxClauseCount;		
-		for (int i = 0; i < maxBatchCount; i++) {
-			int startIndex = i * maxClauseCount;
-			int endIndex = (i + 1) * maxClauseCount - 1;
-			List<String> shortList = new ArrayList<String>(identifierList.subList(startIndex, endIndex));
-			startIndex = endIndex + 1;
-			queryUniProtEntriesByIdentifiers(shortList, proteinData, doUniRefRetrieval);
-			shortList.clear();
-		}
-		queryUniProtEntriesByIdentifiers(new ArrayList<String>(identifierList.subList(maxBatchCount * maxClauseCount, identifierList.size())), proteinData, doUniRefRetrieval);
-		
+
 		return proteinData;
 	}
-	
+
+
 	/**
 	 * Queries the UniProt entries by identifiers.
 	 * @param identifierList {@link List} of UniProt identifiers.
 	 * @param uniprotEntries {@link Map} of UniProt entries.
+	 * @throws ServiceException 
 	 */
-	private static void queryUniProtEntriesByIdentifiers(List<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) {
-		
-		// Create entry retrival service
-		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-				
-		Query query = UniProtQueryBuilder.buildIDListQuery(identifierList);
-		EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
-		
+	private void queryUniProtEntriesByIdentifiers(HashSet<String> identifierList, Map<String, ReducedProteinData> uniprotEntries, boolean doUniRefRetrieval) throws ServiceException {
+
+		Query query = UniProtQueryBuilder.accessions(identifierList);	
+		QueryResult<UniProtEntry> entryIterator = this.uniProtQueryService.getEntries(query);
+
 		// Iterate the entries and add them to the list. 
-		for (UniProtEntry entry : entryIterator) {
-			
+		UniProtEntry entry;
+		while (entryIterator.hasNext()) {
+			entry = entryIterator.next();
 			ReducedProteinData proteinData;			
 			String accession = entry.getPrimaryUniProtAccession().getValue();
 			if (doUniRefRetrieval) {
 				// Get the UniRefEntry
-				String uniRef100Identifier = "UniRef100_" + accession;
-				UniRefEntry uniRefEntry = entryRetrievalService.getUniRefEntry(uniRef100Identifier);
-				
+				UniRefEntry uniRefEntry = this.uniRefQueryService.getEntry(accession);
+
 				if (uniRefEntry != null) {
 					UniRefRepresentativeMember member = uniRefEntry.getRepresentativeMember();
 					proteinData = new ReducedProteinData(entry, uniRefEntry.getUniRefEntryId().getValue(), member.getUniRef90EntryId().getValue(), member.getUniRef50EntryId().getValue());
 				} else {
-					ProteinData proteinData2 = entryRetrievalService.getProteinData(accession);
-					UniRefEntry uniref100 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef100);
-					UniRefEntry uniref90 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef90);
-					UniRefEntry uniref50 = proteinData2.getUniRefEntry(UniRefDatabaseType.UniRef50);
-					proteinData = new ReducedProteinData(entry, uniref100.getUniRefEntryId().getValue(), uniref90.getUniRefEntryId().getValue(), uniref50.getUniRefEntryId().getValue());
+					proteinData = new ReducedProteinData(entry, "", "", "");
 				}
 			} else {
 				proteinData = new ReducedProteinData(entry);
@@ -329,10 +344,10 @@ public class UniProtUtilities {
 		categoryMap.put("KW-9997", KeywordCategory.CODING_SEQUNCE_DIVERSITY);
 		categoryMap.put("KW-9998", KeywordCategory.CELLULAR_COMPONENT);
 		categoryMap.put("KW-9999", KeywordCategory.BIOLOGICAL_PROCESS);
-		
+
 		// Initialize ontology map
 		HashMap<String, Keyword> ontologyMap = new HashMap<String, Keyword>();
-		
+
 		try {
 			// Initialize reader
 			BufferedReader br = null;
@@ -342,7 +357,7 @@ public class UniProtUtilities {
 				InputStream is = ClassLoader.getSystemResourceAsStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "keywords-all.obo");
 				br = new BufferedReader(new InputStreamReader(is));
 			}
-			
+
 			String line;
 			String id = null;
 			String name = null;
@@ -358,7 +373,7 @@ public class UniProtUtilities {
 				}
 				if (line.startsWith("def: ")) {
 					description = line.substring(6, line.lastIndexOf('\"'));
-					
+
 					// if we reach a category's entry use it to fill out the
 					// uninitialized description string now
 					KeywordCategory category = categoryMap.get(id);
@@ -377,8 +392,26 @@ public class UniProtUtilities {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		// Return unmodifiable view of map
 		return Collections.unmodifiableMap(ontologyMap);
+	}
+
+	public UniProtEntry getUniProtEntryByAccession(String id) {
+
+		UniProtEntry up = null;
+		try {
+			this.startUniprotService();
+
+			Query query = UniProtQueryBuilder.accession(id);	
+			QueryResult<UniProtEntry> entryIterator;
+			entryIterator = this.uniProtQueryService.getEntries(query);
+			up = entryIterator.next();
+
+			this.stopUniprotService();
+		} catch (ServiceException e) {
+			e.printStackTrace();
+		}
+		return up;
 	}
 }

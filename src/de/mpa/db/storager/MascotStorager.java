@@ -211,11 +211,16 @@ public class MascotStorager extends BasicStorager {
 		client.firePropertyChange("new message", null, "PROCESSING MASCOT QUERIES FINISHED");
 		
 		// retrieve UniProt entries
+		
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES");
 		client.firePropertyChange("resetall", 0L, 100L);
 		client.firePropertyChange("indeterminate", false, true);
+		
+		// create uniprot instance
+		UniProtUtilities uniprotUtil = new UniProtUtilities();
 		Map<String, ReducedProteinData> proteinData =
-				UniProtUtilities.retrieveProteinData(new ArrayList<String>(this.uniProtCandidates), false);
+				uniprotUtil.retrieveProteinData(new ArrayList<String>(this.uniProtCandidates), false);
+		
 		client.firePropertyChange("new message", null, "QUERYING UNIPROT ENTRIES FINISHED");
 		client.firePropertyChange("indeterminate", true, false);
 		
@@ -442,38 +447,45 @@ public class MascotStorager extends BasicStorager {
 	private long storeProtein(long peptideID, ProteinHit proteinHit, ProteinMap proteinMap) throws IOException, SQLException {
 		String protAccession = proteinHit.getAccession();
 		
-		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
-		// therefore convert it to a FASTA header and parse accession from it
-		String composedHeader = "";
-		Header header;
-		String accession;	// true accession
-		if (protAccession.startsWith("sp") || protAccession.startsWith("tr")) {
-			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
-			header = Header.parseFromFASTA(composedHeader);
-			accession = header.getAccession();
-		} else {
-			composedHeader = ">" + protAccession + "|" + proteinMap.getProteinDescription(protAccession);
-			header = Header.parseFromFASTA(composedHeader);
-			if (protAccession.startsWith("gi")) {
-				protAccession = header.getAccession();
-				Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
-				accession = gi2up.get(protAccession);
-				if (accession == null) {
-					// revert to GI number
-					accession = protAccession;
-				}
-			} else {
-				accession = header.getAccession();
-			}
-		}
+		// this implementation is totally broken due to mascots weird way of saving accessions
+		// workaround -> assume mascot provides a proper accession 
 		
+		String accession = protAccession;
+		
+//		// protein hit accession is typically not a proper accession (e.g. 'sp|P86909|SCP_CHIOP'),
+//		// therefore convert it to a FASTA header and parse accession from it
+//		String composedHeader = "";
+//		Header header;
+//		String accession;	// true accession
+//		System.out.println("Mascot accession: " + protAccession);
+//		if (protAccession.startsWith("sp") || protAccession.startsWith("tr")) {
+//			composedHeader = ">" + protAccession + " " + proteinMap.getProteinDescription(protAccession);
+//			header = Header.parseFromFASTA(composedHeader);
+//			accession = header.getAccession();
+//		} else {
+//			composedHeader = ">" + protAccession + "|" + proteinMap.getProteinDescription(protAccession);
+//			header = Header.parseFromFASTA(composedHeader);
+//			if (protAccession.startsWith("gi")) {
+//				protAccession = header.getAccession();
+//				Map<String, String> gi2up = UniProtGiMapper.retrieveGiToUniProtMapping(protAccession);
+//				accession = gi2up.get(protAccession);
+//				if (accession == null) {
+//					// revert to GI number
+//					accession = protAccession;
+//				}
+//			} else {
+//				accession = header.getAccession();
+//			}
+//		}
+//		
 		// Check whether protein is already in database
 		HashMap<String, Long> proteinIdMap = MapContainer.getProteinIdMap();
 		Long proteinID = proteinIdMap.get(accession);		
 		
 		// Protein is not in database, create new one
 		if (proteinID == null) {
-			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, header.getDescription(), "", conn);
+//			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, header.getDescription(), "", conn);
+			ProteinAccessor protAccessor = ProteinAccessor.addProteinWithPeptideID(peptideID, accession, "Unknown Description for now", "", conn);
 			proteinID = (Long) protAccessor.getGeneratedKeys()[0];
 			// Mark protein for UniProt lookup
 			uniProtCandidates.add(accession);

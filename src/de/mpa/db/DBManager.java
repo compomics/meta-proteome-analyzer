@@ -159,6 +159,9 @@ public class DBManager {
 	public void queryAndStoreUniprotEntries(boolean doUniRefRetrieval) throws SQLException {
 		Map<String, ReducedProteinData> proteinDataMap = null;
 		
+		// create uniprot instance
+		UniProtUtilities uniprotUtil = new UniProtUtilities();
+		
 		// Retrieve the UniProt entries.
 		Map<String, Long> proteinHits = MapContainer.UniprotQueryProteins;
 		Set<String> keySet = proteinHits.keySet();
@@ -173,7 +176,8 @@ public class DBManager {
 			}
 		}
 		if (accessions.size() > 0) {
-			proteinDataMap = UniProtUtilities.retrieveProteinData(accessions, doUniRefRetrieval);
+			
+			proteinDataMap = uniprotUtil.retrieveProteinData(accessions, doUniRefRetrieval);
 			Set<Entry<String, ReducedProteinData>> entrySet = proteinDataMap.entrySet();
 			int counter = 0;
 			for (Entry<String, ReducedProteinData> e : entrySet) {

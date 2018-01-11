@@ -1,2 +1,2 @@
 # FASTA Databases
-files.fasta=uniprot_sprot,biogas_mg,biogas_mg2,uniprot_human,uniprot_trembl,uniprot_archaea,uniprot_sprot_bacteria,human_gut,pyrococcus,qin2010,bact594,human_gut_pyro
+files.fasta=UP_SwissProt_Nov2016

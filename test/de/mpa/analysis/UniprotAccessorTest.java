@@ -1,21 +1,26 @@
 package de.mpa.analysis;
 
+import java.util.HashSet;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import junit.framework.TestCase;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxon;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
+import uk.ac.ebi.uniprot.dataservice.client.Client;
+import uk.ac.ebi.uniprot.dataservice.client.QueryResult;
+import uk.ac.ebi.uniprot.dataservice.client.ServiceFactory;
+import uk.ac.ebi.uniprot.dataservice.client.exception.ServiceException;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtQueryBuilder;
+import uk.ac.ebi.uniprot.dataservice.client.uniprot.UniProtService;
+import uk.ac.ebi.uniprot.dataservice.client.uniref.UniRefService;
+import uk.ac.ebi.uniprot.dataservice.query.Query;
 
 /**
  * Method to test the UniprotAPi
@@ -27,7 +32,8 @@ public class UniprotAccessorTest extends TestCase {
 	/**
 	 * UniProt Query Service. 
 	 */
-	private static UniProtQueryService uniProtQueryService;
+	static UniProtService uniProtQueryService;
+	private UniRefService uniRefQueryService;
 	private String uniprotKO;
 	private String uniProtID;
 	private String type;
@@ -39,19 +45,23 @@ public class UniprotAccessorTest extends TestCase {
 	private String uniprotKegg;
 	
 	@Before
-	public void setUp() {
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-		}
+	public void setUp() throws ServiceException {
+		
+		// factory
+		ServiceFactory serviceFactoryInstance = Client.getServiceFactoryInstance();
+		// uniprot-service
+		UniprotAccessorTest.uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
+		UniprotAccessorTest.uniProtQueryService.start();
+		// unirefqueryservice
+		this.uniRefQueryService = serviceFactoryInstance.getUniRefQueryService();
+		this.uniRefQueryService.start();
+		
+		HashSet<String> accessions = new HashSet<String>();
+		accessions.add("P11558");
+		Query query = UniProtQueryBuilder.accessions(accessions);	
+		QueryResult<UniProtEntry> entryIterator = UniprotAccessorTest.uniProtQueryService.getEntries(query);
+		UniProtEntry entry = entryIterator.next();
 
-		// Create entry retrival service
-		EntryRetrievalService entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-
-		// Retrieve UniProt entry by its accession number
-		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry("P11558");
-
-		// If entry with a given accession number is not found, entry will be == null
 		if (entry != null) {
 			// UniprotID
 			uniProtID = entry.getUniProtId().getValue();
@@ -79,6 +89,9 @@ public class UniprotAccessorTest extends TestCase {
 
 			// Uniprot GO annotation
 			goTerms = entry.getGoTerms();
+			
+			uniProtQueryService.stop();
+			uniRefQueryService.stop();
 
 		}
 	}

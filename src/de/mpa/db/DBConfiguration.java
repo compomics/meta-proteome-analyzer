@@ -48,7 +48,6 @@ public class DBConfiguration {
 			String dbName = (String) connectionParams.get("dbName").getValue();
 			String dbUser = (String) connectionParams.get("dbUsername").getValue();
 			String dbPass = (String) connectionParams.get("dbPass").getValue();
-			
 			// Establish connection to the DB
 			conn = DriverManager.getConnection("jdbc:mysql://" + dbAddress + ":" + dbPort + "/" + dbName, dbUser, dbPass);
 			

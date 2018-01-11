@@ -19,11 +19,11 @@ import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntryType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
-import uk.ac.ebi.kraken.uuw.services.remoting.EntryRetrievalService;
-import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 
 import com.compomics.util.protein.Header;
 import com.compomics.util.protein.Protein;
+
+import de.mpa.analysis.UniProtUtilities;
 
 /**
  * Singleton class providing FASTA read/write capabilities via random access
@@ -67,7 +67,7 @@ public class FastaLoader {
 	/**
 	 * UniProt Entry Retrieval Service object.
 	 */
-	private EntryRetrievalService entryRetrievalService;
+//	private EntryRetrievalService entryRetrievalService;
 	
 	/**
 	 * Singleton object instance of the FastaLoader class.
@@ -77,9 +77,9 @@ public class FastaLoader {
 	/**
 	 * Private constructor as FastaLoader is a singleton object.
 	 */
-	private FastaLoader() {
-		setupUniProtQueryService();
-	}
+//	private FastaLoader() {
+//		setupUniProtQueryService();
+//	}
 
 	/**
 	 * Returns the singleton object of the FastaLoader.
@@ -94,18 +94,18 @@ public class FastaLoader {
 		return instance;
 	}
 	
-	/**
-	 * This method setups the uniprot query service.
-	 */
-	private void setupUniProtQueryService() {
-		// Check whether UniProt query service has been established yet.
-		if (uniProtQueryService == null) {
-			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-			
-			// Create entry retrival service
-			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
-		}		
-	}
+//	/**
+//	 * This method setups the uniprot query service.
+//	 */
+//	private void setupUniProtQueryService() {
+//		// Check whether UniProt query service has been established yet.
+//		if (uniProtQueryService == null) {
+//			uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
+//			
+//			// Create entry retrival service
+//			entryRetrievalService = UniProtJAPI.factory.getEntryRetrievalService();
+//		}		
+//	}
 	
 	/**
 	 * Returns a protein object queried by the UniProt webservice (if no indexed FASTA is available.
@@ -114,12 +114,24 @@ public class FastaLoader {
 	 */
 	public Protein getProteinFromWebService(String id) {
 		// Retrieve UniProt entry by its accession number
-		UniProtEntry entry = (UniProtEntry) entryRetrievalService.getUniProtEntry(id);
+		
+		// use uniprotutilites - almost like real encapsulation ...
+		
+		UniProtUtilities uu = new UniProtUtilities();
+
+		System.out.println("WebService for Accession: " + id);
+		UniProtEntry entry = uu.getUniProtEntryByAccession(id);
+		
+
 		String header = ">";
-		if(entry.getType() == UniProtEntryType.TREMBL) {
-			header += "tr|";
-		} else if(entry.getType() == UniProtEntryType.SWISSPROT) {
-			header += "sw|";
+		if (entry == null) {
+			System.out.println("Entry Null!");
+		} else {
+			if(entry.getType() == UniProtEntryType.TREMBL) {
+				header += "tr|";
+			} else if(entry.getType() == UniProtEntryType.SWISSPROT) {
+				header += "sw|";
+			}
 		}
 		header += id + "|";
 		

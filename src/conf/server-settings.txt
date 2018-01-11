@@ -5,20 +5,20 @@ app.port=8080
 path.app=/scratch/metaprot/software/
 
 # Transfer path for the spectra
-path.transfer=/scratch/metaprot/data/transfer/
+path.transfer=C:\\Users\\kaysc\\Desktop\\MPAv2\\data\\transfer\\
 
 # Path to the FASTA database folder
-path.fasta=/scratch/metaprot/data/fasta/
+path.fasta=C:\\Users\\kaysc\\Desktop\\MPAv2\\data\\fasta\\
 
 # X!Tandem
-path.xtandem=/scratch/metaprot/software/xtandem/bin/
-path.xtandem.output=/scratch/metaprot/data/output/xtandem/
+path.xtandem=C:\\Users\\kaysc\\Desktop\\MPAv2\\software\\xtandem_win\\bin\\
+path.xtandem.output=C:\\Users\\kaysc\\Desktop\\MPAv2\\data\\output\\xtandem\\
 app.xtandem=tandem.exe
 
 # OMSSA
-path.omssa=/scratch/metaprot/software/omssa/
-path.omssa.output=/scratch/metaprot/data/output/omssa/
-app.omssa=omssacl
+path.omssa=C:\\Users\\kaysc\\Desktop\\MPAv2\\software\\omssa\\
+path.omssa.output=C:\\Users\\kaysc\\Desktop\\MPAv2\\data\\output\\omssa\\
+app.omssa=omssacl.exe
 
 # Crux
 path.crux=/scratch/metaprot/software/crux/bin/
@@ -33,7 +33,7 @@ path.inspect.output.raw=/scratch/metaprot/data/output/inspect/raw/
 path.inspect.output.pvalued=/scratch/metaprot/data/output/inspect/pvalued/
 
 # QVality
-path.qvality=/usr/bin/
-app.qvality=qvality
+path.qvality=C:\\Users\\kaysc\\Desktop\\MPAv2\\software\\percolator_win\\
+app.qvality=qvality.exe
 
 

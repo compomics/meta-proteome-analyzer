@@ -18,7 +18,7 @@ public class WSPublisher {
 	
 	/**
 	 * Main method for publishing the web service on the server.
-	 * DO NOT DELETE THIS METHOD!
+	 * DO NOT DELETE THIS METHOD!!!!1!!
 	 * @param args
 	 */
 	public static void main(String[] args) {
