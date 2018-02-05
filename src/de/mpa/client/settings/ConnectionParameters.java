@@ -146,7 +146,7 @@ public class ConnectionParameters extends ParameterMap {
 		} else {
 			// easier implementation and change to src
 //			InputStream is = ClassLoader.getSystemResourceAsStream("src\\" + Constants.CONFIGURATION_PATH_JAR + File.separator + "connection-settings.txt");
-			br = new BufferedReader(new FileReader(new File("src\\" + Constants.CONFIGURATION_PATH_JAR + File.separator + "connection-settings.txt")));
+			br = new BufferedReader(new FileReader(new File("src/"+ File.separator + Constants.CONFIGURATION_PATH_JAR + File.separator + "connection-settings.txt")));
 		}
 		
 		String line;

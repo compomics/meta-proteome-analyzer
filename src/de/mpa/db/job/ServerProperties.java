@@ -54,7 +54,7 @@ public class ServerProperties {
 		// Load the resources settings via input stream.
 		
 		// adjusted path to src
-		InputStream input = new FileInputStream("src\\"  + Constants.CONFIGURATION_PATH_JAR + File.separator + "server-settings.txt");
+		InputStream input = new FileInputStream("src" + File.separator  + Constants.CONFIGURATION_PATH_JAR + File.separator + "server-settings.txt");
 		prop.load(input);
 	}
 	
