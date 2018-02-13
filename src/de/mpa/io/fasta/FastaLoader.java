@@ -573,7 +573,7 @@ public class FastaLoader {
 	 * @throws SQLException
 	 */
 	private static void createNewUniprotEntries(ArrayList<Long> proteinid_List, Connection conn, JProgressBar progressbar) throws SQLException {
-
+		
 		// TODO: catch number format exception and figure out source of this bug
 
 		// init stuff
@@ -585,7 +585,7 @@ public class FastaLoader {
 		HashSet<String> accessions = new HashSet<String>();
 		int count = 0;
 
-		// cylce list, processing every 200 entries
+		// cylce list, processing every 16 (prvsly: 200) entries
 		for (Long protid : proteinid_List) {
 			// get proteinentry and make mappings
 			ProteinAccessor curr_protein = ProteinAccessor.findFromID(protid, conn);
@@ -595,7 +595,7 @@ public class FastaLoader {
 			accessions.add(this_acc);
 			count++;
 			// time for processing
-			if ((accessions.size() > 200) || (count == proteinid_List.size())) {
+			if ((accessions.size() > 16) || (count == proteinid_List.size())) {
 				try {
 					uniprotentries = utils.processBatch(accessions, true);
 				} catch (Exception e) {

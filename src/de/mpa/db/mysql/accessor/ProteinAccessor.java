@@ -363,25 +363,26 @@ public class ProteinAccessor extends ProteinTableAccessor {
 	 * @return return_list. List of ProteinAccessor Objects for the proteins
 	 * @throws SQLException
 	 */
+	@Deprecated
 	public void updateUniprotForProtein(Connection conn) throws SQLException {
-		// Check Length of uniProt accessions is 6 for swissprot and 6 or 12 for trembl, ignore other entries
-		if (getAccession().length()  == 6 || getAccession().length() == 10 ) {
-			// fetch new uniprotentry from webservice
-			// Get UniProt information
-			UniProtUtilities utils = new UniProtUtilities();
-			// Map with UniProt entries with UniProtAccession as key
-			Set<String> proteinSet = new TreeSet<String>();
-			proteinSet.add(getAccession());
-			TreeMap<String, UniProtEntryMPA> acc2uniprotentry = utils.processBatch(proteinSet, true);
-			// create new uniprot entry
-			TreeMap<Long, UniProtEntryMPA> protid2uniprotentry = new TreeMap<Long, UniProtEntryMPA>();
-			protid2uniprotentry.put(getProteinid(), acc2uniprotentry.get(getAccession()));
-			TreeMap<Long, Long> proteinID2uniprotIDmap = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(protid2uniprotentry, conn);
-			// update protein data
-            setFK_uniProtID(proteinID2uniprotIDmap.get(getProteinid()));
-            update(conn);
-			conn.commit();
-		}
+//		// Check Length of uniProt accessions is 6 for swissprot and 6 or 12 for trembl, ignore other entries
+//		if (getAccession().length()  == 6 || getAccession().length() == 10 ) {
+//			// fetch new uniprotentry from webservice
+//			// Get UniProt information
+//			UniProtUtilities utils = new UniProtUtilities();
+//			// Map with UniProt entries with UniProtAccession as key
+//			Set<String> proteinSet = new TreeSet<String>();
+//			proteinSet.add(getAccession());
+//			TreeMap<String, UniProtEntryMPA> acc2uniprotentry = utils.processBatch(proteinSet, true);
+//			// create new uniprot entry
+//			TreeMap<Long, UniProtEntryMPA> protid2uniprotentry = new TreeMap<Long, UniProtEntryMPA>();
+//			protid2uniprotentry.put(getProteinid(), acc2uniprotentry.get(getAccession()));
+//			TreeMap<Long, Long> proteinID2uniprotIDmap = UniprotentryAccessor.addMultipleUniProtEntriesToDatabase(protid2uniprotentry, conn);
+//			// update protein data
+//            setFK_uniProtID(proteinID2uniprotIDmap.get(getProteinid()));
+//            update(conn);
+//			conn.commit();
+//		}
 	}
 	
 
