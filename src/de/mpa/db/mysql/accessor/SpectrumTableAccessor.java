@@ -759,8 +759,9 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		// construct the title-hash
 		if (title.contains("File") && title.contains("Spectrum")) {
 			// normal case
-			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)");
-			titleHash = Long.parseLong((parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim()));
+			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)|(,)");
+			String hashString = parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim();
+			titleHash = Long.parseLong(hashString);
 		} else if (title.contains("Cmpd")) {
 			// weird case (bruker versions?)
 			if (title.replaceAll("\\D+","").length() > 18) {
