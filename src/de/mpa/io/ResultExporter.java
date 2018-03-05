@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.tree.TreePath;
 
@@ -26,6 +28,8 @@ import de.mpa.client.Constants;
 import de.mpa.client.ui.sharedelements.tables.CheckBoxTreeTable;
 import de.mpa.client.ui.sharedelements.tables.ProteinTreeTables;
 import de.mpa.db.mysql.accessor.SearchHit;
+import de.mpa.model.analysis.UniProtUtilities;
+import de.mpa.model.analysis.UniProtUtilities.Keyword;
 import de.mpa.model.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
@@ -33,6 +37,7 @@ import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.model.dbsearch.ProteinHit;
 import de.mpa.model.taxonomy.TaxonomyNode;
+import de.mpa.util.ValueComparator;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and
@@ -45,6 +50,322 @@ public class ResultExporter {
 
 	public enum ExportHeaderType {
 		METAPROTEINS, METAPROTEINTAXONOMY, PROTEINTAXONOMY, PROTEINS, PEPTIDES, PSMS, SPECTRA
+	}
+
+	public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
+		Comparator<K> valueComparator = new Comparator<K>() {
+			public int compare(K k1, K k2) {
+				int compare = map.get(k1).compareTo(map.get(k2));
+				if (compare == 0)
+					return 1;
+				else
+					return compare * -1;
+			}
+		};
+
+		Map<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
+		sortedByValues.putAll(map);
+		return sortedByValues;
+	}
+
+	public static void exportChordData(String filePath, DbSearchResult result, String taxLevel, String keywordCategory,
+			int matrixSize, List<ExportHeader> exportHeaders) throws IOException {
+
+		System.out.println(taxLevel);
+		System.out.println(keywordCategory);
+		System.out.println(matrixSize);
+
+		HashSet<String> taxOnomies = new HashSet<>();
+		HashSet<String> keywords = new HashSet<>();
+
+		HashMap<String, HashMap<String, Integer>> matrix = new HashMap<>();
+
+		// loop metaprotein hits
+		for (MetaProteinHit metaHit : result.getVisibleMetaProteins()) {
+
+			TaxonomyNode taxNode = null;
+
+			// check if the right tax level
+			if (metaHit.getTaxonomyNode().getRank().name().toUpperCase().indexOf(taxLevel.toUpperCase()) >= 0) {
+				taxNode = metaHit.getTaxonomyNode();
+			} else {
+				taxNode = metaHit.getTaxonomyNode()
+						.getParentNode(UniProtUtilities.TAXONOMY_RANKS_MAP.get(taxLevel.toLowerCase()));
+			}
+
+			String taxName = " " + taxNode.getName();
+
+			taxOnomies.add(taxName);
+
+			HashMap<String, Integer> keywordsCol = null;
+
+			if (matrix.containsKey(taxName)) {
+				keywordsCol = matrix.get(taxName);
+			} else {
+				keywordsCol = new HashMap<>();
+			}
+
+			Integer spectralCount = 0;
+
+			for (ProteinHit protHit : metaHit.getVisProteinHitList()) {
+				for (String keyword : protHit.getUniProtEntry().getKeywords()) {
+					spectralCount += protHit.getSpectralCount();
+				}
+			}
+
+			for (String keyword : metaHit.getUniProtEntry().getKeywords()) {
+				if (UniProtUtilities.ONTOLOGY_MAP.get(keyword).getCategory().toString().toUpperCase()
+						.indexOf(keywordCategory.toUpperCase()) >= 0) {
+					if (keywordsCol.containsKey(keyword)) {
+						keywordsCol.put(keyword, keywordsCol.get(keyword) + spectralCount);
+					} else {
+						keywords.add(keyword);
+						keywordsCol.put(keyword, spectralCount);
+					}
+
+				}
+			}
+
+			matrix.put(taxName, keywordsCol);
+		}
+
+		String[] functionsArray = new String[keywords.size()];
+		String[] taxonomiesArray = new String[matrix.keySet().size()];
+
+		int indexFunctions = 0;
+		int indexTaxonomies = 0;
+
+		Map<String, Integer> sumFunctions = new TreeMap<>();
+		Map<String, Integer> sumTaxonomies = new TreeMap<>();
+
+		for (String keyword : keywords) {
+			functionsArray[indexFunctions] = keyword;
+			sumFunctions.put(keyword, 0);
+			indexFunctions++;
+		}
+
+		for (String tax : taxOnomies) {
+			taxonomiesArray[indexTaxonomies] = tax;
+			sumTaxonomies.put(tax, 0);
+			indexTaxonomies++;
+		}
+
+		int[][] matrixArray = new int[taxonomiesArray.length][functionsArray.length];
+
+		for (int i = 0; i < taxonomiesArray.length; i++) {
+			for (int j = 0; j < functionsArray.length; j++) {
+				if (!matrix.get(taxonomiesArray[i]).containsKey(functionsArray[j])
+						&& matrix.get(taxonomiesArray[i]).get(functionsArray[j]) == null) {
+					matrixArray[i][j] = 0;
+				} else {
+
+					sumTaxonomies.put(taxonomiesArray[i], sumTaxonomies.get(taxonomiesArray[i])
+							+ matrix.get(taxonomiesArray[i]).get(functionsArray[j]));
+
+					sumFunctions.put(functionsArray[j], sumFunctions.get(functionsArray[j])
+							+ matrix.get(taxonomiesArray[i]).get(functionsArray[j]));
+
+					matrixArray[i][j] = matrix.get(taxonomiesArray[i]).get(functionsArray[j]);
+				}
+
+			}
+		}
+
+		Map<String, Integer> sortedSumFunctions = sortByValues(sumFunctions);
+		Map<String, Integer> sortedSumTaxonomies = sortByValues(sumTaxonomies);
+
+		Set<String> topTax = new HashSet<>();
+		Set<String> topFunc = new HashSet<>();
+
+		int topCounterTax = 0;
+		int topCounterFunc = 0;
+
+		indexFunctions = 0;
+		indexTaxonomies = 0;
+
+		for (Map.Entry<String, Integer> taxEntry : sortedSumTaxonomies.entrySet()) {
+			taxonomiesArray[indexTaxonomies] = taxEntry.getKey();
+			indexTaxonomies++;
+			if (topCounterTax < matrixSize) {
+				topTax.add(taxEntry.getKey());
+				topCounterTax++;
+			}
+			indexFunctions = 0;
+			for (Map.Entry<String, Integer> funcEntry : sortedSumFunctions.entrySet()) {
+				functionsArray[indexFunctions] = funcEntry.getKey();
+				indexFunctions++;
+				if (topCounterFunc < matrixSize) {
+					topFunc.add(funcEntry.getKey());
+					topCounterFunc++;
+				}
+			}
+		}
+
+		for (int i = 0; i < taxonomiesArray.length; i++) {
+			for (int j = 0; j < functionsArray.length; j++) {
+				if (!matrix.get(taxonomiesArray[i]).containsKey(functionsArray[j])
+						&& matrix.get(taxonomiesArray[i]).get(functionsArray[j]) == null) {
+					matrixArray[i][j] = 0;
+				} else {
+					matrixArray[i][j] = matrix.get(taxonomiesArray[i]).get(functionsArray[j]);
+				}
+			}
+		}
+
+		int taxMatrixSize = matrixSize;
+		int funcMatrixSize = matrixSize;
+
+		if (matrixSize >= taxonomiesArray.length) {
+			taxMatrixSize = taxonomiesArray.length;
+		}
+		if (matrixSize >= functionsArray.length) {
+			funcMatrixSize = functionsArray.length;
+		}
+		for (int j = 0; j < functionsArray.length; j++) {
+			for (int i = taxMatrixSize + 1; i < taxonomiesArray.length; i++) {
+				matrixArray[taxMatrixSize][j] = matrixArray[taxMatrixSize][j] + matrixArray[i][j];
+			}
+		}
+		for (int i = 0; i < taxonomiesArray.length; i++) {
+			for (int j = funcMatrixSize + 1; j < functionsArray.length; j++) {
+				matrixArray[i][funcMatrixSize] = matrixArray[i][funcMatrixSize] + matrixArray[i][j];
+			}
+		}
+
+		String otherFunc = "other Functions";
+		String otherTax = " other Tax";
+
+		String[] functionsTopArray = new String[funcMatrixSize + 1];
+		String[] taxonomiesTopArray = new String[taxMatrixSize + 1];
+
+		int[][] matrixTopArray = new int[taxMatrixSize + 1][funcMatrixSize + 1];
+
+		if (functionsArray.length > 0 && taxonomiesArray.length > 0) {
+			for (int i = 0; i < taxMatrixSize; i++) {
+				taxonomiesTopArray[i] = taxonomiesArray[i];
+			}
+
+			for (int i = 0; i < funcMatrixSize; i++) {
+				functionsTopArray[i] = functionsArray[i];
+			}
+			
+			taxonomiesTopArray[taxonomiesTopArray.length - 1] = otherTax;
+
+			functionsTopArray[functionsTopArray.length - 1] = otherFunc;
+
+			for (int i = 0; i < matrixTopArray.length && i < matrixArray.length; i++) {
+				for (int j = 0; j < matrixTopArray[0].length && j < matrixArray[0].length; j++) {
+					matrixTopArray[i][j] = matrixArray[i][j];
+				}
+			}
+		}
+
+		System.out.println();
+		System.out.print("0,");
+		for (int j = 0; j < functionsArray.length; j++) {
+			if (j == functionsArray.length - 1)
+				System.out.print(functionsArray[j]);
+			else
+				System.out.print(functionsArray[j] + ",");
+		}
+
+		System.out.print("\n");
+
+		for (int i = 0; i < taxonomiesArray.length; i++) {
+			System.out.print(taxonomiesArray[i] + ",");
+			for (int j = 0; j < functionsArray.length; j++) {
+				if (j == functionsArray.length - 1)
+					System.out.print(matrixArray[i][j]);
+				else
+					System.out.print(matrixArray[i][j] + ",");
+			}
+			System.out.print("\n");
+		}
+
+		System.out.println();
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
+
+		writer.append("0");
+		writer.append(Constants.CSV_FILE_SEPARATOR);
+		System.out.print("0,");
+		for (int j = 0; j < functionsTopArray.length; j++) {
+			if (j == functionsTopArray.length - 1) {
+				System.out.print(functionsTopArray[j]);
+				writer.append(functionsTopArray[j]);
+			} else {
+				System.out.print(functionsTopArray[j] + ",");
+				writer.append(functionsTopArray[j]);
+				writer.append(Constants.CSV_FILE_SEPARATOR);
+			}
+		}
+
+		System.out.print("\n");
+		writer.newLine();
+
+		for (int i = 0; i < taxonomiesTopArray.length; i++) {
+			writer.append(taxonomiesTopArray[i]);
+			writer.append(Constants.CSV_FILE_SEPARATOR);
+			System.out.print(taxonomiesTopArray[i] + ",");
+			for (int j = 0; j < functionsTopArray.length; j++) {
+				if (j == functionsTopArray.length - 1) {
+					writer.append(matrixTopArray[i][j] + "");
+					System.out.print(matrixTopArray[i][j]);
+				} else {
+					writer.append(matrixTopArray[i][j] + "");
+					writer.append(Constants.CSV_FILE_SEPARATOR);
+					System.out.print(matrixTopArray[i][j] + ",");
+				}
+			}
+			writer.newLine();
+			System.out.print("\n");
+		}
+		writer.flush();
+		writer.close();
+
+		// StringBuilder csv = new StringBuilder();
+		// ArrayList<String> header = new ArrayList<>();
+		// System.out.println();
+		// csv.append("0,");
+		//
+		// for (String keyword : keywords) {
+		// header.add(keyword);
+		// csv.append(keyword + ",");
+		// }
+		//
+		// csv.deleteCharAt(csv.length() - 1);
+		// csv.append("\n");
+		//
+		// for (String tax : taxOnomies) {
+		//
+		// csv.append(tax + ",");
+		//
+		// for (String keyword : header) {
+		//
+		// if (!matrix.get(tax).containsKey(keyword) && matrix.get(tax).get(keyword) ==
+		// null) {
+		// csv.append("0,");
+		// } else {
+		// csv.append(matrix.get(tax).get(keyword).toString() + ",");
+		// }
+		//
+		// }
+		// csv.deleteCharAt(csv.length() - 1);
+		// csv.append("\n");
+		//
+		// }
+		// System.out.println(csv.toString());
+
+		System.out.println("\n\n\n\n");
+		System.out.println(sumTaxonomies);
+		System.out.println(sortedSumTaxonomies);
+		System.out.println(topTax);
+		System.out.println(sumFunctions);
+		System.out.println(sortedSumFunctions);
+		System.out.println(topFunc);
+
+		System.out.println(matrix);
+
 	}
 
 	/**
@@ -153,22 +474,19 @@ public class ResultExporter {
 				String uniref100 = "UNKNOWN";
 				String uniref90 = "UNKNOWN";
 				String uniref50 = "UNKNOWN";
-				if (metaProtein.getUniProtEntry() != null
-						&& metaProtein.getUniProtEntry().getUniRefMPA() != null 
+				if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRefMPA() != null
 						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100() != null) {
 					uniref100 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef100();
 				} else {
 					uniref100 = "unknown";
 				}
-				if (metaProtein.getUniProtEntry() != null
-						&& metaProtein.getUniProtEntry().getUniRefMPA() != null
+				if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRefMPA() != null
 						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90() != null) {
 					uniref90 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef90();
 				} else {
 					uniref90 = "unknown";
 				}
-				if (metaProtein.getUniProtEntry() != null
-						&& metaProtein.getUniProtEntry().getUniRefMPA() != null
+				if (metaProtein.getUniProtEntry() != null && metaProtein.getUniProtEntry().getUniRefMPA() != null
 						&& metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50() != null) {
 					uniref50 = metaProtein.getUniProtEntry().getUniRefMPA().getUniRef50();
 				} else {
@@ -827,11 +1145,11 @@ public class ResultExporter {
 										// the children (except leaves!)
 										if (!childNode.isLeaf()) {
 											specificSpectrumIDs
-											.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
+													.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										}
 										if (childNode.isLeaf()) {
 											unspecificSpectrumIDs
-											.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
+													.addAll(ResultExporter.getSpectrumIDsRecursively(childNode));
 										}
 									}
 									// Get the asymmetric set difference of the
@@ -871,7 +1189,7 @@ public class ResultExporter {
 				ProteinHit hit = (ProteinHit) tableNode.getUserObject();
 				for (PeptideHit pep : hit.getPeptideHitList()) {
 					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
-						spectrumIDs.add(psm.getSpectrumID());	
+						spectrumIDs.add(psm.getSpectrumID());
 					}
 				}
 
