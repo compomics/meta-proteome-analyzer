@@ -223,7 +223,7 @@ public class DbSearchResult implements Serializable {
 						hit = new Mascothit(rs, false); // MEMORY: may have to deal with pep-sequence and prot-accession
 						break;							
 					}
-					if (hit.getQvalue().doubleValue() < Constants.getDefaultFDR()) {
+					if (hit.getQvalue().doubleValue() <= Constants.getDefaultFDR()) {
 
 						this.searchHits.add(hit);
 						//					this.visSearchHits.add(hit);
