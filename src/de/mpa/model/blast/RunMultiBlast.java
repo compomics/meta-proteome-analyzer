@@ -244,7 +244,6 @@ public class RunMultiBlast {
 		 * 5. store blast
 		*/
 		
-		
 		// the 2 overall cases: only hits/experiment-specific or ALL proteins in the DB
 		if (blastAllDBProteins) {
 			// prepare the progress bar
@@ -255,12 +254,12 @@ public class RunMultiBlast {
 			
 			while (protCount < totalProtCount) {
 
+
 				// 1. prepare batch
 				TreeMap<Long, ProteinAccessor> protaccessors = new TreeMap<Long, ProteinAccessor>();
 				ArrayList<DigFASTAEntry> blastBatchList = new ArrayList<DigFASTAEntry>();
 				// get batch directly from DB
 				proteins = ProteinAccessor.getAllProteinsWithoutUniProtEntry(conn, limit, offset);
-				
 				for (ProteinAccessor proteinAcc : proteins) {
 					DigFASTAEntry fastaProt = new DigFASTAEntry(
 							("" + proteinAcc.getProteinid()),
@@ -269,11 +268,22 @@ public class RunMultiBlast {
 							null);
 					protaccessors.put(proteinAcc.getProteinid(), proteinAcc);
 					blastBatchList.add(fastaProt);
+					protCount++;
+					Client.getInstance().firePropertyChange("progressmade", true, false);
+					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
+					progressbar.setValue((int) progress);
+					progressbar.setString("Progress: " + progress + "%");
+					
+					try {
+						Thread.sleep(1000);
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 				}
 				// 2. iterate offset and protcount
 				// XXX: do i need an offset?? 
 				// offset = offset + limit;
-				protCount = protCount + proteins.size();
+//				protCount = protCount + proteins.size();
 				// 3. DO Batch
 				HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 						blastBatchList, blastFile, database, evalue);
@@ -282,14 +292,20 @@ public class RunMultiBlast {
 				storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 						taxonomyMap, protaccessors, database);
 				// report progress
-				Client.getInstance().firePropertyChange("progressmade", true, false);
+				
 				//Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
-				int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
-				progressbar.setValue((int) progress);
-				progressbar.setString("Progress: " + progress + "%");
+				try {
+					Thread.sleep(1000);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 			}
 			
 		} else {
+			
+			
+			Client.getInstance().firePropertyChange("indeterminate", true, false);
+			
 			// make an experiment-List
 			List<Long> expIDList = new ArrayList<Long>(); 
 			if (experimentID == -1L) {
@@ -300,10 +316,17 @@ public class RunMultiBlast {
 			} else {
 				expIDList.add(experimentID);
 			}
+			
+			Client.getInstance().firePropertyChange("resetall", 0L, expIDList.size());
+			Client.getInstance().firePropertyChange("resetcur", 0L, expIDList.size());
+			
 			// loop experiments
 			for (Long expID : expIDList) {
+				
 				progressbar.setValue(0);
-				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID);
+				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " OF " + expIDList.size());
+
+				
 				// gather all proteins from the experiment
 				List<Mascothit> mascotHits = Mascothit.getHitsFromExperimentID(
 						expID, conn);
@@ -330,15 +353,15 @@ public class RunMultiBlast {
 				}
 				// prepare progress bar
 				totalProtCount = (long) proteins.size();
-				Client.getInstance().firePropertyChange("indeterminate", true, false);
-				Client.getInstance().firePropertyChange("resetall", 0L, totalProtCount);
-				Client.getInstance().firePropertyChange("resetcur", 0L, totalProtCount);
 				
 				// prepare lists
 				TreeMap<Long, ProteinAccessor> protaccessors = new TreeMap<Long, ProteinAccessor>();
 				ArrayList<DigFASTAEntry> blastBatchList = new ArrayList<DigFASTAEntry>();
 				
 				// loop all proteinaccessors
+				if (proteins.size() == 0) {
+					progressbar.setString("No Proteins");
+				}
 				for (ProteinAccessor proteinAcc : proteins) {
 					// iterate single protein
 					protCount++;
@@ -362,22 +385,21 @@ public class RunMultiBlast {
 						storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 								taxonomyMap, protaccessors, database);
 						// report progress
-						Client.getInstance().firePropertyChange("progressmade", true, false);
-						Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS");
-
+						//"BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS"
+						
 						// remove old batch
 						blastBatchList.clear();
 						protaccessors.clear();
 					}
 				
 					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
-//					System.out.println("progress " + progress + " " + protCount + " " + totalProtCount);
+					
+					progressbar.setString("Proteins: " + protCount + " of " + totalProtCount);
 					progressbar.setValue((int) progress);
-					progressbar.setString("Experiment " + expID + " Progress: " + progress + "%");
 				}
-				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS");
 				progressbar.setValue(100);
-				progressbar.setString("Experiment " + expID + " Progress: 100%");
+				
+				Client.getInstance().firePropertyChange("progressmade", true, false);
 			}
 		}
 		// Finish progress
