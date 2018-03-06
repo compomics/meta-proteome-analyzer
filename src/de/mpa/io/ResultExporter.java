@@ -2,6 +2,7 @@ package de.mpa.io;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -69,9 +70,9 @@ public class ResultExporter {
 	public static void exportChordData(String filePath, DbSearchResult result, String taxLevel, String keywordCategory,
 			int matrixSize, List<ExportHeader> exportHeaders) throws IOException {
 
-		System.out.println(taxLevel);
-		System.out.println(keywordCategory);
-		System.out.println(matrixSize);
+		// System.out.println(taxLevel);
+		// System.out.println(keywordCategory);
+		// System.out.println(matrixSize);
 
 		HashSet<String> taxOnomies = new HashSet<>();
 		HashSet<String> keywords = new HashSet<>();
@@ -112,15 +113,19 @@ public class ResultExporter {
 			}
 
 			for (String keyword : metaHit.getUniProtEntry().getKeywords()) {
-				if (UniProtUtilities.ONTOLOGY_MAP.get(keyword).getCategory().toString().toUpperCase()
-						.indexOf(keywordCategory.toUpperCase()) >= 0) {
-					if (keywordsCol.containsKey(keyword)) {
-						keywordsCol.put(keyword, keywordsCol.get(keyword) + spectralCount);
-					} else {
-						keywords.add(keyword);
-						keywordsCol.put(keyword, spectralCount);
-					}
+				// System.out.println("keyword: " + keyword + " Length: " +
+				// keyword.trim().length());
 
+				if (keyword.trim().length() > 0 && UniProtUtilities.ONTOLOGY_MAP.get(keyword) != null) {
+					if (UniProtUtilities.ONTOLOGY_MAP.get(keyword).getCategory().toString().toUpperCase()
+							.indexOf(keywordCategory.toUpperCase()) >= 0) {
+						if (keywordsCol.containsKey(keyword)) {
+							keywordsCol.put(keyword, keywordsCol.get(keyword) + spectralCount);
+						} else {
+							keywords.add(keyword);
+							keywordsCol.put(keyword, spectralCount);
+						}
+					}
 				}
 			}
 
@@ -246,7 +251,7 @@ public class ResultExporter {
 			for (int i = 0; i < funcMatrixSize; i++) {
 				functionsTopArray[i] = functionsArray[i];
 			}
-			
+
 			taxonomiesTopArray[taxonomiesTopArray.length - 1] = otherTax;
 
 			functionsTopArray[functionsTopArray.length - 1] = otherFunc;
@@ -258,68 +263,133 @@ public class ResultExporter {
 			}
 		}
 
-		System.out.println();
-		System.out.print("0,");
+		// System.out.println();
+		// System.out.print("0,");
 		for (int j = 0; j < functionsArray.length; j++) {
-			if (j == functionsArray.length - 1)
-				System.out.print(functionsArray[j]);
-			else
-				System.out.print(functionsArray[j] + ",");
+			if (j == functionsArray.length - 1) {
+				// System.out.print(functionsArray[j]);
+			} else {
+				// System.out.print(functionsArray[j] + ",");
+			}
 		}
 
-		System.out.print("\n");
+		// System.out.print("\n");
 
 		for (int i = 0; i < taxonomiesArray.length; i++) {
-			System.out.print(taxonomiesArray[i] + ",");
+			// System.out.print(taxonomiesArray[i] + ",");
 			for (int j = 0; j < functionsArray.length; j++) {
-				if (j == functionsArray.length - 1)
-					System.out.print(matrixArray[i][j]);
-				else
-					System.out.print(matrixArray[i][j] + ",");
+				if (j == functionsArray.length - 1) {
+					// System.out.print(matrixArray[i][j]);
+				} else {
+					// System.out.print(matrixArray[i][j] + ",");
+				}
 			}
-			System.out.print("\n");
+			// System.out.print("\n");
 		}
 
-		System.out.println();
+		// System.out.println();
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 
-		writer.append("0");
-		writer.append(Constants.CSV_FILE_SEPARATOR);
-		System.out.print("0,");
-		for (int j = 0; j < functionsTopArray.length; j++) {
-			if (j == functionsTopArray.length - 1) {
-				System.out.print(functionsTopArray[j]);
-				writer.append(functionsTopArray[j]);
-			} else {
-				System.out.print(functionsTopArray[j] + ",");
-				writer.append(functionsTopArray[j]);
-				writer.append(Constants.CSV_FILE_SEPARATOR);
+		boolean isOnServer = false;
+
+		String serverFilePath = "/raid/MPA/Wordpress-Upload/chord/index/";
+
+		File uploadFolder = new File(serverFilePath);
+		if (uploadFolder.exists()) {
+			isOnServer = true;
+			long lastDate = System.currentTimeMillis() - 604800000;
+			for (File csvFile : uploadFolder.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					if (pathname.getName().contains(".csv"))
+						return true;
+					return false;
+				}
+			})) {
+				if (csvFile.getName().contains(".csv") && csvFile.lastModified() < lastDate
+						&& !csvFile.getName().contains("ChordSample.csv"))
+					csvFile.delete();
 			}
 		}
 
-		System.out.print("\n");
+		BufferedWriter writerServer = null;
+		if (isOnServer) {
+			if (new File(uploadFolder.getAbsolutePath() + "/" + new File(filePath).getName()).exists()) {
+				new File(uploadFolder.getAbsolutePath() + "/" + new File(filePath).getName()).delete();
+			}
+			writerServer = new BufferedWriter(
+					new FileWriter(new File(uploadFolder.getAbsolutePath() + "/" + new File(filePath).getName())));
+		}
+
+		writer.append("0");
+		writer.append(Constants.CSV_FILE_SEPARATOR);
+		if (isOnServer) {
+			writerServer.append("0");
+			writerServer.append(Constants.CSV_FILE_SEPARATOR);
+		}
+		// System.out.print("0,");
+		for (int j = 0; j < functionsTopArray.length; j++) {
+			if (j == functionsTopArray.length - 1) {
+				// System.out.print(functionsTopArray[j]);
+				writer.append(functionsTopArray[j]);
+				if (isOnServer) {
+					writerServer.append(functionsTopArray[j]);
+				}
+			} else {
+				// System.out.print(functionsTopArray[j] + ",");
+				writer.append(functionsTopArray[j]);
+				writer.append(Constants.CSV_FILE_SEPARATOR);
+				if (isOnServer) {
+					writerServer.append(functionsTopArray[j]);
+					writerServer.append(Constants.CSV_FILE_SEPARATOR);
+				}
+			}
+		}
+
+		// System.out.print("\n");
 		writer.newLine();
 
+		if (isOnServer) {
+			writerServer.newLine();
+		}
 		for (int i = 0; i < taxonomiesTopArray.length; i++) {
 			writer.append(taxonomiesTopArray[i]);
 			writer.append(Constants.CSV_FILE_SEPARATOR);
-			System.out.print(taxonomiesTopArray[i] + ",");
+			if (isOnServer) {
+				writerServer.append(taxonomiesTopArray[i]);
+				writerServer.append(Constants.CSV_FILE_SEPARATOR);
+			}
+			// System.out.print(taxonomiesTopArray[i] + ",");
 			for (int j = 0; j < functionsTopArray.length; j++) {
 				if (j == functionsTopArray.length - 1) {
 					writer.append(matrixTopArray[i][j] + "");
-					System.out.print(matrixTopArray[i][j]);
+					// System.out.print(matrixTopArray[i][j]);
+					if (isOnServer) {
+						writerServer.append(matrixTopArray[i][j] + "");
+					}
 				} else {
 					writer.append(matrixTopArray[i][j] + "");
 					writer.append(Constants.CSV_FILE_SEPARATOR);
-					System.out.print(matrixTopArray[i][j] + ",");
+					// System.out.print(matrixTopArray[i][j] + ",");
+					if (isOnServer) {
+						writerServer.append(matrixTopArray[i][j] + "");
+						writerServer.append(Constants.CSV_FILE_SEPARATOR);
+					}
 				}
 			}
 			writer.newLine();
-			System.out.print("\n");
+			// System.out.print("\n");
+			if (isOnServer) {
+				writerServer.newLine();
+			}
 		}
 		writer.flush();
 		writer.close();
+		if (isOnServer) {
+			writerServer.flush();
+			writerServer.close();
+		}
 
 		// StringBuilder csv = new StringBuilder();
 		// ArrayList<String> header = new ArrayList<>();
@@ -354,15 +424,15 @@ public class ResultExporter {
 		// }
 		// System.out.println(csv.toString());
 
-		System.out.println("\n\n\n\n");
-		System.out.println(sumTaxonomies);
-		System.out.println(sortedSumTaxonomies);
-		System.out.println(topTax);
-		System.out.println(sumFunctions);
-		System.out.println(sortedSumFunctions);
-		System.out.println(topFunc);
-
-		System.out.println(matrix);
+		// System.out.println("\n\n\n\n");
+		// System.out.println(sumTaxonomies);
+		// System.out.println(sortedSumTaxonomies);
+		// System.out.println(topTax);
+		// System.out.println(sumFunctions);
+		// System.out.println(sortedSumFunctions);
+		// System.out.println(topFunc);
+		//
+		// System.out.println(matrix);
 
 	}
 

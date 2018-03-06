@@ -951,7 +951,7 @@ public class ExportDialog extends JDialog {
 		this.tabPane.addTab("Peptides", peptidePnl);
 		this.tabPane.addTab("PSMs", psmPanel);
 		this.tabPane.addTab("Identified Spectra", spectrumPanel);
-		this.tabPane.addTab("Meta-Protein Taxonomy", metaProteinTaxonomyPnl);
+		this.tabPane.addTab("Krona Data", metaProteinTaxonomyPnl);
 		this.tabPane.addTab("Protein Taxonomy", taxonomyPnl);
 		this.tabPane.addTab("Chord Data", chordPanel);
 
