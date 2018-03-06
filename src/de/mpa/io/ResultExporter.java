@@ -29,7 +29,6 @@ import de.mpa.client.ui.sharedelements.tables.CheckBoxTreeTable;
 import de.mpa.client.ui.sharedelements.tables.ProteinTreeTables;
 import de.mpa.db.mysql.accessor.SearchHit;
 import de.mpa.model.analysis.UniProtUtilities;
-import de.mpa.model.analysis.UniProtUtilities.Keyword;
 import de.mpa.model.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
@@ -37,7 +36,6 @@ import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.model.dbsearch.ProteinHit;
 import de.mpa.model.taxonomy.TaxonomyNode;
-import de.mpa.util.ValueComparator;
 
 /**
  * This class holds export modes for meta-proteins, proteins, peptides, PSMs and
