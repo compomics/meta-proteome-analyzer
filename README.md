@@ -13,9 +13,10 @@
 
 ---
 
-## MetaProteomeAnalyzer Publication:
+## MetaProteomeAnalyzer Publications:
+  * [Muth _et al._: Anal Chem. 2018 Jan 2;90(1):685-689.](https://www.ncbi.nlm.nih.gov/pubmed/29215871).
   * [Muth _et al._: J Proteome Res. 2015 Mar 6;14(3):1557-65.](http://www.ncbi.nlm.nih.gov/pubmed/25660940).
-  * If you use MetaProteomeAnalyzer as part of a publication, please include this reference.
+  * If you use MetaProteomeAnalyzer as part of a publication, please include the reference(s). Thank you!
 
 ---
 
