@@ -447,8 +447,13 @@ public class MascotStorager extends BasicStorager {
 									} else {
 										// Not stored for this file, then get title
 										String spectrum_title = current_query.getTitle();
+										if (spectrum_title.length() > 255) {
+											spectrum_title = spectrum_title.substring(0, 255);
+											current_query.setTitle(spectrum_title);
+										}
 										// title formatting
 										spectrum_title = spectrum_title.split("( \\(id)")[0];
+
 										
 										// TODO: new method for spectrum storage
 										

@@ -564,6 +564,10 @@ public class MascotGenericFile implements SpectrumFile, Serializable {
 						String title;
 						title = line.substring(equalSignIndex + 1);
 						title = title.split("( \\(id)")[0];
+						if (title.length() > 255) {
+							title = title.substring(0, 255);
+						}
+						
 						if (title.toUpperCase().contains("CHARGE=")) {
 
 							if (title.toUpperCase().contains("CHARGE=|")) {
