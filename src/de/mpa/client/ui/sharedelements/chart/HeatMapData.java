@@ -82,15 +82,19 @@ public class HeatMapData {
 		// Determine type of hits to iterate, fill hit list accordingly
 		switch (zAxisType) {
 		case META_PROTEIN_LEVEL:
-			hitList.addAll(result.getMetaProteins());
+//			hitList.addAll(result.getAllMetaProteins());
+			hitList.addAll(result.getAllMetaProteins());
 			break;
 		case PROTEIN_LEVEL:
+//			hitList.addAll(result.getAllProteinHits());
 			hitList.addAll(result.getAllProteinHits());
 			break;
 		case PEPTIDE_LEVEL:
+//			hitList.addAll(result.getAllPeptideHits());
 			hitList.addAll(result.getAllPeptideHits());
 			break;
 		case SPECTRUM_LEVEL:
+//			hitList.addAll(result.getAllPSMS());
 			hitList.addAll(result.getAllPSMS());
 			break;
 		default:

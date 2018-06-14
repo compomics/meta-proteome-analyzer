@@ -2,8 +2,8 @@ package de.mpa.model.dbsearch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,12 +81,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * Peptide hits for the protein.
 	 */
-	private Map<String, PeptideHit> peptideHits;
-
-	/**
-	 * Visible peptide hits.
-	 */
-	private Map<String, PeptideHit> visPeptideHits = new LinkedHashMap<String, PeptideHit>();
+	private HashMap<String, PeptideHit> peptideHits;
 
 	/**
 	 * The amino acid sequence of the protein.
@@ -121,12 +116,15 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	/**
 	 * The common taxonomy node.
 	 */
-	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+//	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+	private TaxonomyNode taxonomyNode;
 	
 	/**
 	 * The database IDs of the experiments which contain the protein hit.
 	 */
 	private Set<Long> experimentIDs;
+	
+	private boolean isoleucineReplaced = false;
 
 	/*
 	 * FIELDS
@@ -165,29 +163,14 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		this.accession = accession;
 		this.description = description;
 		this.sequence = sequence;
-		// --> this seems weird!!!
-		this.peptideHits = new LinkedHashMap<String, PeptideHit>();
-		this.visPeptideHits = new LinkedHashMap<String, PeptideHit>();
+		this.peptideHits = new HashMap<String, PeptideHit>();
 		if (peptideHit != null) {
 			this.peptideHits.put(peptideHit.getSequence(), peptideHit);
-			this.visPeptideHits.put(peptideHit.getSequence(), peptideHit);
 		}
 		this.taxonomyNode = taxonomyNode;
 		this.uniProtEntry = uniProtEntry;
 		this.experimentIDs = new HashSet<Long>();
 		this.experimentIDs.add(experimentID);
-	}
-	
-	/**
-	 * Constructs a protein hit from the specified accession, description and
-	 * sequence string as well as a single peptide hit.
-	 * @param accession the protein accession
-	 * @param description the protein description
-	 * @param sequence the protein sequence
-	 * @param peptideHit the peptide hit
-	 */
-	public ProteinHit(String accession, String description, String sequence, PeptideHit peptideHit) {
-		this(accession, description, sequence, peptideHit,  null, null, 0L);
 	}
 	
 
@@ -211,19 +194,22 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visPeptideHits = new LinkedHashMap<String, PeptideHit>();
-		for (Entry<String, PeptideHit> entry : this.peptideHits.entrySet()) {
-			PeptideHit hit = entry.getValue();
+		ArrayList<PeptideHit> newPeptideHits = new ArrayList<PeptideHit>();
+		for (PeptideHit hit : peptideHits.values()) {
 			hit.setFDR(fdr);
 			if (hit.isVisible()) {
-				this.visPeptideHits.put(entry.getKey(), hit);
+				newPeptideHits.add(hit);
 			}
+		}
+		peptideHits.clear();
+		for (PeptideHit pep : newPeptideHits) {
+			peptideHits.put(pep.getSequence(), pep);
 		}
 	}
 	
 	@Override
 	public boolean isVisible() {
-		return !this.visPeptideHits.isEmpty();
+		return !peptideHits.isEmpty();
 	}
 	
 	/*
@@ -259,7 +245,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the number of peptides found in the protein hit
 	 */
 	public int getPeptideCount() {
-		return visPeptideHits.size();
+		return peptideHits.size();
 	}
 	
 	/**
@@ -268,7 +254,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the desired peptide hit or <code>null</code> if the retrieval failed.
 	 */
 	public PeptideHit getPeptideHit(String sequence) {
-		return visPeptideHits.get(sequence);
+		return peptideHits.get(sequence);
 	}
 	
 	/**
@@ -278,20 +264,13 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	public List<PeptideHit> getPeptideHitList() {
 		return new ArrayList<PeptideHit> (peptideHits.values());
 	}
-	/**
-	 * Returns the peptide hits as list.
-	 * @return The peptide hits as list.
-	 */
-	public List<PeptideHit> getVisPeptideHitList() {
-		return new ArrayList<PeptideHit> (visPeptideHits.values());
-	}
 	
 	/**
 	 * Returns the map containing sequence-to-peptide hit pairs.
 	 * @return the map of peptide hits
 	 */
 	public Map<String, PeptideHit> getPeptideHits() {
-		return visPeptideHits;
+		return peptideHits;
 	}
 	
 	/**
@@ -301,9 +280,24 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	public void addPeptideHit(PeptideHit peptidehit) {
 		if (!peptideHits.containsKey(peptidehit.getSequence())) {
 			this.peptideHits.put(peptidehit.getSequence(), peptidehit);
-			this.visPeptideHits.put(peptidehit.getSequence(), peptidehit);
 		}
 	}
+	
+	public void replaceIsoleucine(String new_seq, PeptideHit peptideHit) {
+		if (!isoleucineReplaced) {
+			peptideHits.remove(peptideHit.getSequence());
+			// do not replace sequence for performance reasons
+			// XXX: this will result in errors in the sequence tab
+			//		this.setSequence(sequence.replaceAll("I", "L"));
+			peptideHits.put(new_seq, peptideHit);
+			this.isoleucineReplaced = true;
+		}
+	}
+
+	public void replacePeptide(PeptideHit pep2) {
+		this.peptideHits.put(pep2.getSequence(), pep2);
+	}
+
 	
 	/*
 	 * METHODS
@@ -316,25 +310,24 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 	 * @return the spectral count
 	 */
 	public int getSpectralCount() {
-			Set<Long> matches = new HashSet<Long>();
+			HashSet<Long> matches = new HashSet<Long>();
 			// Iterate the found peptide results
-			for (Entry<String, PeptideHit> entry : visPeptideHits.entrySet()) {
+			for (Entry<String, PeptideHit> entry : peptideHits.entrySet()) {
 				// Store the spectrum matches
 				for (PeptideSpectrumMatch match : entry.getValue().getPeptideSpectrumMatches()) {
-					if (match.isVisible()) {
-						matches.add(match.getSpectrumID());
-					}
+					matches.add(match.getSpectrumID());
 				}
 			}
 		return matches.size();
 	}
-	
 
 	public ArrayList<PeptideSpectrumMatch> getPSMs() {
-		ArrayList<PeptideSpectrumMatch> psms = new ArrayList<PeptideSpectrumMatch>();
-		for (PeptideHit pep : this.visPeptideHits.values()) {
-			psms.addAll(pep.getPeptideSpectrumMatches());
+		HashSet<PeptideSpectrumMatch> psmset = new HashSet<PeptideSpectrumMatch>();
+		for (PeptideHit pep : this.peptideHits.values()) {
+			psmset.addAll(pep.getPeptideSpectrumMatches());
 		}
+		ArrayList<PeptideSpectrumMatch> psms = new ArrayList<PeptideSpectrumMatch>();
+		psms.addAll(psmset);
 		return psms;
 	}
 	
@@ -598,14 +591,6 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 		return (getAccession() + " | " + getDescription());
 	}
 	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ProteinHit) {
-			return getAccession().equals(((ProteinHit) obj).getAccession());
-		}
-		return false;
-	}
-
 	@Override
 	public int compareTo(ProteinHit that) {
 		return this.getAccession().compareTo(that.getAccession());

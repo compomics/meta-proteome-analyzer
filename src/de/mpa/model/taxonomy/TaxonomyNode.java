@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.mpa.db.mysql.accessor.Taxonomy;
 import de.mpa.model.analysis.UniProtUtilities;
 
 
@@ -15,7 +14,7 @@ import de.mpa.model.analysis.UniProtUtilities;
  * 
  * @author R. Heyer and A. Behne
  */
-public class TaxonomyNode implements Comparable, Serializable {
+public class TaxonomyNode implements Comparable<Object>, Serializable {
 	
 	/**
 	 * Serialization ID set to default == 1L;
@@ -67,18 +66,18 @@ public class TaxonomyNode implements Comparable, Serializable {
 	}
 	
 	
-	/**
-	 * Constructs taxonomy node from DB-taxonomy
-	 * 
-	 * @param taxonomy
-	 */
-	public TaxonomyNode(Taxonomy taxonomy) {
-		this.taxId = (int) taxonomy.getTaxonomyid();
-		this.taxRank = UniProtUtilities.TAXONOMY_RANKS_MAP.get(taxonomy.getRank());
-		this.taxName = taxonomy.getDescription();
-		// no parent for now
-//		this.parentNode = new TaxonomyNode(taxonomy.getParentid());
-	}
+//	/**
+//	 * Constructs taxonomy node from DB-taxonomy
+//	 * 
+//	 * @param taxonomy
+//	 */
+//	public TaxonomyNode(Taxonomy taxonomy) {
+//		this.taxId = (int) taxonomy.getTaxonomyid();
+//		this.taxRank = UniProtUtilities.TAXONOMY_RANKS_MAP.get(taxonomy.getRank());
+//		this.taxName = taxonomy.getDescription();
+//		// no parent for now
+////		this.parentNode = new TaxonomyNode(taxonomy.getParentid());
+//	}
 
 	/**
 	 * Returns the taxonomy ID.
@@ -142,11 +141,12 @@ public class TaxonomyNode implements Comparable, Serializable {
 	 * @return the parent taxonomy node of the desired rank.
 	 */
 	public TaxonomyNode getParentNode(UniProtUtilities.TaxonomyRank rank) {
-
 		TaxonomyNode parentNode = this;
 
 		if (parentNode.getID() == 1) {
-			return new TaxonomyNode(0, rank, "Unknown");
+			return this;
+			// this "Unknown value needs to be checked in graphs I think
+//			return new TaxonomyNode(0, rank, "Unknown");
 		}
 
 		UniProtUtilities.TaxonomyRank parentRank = parentNode.getRank();
@@ -155,7 +155,9 @@ public class TaxonomyNode implements Comparable, Serializable {
 			if (parentNode.getID() == 1) {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
-				parentNode = new TaxonomyNode(0, rank, "Unknown");
+				
+				parentNode = this;
+//				parentNode = new TaxonomyNode(0, rank, "Unknown");
 				break;
 			}
 			parentRank = parentNode.getRank();
@@ -188,11 +190,15 @@ public class TaxonomyNode implements Comparable, Serializable {
 		List<TaxonomyNode> path = new ArrayList<TaxonomyNode>();
 		
 		TaxonomyNode parent = this;
+		try {
 		while (parent.getID() != 1) {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
 		Collections.reverse(path);
+		} catch (Exception e) {
+			System.out.println("Test");
+		}
 		
 		return path.toArray(new TaxonomyNode[path.size()]);
 	}

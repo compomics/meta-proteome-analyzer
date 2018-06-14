@@ -19,6 +19,7 @@ import javax.swing.SpinnerNumberModel;
 import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
+import de.mpa.client.Constants;
 import de.mpa.model.analysis.MetaProteinFactory;
 import de.mpa.model.analysis.MetaProteinFactory.ClusterRule;
 import de.mpa.model.analysis.MetaProteinFactory.PeptideRule;
@@ -43,7 +44,7 @@ public class ResultParameters extends ParameterMap {
 	public void initDefaults() {
 		
 		// FDR cutoff
-        put("FDR", new Parameter.NumberParameter(0.05, 0.0, 0.1, "Maximum peptide-spectrum match FDR", "Specify maximum false discovery rate for peptide-spectrum matches (i.e. the maximum q-value).", "Scoring"));
+        put("FDR", new Parameter.NumberParameter(Constants.getDefaultFDR(), 0.0, 1.0, "Maximum peptide-spectrum match FDR", "Specify maximum false discovery rate for peptide-spectrum matches (i.e. the maximum q-value).", "Scoring"));
 		
 		// taxonomy definition rules
         put("proteinTaxonomy", new Parameter.OptionParameter(TaxonomyDefinition.values(), 0, "Peptide-to-Protein Taxonomy", "Choose the rule by which proteins receive their common taxonomy from their peptides", "Taxonomy Definition"));
@@ -123,7 +124,7 @@ public class ResultParameters extends ParameterMap {
 		/**
 		 * The check box for checking whether meta-proteins should be generated.
 		 */
-		private JCheckBox metaChk;
+		public JCheckBox metaChk;
 
 		/**
 		 * Creates a Meta-Protein generation parameter instance using the
@@ -292,11 +293,11 @@ public class ResultParameters extends ParameterMap {
 				if (peptideChk.isSelected()) {
 					peptideRule = (PeptideRule) peptideCbx.getSelectedItem();
 					peptideRule.setMaximumDistance((Integer) distSpn.getValue());
-					peptideRule.setDistinctIL(leucineChk.isSelected());
 				} else {
 					peptideRule = PeptideRule.ALWAYS;
 				}
 			}
+			peptideRule.setDistinctIL(leucineChk.isSelected());
 			ResultParameters.this.setValue("peptideRule", peptideRule);
 			changed |= !peptideRule.equals(oldRule);
 

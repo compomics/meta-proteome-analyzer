@@ -301,9 +301,9 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			single_exp_as_list.add(exp);
 			// TODO: fill up with stuff
 			// Get DB Search Result Object
-			DbSearchResult dbSearchResult = new DbSearchResult("title", single_exp_as_list, "fasta");
+			DbSearchResult dbSearchResult = new DbSearchResult(single_exp_as_list);
 			dbSearchResult.getSearchResultByView();
-			System.out.println((double) this.metaParams.get("FDR").getValue());
+//			System.out.println((double) this.metaParams.get("FDR").getValue());
 			dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
 
 			// Create Metaproteins
@@ -312,7 +312,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 			ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" + exp.getTitle(), dbSearchResult, exportHeaders);
 
 			// Get metaprotein list.
-			ArrayList<MetaProteinHit> metaProteins = dbSearchResult.getMetaProteins();
+			ArrayList<MetaProteinHit> metaProteins = dbSearchResult.getAllMetaProteins();
 
 			// Create maps for results
 			TreeMap<TaxonomyNode, Set<PeptideSpectrumMatch>> taxMap = new TreeMap<TaxonomyNode, Set<PeptideSpectrumMatch>>();

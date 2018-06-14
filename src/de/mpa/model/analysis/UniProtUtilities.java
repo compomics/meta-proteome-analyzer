@@ -641,7 +641,6 @@ public class UniProtUtilities {
 	public TreeMap<String, UniProtEntryMPA> fetchUniProtEntriesByAccessions(ArrayList<String> accessionList,
 			boolean addUniRefs) throws SQLException {
 
-		System.out.println("MASCOT STORAGER METHOD -> SHOULD BE DEAD!");
 
 		// The resultmap with the uniprotEntries
 		TreeMap<String, UniProtEntryMPA> uniprotResultMap = new TreeMap<String, UniProtEntryMPA>();
@@ -1157,8 +1156,8 @@ public class UniProtUtilities {
 	 *            ancestor or most specific)
 	 * @return commonUniProtMPAentry. The common UniProtMPAentry
 	 */
-	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries,
-			Map<Long, Taxonomy> taxonomyMap, TaxonomyUtils.TaxonomyDefinition tax_def) {
+	public static UniProtEntryMPA getCommonUniprotEntry(List<UniProtEntryMPA> upEntries, HashMap<Long, Taxonomy> taxonomyMap,
+			HashMap<Long, TaxonomyNode> taxonomyNodeMap, TaxonomyUtils.TaxonomyDefinition tax_def, Connection conn) {
 
 		// Items of uniProtMPAentries
 		Set<String> ecnumbers = new TreeSet<String>();
@@ -1169,10 +1168,10 @@ public class UniProtUtilities {
 		Set<String> uniRef50s = new TreeSet<String>();
 		// Collect all tax ids and calculate taxonomy at the end.
 		TaxonomyNode commonNode = TaxonomyUtils.createTaxonomyNode(upEntries.get(0).getTaxonomyNode().getID(),
-				taxonomyMap);
+				taxonomyMap, taxonomyNodeMap);
 		// Get fused UniProtEntryMPA
 		for (UniProtEntryMPA uniProtEntryMPA : upEntries) {
-			commonNode = tax_def.getCommonTaxonomyNode(commonNode, uniProtEntryMPA.getTaxonomyNode());
+			commonNode = tax_def.getCommonTaxonomyNode(commonNode, uniProtEntryMPA.getTaxonomyNode(), taxonomyMap, taxonomyNodeMap);
 			// add other metadata to sets
 			ecnumbers.addAll(uniProtEntryMPA.getEcnumbers());
 			konumbers.addAll(uniProtEntryMPA.getKonumbers());

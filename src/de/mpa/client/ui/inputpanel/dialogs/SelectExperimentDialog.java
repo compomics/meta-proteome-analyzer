@@ -46,6 +46,7 @@ public class SelectExperimentDialog extends JDialog{
 	 */
 	public SelectExperimentDialog(ClientFrame owner, String title) {
 		super(owner, title, true);
+		expList.clear();
 		this.owner = owner;
         this.initComponents();
 		// Configure size and position

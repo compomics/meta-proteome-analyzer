@@ -20,11 +20,9 @@ import com.jgoodies.forms.factories.CC;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.mpa.client.Client;
-import de.mpa.client.settings.ResultParameters;
 import de.mpa.client.ui.sharedelements.PanelConfig;
 import de.mpa.client.ui.sharedelements.icons.IconConstants;
 import de.mpa.db.mysql.accessor.SearchHit;
-import de.mpa.model.analysis.MetaProteinFactory;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 
@@ -159,9 +157,8 @@ public class SpectrumResultPanel extends JPanel {
 		// Gets the result object.
 		DbSearchResult result = Client.getInstance().getDatabaseSearchResult();
 
-		if (result != null && !result.isEmpty()) {
+		if (result != null && !result.getAllMetaProteins().isEmpty()) {
 			// Get spectrum List
-			MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), new ResultParameters());
 			ArrayList<PeptideSpectrumMatch> specSet = result.getAllPSMS();
 
 			// Notify status bar
@@ -176,7 +173,7 @@ public class SpectrumResultPanel extends JPanel {
 			for (PeptideSpectrumMatch specMatch : specSet) {
 
 				//SearchEngines
-				boolean isXtandem = false, isOmssa = false, isCrux = false, isInspect = false, isMascot = false, isSpecLib = false;
+				boolean isXtandem = false, isOmssa = false, isMascot = false, isSpecLib = false;
 				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) specMatch;
 				List<SearchHit> searchHits = psm.getSearchHits();
 				if (searchHits != null) {

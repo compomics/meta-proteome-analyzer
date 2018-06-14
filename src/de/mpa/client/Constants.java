@@ -221,7 +221,9 @@ public class Constants {
 	public static final String CSV_FILE_SEPARATOR = ",";
 	public static final String TSV_FILE_SEPARATOR = "\t";
 
-	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, UniProtUtilities.TaxonomyRank.NO_RANK, "none");
+	
+	// completely replaced by unclassified node
+//	public static final TaxonomyNode TAXONOMY_NONE = new TaxonomyNode(0, UniProtUtilities.TaxonomyRank.NO_RANK, "none");
 
 	public static boolean winOS = System.getProperty("os.name").startsWith("Windows");
 
@@ -272,7 +274,7 @@ public class Constants {
 	 */
 	public static double getDefaultFDR() {
 		try {
-			return Double.valueOf(DEFAULT_FDR);
+			return Double.parseDouble(DEFAULT_FDR);
 		} catch (Exception e) {
 			return 1.0;
 		}

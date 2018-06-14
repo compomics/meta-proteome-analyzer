@@ -94,7 +94,7 @@ public class TaxonomyData implements ChartData {
 	public void init() {
 		DbSearchResult data = Client.getInstance().getDatabaseSearchResult();
         hierarchyMap = new HashMap<HierarchyLevel, Collection<? extends Hit>>();
-        hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, data.getMetaProteins());
+        hierarchyMap.put(HierarchyLevel.META_PROTEIN_LEVEL, data.getAllMetaProteins());
         hierarchyMap.put(HierarchyLevel.PROTEIN_LEVEL, data.getAllProteinHits());
         hierarchyMap.put(HierarchyLevel.PEPTIDE_LEVEL, data.getAllPeptideHits());
         hierarchyMap.put(HierarchyLevel.SPECTRUM_LEVEL, data.getAllPSMS());
@@ -132,6 +132,7 @@ public class TaxonomyData implements ChartData {
 		
 		// Add empty categories so they always show up first (to keep colors consistent)
 		String unknownKey = "Unknown";
+//		String unknownKey = "Uncategorized";
 		pieDataset.setValue(unknownKey, new Integer(0));
 		String othersKey = "Others";
 		pieDataset.setValue(othersKey, new Integer(0));
@@ -140,6 +141,7 @@ public class TaxonomyData implements ChartData {
 		List<UniProtUtilities.TaxonomyRank> targetRanks = this.getTargetRanks(topRank);
 
 		Collection<? extends Hit> hits = this.hierarchyMap.get(this.hierarchyLevel);
+		
 		List<Taxonomic> knownList = new ArrayList<Taxonomic>();
 		List<Taxonomic> unknownTaxa = new ArrayList<Taxonomic>();
 
@@ -148,9 +150,9 @@ public class TaxonomyData implements ChartData {
 			boolean selected = false;
 			if (hit instanceof PeptideHit) {
 				PeptideHit pephit = (PeptideHit) hit;
-				if (pephit.isSelected() && pephit.isVisible()) {
+				if (pephit.isSelected()) {
 					for (ProteinHit protein : pephit.getProteinHits()) {
-						if (protein.isSelected() && protein.isVisible()) {
+						if (protein.isSelected()) {
 							selected = true;
 							break;
 						}
@@ -159,23 +161,23 @@ public class TaxonomyData implements ChartData {
 			} else if (hit instanceof PeptideSpectrumMatch) {
 				PeptideSpectrumMatch spec = (PeptideSpectrumMatch) hit;
 				PeptideHit pephit = spec.getPeptideHit();
-				if (hit.isSelected() && hit.isVisible() && pephit.isSelected() && pephit.isVisible()) {
+				if (hit.isSelected() && pephit.isSelected()) {
 					for (ProteinHit protein : pephit.getProteinHits()) {
-						if (protein.isSelected() && protein.isVisible()) {
+						if (protein.isSelected()) {
 							selected = true;
 							break;
 						}
 					}
 				}
 			} else if (hit instanceof ProteinHit) {
-				if (hit.isSelected() && hit.isVisible()) {
+				if (hit.isSelected()) {
 					selected = true;
 				}
 			} else if (hit instanceof MetaProteinHit) {
 				MetaProteinHit mp = (MetaProteinHit) hit;
-				if (hit.isSelected() && hit.isVisible()) {
+				if (hit.isSelected()) {
 					for (ProteinHit prot : mp.getProteinHitList()) {
-						if (prot.isSelected() && prot.isVisible()) {
+						if (prot.isSelected()) {
 							selected = true;
 							break;
 						}
@@ -187,7 +189,11 @@ public class TaxonomyData implements ChartData {
 				TaxonomyNode taxonNode = taxonomic.getTaxonomyNode();
 				UniProtUtilities.TaxonomyRank rank = taxonNode.getRank();
 				if (targetRanks.contains(rank)) {
-					knownList.add(taxonomic);
+					if (taxonomic.getTaxonomyNode().getName().toString().equals("Uncategorized")) {
+						unknownTaxa.add(taxonomic);
+					} else {
+						knownList.add(taxonomic);
+					}
 				} else {
 					unknownTaxa.add(taxonomic);
 				}
@@ -266,7 +272,7 @@ public class TaxonomyData implements ChartData {
 		}
 
 		if (this.hideUnknown || (pieDataset.getValue(unknownKey).intValue() == 0)) {
-//			pieDataset.setValue(unknownKey, 0);
+			pieDataset.setValue(unknownKey, 0);
 			pieDataset.remove(unknownKey);
 		}
 

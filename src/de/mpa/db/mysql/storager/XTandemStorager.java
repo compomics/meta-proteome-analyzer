@@ -189,7 +189,6 @@ public class XTandemStorager extends BasicStorager {
         						if (loader.getPepFile() != null) {
         							// There is a separate digested peptide file available
 									accessionSet = loader.getProtHits(sequence);
-									accessionSet.add(accession);
         						} else {
 									accessionSet.add(accession);
 								}

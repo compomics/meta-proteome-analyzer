@@ -195,10 +195,12 @@ public enum ProteinTreeTables {
 				}
 			} else {
 				// no keywords available, put node under 'Unclassified'
-				parent = getChildByUserObject(root, "Unclassified");
+				parent = getChildByUserObject(root, "Uncategorized");
+//				parent = getChildByUserObject(root, "Unclassified");
 				if (parent == null) {
 					// 'Unclassified' node does not exist yet, therefore create it
-					parent = new PhylogenyTreeTableNode("Unclassified");
+					parent = new PhylogenyTreeTableNode("Uncategorized");
+//					parent = new PhylogenyTreeTableNode("Unclassified");
 					root.add(parent);
 				}
 				parent.add(protNode);
@@ -275,8 +277,9 @@ public enum ProteinTreeTables {
 			} else {
 				ecNumbers = new ArrayList<String>();
 			}
-
-			String unclassifiedStr = "Unclassified";
+			
+			String unclassifiedStr = "Uncategorized";
+//			String unclassifiedStr = "Unclassified";
 			if (ecNumbers.isEmpty()) {
 				ecNumbers.add(unclassifiedStr);
 			}
@@ -400,14 +403,16 @@ public enum ProteinTreeTables {
 				Enumeration<? extends MutableTreeTableNode> children = root.children();
 				while (children.hasMoreElements()) {
 					MutableTreeTableNode child = children.nextElement();
-					if (child.getUserObject().equals("Unclassified")) {
+					if (child.getUserObject().equals("Uncategorized")) {
+//					if (child.getUserObject().equals("Unclassified")) {
 						parent = (PhylogenyTreeTableNode) child;
 						break;
 					}
 				}
 				if (parent == root) {
 					// 'Unclassified' node does not exist yet, therefore create it
-					parent = new PhylogenyTreeTableNode("Unclassified");
+					parent = new PhylogenyTreeTableNode("Uncategorized");
+//					parent = new PhylogenyTreeTableNode("Unclassified");
 					//								treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
 					root.add(parent);
 				}
@@ -501,14 +506,16 @@ public enum ProteinTreeTables {
 				Enumeration<? extends MutableTreeTableNode> children = root.children();
 				while (children.hasMoreElements()) {
 					MutableTreeTableNode child = children.nextElement();
-					if (child.getUserObject().equals("Unclassified")) {
+					if (child.getUserObject().equals("Uncategorized")) {
+//						if (child.getUserObject().equals("Unclassified")) {
 						parent = (PhylogenyTreeTableNode) child;
 						break;
 					}
 				}
 				if (parent == root) {
 					// 'Unclassified' node does not exist yet, therefore create it
-					parent = new PhylogenyTreeTableNode("Unclassified");
+					parent = new PhylogenyTreeTableNode("Uncategorized");
+//					parent = new PhylogenyTreeTableNode("Unclassified");
 					//					treeTblMdl.insertNodeInto(parent, root, root.getChildCount());
 					root.add(parent);
 				}

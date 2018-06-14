@@ -138,22 +138,21 @@ public class PeptideDigester {
 
 		HashSet<String> proteins = new HashSet<String>();
 		try {
+			// replace "*" with "_" for winOS
+			if (Constants.winOS = true) {
+				inSequence.replaceAll("\\*", "_");
+			}
 			// select the correct .pep-file
-			String correctFile = inFile.substring(0,
-					inFile.lastIndexOf(File.separator))
-					+ File.separator
-					+ "Pep"
-					+ File.separator
-					+ inFile.substring(inFile.lastIndexOf(File.separator),
-							inFile.length());
+			String dbName = inFile.substring(inFile.lastIndexOf(File.separator),inFile.length()).replace(".pep", "");
+			String correctFile = inFile.substring(0,inFile.lastIndexOf(File.separator))
+					+ File.separator + "Pep" + File.separator
+					+ dbName + File.separator
+					+ dbName + ".pep." + inSequence.subSequence(0, 2); 
 			// and open it
-			File file = new File(correctFile + "."
-					+ inSequence.subSequence(0, 2));
-			//
+			File file = new File(correctFile);
 			if (file.exists() && !file.isDirectory()) {
 				// Parse the peptide database file
-				BufferedReader reader = new BufferedReader(new FileReader(
-						correctFile + "." + inSequence.subSequence(0, 2)));
+				BufferedReader reader = new BufferedReader(new FileReader(correctFile));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					// Check if this is a sequence line

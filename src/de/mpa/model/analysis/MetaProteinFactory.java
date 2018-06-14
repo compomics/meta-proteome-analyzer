@@ -5,27 +5,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import com.compomics.util.experiment.biology.Protein;
+import java.util.Stack;
 
 import de.mpa.client.Client;
 import de.mpa.client.settings.ResultParameters;
-import de.mpa.db.mysql.DBManager;
+import de.mpa.client.settings.ResultParameters.MetaProteinParameters;
 import de.mpa.db.mysql.accessor.Taxonomy;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
 import de.mpa.model.dbsearch.PeptideHit;
+import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.model.dbsearch.ProteinHit;
 import de.mpa.model.dbsearch.UniProtEntryMPA;
+import de.mpa.model.taxonomy.TaxonomyNode;
 import de.mpa.model.taxonomy.TaxonomyUtils;
+import de.mpa.model.taxonomy.TaxonomyUtils.TaxonomyDefinition;
 
 /**
  * Factory class providing methods to merge meta-proteins and to determine
@@ -220,6 +216,12 @@ public class MetaProteinFactory {
 				if (refA.equals("EMPTY")) { refA = null; }
 				if (refB.equals("EMPTY")) { refB = null; }
 				break;
+			case ALWAYS:
+				return true;
+			case NEVER:
+				return false;
+			default:
+				return true;
 			}
 			return (refA != null) && (refB != null) && refA.equals(refB);
 		}
@@ -575,50 +577,44 @@ public class MetaProteinFactory {
 	public static void determineTaxonomyAndCreateMetaProteins(DbSearchResult result, ResultParameters params) {
 		// Create metaproteins for the new result object.
 		Client client = Client.getInstance();
-		// DbSearchResult result =
-		// Client.getInstance().getDatabaseSearchResult();
-
-		// Get various hit lists from result object
-		ArrayList<MetaProteinHit> metaProteins = result.getMetaProteins();
-		ArrayList<ProteinHit> proteinList = result.getAllProteinHits();
-		ArrayList<PeptideHit> peptideSet = result.getAllPeptideHits(); // all
-																		// distinct
-																		// peptides
-
+		HashMap<Long, TaxonomyNode> taxonomyNodeMap = result.getTaxonomyNodeMap();
+		HashMap<Long, Taxonomy> taxonomyMap = result.getTaxonomyMap();
 		
-		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
-		client.firePropertyChange("resetall", -1L,
-				(long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
-		client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
-
-		// Define common peptide taxonomy for each peptide
-		TaxonomyUtils.determinePeptideTaxonomy(peptideSet, TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR);
-		client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
-
 		// Apply FDR cut-off
 		result.setFDR((Double) params.get("FDR").getValue());
+		
+		if (((MetaProteinParameters) params.get("metaProteinGeneration")).metaChk.isSelected()) {
+			
+			// Get various hit lists from result object
+			ArrayList<MetaProteinHit> metaProteins = result.getAllMetaProteins();
+			ArrayList<ProteinHit> proteinList = result.getAllProteinHits();
+			// all distinct peptides
+			ArrayList<PeptideHit> peptideSet = result.getAllPeptideHits(); 
 
-		// Determine protein taxonomy
-		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
-		client.firePropertyChange("resetcur", -1L, (long) proteinList.size()*2);
+			client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY");
+			client.firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
+			client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
+			// Define common peptide taxonomy for each peptide
+			TaxonomyDefinition taxDef = (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue();
+			TaxonomyUtils.determinePeptideTaxonomy(peptideSet, (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue(), taxonomyMap, taxonomyNodeMap);
+			
+			// WAS SET HARDCODED TO COMMON ANCESTOR??
+//			TaxonomyUtils.determinePeptideTaxonomy(peptideSet, TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR);
+			client.firePropertyChange("new message", null, "DETERMINING PEPTIDE TAXONOMY FINISHED");
 
-		// Define protein taxonomy by common tax ID of peptides
-		// XXX: proteins keep a fixed taxonomy
-		// TaxonomyUtils.determineProteinTaxonomy(proteinList, params);
+			// Determine protein taxonomy
+			client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
+			client.firePropertyChange("resetcur", -1L, (long) proteinList.size()*2);
+			// Define protein taxonomy by common tax ID of peptides
+			TaxonomyUtils.determineProteinTaxonomy(proteinList, params, taxonomyMap, taxonomyNodeMap);
 
-		client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
-		client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
-		// Combine proteins to metaproteins
-		MetaProteinFactory.condenseMetaProteins(result, params);
-		// re set all proteinhits to their respective metaproteins
-		for (MetaProteinHit mph : result.getMetaProteins()) {
-			for (ProteinHit ph : mph.getProteinHitList()) {
-				ph.setMetaProteinHit(mph);
-			}
+			client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
+			client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
+			client.firePropertyChange("resetcur", -1L, (long) metaProteins.size());
+			// Combine proteins to metaproteins
+			MetaProteinFactory.condenseMetaProteins(result, params);
+			client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
 		}
-
-		client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS FINISHED");
 	}
 
 	/**
@@ -632,172 +628,126 @@ public class MetaProteinFactory {
 	 */
 	private static void condenseMetaProteins(DbSearchResult result, ResultParameters params) {
 
-		ArrayList<MetaProteinHit> metaProteins = result.getMetaProteins();
+		ArrayList<MetaProteinHit> metaProteins = result.getAllMetaProteins();
+		HashMap<Long, TaxonomyNode> taxonomyNodeMap = result.getTaxonomyNodeMap();
+		HashMap<Long, Taxonomy> taxonomyMap = result.getTaxonomyMap();
 		
-		// taxonomy map for common ancestor retrieval
-		Map<Long, Taxonomy> taxonomyMap = null;
-		try {
-			taxonomyMap = Taxonomy.retrieveTaxonomyMap(DBManager.getInstance().getConnection());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
 		// Extract parameters
-		MetaProteinFactory.ClusterRule clusterRule = (MetaProteinFactory.ClusterRule) params.get("clusterRule")
-				.getValue();
-		MetaProteinFactory.PeptideRule peptideRule = (MetaProteinFactory.PeptideRule) params.get("peptideRule")
-				.getValue();
-		MetaProteinFactory.TaxonomyRule taxonomyRule = (MetaProteinFactory.TaxonomyRule) params.get("taxonomyRule")
-				.getValue();
+		ClusterRule cR = (MetaProteinFactory.ClusterRule) params.get("clusterRule").getValue();
+		PeptideRule pR = (MetaProteinFactory.PeptideRule) params.get("peptideRule").getValue();
+		TaxonomyRule tR = (MetaProteinFactory.TaxonomyRule) params.get("taxonomyRule").getValue();
 
-		// Decide whether leucine and isoleucine should be considered distinct
-		// or not
-		boolean distinctIL = peptideRule.isDistinctIL();
-
-		// TODO: update this section
-
-		// 0. --> listen mit indizes
-		// 1. grosse while schleife mit "no-merge"-boolean für abbruch
-		// 2. doppelte for schleife auf selber liste --> nur vergleich,
-		// merge-liste anlegen
-		// 3. innerhalb while schleife: echten merge durchführen und wiederholen
-
-		boolean keep_merging = true;
-		while (keep_merging) {
-			// create merge list
-			HashMap<Integer, HashSet<Integer>> merge_map = new HashMap<>();
-			// nested for loop
-			keep_merging = false;
-			for (int outer_count = 0; outer_count < metaProteins.size(); outer_count++) {
-				Client.getInstance().firePropertyChange("progressmade", false, true);
-				for (int inner_count = 0; inner_count < metaProteins.size(); inner_count++) {
-					if (outer_count != inner_count) {
-						MetaProteinHit outer_metaprotein = metaProteins.get(outer_count);
-						MetaProteinHit inner_metaprotein = metaProteins.get(inner_count);
-						// get peptide-sequences if necassary
-						HashSet<String> outer_sequences = new HashSet<String>();
-						HashSet<String> inner_sequences = new HashSet<String>();
-						if (peptideRule.equals(PeptideRule.SHARED_PEPTIDE) || peptideRule.equals(PeptideRule.SHARED_SUBSET)) {
-							ArrayList<PeptideHit> outer_peptides = outer_metaprotein.getPeptides();
-							for (PeptideHit peptideHit : outer_peptides) {
-								// Make copy of sequence string to avoid overwriting
-								// the original sequence
-								String sequence = new String(peptideHit.getSequence());
-								// Merge leucine and isoleucine if not considered
-								// distinct
-								if (!distinctIL) {
-									sequence = sequence.replaceAll("[IL]", "L");
-								}
-								outer_sequences.add(sequence);
-							}
-							ArrayList<PeptideHit> inner_peptides = inner_metaprotein.getPeptides();
-							for (PeptideHit peptideHit : inner_peptides) {
-								// Make copy of sequence string to avoid overwriting
-								// the original sequence
-								String sequence = new String(peptideHit.getSequence());
-								// Merge leucine and isoleucine if not considered
-								// distinct
-								if (!distinctIL) {
-									sequence = sequence.replaceAll("[IL]", "L");
-								}
-								inner_sequences.add(sequence);
-							}
-						}
-						if (!merge_map.containsKey(outer_count)) {
-							HashSet<Integer> currentMergelist = new HashSet<>();
-							currentMergelist.add(outer_count);
-							merge_map.put(outer_count, currentMergelist);
-						}
-						if (clusterRule.shouldCondense(outer_metaprotein, inner_metaprotein)
-								&& peptideRule.shouldCondense(outer_sequences, inner_sequences)
-								&& taxonomyRule.shouldCondense(outer_metaprotein, inner_metaprotein)) {
-							keep_merging = true;
-							// fill merge lists
-							HashSet<Integer> currentMergelist = merge_map.get(outer_count);
-							currentMergelist.add(inner_count);
-							currentMergelist.add(outer_count);
-							merge_map.put(outer_count, currentMergelist);
-
-						}
-
-					}
-				}
-			}
+		// THE CURRENT METAPROTEIN GENERATION IS VERY EFFICIENT AND WORKS LIKE THIS:
+		
+		// STACK1 with all MPs
+		// STACK2 with new MPs which are merged 
+		// 1. Take ONE away from STACK1
+		// PEPTIDE RULE RETRIEVAL SAVING MEM
+		// SHOULD MERGE CODE 
+		// 2. Check against all STACK2
+		// 2.1 found one to merge with
+		// take this one out of stack
+		// MERGE 2 CODE
+		// break to 1
+		// 2.2 not found next
+		// If ONE remains
+		// 3. Check against all STACK1
+		// 3.1 found one to merge with
+		// take this one out of stack
+		// MERGE 2 CODE
+		// break to 1
+		// 3.2 not found next
+		// If ONE remains
+		// put single prot MP into STACK1
+		// FINISHING: STACK1 is empty and all Metarpoteins from STACK2 (the merged ones) are added 
+		
+		
+//		Stack<MetaProteinHit> STACK1 = new Stack<MetaProteinHit>();
+//		for (MetaProteinHit p : metaProteins) {
+//			STACK1.push(p);
+//		}
+//		Stack<MetaProteinHit> STACK2 = new Stack<MetaProteinHit>();
+//		// 1.
+//		while (!STACK1.isEmpty()) {
+//			MetaProteinHit currentMetaprotein = STACK1.pop();
+//			Client.getInstance().firePropertyChange("progressmade", false, true);
+//			Stack<MetaProteinHit> STACK3 = new Stack<MetaProteinHit>();
+//			// compare to STACK2 segment
+////			for (MetaProteinHit mp_from_stack2 : STACK2) {
+//			while (!STACK2.isEmpty()) {
+//				MetaProteinHit mp_from_stack2 = STACK2.pop();
+//				boolean should_merge = makeComparison(mp_from_stack2, currentMetaprotein, cR, pR, tR);
+//				if (should_merge) {
+//					mergeTwoMetaproteins(mp_from_stack2, currentMetaprotein, taxonomyMap, taxonomyNodeMap, params);
+//					currentMetaprotein = null;
+//					break;
+//				} else {
+//					STACK3.push(mp_from_stack2);
+//				}
+//			}
+//			while (!STACK2.isEmpty()) {
+//				STACK3.push(STACK2.pop());
+//			}
+//			STACK2 = STACK3;
+//			// compare to STACK1 segment
+//			STACK3 = new Stack<MetaProteinHit>();
+//			while (!STACK1.isEmpty() && (currentMetaprotein != null))  {
+//				MetaProteinHit mp_from_stack1 = STACK1.pop();
+//				boolean should_merge = makeComparison(currentMetaprotein, mp_from_stack1, cR, pR, tR);
+//				if (should_merge) {
+//					mergeTwoMetaproteins(currentMetaprotein, mp_from_stack1, taxonomyMap, taxonomyNodeMap, params);
+//					break;
+//				} else {
+//					STACK3.push(mp_from_stack1);
+//				}
+//			}
+//			while (!STACK1.isEmpty()) {
+//				STACK3.push(STACK1.pop());
+//			}
+//			STACK1 = STACK3;
+//			if (currentMetaprotein != null) {
+//				STACK2.add(currentMetaprotein);
+//			}
+//		}
+//		
+//		metaProteins.addAll(STACK2);
+		
+		ArrayList<MetaProteinHit> STACK1 = metaProteins;
+		ArrayList<MetaProteinHit> STACK2 = new ArrayList<MetaProteinHit>();
+		// 1.
+		while (!STACK1.isEmpty()) {
+			MetaProteinHit currentMetaprotein = STACK1.get(0);
+			STACK1.remove(0);
+			Client.getInstance().firePropertyChange("progressmade", false, true);
 			
-			// processing mergelist, make it a non-redundant list of sets of
-			// proteins to be merged
-			for (Integer mapIndex : merge_map.keySet()) {
-				Queue<Integer> indexProcessing = new LinkedBlockingQueue<>();
-				indexProcessing.addAll(merge_map.get(mapIndex));
-
-				while (!indexProcessing.isEmpty()) {
-					int index = indexProcessing.poll();
-					if (index != mapIndex) {
-						HashSet<Integer> currentMergeSet = merge_map.get(index);
-						merge_map.get(mapIndex).addAll(currentMergeSet);
-						indexProcessing.addAll(currentMergeSet);
-						merge_map.get(index).clear();
-					}
+			// compare to STACK2 segment
+			for (MetaProteinHit mp_from_stack2 : STACK2) {
+				boolean should_merge = makeComparison(mp_from_stack2, currentMetaprotein, cR, pR, tR);
+				if (should_merge) {
+					mergeTwoMetaproteins(mp_from_stack2, currentMetaprotein, taxonomyMap, taxonomyNodeMap, params);
+					currentMetaprotein = null;
+					break;
 				}
 			}
-			// create new metaproteinlist by merging entries
-			ArrayList<MetaProteinHit> metaproteins_new = new ArrayList<>();
-			int debugcount = 0;
-			for (Integer mergeMapIndex : merge_map.keySet()) {
-				HashSet<Integer> merge_set = merge_map.get(mergeMapIndex);
-				Client.getInstance().firePropertyChange("progressmade", false, true);
-				MetaProteinHit merge_into_entry = null;
-				if (merge_set.size() > 0) {
-					// this is where the BUG is!! This loop is messed up and 
-					for (Integer index : merge_set) {
-						if (merge_into_entry == null) {
-							// the first list entry is the metaprotein we merge
-							// the others into
-							merge_into_entry = metaProteins.get(index);
-						} else {
-							// actual merging
-							MetaProteinHit current_entry_to_merge = metaProteins.get(index);
-							// merge proteinlists
-							for (ProteinHit ph : current_entry_to_merge.getProteinHitList()) {
-								if (!merge_into_entry.getProteinHitList().contains(ph)) {
-									merge_into_entry.getProteinHitList().add(ph);
-								}
-							}
-							// Calculate common ancestor uniprot entry and merge
-							ArrayList<UniProtEntryMPA> uniprotList = new ArrayList<UniProtEntryMPA>();
-							if (current_entry_to_merge.getUniProtEntry() != null
-									&& !current_entry_to_merge.getUniProtEntry().getUniProtID().equals(-1L)) {
-								uniprotList.add(current_entry_to_merge.getUniProtEntry());
-							}
-							// THIS IS THE BUG! for some reason it has uniprotid == -1 even if it should not 
-							if (merge_into_entry.getUniProtEntry() != null
-									&& !merge_into_entry.getUniProtEntry().getUniProtID().equals(-1L)) {
-								uniprotList.add(merge_into_entry.getUniProtEntry());
-							}
-							UniProtEntryMPA commonUniprotEntry;
-							if (uniprotList.size() > 1) {
-								commonUniprotEntry = UniProtUtilities.getCommonUniprotEntry(uniprotList, taxonomyMap,
-										(TaxonomyUtils.TaxonomyDefinition) params.get("metaProteinTaxonomy")
-												.getValue());
-							} else if (uniprotList.size() == 1) {
-								commonUniprotEntry = uniprotList.get(0);
-							} else {
-								commonUniprotEntry = null;
-							}
-							merge_into_entry.setUniprotEntry(commonUniprotEntry);
-							if (commonUniprotEntry != null) {
-								merge_into_entry.setTaxonomyNode(commonUniprotEntry.getTaxonomyNode());
-							}
-						}
-					}
-					metaproteins_new.add(merge_into_entry);
+			// compare to STACK1 segment
+			int index = 0;
+			while ((index != metaProteins.size()) && (currentMetaprotein != null))  {
+				MetaProteinHit mp_from_stack1 = metaProteins.get(index);
+				boolean should_merge = makeComparison(currentMetaprotein, mp_from_stack1, cR, pR, tR);
+				if (should_merge) {
+					mergeTwoMetaproteins(currentMetaprotein, mp_from_stack1, taxonomyMap, taxonomyNodeMap, params);
+					STACK1.remove(index);
+					break;
 				}
+				index++;
 			}
-			metaProteins = metaproteins_new;
+			if (currentMetaprotein != null) {
+				STACK2.add(currentMetaprotein);
+			}
 		}
-
-		// TODO: end of section
-
+		
+		metaProteins.addAll(STACK2);
+			
 		// Re-number condensed meta-proteins
 		int metaIndex = 1;
 		for (MetaProteinHit mph : metaProteins) {
@@ -817,7 +767,97 @@ public class MetaProteinFactory {
 				ph.setMetaProteinHit(mph);
 			}
 		}
-		result.setMetaProteins(metaProteins);
-	}
 
+		// after setting metaproteins like this visibility becomes pointless ...
+		result.setMetaProteins(metaProteins);
+		// re-set all proteinhits to their respective metaproteins
+		for (MetaProteinHit mph : result.getAllMetaProteins()) {
+			for (ProteinHit ph : mph.getProteinHitList()) {
+				ph.setMetaProteinHit(mph);
+			}
+		}
+	}
+			
+	private static boolean makeComparison(MetaProteinHit mp1, MetaProteinHit mp2, ClusterRule cR, PeptideRule pR, TaxonomyRule tR) {
+		// merge peptides if we consider I and L the same
+		if (!pR.isDistinctIL()) {
+			// first we change all I to L
+			// protein 1
+			for (PeptideHit pep : mp1.getPeptides()) {
+				// this method also updates the proteins
+				pep.replaceIsoleucine();
+			}
+			// protein 2
+			for (PeptideHit pep : mp2.getPeptides()) {
+				pep.replaceIsoleucine();
+				// while changing these we check inside protein 1 for this specific peptide
+				PeptideHit pep2 = mp1.getPeptideHit(pep.getSequence());
+				if (pep2 != null) {
+					// transfer all PSMs
+					for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
+						pep2.mergePeptideSpectrumMatch(psm);
+					}
+					// replace the peptide with new merged one
+					for (ProteinHit other_ph : pep.getProteinHits()) {
+						pep2.addProteinHit(other_ph);
+						other_ph.replacePeptide(pep2);
+					}
+					//						pep = pep2;
+				}
+			}
+		}
+		
+		ArrayList<String> mp2_pepstrings = new ArrayList<String>();
+		ArrayList<String> mp1_pepstrings = new ArrayList<String>();
+		if (pR.equals(PeptideRule.SHARED_PEPTIDE) || pR.equals(PeptideRule.SHARED_SUBSET)) {
+			ArrayList<PeptideHit> peptides1 = mp1.getPeptides();
+			for (PeptideHit peptideHit : peptides1) {
+				mp1_pepstrings.add(peptideHit.getSequence());
+			}
+			ArrayList<PeptideHit> peptides2 = mp2.getPeptides();
+			for (PeptideHit peptideHit : peptides2) {
+				mp2_pepstrings.add(peptideHit.getSequence());
+			}
+		}
+		if (cR.shouldCondense(mp1, mp2)
+				&& pR.shouldCondense(mp1_pepstrings, mp2_pepstrings)
+				&& tR.shouldCondense(mp1, mp2)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private static MetaProteinHit mergeTwoMetaproteins(MetaProteinHit merge_into_entry, MetaProteinHit entry_that_is_removed, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap, ResultParameters params) {
+		// merge proteinlists
+		for (ProteinHit ph : entry_that_is_removed.getProteinHitList()) {
+			merge_into_entry.addProteinHit(ph);
+		}
+		// Calculate common ancestor uniprot entry and merge
+		ArrayList<UniProtEntryMPA> uniprotList = new ArrayList<UniProtEntryMPA>();
+		if (entry_that_is_removed.getUniProtEntry() != null
+				&& !entry_that_is_removed.getUniProtEntry().getUniProtID().equals(-1L)) {
+			uniprotList.add(entry_that_is_removed.getUniProtEntry());
+		}
+		// for some reason it has uniprotid == -1 even if it should not 
+		if (merge_into_entry.getUniProtEntry() != null
+				&& !merge_into_entry.getUniProtEntry().getUniProtID().equals(-1L)) {
+			uniprotList.add(merge_into_entry.getUniProtEntry());
+		}
+		UniProtEntryMPA commonUniprotEntry;
+		if (uniprotList.size() > 1) {
+			commonUniprotEntry = UniProtUtilities.getCommonUniprotEntry(uniprotList, taxonomyMap, taxonomyNodeMap,
+					(TaxonomyUtils.TaxonomyDefinition) params.get("metaProteinTaxonomy")
+					.getValue(), null);
+		} else if (uniprotList.size() == 1) {
+			commonUniprotEntry = uniprotList.get(0);
+		} else {
+			commonUniprotEntry = null;
+		}
+		merge_into_entry.setUniprotEntry(commonUniprotEntry);
+		if (commonUniprotEntry != null) {
+			merge_into_entry.setTaxonomyNode(commonUniprotEntry.getTaxonomyNode());
+		}
+		return merge_into_entry;
+	}
 }

@@ -221,7 +221,7 @@ public class RunMultiBlast {
 		Connection conn = DBManager.getInstance().getConnection();
 		
 		// taxonomy map for common ancestor retrieval
-		Map<Long, Taxonomy> taxonomyMap = Taxonomy.retrieveTaxonomyMap(conn);
+		HashMap<Long, Taxonomy> taxonomyMap = Taxonomy.retrieveTaxonomyMap(conn);
 		
 		// limit, offset and proteincount for BLAST-batches
 		Long limit = (long) BLASTBATCHSIZE;
@@ -594,9 +594,10 @@ public class RunMultiBlast {
 	private static void storeBLASTinDB (
 			HashMap<String, BlastResult> resultMapBLAST, double evalue,
 			BlastDialog.BlastResultOption resultOption,
-			Map<Long, Taxonomy> taxonomyMap,
+			HashMap<Long, Taxonomy> taxonomyMap,
 			TreeMap<Long, ProteinAccessor> proteinAccessorMap, String database)
 			throws SQLException {
+		HashMap<Long, TaxonomyNode> taxonomyNodeMap = new HashMap<Long, TaxonomyNode>();
 		// get connection
 		Connection conn = DBManager.getInstance().getConnection();
 		// Go through all result entries
@@ -616,15 +617,15 @@ public class RunMultiBlast {
 						blastHit.getAccession(), conn);
 				// TODO: faster sql query
 				UniProtEntryMPA upEntry = new UniProtEntryMPA(UniprotentryAccessor.findFromID(fk_uniprotid, conn));
-				TaxonomyNode taxNode = TaxonomyUtils.createTaxonomyNode(upEntry.getTaxid(),taxonomyMap);
+				TaxonomyNode taxNode = TaxonomyUtils.createTaxonomyNode(upEntry.getTaxid(),taxonomyMap, taxonomyNodeMap);
 				upEntry.setTaxonomyNode(taxNode);
 				upEntries.add(upEntry);
 			}
 
 			// Create a common ancestor UNIPROT ENTRY
 			UniProtEntryMPA common_ancestor = UniProtUtilities
-					.getCommonUniprotEntry(upEntries, taxonomyMap,
-							TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR);
+					.getCommonUniprotEntry(upEntries, taxonomyMap, taxonomyNodeMap,
+							TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR, conn);
 			// Treemap containing sql-Protein ID and the UniprotentryMPA
 			TreeMap<Long, UniProtEntryMPA> uniProtMap = new TreeMap<Long, UniProtEntryMPA>();
 			uniProtMap.put(Long.valueOf(key), common_ancestor);

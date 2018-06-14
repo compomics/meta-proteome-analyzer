@@ -50,11 +50,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	private final ArrayList<ProteinHit> proteinHits;
 
 	/**
-	 * The visible protein hit list of this meta-protein.
-	 */
-	private ArrayList<ProteinHit> visProteinHits = new ArrayList<ProteinHit>();
-
-	/**
 	 * The UniProt entry hit object containing additional meta-data.
 	 */
 	private UniProtEntryMPA uniProtEntry = null;
@@ -72,7 +67,8 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	/**
 	 * The common taxonomy node.
 	 */
-	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+//	private TaxonomyNode taxonomyNode = new TaxonomyNode(1, TaxonomyRank.NO_RANK, "root");
+	private TaxonomyNode taxonomyNode;
 
 	/*
 	 * CONSTRUCTOR 
@@ -89,8 +85,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 		this.setAccession(identifier);
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.proteinHits.add(ph);
-		this.visProteinHits = new ArrayList<ProteinHit>();
-		this.visProteinHits.add(ph);
 		this.experimentIDs = new HashSet<Long>();
 	}
 
@@ -106,18 +100,20 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		visProteinHits.clear();
+		ArrayList<ProteinHit> newProteinHits = new ArrayList<ProteinHit>();
 		for (ProteinHit ph : proteinHits) {
 			ph.setFDR(fdr);
 			if (ph.isVisible()) {
-				visProteinHits.add(ph);
+				newProteinHits.add(ph);
 			}
 		}
+		proteinHits.clear();
+		proteinHits.addAll(newProteinHits);
 	}
 	
 	@Override
 	public boolean isVisible() {
-		return !this.visProteinHits.isEmpty();
+		return !proteinHits.isEmpty();
 	}
 
 	/*
@@ -132,14 +128,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	 */
 	public ArrayList<ProteinHit> getProteinHitList() {
 		return this.proteinHits;
-	}
-	
-	/**
-	 * Returns the list of proteins associated with this meta-protein.
-	 * @return the protein list
-	 */
-	public ArrayList<ProteinHit> getVisProteinHitList() {
-		return this.visProteinHits;
 	}
 	
 	/**
@@ -158,7 +146,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	
 	public void addProteinHit(ProteinHit prot) {
 		this.proteinHits.add(prot);
-		this.visProteinHits.add(prot);
 	}
 
 	/*
@@ -168,13 +155,15 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	 */
 
 	public ArrayList<PeptideHit> getPeptides() {
-		ArrayList<PeptideHit> peptides = new ArrayList<PeptideHit>();
+		HashSet<PeptideHit> pepset = new HashSet<PeptideHit>();
 		for (ProteinHit ph : proteinHits) {
-			peptides.addAll(ph.getPeptideHitList());
+			pepset.addAll(ph.getPeptideHitList());
 		}
+		ArrayList<PeptideHit> peptides = new ArrayList<PeptideHit>();
+		peptides.addAll(pepset);
 		return peptides;
 	}
-
+	
 	public PeptideHit getPeptideHit(String sequence) {
 		// Check all peptides whether they are visible (FDR alright or not)
 		PeptideHit peptide = null;
@@ -245,7 +234,7 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	public List<? extends Taxonomic> getTaxonomicChildren() {
 		return this.getProteinHitList();
 	}
-	
+
 	/*
 	 * METHODS
 	 * 
@@ -273,6 +262,16 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	public void addExperimentID(Long experimentID) {
 		this.experimentIDs.add(experimentID);
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof MetaProteinHit) {
+			MetaProteinHit m = (MetaProteinHit) o;
+			return this.getAccession().equals(m.getAccession());
+		}
+		return false;
+	}
+	
 	
 	@Override
 	public int compareTo(MetaProteinHit that) {
@@ -337,12 +336,14 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 				}
 				break;
 			case SPECTRUM_LEVEL:
+//				HashSet<Long> new_res = (HashSet<Long>) res;
 				for (PeptideHit ph : this.getPeptides()) {
 					for (PeptideSpectrumMatch sm : ph.getPeptideSpectrumMatches()) {
 						// TODO: implement title caching for spectrum matches
 						// XXX: is this working properly using spectrum IDs instead of seachspectrum ids??
 						res.add(sm.getSpectrumID());
 					}
+					System.out.println("res size " + res.size());
 				}
 				break;
 			default:

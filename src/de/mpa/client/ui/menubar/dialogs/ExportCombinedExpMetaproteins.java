@@ -255,9 +255,9 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		}
 
 		// Export the Data for the individual Experiments
-		DbSearchResult dbSearchResult = new DbSearchResult("title", ExportCombinedExpMetaproteins.expList, "fasta");
+		DbSearchResult dbSearchResult = new DbSearchResult(ExportCombinedExpMetaproteins.expList);
 		dbSearchResult.getSearchResultByView();
-		System.out.println((double) this.metaParams.get("FDR").getValue());
+//		System.out.println((double) this.metaParams.get("FDR").getValue());
 		dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
 
 		// Get the path for the export
@@ -306,10 +306,10 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		// Create Metaproteins
 		MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, this.metaParams);
 		// Export Metaproteins
-		ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle(), dbSearchResult, exportHeaders);
+		ResultExporter.exportMetaProteins(selectedFile.getPath() + "_MP_UniRef50_allSpecies_", dbSearchResult, exportHeaders);
 
 		// Get metaprotein list.
-		ArrayList<MetaProteinHit> metaProteins = dbSearchResult.getMetaProteins();
+		ArrayList<MetaProteinHit> metaProteins = dbSearchResult.getAllMetaProteins();
 
 		// Create maps for results
 		TreeMap<TaxonomyNode, Set<PeptideSpectrumMatch>> taxMap = new TreeMap<TaxonomyNode, Set<PeptideSpectrumMatch>>();
@@ -379,7 +379,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		}
 
 		// Export Ontologies
-		BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+		BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_")));
 		for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : biolFuncMap.entrySet()) {
 			ontoWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
 			ontoWriter.newLine();
@@ -388,7 +388,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		ontoWriter.close();
 
 		// Export Taxonomy
-		BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+		BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_")));
 		for (Map.Entry<TaxonomyNode, Set<PeptideSpectrumMatch>> taxEntry : taxMap.entrySet()) {
 			TaxonomyNode taxnode = taxEntry.getKey();
 			String superkingdom;
@@ -424,7 +424,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 
 		// Export Species Taxonomy
 		// TODO ADD Taxonomic path
-		BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_" +dbSearchResult.getExperimentTitle())));
+		BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_")));
 		for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : speciesMap.entrySet()) {
 			taxSpeciesWriter.write(taxEntry.getKey() + Constants.TSV_FILE_SEPARATOR + taxEntry.getValue().size());
 			taxSpeciesWriter.newLine();

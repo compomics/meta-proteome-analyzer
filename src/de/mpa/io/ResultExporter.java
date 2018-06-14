@@ -80,7 +80,7 @@ public class ResultExporter {
 		HashMap<String, HashMap<String, Integer>> matrix = new HashMap<>();
 
 		// loop metaprotein hits
-		for (MetaProteinHit metaHit : result.getVisibleMetaProteins()) {
+		for (MetaProteinHit metaHit : result.getAllMetaProteins()) {
 
 			TaxonomyNode taxNode = null;
 
@@ -106,7 +106,7 @@ public class ResultExporter {
 
 			Integer spectralCount = 0;
 
-			for (ProteinHit protHit : metaHit.getVisProteinHitList()) {
+			for (ProteinHit protHit : metaHit.getProteinHitList()) {
 				for (String keyword : protHit.getUniProtEntry().getKeywords()) {
 					spectralCount += protHit.getSpectralCount();
 				}
@@ -463,7 +463,8 @@ public class ResultExporter {
 
 		// Filling the format with data
 		int metaProtCount = 0;
-		for (MetaProteinHit metaProtein : result.getMetaProteins()) {
+		for (MetaProteinHit metaProtein : result.getAllMetaProteins()) {
+			System.out.println(metaProtein.isVisible() + " + " + metaProtein.isSelected());
 			if (metaProtein.isVisible() && metaProtein.isSelected()) {
 				if (hasFeature[0])
 					writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
@@ -669,7 +670,7 @@ public class ResultExporter {
 		Map<TaxonomyNode, ArrayList<PeptideHit>> taxonomyPeptides = new HashMap<TaxonomyNode, ArrayList<PeptideHit>>();
 
 		// Collect peptides and spectra from taxonomy hits.
-		for (MetaProteinHit metaProtein : result.getMetaProteins()) {
+		for (MetaProteinHit metaProtein : result.getAllMetaProteins()) {
 			if (metaProtein.isVisible() && metaProtein.isSelected()) {
 				HashSet<PeptideSpectrumMatch> spectrumIDs = metaProtein.getPSMS();
 				ArrayList<PeptideHit> peptideSet = metaProtein.getPeptides();
@@ -938,10 +939,8 @@ public class ResultExporter {
 
 		for (PeptideSpectrumMatch sm : spectrumMatches) {
 			if (sm.isVisible() && sm.isSelected()) {
-				// if (!Client.isViewer()) {
 				MascotGenericFile mgf = Client.getInstance().getSpectrumBySpectrumID(sm.getSpectrumID());
 				sm.setTitle(mgf.getTitle());
-				// }
 				PeptideSpectrumMatch psm = (PeptideSpectrumMatch) sm;
 
 				PeptideHit peptideHit = sm.getPeptideHit();

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import de.mpa.client.ui.resultspanel.ComparePanel.CompareData;
 import de.mpa.client.ui.sharedelements.chart.ChartType;
+import de.mpa.db.mysql.accessor.SearchHit;
 import de.mpa.model.analysis.Masses;
 import de.mpa.model.taxonomy.Taxonomic;
 import de.mpa.model.taxonomy.TaxonomyNode;
@@ -61,11 +62,6 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	private ArrayList<PeptideSpectrumMatch> peptideSpectrumMatches;
 
 	/**
-	 * Visible spectrum matches for this peptide hit.
-	 */
-	private ArrayList<PeptideSpectrumMatch> visPeptideSpectrumMatches;
-
-	/**
 	 * The database IDs of the experiments which contain the protein hit.
 	 */
 	private HashSet<Long> experimentIDs;
@@ -74,6 +70,9 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 * Taxonomy of this Peptide
 	 */
 	private TaxonomyNode taxonomyNode;
+	
+	
+	private boolean isoleucineReplaced = false;
 	
 	/*
 	 * CONSTRUCTORS
@@ -88,10 +87,8 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		this.sequence = sequence;
 		this.proteinHits = new ArrayList<ProteinHit>();
 		this.peptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>();
-		this.visPeptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>();
 		this.addPeptideSpectrumMatch(psm);
 		this.experimentIDs = new HashSet<Long>();
-		this.proteinHits = new ArrayList<ProteinHit>();
 	}
 
 	/**
@@ -120,19 +117,20 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	@Override
 	public void setFDR(double fdr) {
-		this.visPeptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>();
-		for (PeptideSpectrumMatch entry : peptideSpectrumMatches) {
-			PeptideSpectrumMatch match = entry;
+		ArrayList<PeptideSpectrumMatch> newPeptideSpectrumMatches = new ArrayList<PeptideSpectrumMatch>(); 
+		for (PeptideSpectrumMatch match : peptideSpectrumMatches) {
 			match.setFDR(fdr);
 			if (match.isVisible()) {
-				visPeptideSpectrumMatches.add(match);
+				newPeptideSpectrumMatches.add(match);
 			}
 		}
+		peptideSpectrumMatches.clear();
+		peptideSpectrumMatches.addAll(newPeptideSpectrumMatches);
 	}
 	
 	@Override
 	public boolean isVisible() {
-		return !visPeptideSpectrumMatches.isEmpty();
+		return !peptideSpectrumMatches.isEmpty();
 	}
 	
 	/*
@@ -157,19 +155,25 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		return proteinHits;
 	}
 	
+	public void replaceIsoleucine() {
+		if (!isoleucineReplaced) {
+			for (ProteinHit protein : proteinHits) {
+				// first replace references in all proteinhits
+				String new_seq = this.sequence.replaceAll("I", "L");
+				protein.replaceIsoleucine(new_seq, this);
+				// replace I with L in sequence
+				this.sequence = new_seq;
+			}
+			this.isoleucineReplaced = true;
+		}
+	}
+	
 	/*
 	 * METHODS
 	 * 
 	 * PSMS
 	 */
 	
-	/**
-	 * Returns the list of spectrum matches.
-	 * @return the list of spectrum matches.
-	 */
-	public ArrayList<PeptideSpectrumMatch> getVisPeptideSpectrumMatches() {
-		return visPeptideSpectrumMatches;
-	}
 	/**
 	 * Returns the list of spectrum matches.
 	 * @return the list of spectrum matches.
@@ -192,7 +196,36 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 		} 
 		if (addThisPSM) {
 			this.peptideSpectrumMatches.add(new_psm);
-			this.visPeptideSpectrumMatches.add(new_psm);
+		}
+	}
+	
+	/**
+	 * Adds a spectrum match to the PeptideHit. 
+	 * @param sm The spectrum match.
+	 */
+	public void mergePeptideSpectrumMatch(PeptideSpectrumMatch new_psm) {
+		PeptideSpectrumMatch merge_psm = null;
+		for (PeptideSpectrumMatch old_psm : peptideSpectrumMatches) {
+			if (old_psm.getSpectrumID() == new_psm.getSpectrumID()) {
+				merge_psm = old_psm;
+				break;
+			}
+		} 
+		if (merge_psm == null) {
+			this.peptideSpectrumMatches.add(new_psm);
+		} else {
+			SearchHit add_psm = new_psm.getSearchHit(SearchEngineType.MASCOT);
+			if (add_psm != null) {
+				merge_psm.addSearchHit(add_psm);
+			}
+			add_psm = new_psm.getSearchHit(SearchEngineType.XTANDEM);
+			if (add_psm != null) {
+				merge_psm.addSearchHit(add_psm);
+			}
+			add_psm = new_psm.getSearchHit(SearchEngineType.OMSSA);
+			if (add_psm != null) {
+				merge_psm.addSearchHit(add_psm);
+			}
 		}
 	}
 	
@@ -216,7 +249,7 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 	 */
 	public int getSpectralCount() {
 		HashSet<Long> specids = new HashSet<Long>();
-		for (PeptideSpectrumMatch psm : this.visPeptideSpectrumMatches) {
+		for (PeptideSpectrumMatch psm : peptideSpectrumMatches) {
 			specids.add(psm.getSpectrumID());
 		}
 		return specids.size();
@@ -344,6 +377,10 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 
 	@Override
 	public void setSelected(boolean selected) {
+		System.out.println("Selection change " + this.sequence + " to " + selected);
+		if (!selected) {
+			System.out.println();
+		}
 		this.selected = selected;
 	}
 	

@@ -58,11 +58,6 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 	private ArrayList<SearchHit> searchHits;
 	
 	/**
-	 * The visible search engine hits.
-	 */
-	private ArrayList<SearchHit> visSearchHits;
-	
-	/**
 	 * Taxonomy of this Peptide
 	 */
 	private TaxonomyNode taxonomyNode;
@@ -84,8 +79,6 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 		this.charge = (int) searchHit.getCharge();
 		this.searchHits = new ArrayList<SearchHit>();
 		this.searchHits.add(searchHit);
-		this.visSearchHits = new ArrayList<SearchHit>();
-		this.visSearchHits.add(searchHit);
 	}
 	
 	/*
@@ -100,17 +93,19 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 	 */
 	@Override
 	public void setFDR(double fdr) {
-        visSearchHits = new ArrayList<SearchHit>();
+		ArrayList<SearchHit> newSearchHits = new ArrayList<SearchHit>();
 		for (SearchHit hit : searchHits) {
 			if (hit.getQvalue().doubleValue() <= fdr) {
-                visSearchHits.add(hit);
+				newSearchHits.add(hit);
 			}
 		}
+		searchHits.clear();
+		searchHits.addAll(newSearchHits);
 	}
 	
 	@Override
 	public boolean isVisible() {
-		return !visSearchHits.isEmpty();
+		return !searchHits.isEmpty();
 	}
 	
 	/*
@@ -186,20 +181,11 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 	}
 	
 	/**
-	 * Returns the list of search hits.
-	 * @return The list of search hits.
-	 */
-	public ArrayList<SearchHit> getVisSearchHits() {
-		return this.visSearchHits;
-	}
-	
-	/**
 	 * Adds a search engine hit to the PSM. Checks for redundancy.
 	 * @param hit Another search engine hit to be added.
 	 */
 	public void addSearchHit(SearchHit hit) {
 		this.searchHits.add(hit);
-		this.visSearchHits.add(hit);
 	}
 	
 	/**
@@ -207,7 +193,7 @@ public class PeptideSpectrumMatch implements Serializable, Comparable<PeptideSpe
 	 * @return The number of votes for the search engine hits.
 	 */
 	public int getVotes() {
-		return this.visSearchHits.size();
+		return searchHits.size();
 	}
 	
 	

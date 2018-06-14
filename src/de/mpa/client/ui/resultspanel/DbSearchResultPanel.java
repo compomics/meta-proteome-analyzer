@@ -455,7 +455,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						Set<PeptideHit> peptides = new LinkedHashSet<PeptideHit>();
 						if (proteins != null) {
 							for (ProteinHit protein : proteins) {
-								peptides.addAll(protein.getVisPeptideHitList());
+								peptides.addAll(protein.getPeptideHitList());
 							}
 						}
 						DbSearchResultPanel.this.refreshPeptideViews(peptides);
@@ -671,8 +671,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					Enumeration<? extends MutableTreeTableNode> children = root.children();
 					while (children.hasMoreElements()) {
 						MutableTreeTableNode child = children.nextElement();
-						((Hit) child.getUserObject()).setSelected(
-								cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
+						((Hit) child.getUserObject()).setSelected(cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
 					}
 					refreshChart(true);
 				}
@@ -686,7 +685,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			@Override
 			public void valueChanged(TreeSelectionEvent evt) {
 				// Clear peptide selection in coverage pane
-				coveragePane.clearSelection();
+//				coveragePane.clearSelection();
 				// Extract peptides from current selection
 				Set<PeptideSpectrumMatch> matches = new LinkedHashSet<>();
 				Set<ProteinHit> proteins = new LinkedHashSet<>();
@@ -1369,7 +1368,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (focusPeptideBtn.isSelected()) {
 					focusSpectraBtn.setSelected(false);
 					view = DbSearchResultPanel.focus.PEPTIDE;
-					refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getVisiblePeptideHits());
+					refreshPeptideViews(Client.getInstance().getDatabaseSearchResult().getAllPeptideHits());
 				} else {
 					view = DbSearchResultPanel.focus.PROTEIN;
 				}
@@ -1846,7 +1845,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @param proteins the protein hits containing the peptides to display
 	 */
 	protected void refreshPeptideViews(Collection<PeptideHit> peptides) {
-
+		
 		// Clear tables, etc.
 		TableConfig.clearTable(peptideTbl);
 		coveragePane.clear();
@@ -2088,7 +2087,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		 */
 		private void refreshProteinTables() {
 			if (Client.getInstance().getDatabaseSearchResult() != null) {
-				ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
+				ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getAllMetaProteins();
 				long metaProtCount = metaProteins.size();
 
 				// Notify status bar
@@ -2169,7 +2168,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 							}
 						}
 						ProteinTreeTables.META.insertNode(metaNode);
-
 						Client.getInstance().firePropertyChange("progressmade", false, true);
 					}
 				}

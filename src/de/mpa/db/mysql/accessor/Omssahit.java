@@ -58,26 +58,6 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
     	}
     }
     
-	/**
-     * This method will find the hits from the current connection, based on the specified spectrumid.
-     *
-     * @param aSpectrumID long with the spectrumid of the spectrum file to find.
-     * @param aConn           Connection to read the spectrum File from.
-     * @return Spectrumfile with the data.
-     * @throws SQLException when the retrieval did not succeed.
-     */
-    public static List<Omssahit> getHitsFromSpectrumID(long aSpectrumID, Connection aConn) throws SQLException {
-    	List<Omssahit> temp = new ArrayList<Omssahit>();
-        PreparedStatement ps = aConn.prepareStatement("select o.*, p.sequence, pr.accession from omssahit o, peptide p, protein pr where o.fk_peptideid = p.peptideid and o.fk_proteinid = pr.proteinid and o.fk_searchspectrumid = ?");
-        ps.setLong(1, aSpectrumID);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            temp.add(new Omssahit(rs));
-        }
-        rs.close();
-        ps.close();
-        return temp;
-    }
     
 	/**
      * This method will find the hits from the current connection, based on the specified spectrumid.
@@ -106,53 +86,7 @@ public class Omssahit extends OmssahitTableAccessor implements SearchHit {
         return temp;
     }
     
-	/**
-     * This method will find the hits from the current connection, based on the specified proteinid.
-     *
-     * @param proteinid long with the proteinID.
-     * @param conn DB connection.
-     * @return List of OMSSA hits.
-     * @throws SQLException when the retrieval did not succeed.
-     */
-    public static List<OmssahitTableAccessor> getHitsFromProteinid(long proteinid, Connection conn) throws SQLException {
-    	List<OmssahitTableAccessor> temp = new ArrayList<OmssahitTableAccessor>();
-    	PreparedStatement ps = conn.prepareStatement("select o.* from omssahit o where o.fk_proteinid = ?");
-        ps.setLong(1, proteinid);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            temp.add(new OmssahitTableAccessor(rs));
-        }
-        rs.close();
-        ps.close();
-        return temp;
-    }
     
-	/**
-     * This method create a new omssahit from the data of another omssahit
-     *
-     * @param proteinid 	the proteinid from the new protein (why we copy in the first place)
-     * @param hit  	the old omssahit that is copied
-     * @param conn DB connection.
-     * @throws SQLException when the retrieval did not succeed.
-     */
-    public static void copyomssahit(long proteinid, OmssahitTableAccessor hit, Connection conn) throws SQLException {
-    	HashMap<Object, Object> hitdata = new HashMap<Object, Object>(16); 
-    	hitdata.put(OmssahitTableAccessor.FK_SEARCHSPECTRUMID, hit.getFk_searchspectrumid());
-		hitdata.put(OmssahitTableAccessor.HITSETNUMBER,	hit.getHitsetnumber());
-		hitdata.put(OmssahitTableAccessor.EVALUE, hit.getEvalue());
-		hitdata.put(OmssahitTableAccessor.PVALUE, hit.getPvalue());
-		hitdata.put(OmssahitTableAccessor.CHARGE, hit.getCharge());
-		hitdata.put(OmssahitTableAccessor.MASS,	hit.getMass());
-		hitdata.put(OmssahitTableAccessor.THEOMASS,	hit.getTheomass());
-		hitdata.put(OmssahitTableAccessor.START, hit.getStart());
-		hitdata.put(OmssahitTableAccessor.END, hit.getEnd());
-		hitdata.put(OmssahitTableAccessor.PEP, hit.getPep());
-		hitdata.put(OmssahitTableAccessor.QVALUE, hit.getQvalue());
-		hitdata.put(OmssahitTableAccessor.FK_PEPTIDEID,	hit.getFk_peptideid());
-		hitdata.put(OmssahitTableAccessor.FK_PROTEINID,	proteinid);
-		OmssahitTableAccessor omssahit = new OmssahitTableAccessor(hitdata);
-		omssahit.persist(conn);
-    }
 
 	public String getSequence() {
 		return this.sequence;

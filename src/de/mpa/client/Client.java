@@ -680,6 +680,7 @@ public class Client {
 	 */
 	public DbSearchResult restoreBackupDatabaseSearchResult() {
 		try {
+			this.dbSearchResult = null;
 			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(
 					new GZIPInputStream(new FileInputStream(new File(Constants.BACKUP_RESULT_PATH)))));
 			this.dbSearchResult = (DbSearchResult) ois.readObject();
@@ -773,7 +774,7 @@ public class Client {
 	}
 	
 	public void newDatabaseSearchResult(ArrayList<MPAExperiment> expList) {
-		this.dbSearchResult = new DbSearchResult("", expList, "");
+		this.dbSearchResult = new DbSearchResult(expList);
 		try {
 			this.dbSearchResult.getSearchResultByView();
 			// init charts

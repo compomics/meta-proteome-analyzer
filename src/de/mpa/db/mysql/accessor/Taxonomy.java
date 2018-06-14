@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Taxonomy extends TaxonomyTableAccessor implements Serializable {
 	
@@ -19,7 +18,7 @@ public class Taxonomy extends TaxonomyTableAccessor implements Serializable {
      * Calls the super class.
      * @param params
      */
-	public Taxonomy(HashMap params) {
+	public Taxonomy(HashMap<Object, Object> params) {
 		super(params);
 	}
 
@@ -61,8 +60,8 @@ public class Taxonomy extends TaxonomyTableAccessor implements Serializable {
 	 * @return Map of all taxonomy entries with taxonomy IDs as key.
 	 * @throws SQLException
 	 */
-	public static Map<Long, Taxonomy> retrieveTaxonomyMap(Connection conn) throws SQLException {
-		Map<Long, Taxonomy>  taxonomies = new HashMap<Long, Taxonomy>();
+	public static HashMap<Long, Taxonomy> retrieveTaxonomyMap(Connection conn) throws SQLException {
+		HashMap<Long, Taxonomy>  taxonomies = new HashMap<Long, Taxonomy>();
 		PreparedStatement ps = conn.prepareStatement("SELECT * FROM taxonomy");
 //		Statement stat = conn.createStatement();
 //		ResultSet rs = stat.executeQuery(TaxonomyTableAccessor.getBasicSelect());

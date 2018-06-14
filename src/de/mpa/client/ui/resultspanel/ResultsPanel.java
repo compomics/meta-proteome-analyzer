@@ -394,6 +394,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 		fetchMultipleResultsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
+				
 				// Get selected experiments
 				ArrayList<MPAExperiment> expList = new ArrayList<MPAExperiment>();
 				expList = SelectExperimentDialog.showDialog(ClientFrame.getInstance(), "Select experiments");
@@ -1067,14 +1068,12 @@ public class ResultsPanel extends JPanel implements Busyable {
                 ResultsPanel.this.gdbPnl.setBusy(true);
 				// restore result object from backup file if it was processed before
 				Client client = Client.getInstance();
-				if (!Client.getInstance().getDatabaseSearchResult().isRaw()) {
-                    client.restoreBackupDatabaseSearchResult();
-				}
-
+				client.restoreBackupDatabaseSearchResult();
 				// process results
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(Client.getInstance().getDatabaseSearchResult(), client.getResultParameters());
-				Client.getInstance().getDatabaseSearchResult().setRaw(false);
 
+                ResultsPanel.this.dbPnl.setBusy(false);
+                ResultsPanel.this.gdbPnl.setBusy(false);
 				return 1;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1152,11 +1151,11 @@ public class ResultsPanel extends JPanel implements Busyable {
 					// Update statistics labels
                     ResultsPanel.this.totalSpecLbl.setText("" + dbSearchResult.getTotalSpectrumCount());
                     ResultsPanel.this.identSpecLbl.setText("" + dbSearchResult.getVisibleIdentifiedSpectrumCount());
-                    ResultsPanel.this.distPepLbl.setText("" + dbSearchResult.getVisiblePeptideHits().size());
+                    ResultsPanel.this.distPepLbl.setText("" + dbSearchResult.getAllPeptideHits().size());
 					//TODO does throw errors due to concurrent methods interaction
                     ResultsPanel.this.uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
-                    ResultsPanel.this.totalProtLbl.setText("" + dbSearchResult.getVisibleProteinHits().size());
-                    ResultsPanel.this.metaProtLbl.setText("" + dbSearchResult.getVisibleMetaProteins().size());
+                    ResultsPanel.this.totalProtLbl.setText("" + dbSearchResult.getAllProteinHits().size());
+                    ResultsPanel.this.metaProtLbl.setText("" + dbSearchResult.getAllMetaProteins().size());
                     ResultsPanel.this.speciesLbl.setText("" + speciesNames.size());
                     ResultsPanel.this.enzymesLbl.setText("" + ecNumbers.size());
                     ResultsPanel.this.pathwaysLbl.setText("" + pwNodes.size());
@@ -1174,9 +1173,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 					return 1;
 					
 				} catch (Exception e) {
-//					e.printStackTrace(); System.out.println(
 					try {
-//						Thread.sleep(1000);
+						Thread.sleep(1000);
 						ResultsPanel.this.heatMapPn.updateData();
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block

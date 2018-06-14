@@ -134,25 +134,25 @@ public class GraphDatabaseHandler {
 	public void setData(DbSearchResult data) {
 		ArrayList<ProteinHit> metaProteinHits = data.getAllProteinHits();
 		Client client = Client.getInstance();
-		client.firePropertyChange("new message", null, "ADDING " + data.getExperimentTitle().toUpperCase() + " TO GRAPHDB");
+		client.firePropertyChange("new message", null, "ADDING " + "Experiment".toUpperCase() + " TO GRAPHDB");
 		client.firePropertyChange("resetall", -1L, Long.valueOf(metaProteinHits.size()));
 		
 		// Add experiment
-        addExperiment(data.getExperimentTitle(), data.getProjectTitle());
+        addExperiment("Experiment", "Project");
 		// Add protein hits
 		for (ProteinHit proteinHit : metaProteinHits) {
             addProtein(proteinHit);
 			client.firePropertyChange("progressmade", -1L, 0L);
 		}
 		// Add meta-proteins for processed results
-		if (!data.isRaw()) {
-			List<MetaProteinHit> metaProteins = data.getMetaProteins();
-			client.firePropertyChange("resetall", -1L, Long.valueOf(metaProteins.size()));
-			for (MetaProteinHit metaProtein : metaProteins) {
-                addMetaprotein(metaProtein);
-				client.firePropertyChange("progressmade", -1L, 0L);
-			}
-		}
+//		if (!data.isRaw()) {
+//			List<MetaProteinHit> metaProteins = data.getAllMetaProteins();
+//			client.firePropertyChange("resetall", -1L, Long.valueOf(metaProteins.size()));
+//			for (MetaProteinHit metaProtein : metaProteins) {
+//                addMetaprotein(metaProtein);
+//				client.firePropertyChange("progressmade", -1L, 0L);
+//			}
+//		}
 		client.firePropertyChange("new message", null, "BUILDING GRAPH DATABASE FINISHED");
 		
 		// Stop the transaction

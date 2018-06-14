@@ -167,9 +167,10 @@ public class OmssaStorager extends BasicStorager {
 						if (loader.getPepFile()!=null) {
 							// There is a separate digested peptide file available
 							accessionSet = loader.getProtHits(sequence);
-							accessionSet.add(accession);
+
 						} else {
 							accessionSet.add(accession);
+							System.out.println("PEPFILE NULL!");
 						}
 
 						for (String acc : accessionSet) {
