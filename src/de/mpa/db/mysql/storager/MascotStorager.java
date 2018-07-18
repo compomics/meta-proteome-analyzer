@@ -295,7 +295,6 @@ public class MascotStorager extends BasicStorager {
 											if ((accession.length > 1)) {
 												// TODO: does it work? (fix from 0 -> 1)
 												if (accession[0].equals("tr") || accession[0].equals("sp")) {
-//													System.out.println("if clause 1");
 													proteinlist.add(accession[1]);	
 												} else {
 													proteinlist.add(accession[0]);	
@@ -502,7 +501,6 @@ public class MascotStorager extends BasicStorager {
 												Pep2prot.linkPeptideToProtein(peptideID, proteinID, conn);
 											} else {
 												String accession = protein_map.get(prot_acc).getAccession();
-//												System.out.println("Accession . " + accession);
 												// Get the protein description from fasta or from the dat file
 												String description = protein_map.get(prot_acc).getDescription();
 												if (!(description == null || description.length()<1)) {

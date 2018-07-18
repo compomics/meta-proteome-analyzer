@@ -134,6 +134,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
+				System.out.println("finished");
 				ExportCombinedExpMetaproteins.this.close();
 			}
 		});
@@ -253,13 +254,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			MPAExperiment exp = new MPAExperiment(experimentAcc.getExperimentid(), project);
 			experiments.add(exp);
 		}
-
-		// Export the Data for the individual Experiments
-		DbSearchResult dbSearchResult = new DbSearchResult(ExportCombinedExpMetaproteins.expList);
-		dbSearchResult.getSearchResultByView();
-//		System.out.println((double) this.metaParams.get("FDR").getValue());
-		dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
-
+		
 		// Get the path for the export
 		ExportFields exportFields = ExportFields.getInstance();
 		JFileChooser chooser = new ConfirmFileChooser(this.owner.getLastSelectedFolder());
@@ -272,6 +267,12 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			selectedFile = chooser.getSelectedFile();
 		}
 
+		// Export the Data for the individual Experiments
+		DbSearchResult dbSearchResult = new DbSearchResult(ExportCombinedExpMetaproteins.expList);
+		dbSearchResult.getSearchResultByView();
+		dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
+		System.out.println("Fechting results and calc. FDR DONE");
+
 		// Get Metaprotein export headers
 		ArrayList<ExportHeader> exportHeaders = new ArrayList<ExportHeader>();
 		exportHeaders.add(new ExportHeader(1, "Meta-Protein No.",  ResultExporter.ExportHeaderType.METAPROTEINS));
@@ -279,7 +280,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		exportHeaders.add(new ExportHeader(3, "Meta-Protein Description",  ResultExporter.ExportHeaderType.METAPROTEINS));
 		exportHeaders.add(new ExportHeader(4, "Meta-Protein Taxonomy",  ResultExporter.ExportHeaderType.METAPROTEINS));
 		exportHeaders.add(new ExportHeader(5, "Superkingdom",  			ResultExporter.ExportHeaderType.METAPROTEINS));
-		exportHeaders.add(new ExportHeader(6, "Kingdom",  				ResultExporter.ExportHeaderType.METAPROTEINS));
+		exportHeaders.add(new ExportHeader(6, "Kingdom",  ResultExporter.ExportHeaderType.METAPROTEINS));
 		exportHeaders.add(new ExportHeader(7, "Phylum",  ResultExporter.ExportHeaderType.METAPROTEINS));
 		exportHeaders.add(new ExportHeader(8, "Class",  ResultExporter.ExportHeaderType.METAPROTEINS));
 		exportHeaders.add(new ExportHeader(9, "Order",  ResultExporter.ExportHeaderType.METAPROTEINS));
@@ -320,13 +321,16 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		client.firePropertyChange("resetcur", 0L, metaProteins.size());
 		// Iterate over metaprotein hits
 		// Bacteria ==2 | Archaea == 2157 
+		
+		
+		int i = 0;
 		for (MetaProteinHit mp : metaProteins) {
 			if (mp.isVisible() && mp.isSelected()) {
 				client.firePropertyChange("progressmade", true, false);
 				// Check for taxonomy level
 				TaxonomyNode taxNode = mp.getTaxonomyNode();
 				if (mp.getUniProtEntry() != null) {
-					boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
+//					boolean root = TaxonomyUtils.belongsToGroup(taxNode, 1);
 					boolean bacteria = TaxonomyUtils.belongsToGroup(taxNode, 2);
 					boolean archaea = TaxonomyUtils.belongsToGroup(taxNode, 2157);
 					if (!noEucaryotes || bacteria || archaea) {			
@@ -377,7 +381,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				}
 			}
 		}
-
+		
 		// Export Ontologies
 		BufferedWriter ontoWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Onto_BiolFunction_UniRef50_allSpecies_")));
 		for (Map.Entry<String, Set<PeptideSpectrumMatch>> taxEntry : biolFuncMap.entrySet()) {
@@ -386,7 +390,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			ontoWriter.flush();
 		}
 		ontoWriter.close();
-
+		
 		// Export Taxonomy
 		BufferedWriter taxWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Order_UniRef50_allSpecies_")));
 		for (Map.Entry<TaxonomyNode, Set<PeptideSpectrumMatch>> taxEntry : taxMap.entrySet()) {
@@ -421,7 +425,7 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 			taxWriter.flush();
 		}
 		taxWriter.close();
-
+		
 		// Export Species Taxonomy
 		// TODO ADD Taxonomic path
 		BufferedWriter taxSpeciesWriter = new BufferedWriter(new FileWriter(new File(selectedFile.getPath() + "_Tax_Species_UniRef50_allSpecies_")));

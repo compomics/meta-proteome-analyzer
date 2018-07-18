@@ -377,10 +377,6 @@ public class PeptideHit implements Serializable, Comparable<PeptideHit>, Taxonom
 
 	@Override
 	public void setSelected(boolean selected) {
-		System.out.println("Selection change " + this.sequence + " to " + selected);
-		if (!selected) {
-			System.out.println();
-		}
 		this.selected = selected;
 	}
 	

@@ -343,7 +343,6 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 						// XXX: is this working properly using spectrum IDs instead of seachspectrum ids??
 						res.add(sm.getSpectrumID());
 					}
-					System.out.println("res size " + res.size());
 				}
 				break;
 			default:

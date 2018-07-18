@@ -717,7 +717,7 @@ public class ComparePanel extends JPanel {
 				DbSearchResult dbSearchResult = new DbSearchResult(ComparePanel.this.experiments);
 				dbSearchResult.getSearchResultByView();
 				
-//				dbSearchResult.setFDR((double) ComparePanel.this.metaParams.get("FDR").getValue());
+				dbSearchResult.setFDR((double) ComparePanel.this.metaParams.get("FDR").getValue());
 //				System.out.println("FDR:  " + (double) ComparePanel.this.metaParams.get("FDR").getValue());
 				
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);

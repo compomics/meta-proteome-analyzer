@@ -117,8 +117,8 @@ public class DbSearchResult implements Serializable {
 		// node map containing the actual nodes we use
 		taxonomyNodeMap = new HashMap<Long, TaxonomyNode>();
 		// doing it in this order is important!!
-		taxonomyNodeMap.put(1L, TaxonomyUtils.createTaxonomyNode(1, taxonomyMap, taxonomyNodeMap));
-		taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0, taxonomyMap, taxonomyNodeMap));
+		taxonomyNodeMap.put(1L, TaxonomyUtils.createTaxonomyNode(1L, taxonomyMap, taxonomyNodeMap));
+		taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0L, taxonomyMap, taxonomyNodeMap));
 		
 		
 		// experiment-wise data retrieval

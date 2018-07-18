@@ -46,7 +46,7 @@ public class RunMultiBlast {
 	/**
 	 * The number of protein entries for each BLAST
 	 */
-	private static final int BLASTBATCHSIZE = 1000;
+	private static final int BLASTBATCHSIZE = 250;
 
 	// /**
 	// * Constructor for a BLAST search process with multiple queries
@@ -248,12 +248,12 @@ public class RunMultiBlast {
 		if (blastAllDBProteins) {
 			// prepare the progress bar
 			totalProtCount = ProteinAccessor.getCountOfAllProteinsWithoutUniProtEntry(conn);
+			
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
 			Client.getInstance().firePropertyChange("resetall", 0L, totalProtCount);
 			Client.getInstance().firePropertyChange("resetcur", 0L, totalProtCount);
 			
 			while (protCount < totalProtCount) {
-
 
 				// 1. prepare batch
 				TreeMap<Long, ProteinAccessor> protaccessors = new TreeMap<Long, ProteinAccessor>();
@@ -275,7 +275,7 @@ public class RunMultiBlast {
 					progressbar.setString("Progress: " + progress + "%");
 					
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(100);
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
@@ -295,14 +295,13 @@ public class RunMultiBlast {
 				
 				//Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(100);
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
 			}
 			
 		} else {
-			
 			
 			Client.getInstance().firePropertyChange("indeterminate", true, false);
 			
@@ -321,10 +320,13 @@ public class RunMultiBlast {
 			Client.getInstance().firePropertyChange("resetcur", 0L, expIDList.size());
 			
 			// loop experiments
+			int expCount = 0;
 			for (Long expID : expIDList) {
 				
+				expCount++;
+				
 				progressbar.setValue(0);
-				Client.getInstance().firePropertyChange("new message", null, "BLAST EXPERIMENT " + expID + " OF " + expIDList.size());
+				Client.getInstance().firePropertyChange("new message", null, "BLAST FOR EXPERIMENT " + expID + " (" + expCount + " OF " + expIDList.size() + ")");
 
 				
 				// gather all proteins from the experiment
@@ -335,6 +337,7 @@ public class RunMultiBlast {
 				List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(
 						expID, conn);
 				List<SearchHit> hits = new ArrayList<SearchHit>();
+				
 				hits.addAll(mascotHits);
 				hits.addAll(xtandemHits);
 				hits.addAll(omssaHits);
@@ -362,6 +365,7 @@ public class RunMultiBlast {
 				if (proteins.size() == 0) {
 					progressbar.setString("No Proteins");
 				}
+				protCount = 0L;
 				for (ProteinAccessor proteinAcc : proteins) {
 					// iterate single protein
 					protCount++;
@@ -375,26 +379,29 @@ public class RunMultiBlast {
 					
 					// process batch if we have enough proteins 
 					if (protCount % BLASTBATCHSIZE == 0 || protCount == proteins.size()) {
+							
+					
 						// map for later identification of blast hits
-						
 						// run BLAST
 						HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 								blastBatchList, blastFile, database, evalue);
-						
 						// STORE
+						if (resultBLASTmap.size() > 0)  {
 						storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 								taxonomyMap, protaccessors, database);
+						}
 						// report progress
 						//"BLAST EXPERIMENT " + expID + " PROGRESS: " + protCount + " OF " + totalProtCount + " PROTEINS"
-						
 						// remove old batch
 						blastBatchList.clear();
 						protaccessors.clear();
+						
+					
 					}
 				
 					int progress = (int) ((protCount*1.0) / (totalProtCount*1.0) * 100);
 					
-					progressbar.setString("Proteins: " + protCount + " of " + totalProtCount);
+					progressbar.setString("Proteins: " + (protCount+1) + " of " + totalProtCount);
 					progressbar.setValue((int) progress);
 				}
 				progressbar.setValue(100);
@@ -598,8 +605,10 @@ public class RunMultiBlast {
 			TreeMap<Long, ProteinAccessor> proteinAccessorMap, String database)
 			throws SQLException {
 		HashMap<Long, TaxonomyNode> taxonomyNodeMap = new HashMap<Long, TaxonomyNode>();
+		
 		// get connection
 		Connection conn = DBManager.getInstance().getConnection();
+//		DBManager.getInstance().reconnect();
 		// Go through all result entries
 		// keys are actually SQL-proteinids, not accessions (for speed)
 		for (String key : resultMapBLAST.keySet()) {
@@ -630,6 +639,7 @@ public class RunMultiBlast {
 			TreeMap<Long, UniProtEntryMPA> uniProtMap = new TreeMap<Long, UniProtEntryMPA>();
 			uniProtMap.put(Long.valueOf(key), common_ancestor);
 			// Map linking protID to the uniprotentry ID
+			
 			TreeMap<Long, Long> addMultipleUniProtEntriesToDatabase = UniprotentryAccessor
 					.addMultipleUniProtEntriesToDatabase(uniProtMap, conn);
 

@@ -464,7 +464,6 @@ public class ResultExporter {
 		// Filling the format with data
 		int metaProtCount = 0;
 		for (MetaProteinHit metaProtein : result.getAllMetaProteins()) {
-			System.out.println(metaProtein.isVisible() + " + " + metaProtein.isSelected());
 			if (metaProtein.isVisible() && metaProtein.isSelected()) {
 				if (hasFeature[0])
 					writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);
@@ -477,7 +476,7 @@ public class ResultExporter {
 					writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				// TaxTree
 				TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
-				if (spNode != null) {
+				if (spNode != null && spNode.getRank() != TaxonomyRank.SUPERKINGDOM) {
 					if (hasFeature[4])
 						writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -485,7 +484,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
-				if (kingNode != null) {
+				if (kingNode != null && kingNode.getRank() != TaxonomyRank.KINGDOM) {
 					if (hasFeature[5])
 						writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -493,7 +492,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
-				if (phNode != null) {
+				if (phNode != null && phNode.getRank() != TaxonomyRank.PHYLUM) {
 					if (hasFeature[6])
 						writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -501,7 +500,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
-				if (classNode != null) {
+				if (classNode != null && classNode.getRank() != TaxonomyRank.CLASS) {
 					if (hasFeature[7])
 						writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -509,7 +508,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
-				if (orderNode != null) {
+				if (orderNode != null && orderNode.getRank() != TaxonomyRank.ORDER) {
 					if (hasFeature[8])
 						writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -517,7 +516,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
-				if (famNode != null) {
+				if (famNode != null && famNode.getRank() != TaxonomyRank.FAMILY) {
 					if (hasFeature[9])
 						writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -525,7 +524,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
-				if (genusNode != null) {
+				if (genusNode != null && genusNode.getRank() != TaxonomyRank.GENUS) {
 					if (hasFeature[10])
 						writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -533,7 +532,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
-				if (specNode != null) {
+				if (specNode != null && specNode.getRank() != TaxonomyRank.SPECIES) {
 					if (hasFeature[11])
 						writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -598,6 +597,7 @@ public class ResultExporter {
 				if (hasFeature[16])
 					writer.append(metaProtein.getPeptides().size() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[17])
+					// TODO: get real spectral count
 					writer.append(metaProtein.getPSMS().size() + Constants.TSV_FILE_SEPARATOR);
 				if (hasFeature[18]) {
 					ArrayList<ProteinHit> proteinHits = metaProtein.getProteinHitList();

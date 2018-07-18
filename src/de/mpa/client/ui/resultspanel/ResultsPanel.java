@@ -1062,7 +1062,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 			try {
 				Thread.currentThread().setName("ProcessResultsThread");
 
-				// begin appearing busy System.out.println(
+				// begin appearing busy
                 setBusy(true);
                 ResultsPanel.this.dbPnl.setBusy(true);
                 ResultsPanel.this.gdbPnl.setBusy(true);

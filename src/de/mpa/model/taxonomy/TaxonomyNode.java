@@ -188,18 +188,12 @@ public class TaxonomyNode implements Comparable<Object>, Serializable {
 	 */
 	public TaxonomyNode[] getPath() {
 		List<TaxonomyNode> path = new ArrayList<TaxonomyNode>();
-		
 		TaxonomyNode parent = this;
-		try {
 		while (parent.getID() != 1) {
 			path.add(parent);
 			parent = parent.getParentNode();
 		}
 		Collections.reverse(path);
-		} catch (Exception e) {
-			System.out.println("Test");
-		}
-		
 		return path.toArray(new TaxonomyNode[path.size()]);
 	}
 	

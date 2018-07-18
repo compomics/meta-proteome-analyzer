@@ -1169,7 +1169,7 @@ public class UniProtUtilities {
 		// Collect all tax ids and calculate taxonomy at the end.
 		TaxonomyNode commonNode = TaxonomyUtils.createTaxonomyNode(upEntries.get(0).getTaxonomyNode().getID(),
 				taxonomyMap, taxonomyNodeMap);
-		// Get fused UniProtEntryMPA
+		// Get fused UniProtEntryMPA (vegitos revenge :)
 		for (UniProtEntryMPA uniProtEntryMPA : upEntries) {
 			commonNode = tax_def.getCommonTaxonomyNode(commonNode, uniProtEntryMPA.getTaxonomyNode(), taxonomyMap, taxonomyNodeMap);
 			// add other metadata to sets

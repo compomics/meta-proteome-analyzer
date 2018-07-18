@@ -131,4 +131,17 @@ public class DBManager {
 	public Connection getConnection() {
 		return this.conn;
 	}
+	/**
+	 * Returns the connection.
+	 * @return
+	 */
+	public Connection reconnect() {
+		try {
+			this.conn.close();
+			this.conn = Client.getInstance().getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return this.conn;
+	}
 }

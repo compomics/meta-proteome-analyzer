@@ -461,6 +461,10 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 	 * @param   aConn Connection to the persitent store.
 	 */
 	public int update(Connection aConn) throws SQLException {
+		if (this.iSource.contains("BLAST_BLAST")) {
+			System.err.println("MySQL Concurrency error during BLAST");
+			return 0;
+		}
 		if(!iUpdated) {
 			return 0;
 		}
@@ -473,6 +477,7 @@ public class ProteinTableAccessor implements Deleteable, Retrievable, Updateable
 		lStat.setObject(6, this.iSource);
 		lStat.setObject(7, this.iCreationdate);
 		lStat.setLong(8, this.iProteinid);
+		lStat.setQueryTimeout(10);
 		int result = lStat.executeUpdate();
 		lStat.close();
         iUpdated = false;
