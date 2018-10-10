@@ -22,6 +22,11 @@
 
 ## News ##
 
+*MPA Portable version 1.8.1 (October 2018)* has been released with the following update:
+
+* UniProt JAPI was updated to the latest version 1.0.16 (fixing errors occurring during the retrieval of UniProt meta-information)
+
+---
 
 *MPA Portable version 1.8.0 (November 2017)* has been released with the following features/bugfixes:
 
@@ -58,7 +63,7 @@
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.0/mpa-portable-1.8.0.zip)  *MPA Portable version 1.8.0 - Windows and Linux 32-bit/64-bit - released on November 17, 2017*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.8.1.zip)  *MPA Portable version 1.8.1 - Windows and Linux 32-bit/64-bit - released on October 10, 2018*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
@@ -115,7 +120,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.0/mpa-portable-1.8.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.8.1.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
