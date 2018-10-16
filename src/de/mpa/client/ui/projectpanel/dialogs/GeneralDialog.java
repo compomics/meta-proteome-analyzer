@@ -258,7 +258,12 @@ public class GeneralDialog extends JDialog {
 				"5dlu, p, 5dlu, p:g, 5dlu", "2dlu, p, 5dlu"));
 
 		// Selected project/experiment textfield label
-		String name = this.getTitle() + " Name:";
+		String name;
+		if (this.getTitle() == null) {
+			name = "Name:";
+		} else {
+			name = this.getTitle() + " Name:";
+		}
 
 //		nameTtf = new JTextField(content.getTitle());
 		nameTtf = new JTextField(this.getTitle());

@@ -6,8 +6,8 @@ public class ServerClientStart {
 
 	/**
 	 * Main method, starts the application
+	 *
 	 * 
-	 *  
 	 * @author K.Schallert, rzoun
 	 * @param args
 	 * @throws InterruptedException 
@@ -21,5 +21,7 @@ public class ServerClientStart {
 		
 		// starts the MPA-Client
 		Starter.main(args);
+		
 	}
+	
 }

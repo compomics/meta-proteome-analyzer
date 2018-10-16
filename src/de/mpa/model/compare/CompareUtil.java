@@ -33,12 +33,12 @@ public class CompareUtil {
 			Map<String, Long[]> results, Set<Long> experimentIDs) {
 		for (long psLong : experimentIDs) {
 			// is already inside just increase
-			if (results.containsKey(protein.getAccession())) {
-				results.get(protein.getAccession())[experimentIndexMap.get(psLong)]++;
+			if (results.containsKey(protein.getAccession() + "_" + protein.getDescription())) {
+				results.get(protein.getAccession() + "_" + protein.getDescription())[experimentIndexMap.get(psLong)]++;
 			} else {
 				// else put new row and increase
-				results.put(protein.getAccession(), CompareUtil.cleanLongArray(new Long[experimentIndexMap.size()]));
-				results.get(protein.getAccession())[(int) experimentIndexMap.get(psLong)]++;
+				results.put(protein.getAccession() + "_" + protein.getDescription(), CompareUtil.cleanLongArray(new Long[experimentIndexMap.size()]));
+				results.get(protein.getAccession() + "_" + protein.getDescription())[(int) experimentIndexMap.get(psLong)]++;
 			}
 		}
 	}

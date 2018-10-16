@@ -296,6 +296,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 		client.firePropertyChange("resetall", 0L, experiments.size());
 		client.firePropertyChange("resetcur", 0L, experiments.size());
 		for (MPAExperiment exp : experiments) {
+//			System.out.println("Experiment: " + exp);
 			client.firePropertyChange("progressmade", true, false);
 			ArrayList<MPAExperiment> single_exp_as_list = new ArrayList<MPAExperiment>();
 			single_exp_as_list.add(exp);
@@ -322,6 +323,7 @@ public class ExportSeparateExpMetaproteins extends JDialog {
 
 			// Iterate over metaprotein hits
 			for (MetaProteinHit mp : metaProteins) {
+//				System.out.println("Metaprotein: " + mp.getAccession());
 				if (mp.isVisible() && mp.isSelected()) {
 					// Check for taxonomy level
 					TaxonomyNode taxNode = mp.getTaxonomyNode();

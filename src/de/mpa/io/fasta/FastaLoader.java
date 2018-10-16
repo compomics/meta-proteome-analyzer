@@ -488,7 +488,7 @@ public class FastaLoader {
 					ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
 					// Reset the fastaEntryList
 					fastaEntryList = new ArrayList<DigFASTAEntry>();
-					
+
 					// first 25% is the DB-stuff
 					int progress = (int) ((entryNo*1.0 / totalCountEntries*1.0) * 25);
 					progressbar.setValue(progress);
@@ -498,15 +498,15 @@ public class FastaLoader {
 		} else {
 			System.err.println("Fasta File is formatted wrong");
 		}
-		
+
 		Client.getInstance().firePropertyChange("new message", null, "SAVING PROTEINS TO DB");
-		
+
 		progressbar.setValue(25);
 		progressbar.setString("25%");
 		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 		FastaLoader.createNewUniprotEntries(empty_up, conn, progressbar);
 		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
-		
+
 		for (Long protid : empty_up) {
 			ProteinAccessor protein = ProteinAccessor.findFromID(protid, conn);
 			protein.delete(conn);
@@ -542,7 +542,7 @@ public class FastaLoader {
 		// fasta formatter script is progress from 50% to 75%
 		progressbar.setValue(75);
 		progressbar.setString("75%");
-		
+
 		// create peptide fasta
 		String pep_out = "";
 		if (Constants.winOS == true) {
@@ -552,11 +552,11 @@ public class FastaLoader {
 			pep_out = outputFastaFile.getAbsolutePath().substring(outputFastaFile.getAbsolutePath().lastIndexOf("/"),
 					outputFastaFile.getAbsolutePath().lastIndexOf(".")) + ".pep";
 		}
-		
+
 		Client.getInstance().firePropertyChange("new message", null, "CREATING PEPTIDE DATABASE");
 		PeptideDigester digester = new PeptideDigester(progressbar);
 		digester.createPeptidDB(outputFastaFile.getAbsolutePath(), pep_out, 1, 5, 50);
-		
+
 		// very last step
 		// Add *.fasta filename to the client settings.
 		FastaLoader.addFastaTotheClientSetting(dbName);
@@ -573,7 +573,7 @@ public class FastaLoader {
 	 * @throws SQLException
 	 */
 	private static void createNewUniprotEntries(ArrayList<Long> proteinid_List, Connection conn, JProgressBar progressbar) throws SQLException {
-		
+
 		// TODO: catch number format exception and figure out source of this bug
 
 		// init stuff
@@ -610,17 +610,19 @@ public class FastaLoader {
 					for (String protein : uniprotentries.keySet()) {
 						// prepare
 						UniProtEntryMPA up_entry = uniprotentries.get(protein);
-						ProteinAccessor prot_entry = protein_acc2prot_map.get(protein);
-						// create/add stuff to sql-objects
-						if(TaxonomyTableAccessor.taxIDExists(conn, up_entry.getTaxid())){
-							Long upid = UniprotentryAccessor.addProtein(up_entry, conn);
-							prot_entry.setFK_uniProtID(upid);
-							try {
-								prot_entry.update(conn);
-							} catch (Exception e) {
-								e.printStackTrace();
+						if (up_entry != null) {
+							ProteinAccessor prot_entry = protein_acc2prot_map.get(protein);
+							// create/add stuff to sql-objects
+							if(TaxonomyTableAccessor.taxIDExists(conn, up_entry.getTaxid())){
+								Long upid = UniprotentryAccessor.addProtein(up_entry, conn);
+								prot_entry.setFK_uniProtID(upid);
+								try {
+									prot_entry.update(conn);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
-						}						
+						}
 					}
 					// commit all 200 together
 					conn.commit();
@@ -631,7 +633,7 @@ public class FastaLoader {
 				protein_acc2id_mapping.clear();
 				protein_acc2prot_map.clear();
 			}
-			
+
 			// progress from 25% to 50%
 			int progress = (int) (25 + (count*1.0 / (proteinid_List.size()*1.0)) * 25);
 			progressbar.setValue(progress);
@@ -639,7 +641,7 @@ public class FastaLoader {
 		}
 	}
 
-	
+
 
 	/**
 	 * Write a FASTA database entry.
@@ -680,9 +682,9 @@ public class FastaLoader {
 		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.NCBIREFERENCE)) {
 			// TODO: FIX NCBI ENTRIES
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
-//			bw.write("|" + fastaEntry.getSubHeader().get(2));
-//			bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
-//			bw.write("|" + getSubHeader().get(3));
+			//			bw.write("|" + fastaEntry.getSubHeader().get(2));
+			//			bw.write(getType().dbStartFlag + prefix + "_" + getIdentifier());
+			//			bw.write("|" + getSubHeader().get(3));
 		} else if (fastaEntry.getType().equals(DigFASTAEntry.Type.Database)) {
 			bw.write(fastaEntry.getType().dbStartFlag + prefix + fastaEntry.getIdentifier());
 			bw.write("|" + "Metagenome unknown");
@@ -702,7 +704,7 @@ public class FastaLoader {
 			bw.write("|" + "Metagenome unknown");
 		}
 		bw.newLine();
-		
+
 		// Makes a linebreak each 80 chars
 		while (sequenceContainer.length() > 80) {
 			bw.append(sequenceContainer.subSequence(0, 79));
@@ -729,7 +731,7 @@ public class FastaLoader {
 		String clientSettingsFile = null;
 
 		clientSettingsFileServer = PropertyLoader.getProperty("base_path") + PropertyLoader.getProperty("path.fasta")
-				+ File.separator + PropertyLoader.getProperty("file.fastalist");
+		+ File.separator + PropertyLoader.getProperty("file.fastalist");
 		// Get old parameter dialog
 		BufferedReader br = new BufferedReader(new FileReader(new File(clientSettingsFileServer)));
 		String header = br.readLine();

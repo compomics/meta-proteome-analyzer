@@ -5,16 +5,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import de.mpa.client.Constants;
 import de.mpa.client.ui.sharedelements.chart.ChartType;
 import de.mpa.client.ui.sharedelements.chart.HierarchyLevel;
 import de.mpa.client.ui.sharedelements.chart.OntologyChart;
 import de.mpa.client.ui.sharedelements.chart.TaxonomyChart;
 import de.mpa.model.MPAExperiment;
+import de.mpa.model.analysis.UniProtUtilities.TaxonomyRank;
 import de.mpa.model.dbsearch.DbSearchResult;
 import de.mpa.model.dbsearch.MetaProteinHit;
 import de.mpa.model.dbsearch.PeptideHit;
 import de.mpa.model.dbsearch.PeptideSpectrumMatch;
 import de.mpa.model.dbsearch.ProteinHit;
+import de.mpa.model.dbsearch.UniProtEntryMPA;
+import de.mpa.model.taxonomy.TaxonomyNode;
+import uk.ac.ebi.kraken.interfaces.uniprot.Keyword;
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
 public class CompareExperiments {
 
@@ -98,8 +104,85 @@ public class CompareExperiments {
 
 		this.results = new HashMap<String, Long[]>();
 		for (MetaProteinHit metaprotein : dbSearchResult.getAllMetaProteins()) {
+			// get metadata
+			String keywords = "";
+			String ecs = "";
+			String kos = "";
+			String ur50 = "";
+			String ur90 = "";
+			String ur100 = "";
+			String superkingdom = "unknown superkingdom";
+			String kingdom = "unknown kingdom";
+			String phylum = "unknown phylum";
+			String classTax = "unknown class";
+			String order = "unknown order";
+			String family = "unknown family";
+			String genus = "unknown genus";
+			String species = "unknown species";
+			String subspecies = "unknown subspecies";
+			if (metaprotein.getUniProtEntry() != null) {
+				if (metaprotein.getUniProtEntry().getTaxonomyNode() != null) {
+					TaxonomyNode taxNode = metaprotein.getUniProtEntry().getTaxonomyNode();
+					if (taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName() != null) {
+						superkingdom= taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.KINGDOM).getName() != null) {
+						kingdom = taxNode.getParentNode(TaxonomyRank.KINGDOM).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.PHYLUM).getName() != null) {
+						phylum = "unknown"; taxNode.getParentNode(TaxonomyRank.PHYLUM).getName();
+					}
+
+					if (taxNode.getParentNode(TaxonomyRank.CLASS).getName() != null) {
+						classTax = taxNode.getParentNode(TaxonomyRank.CLASS).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.KINGDOM).getName() != null) {
+						order = taxNode.getParentNode(TaxonomyRank.ORDER).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.FAMILY).getName() != null) {
+						family = taxNode.getParentNode(TaxonomyRank.FAMILY).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.GENUS).getName() != null) {
+						genus = taxNode.getParentNode(TaxonomyRank.GENUS).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.SPECIES).getName() != null) {
+						species = taxNode.getParentNode(TaxonomyRank.SPECIES).getName();
+					}
+					if (taxNode.getParentNode(TaxonomyRank.SUBSPECIES).getName() != null) {
+						subspecies = taxNode.getParentNode(TaxonomyRank.SUBSPECIES).getName();
+					}
+				}
+				UniProtEntryMPA upe = metaprotein.getUniProtEntry();
+				if (upe != null) {
+					for (String kw : upe.getKeywords()) {
+						keywords += kw + ";";
+					}
+					for (String ec : upe.getEcnumbers()) {
+						ecs += ec + ";";
+					}
+					for (String ko : upe.getKonumbers()) {
+						kos += ko + ";";
+					}
+					if (upe.getUniRefMPA() != null) {
+						ur50 = upe.getUniRefMPA().getUniRef50();
+						ur90 = upe.getUniRefMPA().getUniRef90();
+						ur100 = upe.getUniRefMPA().getUniRef100();
+					}
+				}
+			}
 			// save metaprotein name as string, save spectral counts per experiment in Long-Array
-			String mpString = metaprotein.getAccession() + metaprotein.getDescription();
+			String mpString = metaprotein.getAccession()
+					+ "\t" + metaprotein.getDescription()
+					+ "\t" + keywords
+					+ "\t" + ecs
+					+ "\t" + kos
+					+ "\t" + ur50
+					+ "\t" + ur90
+					+ "\t" + ur100
+					+ "\t" + superkingdom + ";" +kingdom+ ";" +phylum+ ";" 
+					+classTax+ ";" +order+ ";" +family+ ";" +genus+ ";" +species+ ";" +subspecies;
+			mpString.replaceAll(",", "__");
+
 			Long[] experiments = new Long[this.experiments.size()];
 			for (int j = 0; j < this.experiments.size(); j++) {
 				experiments[j] = 0L;

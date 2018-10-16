@@ -17,7 +17,8 @@ public class AddExperimentDialog extends GeneralDialog {
 	 * @param project the content object
 	 */
 	public AddExperimentDialog(MPAExperiment experiment) {
-		super(experiment.getTitle(), IconConstants.ADD_PAGE_ICON.getImage(), experiment.getTitle(), experiment.getProperties());
+//		super(experiment.getTitle(), IconConstants.ADD_PAGE_ICON.getImage(), experiment.getTitle(), experiment.getProperties());
+		super("New Experiment", IconConstants.ADD_PAGE_ICON.getImage(), "New Experiment", experiment.getProperties());
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {

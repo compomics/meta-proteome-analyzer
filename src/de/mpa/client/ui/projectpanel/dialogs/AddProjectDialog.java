@@ -17,7 +17,8 @@ public class AddProjectDialog extends GeneralDialog {
 	 * @param project the content object
 	 */
 	public AddProjectDialog(MPAProject project) {
-		super(project.getTitle(), IconConstants.ADD_FOLDER_ICON.getImage(), project.getTitle(), project.getProperties());
+//		super(project.getTitle(), IconConstants.ADD_FOLDER_ICON.getImage(), project.getTitle(), project.getProperties());
+		super("New Project", IconConstants.ADD_FOLDER_ICON.getImage(), "New Project", project.getProperties());
 		saveBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {

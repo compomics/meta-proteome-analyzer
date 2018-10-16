@@ -80,7 +80,7 @@ public class UniProtUtilities {
 	 * @throws InterruptedException 
 	 */
 	public void startUniProtService() throws InterruptedException {
-		
+
 		ServiceFactory serviceFactoryInstance = uk.ac.ebi.uniprot.dataservice.client.Client.getServiceFactoryInstance();
 		uniProtQueryService = serviceFactoryInstance.getUniProtQueryService();
 		while (!this.uniProtQueryService.isStarted()) {
@@ -89,9 +89,9 @@ public class UniProtUtilities {
 				Thread.sleep(200);
 				System.err.println("UP connection failed, retry.");
 			}
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class UniProtUtilities {
 				Thread.sleep(200);
 				System.err.println("UP connection failed, retry.");
 			}
-			
+
 		}
 	}
 
@@ -528,12 +528,15 @@ public class UniProtUtilities {
 
 					QueryResult<UniProtEntry> entries = this.uniProtQueryService.getEntries(query);
 					// QueryResult<UniProtData> results =
-//					uniProtService.getResults(query, ComponentType.COMMENTS,
+					//					uniProtService.getResults(query, ComponentType.COMMENTS,
 					// ComponentType.GENES);
 
-					UniProtEntry entry = entries.next();
-					UniProtEntryMPA upEntry = new UniProtEntryMPA(entry, uniRefEntry);
-
+					UniProtEntry entry = null;
+					UniProtEntryMPA upEntry = null;
+					if (entries.hasNext()) {
+						entry = entries.next();
+						upEntry = new UniProtEntryMPA(entry, uniRefEntry);
+					}
 					if (entry == null) {
 						bad++;
 						System.err.println("Fail for accesion: " + accession);
@@ -548,7 +551,7 @@ public class UniProtUtilities {
 						Client.getInstance().firePropertyChange("progressmade", false, true);
 					}
 				}
-				
+
 				// stop uniprotservice
 				stopUniProtService();
 				// stop the unirefservice and return
