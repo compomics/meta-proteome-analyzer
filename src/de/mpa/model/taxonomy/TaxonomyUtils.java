@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -340,27 +341,52 @@ public class TaxonomyUtils {
 	 * @param peptideSet the peptide set
 	 */
 	public static void determinePeptideTaxonomy(ArrayList<PeptideHit> peptideSet, TaxonomyUtils.TaxonomyDefinition definition, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap) {
-
+		for (PeptideHit peptideHit : peptideSet) {
+			// iterate proteins
+			ArrayList<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+			// extract child taxonomy nodes (in this case proteins are children)
+			for (ProteinHit protein : peptideHit.getProteinHits()) {
+				taxonNodes.add(protein.getTaxonomyNode());
+			}
+			// calculate ancestor
+			TaxonomyNode ancestor = taxonNodes.get(0);
+			for (TaxonomyNode taxNode : taxonNodes) {
+				ancestor = definition.getCommonTaxonomyNode(ancestor, taxNode, taxonomyMap, taxonomyNodeMap);
+			}
+			// set common taxonomy node
+			peptideHit.setTaxonomyNode(ancestor);
+			Client.getInstance().firePropertyChange("progressmade", false, true);
+		}
+	}
+		
+		
+		
 		//		// Map with taxonomy entries used to merge redundant nodes
 		//		Map<Integer, TaxonomyNode> nodeMap = new HashMap<Integer, TaxonomyNode>();
 		//		// Insert root node
 		//		nodeMap.put(1, new TaxonomyNode(1, UniProtUtilities.TaxonomyRank.NO_RANK, "root"));
 
 		// Iterate peptides and gather common taxonomy
-		for (PeptideHit peptideHit : peptideSet) {
+//		for (PeptideHit peptideHit : peptideSet) {
 
 			// Gather protein taxonomy nodes
-			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+//			List<TaxonomyNode> taxonNodes = new ArrayList<TaxonomyNode>();
+//			LinkedList<ProteinHit> protTemp = new LinkedList<ProteinHit>();
 
-			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
-				taxonNodes.add(proteinHit.getTaxonomyNode());
-			}
+//			for (ProteinHit proteinHit : peptideHit.getProteinHits()) {
+////				taxonNodes.add(proteinHit.getTaxonomyNode());
+//				protTemp.add(proteinHit);
+//			}
 
+//			TaxonomyUtils.determineTaxonomy(protTemp, definition, taxonomyMap, taxonomyNodeMap);
+			
+//			protTemp.clear();
+			
 			// Find common taxonomy node (either common ancestor or most specific depending on definition)
-			TaxonomyNode ancestor = taxonNodes.get(0);
-			for (int i = 0; i < taxonNodes.size(); i++) {
-				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i), taxonomyMap, taxonomyNodeMap);
-			}
+//			TaxonomyNode ancestor = taxonNodes.get(0);
+//			for (int i = 0; i < taxonNodes.size(); i++) {
+//				ancestor = definition.getCommonTaxonomyNode(ancestor, taxonNodes.get(i), taxonomyMap, taxonomyNodeMap);
+//			}
 
 			//			// Gets the parent node of the taxon node
 			//			TaxonomyNode child = ancestor;
@@ -389,7 +415,7 @@ public class TaxonomyUtils {
 			//			}
 
 			// set peptide hit taxon node to ancestor
-			peptideHit.setTaxonomyNode(ancestor);
+//			peptideHit.setTaxonomyNode(ancestor);
 
 			// possible TODO: determine spectrum taxonomy instead of inheriting directly from peptide
 			// spectra dont have a taxonomy, This may cause problems down the road
@@ -398,9 +424,7 @@ public class TaxonomyUtils {
 			//			}
 
 			// fire progress notification
-			Client.getInstance().firePropertyChange("progressmade", false, true);
-		}
-	}
+
 
 	//	/**
 	//	 * Sets the taxonomy of meta-proteins contained in the specified list to the
@@ -419,9 +443,12 @@ public class TaxonomyUtils {
 	 * @param proteins List of proteins hits.
 	 * @param params the parameter map containing taxonomy definition rules
 	 */
-	public static void determineProteinTaxonomy(List<ProteinHit> proteins, ParameterMap params, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap) {
-		TaxonomyUtils.determineTaxonomy(proteins, (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue(), taxonomyMap, taxonomyNodeMap);
+	public static void determineProteinTaxonomy(List<ProteinHit> proteins, TaxonomyUtils.TaxonomyDefinition definition, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap) {
+		LinkedList<ProteinHit> protTemp = new LinkedList<ProteinHit>();
 		for (ProteinHit proteinHit : proteins) {
+			protTemp.clear();
+			protTemp.add(proteinHit);
+			TaxonomyUtils.determineTaxonomy(protTemp, definition, taxonomyMap, taxonomyNodeMap);
 			TaxonomyNode taxNode = proteinHit.getTaxonomyNode();
 			if (taxNode != null) {
 				proteinHit.getUniProtEntry().setTaxonomyNode(taxNode);

@@ -224,10 +224,12 @@ public class MetaProteinFactory {
 				return true;
 			}
 			return (refA != null) && (refB != null) && refA.equals(refB);
+			
 		}
 
 	}
-
+	
+	
 	/**
 	 * Enumeration holding rules for generating meta-proteins based on peptide
 	 * sharing.
@@ -262,9 +264,9 @@ public class MetaProteinFactory {
 						} else {
 							if (getMaximumDistance() > 0) {
 								// a small levenshtein distance indicates
-								// different metaproteins
+								// same metaprotein
 								if (computeLevenshteinDistance(seqA, seqB) <= getMaximumDistance()) {
-									return false;
+									shouldCondense = true;
 								}
 							}
 						}
@@ -431,17 +433,15 @@ public class MetaProteinFactory {
 				return true;
 			}
 		},
-		SUPERKINGDOM("on superkingdom level or lower", UniProtUtilities.TaxonomyRank.SUPERKINGDOM), KINGDOM(
-				"on kingdom level or lower", UniProtUtilities.TaxonomyRank.KINGDOM), PHYLUM("on phylum level or lower",
-						UniProtUtilities.TaxonomyRank.PHYLUM), CLASS("on class level or lower",
-								UniProtUtilities.TaxonomyRank.CLASS), ORDER("on order level or lower",
-										UniProtUtilities.TaxonomyRank.ORDER), FAMILY("on family level or lower",
-												UniProtUtilities.TaxonomyRank.FAMILY), GENUS("on genus level or lower",
-														UniProtUtilities.TaxonomyRank.GENUS), SPECIES(
-																"on species level or lower",
-																UniProtUtilities.TaxonomyRank.SPECIES), SUBSPECIES(
-																		"on subspecies level",
-																		UniProtUtilities.TaxonomyRank.SUBSPECIES);
+		SUPERKINGDOM("on superkingdom level or lower", UniProtUtilities.TaxonomyRank.SUPERKINGDOM), 
+		KINGDOM("on kingdom level or lower", UniProtUtilities.TaxonomyRank.KINGDOM), 
+		PHYLUM("on phylum level or lower", UniProtUtilities.TaxonomyRank.PHYLUM), 
+		CLASS("on class level or lower", UniProtUtilities.TaxonomyRank.CLASS), 
+		ORDER("on order level or lower", UniProtUtilities.TaxonomyRank.ORDER), 
+		FAMILY("on family level or lower", UniProtUtilities.TaxonomyRank.FAMILY), 
+		GENUS("on genus level or lower", UniProtUtilities.TaxonomyRank.GENUS), 
+		SPECIES("on species level or lower", UniProtUtilities.TaxonomyRank.SPECIES), 
+		SUBSPECIES("on subspecies level", UniProtUtilities.TaxonomyRank.SUBSPECIES);
 
 		/**
 		 * The name string.
@@ -501,6 +501,7 @@ public class MetaProteinFactory {
 			// get taxonomy name for target rank
 			String taxNameA = TaxonomyUtils.getTaxonNameByRank(phA.getTaxonomyNode(), rank);
 			String taxNameB = TaxonomyUtils.getTaxonNameByRank(phB.getTaxonomyNode(), rank);
+			System.out.println("TaxA: " + taxNameA + " TaxB: " + taxNameB + " Return: " + taxNameA.equals(taxNameB));
 			return taxNameA.equals(taxNameB);
 		}
 	}
@@ -595,8 +596,7 @@ public class MetaProteinFactory {
 			client.firePropertyChange("resetall", -1L, (long) (peptideSet.size() + proteinList.size() + metaProteins.size()));
 			client.firePropertyChange("resetcur", -1L, (long) peptideSet.size());
 			// Define common peptide taxonomy for each peptide
-			TaxonomyDefinition taxDef = (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue();
-			TaxonomyUtils.determinePeptideTaxonomy(peptideSet, (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue(), taxonomyMap, taxonomyNodeMap);
+			TaxonomyUtils.determinePeptideTaxonomy(peptideSet, TaxonomyDefinition.COMMON_ANCESTOR, taxonomyMap, taxonomyNodeMap);
 			
 			// WAS SET HARDCODED TO COMMON ANCESTOR??
 //			TaxonomyUtils.determinePeptideTaxonomy(peptideSet, TaxonomyUtils.TaxonomyDefinition.COMMON_ANCESTOR);
@@ -606,7 +606,8 @@ public class MetaProteinFactory {
 			client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY");
 			client.firePropertyChange("resetcur", -1L, (long) proteinList.size()*2);
 			// Define protein taxonomy by common tax ID of peptides
-			TaxonomyUtils.determineProteinTaxonomy(proteinList, params, taxonomyMap, taxonomyNodeMap);
+			TaxonomyDefinition taxDefProt = (TaxonomyUtils.TaxonomyDefinition) params.get("proteinTaxonomy").getValue();
+			TaxonomyUtils.determineProteinTaxonomy(proteinList, taxDefProt, taxonomyMap, taxonomyNodeMap);
 
 			client.firePropertyChange("new message", null, "DETERMINING PROTEIN TAXONOMY FINISHED");
 			client.firePropertyChange("new message", null, "CONDENSING META-PROTEINS");
