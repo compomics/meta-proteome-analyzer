@@ -170,7 +170,6 @@ public class OmssaStorager extends BasicStorager {
 
 						} else {
 							accessionSet.add(accession);
-							System.out.println("PEPFILE NULL!");
 						}
 
 						for (String acc : accessionSet) {

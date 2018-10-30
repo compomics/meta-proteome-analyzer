@@ -134,7 +134,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-				System.out.println("finished");
 				ExportCombinedExpMetaproteins.this.close();
 			}
 		});
@@ -271,7 +270,6 @@ public class ExportCombinedExpMetaproteins extends JDialog {
 		DbSearchResult dbSearchResult = new DbSearchResult(ExportCombinedExpMetaproteins.expList);
 		dbSearchResult.getSearchResultByView();
 		dbSearchResult.setFDR((double) this.metaParams.get("FDR").getValue());
-		System.out.println("Fechting results and calc. FDR DONE");
 
 		// Get Metaprotein export headers
 		ArrayList<ExportHeader> exportHeaders = new ArrayList<ExportHeader>();

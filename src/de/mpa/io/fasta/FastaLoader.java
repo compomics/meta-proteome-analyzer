@@ -410,7 +410,6 @@ public class FastaLoader {
 	 */
 	public static void addFastaDatabases(File fastaFile, String dbName, int batchSize, JProgressBar progressbar)
 			throws IOException, SQLException {
-
 		FastaLoader.uniprot_webservice_fail_count = 0L;
 		// Instance of the Buffered Reader
 		BufferedReader br = null;

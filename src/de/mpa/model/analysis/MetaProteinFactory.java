@@ -501,7 +501,6 @@ public class MetaProteinFactory {
 			// get taxonomy name for target rank
 			String taxNameA = TaxonomyUtils.getTaxonNameByRank(phA.getTaxonomyNode(), rank);
 			String taxNameB = TaxonomyUtils.getTaxonNameByRank(phB.getTaxonomyNode(), rank);
-			System.out.println("TaxA: " + taxNameA + " TaxB: " + taxNameB + " Return: " + taxNameA.equals(taxNameB));
 			return taxNameA.equals(taxNameB);
 		}
 	}
