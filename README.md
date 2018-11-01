@@ -11,10 +11,8 @@
 
 ## MetaProteomeAnalyzer Publications:
 
-  * [Muth _et al._: Anal Chem. 2018 90(1):685-689](https://www.ncbi.nlm.nih.gov/pubmed/29215871).
   * [Muth _et al._: J Proteome Res. 2015 14(3):1557-65](http://www.ncbi.nlm.nih.gov/pubmed/25660940).
   * If you use MetaProteomeAnalyzer as part of a publication, please include the reference(s). Thank you!
-
 
 ---
 
@@ -55,7 +53,7 @@ We highly recommend users to use the MPA on our remote server provided by the Ge
 
 ## Installation
 
-The easiest way for installation is to use the provided installation package and the initalized SQL database (See downloads). The package contains everything necessary to run the MPA (except Java 1.8). It also includes a test data set to confirm the software is running properly (see: http://www.mpa.ovgu.de/index.php/test-dataset/). The entire installation process should take approximately than 15 minutes.
+The easiest way for installation is to use the provided installation package and the initalized SQL database (See Downloads). The package contains everything necessary to run the MPA (except Java 1.8). It also includes a test data set to confirm the software is running properly (see: http://www.mpa.ovgu.de/index.php/test-dataset/). The entire installation process should take approximately than 15 minutes.
 
 For Windows installations you can follow our installation guide here: http://www.mpa.ovgu.de/index.php/tutorials/how-to-install-mpa-on-windows/
 
