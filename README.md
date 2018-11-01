@@ -36,28 +36,30 @@ The MPA metaproteomics software comes with the following key features:
   * Grouping of redundant protein hits to so-called "meta-proteins" (protein groups)
   * Label-free quantification methods
   * Interactive overview for each result set
-  * 
 
 ---
 
 ## Remote Server
 
-Access remote server at www.mpa.ovgu.de
+We highly recommend users to use the MPA on our remote server provided by the German Network for Bioinformatics Infrastructure (de.NBI). Through a remote desktop connection, users can gain access to the server and execute their database searches and data analysis tasks using hardware usually not available to the user (up to 48 processor cores and up to 500 GB of RAM). Furthermore, full software and bioinformatics support is easily available. Access remote server at www.mpa.ovgu.de. To get an account write an email at mpa@ovgu.de. 
 
 ---
 
 ## Downloads
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.8.1.zip)  *MPA Portable version 1.8.1 - Windows and Linux 32-bit/64-bit - released on October 10, 2018*
+[[Download full installation package]](http://www.mpa.ovgu.de/wp-content/uploads/MPAv2-Installation-package.zip)
 
-[[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
-
+[[Download initialized database]](http://www.mpa.ovgu.de/wp-content/uploads/MPA_Init_Database.sql)
 
 ---
 
 ## Installation
 
-Installation guide at www.mpa.ovgu.de
+The easiest way for installation is to use the provided installation package and the initalized SQL database (See downloads). The package contains everything necessary to run the MPA (except Java 1.8). It also includes a test data set to confirm the software is running properly (see: http://www.mpa.ovgu.de/index.php/test-dataset/). The entire installation process should take approximately than 15 minutes.
+
+For Windows installations you can follow our installation guide here: http://www.mpa.ovgu.de/index.php/tutorials/how-to-install-mpa-on-windows/
+
+For other operating systems, you have to install Java 1.8 and MySQL beforehand. Furthermore, you need to initialize the SQL database using the MPAinit.sql (See Downloads) using the command line: "mysql -uUSERNAME -p MPAinit.sql > metaprot". The folder "metaprot" can be put anywhere in the file system. The configuration file "config_LINUX.properties" must be modified to specifiy the correct SQL user, SQL password and SQL database. The MPA can be started using the command line: "java -jar mpa.jar" or by creating a script that executes this command. 
 
 ---
 
@@ -66,7 +68,7 @@ Installation guide at www.mpa.ovgu.de
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-To run the MPA, please install Java 1.8 and MySQL. 
+To run the MPA, please install Java 1.8 and MySQL. The installation package contains the necessary files for a MySQL installation on Windows.  
 
 If you haven't installed Java 1.8, please go directly to
 [Java.com](http://www.java.com/download/) to download the latest Java version.
