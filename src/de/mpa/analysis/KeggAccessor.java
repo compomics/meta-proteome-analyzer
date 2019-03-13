@@ -1,31 +1,17 @@
 package de.mpa.analysis;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import keggapi.KEGGLocator;
+import de.mpa.client.Constants;
+import de.mpa.io.parser.ec.ECReader;
+import keggapi.KEGGPortType;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.xml.rpc.ServiceException;
-
-import de.mpa.client.Constants;
-import de.mpa.io.parser.ec.ECReader;
-import keggapi.KEGGLocator;
-import keggapi.KEGGPortType;
+import java.io.*;
+import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Class providing access to KEGG remote service and local dumps of database contents.
@@ -99,7 +85,6 @@ public class KeggAccessor {
 	/**
 	 * Convenience method to return the value of a single KO-to-pathways mapping
 	 * where the K number is in String representation.
-	 * @param ec The K number in String representation.
 	 * @return A list of pathways mapped to the specified K number.
 	 */
 	public List<Short> getPathwaysByKO(String ko) {

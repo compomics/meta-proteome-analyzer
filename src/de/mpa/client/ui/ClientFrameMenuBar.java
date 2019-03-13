@@ -36,8 +36,6 @@ import de.mpa.client.ExportFields;
 import de.mpa.client.model.FileExperiment;
 import de.mpa.client.model.FileProject;
 import de.mpa.client.model.dbsearch.DbSearchResult;
-import de.mpa.client.model.dbsearch.ProteinHit;
-import de.mpa.client.ui.dialogs.ColorsDialog;
 import de.mpa.client.ui.dialogs.ExportDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog;
 import de.mpa.client.ui.dialogs.GeneralDialog.DialogType;
@@ -82,7 +80,6 @@ public class ClientFrameMenuBar extends JMenuBar {
 	
 	/**
 	 * Constructs the client frame menu bar and initializes the components.
-	 * @param clientFrame The client frame. 
 	 */
 	public ClientFrameMenuBar() {
 		this.clientFrame = ClientFrame.getInstance();
@@ -117,17 +114,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 
 		/* create Settings menu */
 		JMenu settingsMenu = new JMenu("Settings");
-		
-		// create Color Settings item
-		JMenuItem colorSettingsItem = new JMenuItem("Color Settings", IconConstants.COLOR_SETTINGS_ICON);
-		colorSettingsItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				ColorsDialog.getInstance().setVisible(true);
-			}
-		});
 
-		settingsMenu.add(colorSettingsItem);
-		
 		importMenu = new JMenu("Import");
 		
 		// create Import experiment item

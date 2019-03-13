@@ -51,12 +51,12 @@ public class Constants {
 	/**
 	 * The application version number.
 	 */
-	public final static String VER_NUMBER = "1.8.0";
+	public final static String VER_NUMBER = "1.9.0";
 	
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "17/11/2017";
+	public final static String VER_DATE = "13/03/2019";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -495,7 +495,7 @@ public class Constants {
 		
 		/**
 		 * Constructs a theme by parsing the specified theme file.
-		 * @param path the theme file
+		 * @param file the theme file
 		 */
 		public UITheme(File file) {
 			colorMap = new LinkedHashMap<UIColor, Color>();
@@ -522,7 +522,7 @@ public class Constants {
 		/**
 		 * Parses the theme file located at the specified path and stores its
 		 * values.
-		 * @param path the path to the theme file
+		 * @param file the path to the theme file
 		 */
 		private void parse(File file) {
 			if (!file.exists()) {
