@@ -154,7 +154,7 @@
     	<zipfileset dir="${build}/" includes="${distro-name}.jar"/>
     	<zipfileset dir="src/conf" prefix="conf/"/>
         <zipfileset dir="built" prefix="built/"/>
-        <zipfileset dir="projects" prefix="projects/"/>
+        <zipfileset dir="src/projects" prefix="projects/"/>
     	<zipfileset dir="lib" prefix="lib/"/>
     	<zipfileset file="src/log4j.properties" fullpath="log4j.properties"/>
     	<zipfileset file="built/mpa-portable.bat" fullpath="mpa-portable.bat" />

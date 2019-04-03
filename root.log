@@ -17200,3 +17200,523 @@ java.io.IOException: CreateProcess error=2, Das System kann die angegebene Datei
  INFO 2016-11-25 09:14:11,377 [SwingWorker-pool-2-thread-2] UniProtJob:75 Fetching 0 UniProt entries...
 
  INFO 2016-11-25 09:14:11,377 [SwingWorker-pool-2-thread-2] UniProtJob:75 Fetching 0 UniProt entries...
+
+ INFO 2019-03-13 18:05:31,304 [SwingWorker-pool-2-thread-3] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:05:31,304 [SwingWorker-pool-2-thread-3] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:05:31,304 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:31,304 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:31,992 [SwingWorker-pool-2-thread-3] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:05:31,992 [SwingWorker-pool-2-thread-3] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:05:31,992 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:05:31,992 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:05:32,039 [SwingWorker-pool-2-thread-3] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:05:32,039 [SwingWorker-pool-2-thread-3] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:05:32,039 [SwingWorker-pool-2-thread-3] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:05:32,039 [SwingWorker-pool-2-thread-3] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:05:32,882 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:05:32,882 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:05:32,913 [SwingWorker-pool-2-thread-3] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:05:32,929 [SwingWorker-pool-2-thread-3] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:05:32,929 [SwingWorker-pool-2-thread-3] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:05:32,960 [SwingWorker-pool-2-thread-3] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:05:32,960 [SwingWorker-pool-2-thread-3] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:05:33,398 [SwingWorker-pool-2-thread-3] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:05:33,398 [SwingWorker-pool-2-thread-3] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,632 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:05:33,694 [SwingWorker-pool-2-thread-3] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:05:33,710 [SwingWorker-pool-2-thread-3] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:05:33,773 [SwingWorker-pool-2-thread-3] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:05:33,788 [SwingWorker-pool-2-thread-3] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:05:33,788 [SwingWorker-pool-2-thread-3] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 Valid models = 1018
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 Valid models = 1018
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:33,804 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:34,679 [SwingWorker-pool-2-thread-3] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:05:34,679 [SwingWorker-pool-2-thread-3] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:05:34,679 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:34,679 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:35,303 [SwingWorker-pool-2-thread-3] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:05:35,303 [SwingWorker-pool-2-thread-3] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:05:35,303 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:05:35,303 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:05:35,335 [SwingWorker-pool-2-thread-3] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:05:35,335 [SwingWorker-pool-2-thread-3] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:05:35,335 [SwingWorker-pool-2-thread-3] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:05:35,335 [SwingWorker-pool-2-thread-3] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:05:36,102 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:05:36,102 [SwingWorker-pool-2-thread-3] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:05:36,116 [SwingWorker-pool-2-thread-3] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:05:36,131 [SwingWorker-pool-2-thread-3] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:05:36,131 [SwingWorker-pool-2-thread-3] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:05:36,163 [SwingWorker-pool-2-thread-3] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:05:36,163 [SwingWorker-pool-2-thread-3] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:05:36,178 [SwingWorker-pool-2-thread-3] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:05:36,194 [SwingWorker-pool-2-thread-3] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:05:36,225 [SwingWorker-pool-2-thread-3] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:05:36,225 [SwingWorker-pool-2-thread-3] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:05:36,225 [SwingWorker-pool-2-thread-3] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:05:36,225 [SwingWorker-pool-2-thread-3] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:05:36,241 [SwingWorker-pool-2-thread-3] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 Valid models = 179
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 Valid models = 179
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:05:36,256 [SwingWorker-pool-2-thread-3] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:46,210 [SwingWorker-pool-2-thread-10] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:07:46,210 [SwingWorker-pool-2-thread-10] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:07:46,210 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:46,210 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:46,851 [SwingWorker-pool-2-thread-10] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:07:46,851 [SwingWorker-pool-2-thread-10] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:07:46,851 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:07:46,851 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:07:46,882 [SwingWorker-pool-2-thread-10] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:07:46,882 [SwingWorker-pool-2-thread-10] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:07:46,882 [SwingWorker-pool-2-thread-10] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:07:46,882 [SwingWorker-pool-2-thread-10] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:07:47,694 [SwingWorker-pool-2-thread-10] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:07:47,710 [SwingWorker-pool-2-thread-10] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:07:47,710 [SwingWorker-pool-2-thread-10] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:07:47,741 [SwingWorker-pool-2-thread-10] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:07:47,741 [SwingWorker-pool-2-thread-10] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:07:48,100 [SwingWorker-pool-2-thread-10] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:07:48,100 [SwingWorker-pool-2-thread-10] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,335 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:07:48,366 [SwingWorker-pool-2-thread-10] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:07:48,413 [SwingWorker-pool-2-thread-10] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 Valid models = 1018
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 Valid models = 1018
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:48,428 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:49,256 [SwingWorker-pool-2-thread-10] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:07:49,256 [SwingWorker-pool-2-thread-10] XTandemTask:107 X! TANDEM Alanine (2017.2.1.2)
+
+ INFO 2019-03-13 18:07:49,256 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:49,256 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:49,897 [SwingWorker-pool-2-thread-10] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:07:49,897 [SwingWorker-pool-2-thread-10] XTandemTask:107 Loading spectra| (mgf). loaded.
+
+ INFO 2019-03-13 18:07:49,897 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:07:49,897 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectra matching criteria = 1406
+
+ INFO 2019-03-13 18:07:49,912 [SwingWorker-pool-2-thread-10] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:07:49,912 [SwingWorker-pool-2-thread-10] XTandemTask:107 Starting threads .|.|.|. started.
+
+ INFO 2019-03-13 18:07:49,912 [SwingWorker-pool-2-thread-10] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:07:49,912 [SwingWorker-pool-2-thread-10] XTandemTask:107 Computing models:
+
+ INFO 2019-03-13 18:07:50,678 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:07:50,678 [SwingWorker-pool-2-thread-10] XTandemTask:107 Spectrum-to
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 sequences modelled = 11 ks
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 Model refinement:
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:07:50,709 [SwingWorker-pool-2-thread-10] XTandemTask:107 partial cleavage ..... done.
+
+ INFO 2019-03-13 18:07:50,740 [SwingWorker-pool-2-thread-10] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:07:50,740 [SwingWorker-pool-2-thread-10] XTandemTask:107 unanticipated cleavage ..... done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 modified N-terminus 42.0106@[ ..... done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 finishing refinement ... done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 waiting for 2|3|4| done.
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:07:50,772 [SwingWorker-pool-2-thread-10] XTandemTask:107 Merging results:
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 from 234
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:07:50,787 [SwingWorker-pool-2-thread-10] XTandemTask:107 Creating report:
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 initial calculations  ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 sorting  ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 finding repeats ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:07:50,834 [SwingWorker-pool-2-thread-10] XTandemTask:107 evaluating results ..... done.
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 calculating expectations ..... done.
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 writing results ..... done.
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 Valid models = 179
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 Valid models = 179
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ INFO 2019-03-13 18:07:50,850 [SwingWorker-pool-2-thread-10] XTandemTask:107 
+
+ WARN 2019-03-15 14:22:36,282 [main] MzIdentMLElement:1100 MzIdentML Configuration file: jar:file:/C:/Users/t.muth/.m2/repository/uk/ac/ebi/pride/utilities/ms-data-core-api/2.0.6/ms-data-core-api-2.0.6.jar!/MzIdentMLElement.cfg.xml
+
+ WARN 2019-03-15 14:23:49,732 [main] MzIdentMLElement:1100 MzIdentML Configuration file: jar:file:/C:/Users/t.muth/.m2/repository/uk/ac/ebi/pride/utilities/ms-data-core-api/2.0.6/ms-data-core-api-2.0.6.jar!/MzIdentMLElement.cfg.xml
+
+ WARN 2019-03-15 14:24:27,787 [main] MzIdentMLElement:1100 MzIdentML Configuration file: jar:file:/C:/Users/t.muth/.m2/repository/uk/ac/ebi/pride/utilities/ms-data-core-api/2.0.6/ms-data-core-api-2.0.6.jar!/MzIdentMLElement.cfg.xml
+
+ WARN 2019-03-15 14:25:16,514 [main] MzIdentMLElement:1100 MzIdentML Configuration file: jar:file:/C:/Users/t.muth/.m2/repository/uk/ac/ebi/pride/utilities/ms-data-core-api/2.0.6/ms-data-core-api-2.0.6.jar!/MzIdentMLElement.cfg.xml
