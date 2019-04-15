@@ -347,7 +347,7 @@ public class MascotStorager extends BasicStorager {
 									if (!(split[0].contains("_tax"))) {
 										String accession = split[0].split("[|]")[1].replace("\"","");
 										if (accession.contains("|")) {
-											System.out.println("Wrong accession: " + accession);
+											System.err.println("Wrong accession: " + accession);
 											String[] accession_split = accession.split("|");
 											if (accession_split.length == 3) {
 												accession = accession_split[1];

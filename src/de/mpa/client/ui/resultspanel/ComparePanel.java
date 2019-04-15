@@ -705,40 +705,18 @@ public class ComparePanel extends JPanel {
 			try {
 				Client client = Client.getInstance();
 				client.firePropertyChange("new message", null, "STARTING COMPARISON AND FETCHING DATA");
-				
 //				client.setupGraphDatabase(false);
-
 				GraphDatabaseHandler graphDatabaseHandler = null;
 				// Iterate the experiments.
-				
-//				this.metaProtList = dbSearchResult.getMetaProteins();
-				
-				// TODO: different implementation here
 				DbSearchResult dbSearchResult = new DbSearchResult(ComparePanel.this.experiments);
 				dbSearchResult.getSearchResultByView();
-				
 				dbSearchResult.setFDR((double) ComparePanel.this.metaParams.get("FDR").getValue());
-//				System.out.println("FDR:  " + (double) ComparePanel.this.metaParams.get("FDR").getValue());
-				
 				MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);
-//				this.metaProtList = dbSearchResult.getMetaProteins();
-//				this.metaProtList.addAll();
-				
-//				for (MPAExperiment experiment : ComparePanel.this.experiments) {
-//					
-//					MetaProteinFactory.determineTaxonomyAndCreateMetaProteins(dbSearchResult, ComparePanel.this.metaParams);
-//					dbSearchResult.setRaw(false);
-////					graphDatabaseHandler.setData(dbSearchResult);
-//					
-//					this.metaProtList.addAll(dbSearchResult.getMetaProteins());
-//				}
-
 				// Compare the experiments.
 				// complete new compare classes
-				
 				this.cmpExp = new CompareExperiments(ComparePanel.this.experiments, dbSearchResult, chartType, countLevel);
 //				this.expComparison = new ExperimentComparison(ComparePanel.this.experiments, this.metaProtList, graphDatabaseHandler, chartType, countLevel);
-				
+				this.refreshCompareTable(this.cmpExp.getResults(), ComparePanel.this.experiments);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -747,10 +725,10 @@ public class ComparePanel extends JPanel {
 
 		@Override
 		protected void done() {
-			if (this.cmpExp.getResults() != null) {
+			if (this.cmpExp != null && this.cmpExp.getResults() != null) {
 				// the refresh table uses this input 
 				// Map<String, Long[]> dataMap, List<AbstractExperiment> experiments
-				this.refreshCompareTable(this.cmpExp.getResults(), ComparePanel.this.experiments);
+//				this.refreshCompareTable(this.cmpExp.getResults(), ComparePanel.this.experiments);
 			} else {
 				Client.getInstance().firePropertyChange("new message", null, "QUERYING COMPARISON DATA FINISHED");
 				Client.getInstance().firePropertyChange("indeterminate", true, false);

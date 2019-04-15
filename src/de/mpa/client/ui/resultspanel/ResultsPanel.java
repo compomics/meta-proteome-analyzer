@@ -1174,7 +1174,7 @@ public class ResultsPanel extends JPanel implements Busyable {
 					
 				} catch (Exception e) {
 					try {
-						Thread.sleep(1000);
+//						Thread.sleep(1000);
 						ResultsPanel.this.heatMapPn.updateData();
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block

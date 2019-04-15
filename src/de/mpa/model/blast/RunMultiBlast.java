@@ -81,7 +81,6 @@ public class RunMultiBlast {
 	public static HashMap<String, BlastResult> performBLAST(
 			ArrayList<DigFASTAEntry> queryList, String blastFile,
 			String database, Double evalue) throws IOException {
-
 		// The file of a temporary FASTA file for the BLAST
 		File fastaFile = File.createTempFile("blast_input", ".fasta");
 		// The temporary output file for the BLAST
@@ -122,9 +121,8 @@ public class RunMultiBlast {
 		// Add number of threads
 		blastQuery.add("-num_threads");
 		blastQuery.add(Integer.toString(8));
-
+		
 		blastQuery.trimToSize();
-
 
 		// Construct Process
 		Process process = null;
@@ -132,13 +130,14 @@ public class RunMultiBlast {
 			ProcessBuilder builder = new ProcessBuilder(blastQuery);
 			builder.redirectErrorStream(true);
 			process = builder.start();
+			Thread.sleep(10000);
 			process.waitFor();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			process.destroy();
 		}
-
+	
 		// Parse contents of the output file
 		BufferedReader reader = new BufferedReader(new FileReader(outputFile));
 		String line;
@@ -287,12 +286,10 @@ public class RunMultiBlast {
 				// 3. DO Batch
 				HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 						blastBatchList, blastFile, database, evalue);
-					
 				// 4. STORE
 				storeBLASTinDB(resultBLASTmap, evalue, resultOption,
 						taxonomyMap, protaccessors, database);
 				// report progress
-				
 				//Client.getInstance().firePropertyChange("new message", null, "BLAST: " + protCount + " OF " + totalProtCount + " PROTEINS");
 				try {
 					Thread.sleep(100);
@@ -356,7 +353,6 @@ public class RunMultiBlast {
 				}
 				// prepare progress bar
 				totalProtCount = (long) proteins.size();
-				
 				// prepare lists
 				TreeMap<Long, ProteinAccessor> protaccessors = new TreeMap<Long, ProteinAccessor>();
 				ArrayList<DigFASTAEntry> blastBatchList = new ArrayList<DigFASTAEntry>();
@@ -376,15 +372,14 @@ public class RunMultiBlast {
 							null);
 					protaccessors.put(proteinAcc.getProteinid(), proteinAcc);
 					blastBatchList.add(fastaProt);
-					
 					// process batch if we have enough proteins 
 					if (protCount % BLASTBATCHSIZE == 0 || protCount == proteins.size()) {
 							
-					
 						// map for later identification of blast hits
 						// run BLAST
 						HashMap<String, BlastResult> resultBLASTmap = performBLAST(
 								blastBatchList, blastFile, database, evalue);
+						
 						// STORE
 						if (resultBLASTmap.size() > 0)  {
 						storeBLASTinDB(resultBLASTmap, evalue, resultOption,
@@ -630,7 +625,6 @@ public class RunMultiBlast {
 				upEntry.setTaxonomyNode(taxNode);
 				upEntries.add(upEntry);
 			}
-
 			// Create a common ancestor UNIPROT ENTRY
 			UniProtEntryMPA common_ancestor = UniProtUtilities
 					.getCommonUniprotEntry(upEntries, taxonomyMap, taxonomyNodeMap,
@@ -639,10 +633,8 @@ public class RunMultiBlast {
 			TreeMap<Long, UniProtEntryMPA> uniProtMap = new TreeMap<Long, UniProtEntryMPA>();
 			uniProtMap.put(Long.valueOf(key), common_ancestor);
 			// Map linking protID to the uniprotentry ID
-			
 			TreeMap<Long, Long> addMultipleUniProtEntriesToDatabase = UniprotentryAccessor
 					.addMultipleUniProtEntriesToDatabase(uniProtMap, conn);
-
 			// Update link in the protein table.
 			for (Long protIDkey : addMultipleUniProtEntriesToDatabase.keySet()) {
 				// Get protein accessor from protein ID

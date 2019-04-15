@@ -137,10 +137,18 @@ public class TaxonomyNode implements Comparable<Object>, Serializable {
 
 	/**
 	 * Returns the parent taxonomy node of the specified rank.
+	 * 
+	 * If the currentnode is already above the specified rank: returns unknown node
+	 * If this node or parents is Uncategorized, returns uncategorized node
+	 * If we jump above the specified rank return unknown node
+	 * If there is an inconsistency in the taxonomy tree return unknown node
+	 * 
 	 * @param rank the desired parent rank
 	 * @return the parent taxonomy node of the desired rank.
 	 */
 	public TaxonomyNode getParentNode(UniProtUtilities.TaxonomyRank rank) {
+		TaxonomyNode currentNode = this;
+			// OLD IMPLEMENTATION
 		TaxonomyNode parentNode = this;
 
 		if (parentNode.getID() == 1) {

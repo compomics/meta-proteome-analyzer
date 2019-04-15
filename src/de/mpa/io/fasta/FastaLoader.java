@@ -410,6 +410,7 @@ public class FastaLoader {
 	 */
 	public static void addFastaDatabases(File fastaFile, String dbName, int batchSize, JProgressBar progressbar)
 			throws IOException, SQLException {
+		dbName = dbName.replaceAll(" ", "_");
 		FastaLoader.uniprot_webservice_fail_count = 0L;
 		// Instance of the Buffered Reader
 		BufferedReader br = null;
@@ -484,6 +485,8 @@ public class FastaLoader {
 				// do a batch of proteins, redundancy is handled by
 				// unique-accession property of protein table
 				if (entryNo % batchSize == 0 || line == null) {
+					
+					// NUR FÜR TREMBL
 					ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
 					// Reset the fastaEntryList
 					fastaEntryList = new ArrayList<DigFASTAEntry>();
@@ -502,15 +505,18 @@ public class FastaLoader {
 
 		progressbar.setValue(25);
 		progressbar.setString("25%");
-		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
-		FastaLoader.createNewUniprotEntries(empty_up, conn, progressbar);
-		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
 
-		for (Long protid : empty_up) {
-			ProteinAccessor protein = ProteinAccessor.findFromID(protid, conn);
-			protein.delete(conn);
-			FastaLoader.uniprot_webservice_fail_count++;
-		}
+		// XXX: permanently removed uniprot japi access, maybe replace with uniprot.xml
+//		ArrayList<Long> empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
+//		FastaLoader.createNewUniprotEntries(empty_up, conn, progressbar);
+//		empty_up = ProteinAccessor.find_uniprot_proteins_without_upentry(conn);
+//		
+//		for (Long protid : empty_up) {
+//			ProteinAccessor protein = ProteinAccessor.findFromID(protid, conn);
+//			protein.delete(conn);
+//			FastaLoader.uniprot_webservice_fail_count++;
+//		}
+		
 		conn.commit();
 		br.close();
 		bw.flush();
@@ -523,12 +529,12 @@ public class FastaLoader {
 
 		// Create a *.fasta for the mascot searches in the specified directory
 		// XXX: this should be handled differently
-		// if (mascotFlag) {
-		// Files.copy(outputFastaFile.toPath(), outpath.toPath(),
-		// StandardCopyOption.COPY_ATTRIBUTES);
-		// // Client.getInstance().firePropertyChange("new message", null,
-		// "Creating fasta copy for Mascot");
-		// }
+//		if (mascotFlag) {
+//			Files.copy(outputFastaFile.toPath(), outpath.toPath(),
+//					StandardCopyOption.COPY_ATTRIBUTES);
+//			// Client.getInstance().firePropertyChange("new message", null,
+//		"Creating fasta copy for Mascot");
+//		}
 
 		// fasta formatter script is progress from 50% to 75%
 		progressbar.setValue(50);
@@ -583,6 +589,7 @@ public class FastaLoader {
 		// this set is filled up to 200 entries and then processed
 		HashSet<String> accessions = new HashSet<String>();
 		int count = 0;
+		long uniprotFails = 0L;
 
 		// cylce list, processing every 16 (prvsly: 200) entries
 		for (Long protid : proteinid_List) {
@@ -596,14 +603,12 @@ public class FastaLoader {
 			// time for processing
 			if ((accessions.size() > 16) || (count == proteinid_List.size())) {
 				try {
+					long time = System.currentTimeMillis();
 					uniprotentries = utils.processBatch(accessions, true);
 				} catch (Exception e) {
-					// try again
-					try {
-						uniprotentries = utils.processBatch(accessions, true);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					utils.silenceOutput(false);
+					uniprotFails++;
+//					e.printStackTrace();
 				}
 				if (uniprotentries != null) {
 					for (String protein : uniprotentries.keySet()) {

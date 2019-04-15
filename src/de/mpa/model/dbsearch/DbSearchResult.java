@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.mpa.client.Client;
@@ -207,7 +210,10 @@ public class DbSearchResult implements Serializable {
 							protein_mapping.put(accession, prot);
 							prot.addPeptideHit(pephit);
 							pephit.addProteinHit(prot);
-							prot.setSequence(prot_seq);
+							// TODO: DEBUG
+//							prot.setSequence(prot_seq);
+							prot.setSequence("");
+							// DEBUG END
 							prot.setDescription(prot_description);
 							prot.addExperimentID(expID);
 							UniProtEntryMPA uniprot = this.makeUPEntry(uniprotid, conn);
@@ -226,17 +232,22 @@ public class DbSearchResult implements Serializable {
 							prot.setMetaProteinHit(mph);
 							this.addMetaProtein(mph);
 						}
+						if (this.metaProteins.size() % 1000 == 0) {
+							long heapSize = Runtime.getRuntime().totalMemory(); 
+						}
 						// report progress .DISTINCT
 						client.firePropertyChange("progressmade", true, false);
 					}
 				}
+				rs.close();
+				ps.close();
 			}
 			// next experiment
 		}
 		// determine total spectral count
 		this.setTotalSpectrumCount(this.countTotalSpectraFromExperimentList(conn));
 		this.setFDR(Constants.getDefaultFDR());
-
+		
 		//		// XXX: DEBUG OUTPUT POPULATING TABLES
 //				System.out.println("MP: " + this.metaProteins.size());
 		//		System.out.println("VMP: " + this.visMetaProteins.size());

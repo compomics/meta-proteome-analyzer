@@ -694,7 +694,6 @@ public class FilePanel extends JPanel implements Busyable {
 				specCont.add(FilePanel.createDefaultSpectrumPanel(), CC.xy(2, 2));
 				specCont.validate();
 
-				// XXX
                 FilePanel.this.histBar.setValues(1, 0, 1, 1);
 				Container cont = FilePanel.this.histPnl.getParent();
                 FilePanel.this.histPnl = FilePanel.this.createDefaultHistogramPanel();

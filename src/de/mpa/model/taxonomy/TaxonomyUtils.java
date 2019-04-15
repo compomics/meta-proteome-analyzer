@@ -87,7 +87,7 @@ public class TaxonomyUtils {
 					}
 				}
 				if (ancestor == null) {
-					System.out.println("Return null during common ancestor calculation!");
+					System.err.println("Return null during common ancestor calculation!");
 				}
 				return ancestor;
 			}

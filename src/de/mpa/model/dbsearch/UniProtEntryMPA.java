@@ -105,7 +105,6 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 
 		// Fill uniProtEntry
 		accession = uniProtEntry.getPrimaryUniProtAccession().toString();
-
 		this.taxid = Long.valueOf(uniProtEntry.getNcbiTaxonomyIds().get(0)
 				.getValue());
 		ecnumbers = uniProtEntry.getProteinDescription().getEcNumbers();
@@ -148,7 +147,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 				ecnumbers.add(string);
 			}
 		} else {
-			ecnumbers = null;
+			ecnumbers = new ArrayList<String>();
 		}
 		// KO numbers
 		String konumber = uniProtAccessor.getKonumber();
@@ -158,7 +157,7 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 				konumbers.add(string);
 			}
 		} else {
-			konumbers = null;
+			konumbers = new ArrayList<String>();
 		}
 		// Keywords
 		String keywords = uniProtAccessor.getKeywords();
@@ -168,12 +167,21 @@ public class UniProtEntryMPA implements Serializable, Taxonomic {
 				this.keywords.add(string);
 			}
 		} else {
-			this.keywords = null;
+			this.keywords = new ArrayList<String>();
 		}
 		// uniRefs
 		String uniref100 = uniProtAccessor.getUniref100();
 		String uniref90 = uniProtAccessor.getUniref90();
 		String uniref50 = uniProtAccessor.getUniref50();
+		if (uniref100 == null) {
+			uniref100 = "NoURef100";
+		}
+		if (uniref90 == null) {
+			uniref90 = "NoURef90";
+		}
+		if (uniref50 == null) {
+			uniref50 = "NoURef50";
+		}
 		uniRefMPA = new UniRefEntryMPA(uniref100, uniref90, uniref50);
 	}
 

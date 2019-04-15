@@ -276,7 +276,6 @@ public class TaxonomyData implements ChartData {
 			pieDataset.remove(unknownKey);
 		}
 
-
 		return pieDataset;
 	}
 

@@ -70,10 +70,6 @@ public class ResultExporter {
 	public static void exportChordData(String filePath, DbSearchResult result, String taxLevel, String keywordCategory,
 			int matrixSize, List<ExportHeader> exportHeaders) throws IOException {
 
-		// System.out.println(taxLevel);
-		// System.out.println(keywordCategory);
-		// System.out.println(matrixSize);
-
 		HashSet<String> taxOnomies = new HashSet<>();
 		HashSet<String> keywords = new HashSet<>();
 
@@ -113,9 +109,6 @@ public class ResultExporter {
 			}
 
 			for (String keyword : metaHit.getUniProtEntry().getKeywords()) {
-				// System.out.println("keyword: " + keyword + " Length: " +
-				// keyword.trim().length());
-
 				if (keyword.trim().length() > 0 && UniProtUtilities.ONTOLOGY_MAP.get(keyword) != null) {
 					if (UniProtUtilities.ONTOLOGY_MAP.get(keyword).getCategory().toString().toUpperCase()
 							.indexOf(keywordCategory.toUpperCase()) >= 0) {
@@ -263,8 +256,6 @@ public class ResultExporter {
 			}
 		}
 
-		// System.out.println();
-		// System.out.print("0,");
 		for (int j = 0; j < functionsArray.length; j++) {
 			if (j == functionsArray.length - 1) {
 				// System.out.print(functionsArray[j]);
@@ -284,10 +275,7 @@ public class ResultExporter {
 					// System.out.print(matrixArray[i][j] + ",");
 				}
 			}
-			// System.out.print("\n");
 		}
-
-		// System.out.println();
 
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(filePath)));
 
@@ -476,7 +464,7 @@ public class ResultExporter {
 					writer.append(taxNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				// TaxTree
 				TaxonomyNode spNode = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM);
-				if (spNode != null && spNode.getRank() != TaxonomyRank.SUPERKINGDOM) {
+				if (spNode != null && spNode.getRank() == TaxonomyRank.SUPERKINGDOM) {
 					if (hasFeature[4])
 						writer.append(spNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -484,7 +472,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode kingNode = taxNode.getParentNode(TaxonomyRank.KINGDOM);
-				if (kingNode != null && kingNode.getRank() != TaxonomyRank.KINGDOM) {
+				if (kingNode != null && kingNode.getRank() == TaxonomyRank.KINGDOM) {
 					if (hasFeature[5])
 						writer.append(kingNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -492,7 +480,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode phNode = taxNode.getParentNode(TaxonomyRank.PHYLUM);
-				if (phNode != null && phNode.getRank() != TaxonomyRank.PHYLUM) {
+				if (phNode != null && phNode.getRank() == TaxonomyRank.PHYLUM) {
 					if (hasFeature[6])
 						writer.append(phNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -500,7 +488,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode classNode = taxNode.getParentNode(TaxonomyRank.CLASS);
-				if (classNode != null && classNode.getRank() != TaxonomyRank.CLASS) {
+				if (classNode != null && classNode.getRank() == TaxonomyRank.CLASS) {
 					if (hasFeature[7])
 						writer.append(classNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -508,7 +496,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode orderNode = taxNode.getParentNode(TaxonomyRank.ORDER);
-				if (orderNode != null && orderNode.getRank() != TaxonomyRank.ORDER) {
+				if (orderNode != null && orderNode.getRank() == TaxonomyRank.ORDER) {
 					if (hasFeature[8])
 						writer.append(orderNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -516,7 +504,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode famNode = taxNode.getParentNode(TaxonomyRank.FAMILY);
-				if (famNode != null && famNode.getRank() != TaxonomyRank.FAMILY) {
+				if (famNode != null && famNode.getRank() == TaxonomyRank.FAMILY) {
 					if (hasFeature[9])
 						writer.append(famNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -524,7 +512,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode genusNode = taxNode.getParentNode(TaxonomyRank.GENUS);
-				if (genusNode != null && genusNode.getRank() != TaxonomyRank.GENUS) {
+				if (genusNode != null && genusNode.getRank() == TaxonomyRank.GENUS) {
 					if (hasFeature[10])
 						writer.append(genusNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {
@@ -532,7 +520,7 @@ public class ResultExporter {
 						writer.append("Unknown" + Constants.TSV_FILE_SEPARATOR);
 				}
 				TaxonomyNode specNode = taxNode.getParentNode(TaxonomyRank.SPECIES);
-				if (specNode != null && specNode.getRank() != TaxonomyRank.SPECIES) {
+				if (specNode != null && specNode.getRank() == TaxonomyRank.SPECIES) {
 					if (hasFeature[11])
 						writer.append(specNode.getName() + Constants.TSV_FILE_SEPARATOR);
 				} else {

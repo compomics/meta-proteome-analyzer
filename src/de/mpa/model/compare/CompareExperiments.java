@@ -1,5 +1,8 @@
 package de.mpa.model.compare;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,6 +97,22 @@ public class CompareExperiments {
 					compareTaxonomyCountPeptides();
 				}
 			}
+			BufferedWriter br = new BufferedWriter(new FileWriter(new File("Compare.csv")));
+			br.write("Description");
+			for (MPAExperiment exp : this.experiments) {
+				br.write("\t" + exp.getTitle().replaceAll("\t", ";"));
+			}
+			br.write("\n");
+			for (String elem : this.results.keySet()) {
+				br.write(elem);
+				Long[] values = this.results.get(elem);
+				for (int i = 0; i < values.length; i++) {
+					br.write("\t");
+					br.write(values[i].toString());
+				}
+				br.write("\n");
+			}
+			br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -101,7 +120,6 @@ public class CompareExperiments {
 
 	private void compareMetaproteinsCountSpectra() {
 		HashMap<Long, Integer> experimentIndexMap = CompareUtil.createIndexHashMapForExperiments(experiments);
-
 		this.results = new HashMap<String, Long[]>();
 		for (MetaProteinHit metaprotein : dbSearchResult.getAllMetaProteins()) {
 			// get metadata

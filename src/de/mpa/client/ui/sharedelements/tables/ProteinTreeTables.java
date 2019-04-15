@@ -1236,12 +1236,12 @@ public enum ProteinTreeTables {
 		JMenuItem uniProtMenuItem = new JMenuItem("UniProt", IconConstants.WEB_UNIPROT_ICON);
 		int selRow = table.getSelectedRow();
 		String accession = (String) table.getValueAt(selRow, table.convertColumnIndexToView(ProteinTreeTables.ACCESSION_COLUMN));
-		uniProtMenuItem.putClientProperty("url", "http://www.uniprot.org/uniprot/" + accession);
+		uniProtMenuItem.putClientProperty("url", "http://www.uniprot.org/uniprot/" + accession.replaceAll("#", "_").replaceAll(" ", "_").replaceAll("=", "_"));
 		uniProtMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(uniProtMenuItem);
 
 		JMenuItem ncbiMenuItem = new JMenuItem("NCBI", IconConstants.WEB_NCBI_ICON);
-		ncbiMenuItem.putClientProperty("url", "http://www.ncbi.nlm.nih.gov/protein/" + accession);
+		ncbiMenuItem.putClientProperty("url", "http://www.ncbi.nlm.nih.gov/protein/" + accession.replaceAll("#", "_").replaceAll(" ", "_").replaceAll("=", "_"));
 		ncbiMenuItem.addActionListener(popupMenuItemEventListener);
 		webresourceMenu.add(ncbiMenuItem);
 

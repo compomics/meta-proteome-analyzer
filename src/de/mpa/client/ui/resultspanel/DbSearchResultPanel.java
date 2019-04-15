@@ -210,10 +210,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 */
 	private TaxonomyData taxonomyData;
 
-	/**
-	 * The shared protein count highlighter instance.
-	 */
-	private ColorHighlighter protCountHighlighter;
+//	/**
+//	 * The shared protein count highlighter instance.
+//	 */
+//	private ColorHighlighter protCountHighlighter;
 
 	/**
 	 * The shared chart selection protein highlighter instance.
@@ -422,24 +422,27 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// there are 7 different ttbls
 			// checkbox tree selection accounting for changes on pathway string building
 			final CheckBoxTreeSelectionModel cbtsm = treeTbl.getCheckBoxTreeSelectionModel();
+			
+			
+			// XXX: disabled this selection listener for performance
 			// there are 7 different cbtsms
-			cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
-				@Override
-				public void valueChanged(TreeSelectionEvent tse) {
-					if (tse.getPath() == null) {
-						refreshPathwayStrings();
-					}
-				}
-			});
+//			cbtsm.addTreeSelectionListener(new TreeSelectionListener() {
+//				@Override
+//				public void valueChanged(TreeSelectionEvent tse) {
+//					if (tse.getPath() == null) {
+////						refreshPathwayStrings();
+//					}
+//				}
+//			});
 
 			// install selection listener to populate peptide table on selection
 			treeTbl.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
 				public void valueChanged(TreeSelectionEvent evt) {
-
 					// this one is responsible for "highlighted" selection
 					Set<ProteinHit> proteins = new LinkedHashSet<>();
 					int[] rows = treeTbl.getSelectedRows();
+					// retrieve proteins from the selected rows
 					for (int row : rows) {
 						TreePath path = treeTbl.getPathForRow(row);
 						PhylogenyTreeTableNode node = (PhylogenyTreeTableNode) path.getLastPathComponent();
@@ -460,7 +463,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 						DbSearchResultPanel.this.refreshPeptideViews(peptides);
 					}
-					refreshChart(true);
+					// XXX: removed for improved performance
+//					refreshChart(true);
 				}
 
 				/**
@@ -486,22 +490,26 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					return proteins;
 				}
 			});
+			
+			// XXX: completely removed this property change listener
 
-			treeTbl.addPropertyChangeListener("checkboxSelectionDone", new PropertyChangeListener() {
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					DbSearchResultPanel.this.refreshChart(true);
-				}
-			});
+//			treeTbl.addPropertyChangeListener("checkboxSelectionDone", new PropertyChangeListener() {
+//				@Override
+//				public void propertyChange(PropertyChangeEvent evt) {
+//					// XXX: remove this highlighter for performance
+////					DbSearchResultPanel.this.refreshChart(true);
+//				}
+//			});
 
 			// install selection row filter
 			treeTbl.setRowFilter(new SelectionRowFilter(treeTbl));
 
 			// install protein count highlighter
 			Color protCountCol = new Color(232, 122, 55, 132);
-			this.protCountHighlighter = new ColorHighlighter(
-					new DbSearchResultPanel.ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
-			treeTbl.addHighlighter(protCountHighlighter);
+			// XXX removed this highlighter for performance
+//			this.protCountHighlighter = new ColorHighlighter(
+//					new DbSearchResultPanel.ProteinHighlightPredicate(), protCountCol, null, protCountCol, null);
+//			treeTbl.addHighlighter(protCountHighlighter);
 
 			Color chartSelCol = new Color(0, 232, 122, 45);
 			chartSelHighlighter = new ColorHighlighter(
@@ -566,9 +574,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						}
 					}
 					// repaint column
-					Rectangle rect = this.getTableHeader().getHeaderRect(this.convertColumnIndexToView(column));
-					rect.height = this.getHeight();
-					this.repaint(rect);
+					// XXX: is this necessary?
+//					Rectangle rect = this.getTableHeader().getHeaderRect(this.convertColumnIndexToView(column));
+//					rect.height = this.getHeight();
+//					this.repaint(rect);
 				}
 			}
 
@@ -673,7 +682,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						MutableTreeTableNode child = children.nextElement();
 						((Hit) child.getUserObject()).setSelected(cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
 					}
-					refreshChart(true);
+					// XXX: remove refresh chart for performance
+//					refreshChart(true);
 				}
 			}
 		});
@@ -706,16 +716,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				if (view != DbSearchResultPanel.focus.SPECTRUM) {
 					refreshPSMView(matches);
 
-					// Update protein highlighting
-					DbSearchResultPanel.ProteinHighlightPredicate pchp = (DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter
-							.getHighlightPredicate();
-					pchp.setProteinHits(proteins);
-					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-						// re-apply highlighter
-						treeTbl.removeHighlighter(protCountHighlighter);
-						treeTbl.addHighlighter(protCountHighlighter);
-					}
+					// Update protein highlighting repaint
+//					DbSearchResultPanel.ProteinHighlightPredicate pchp = (DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter
+//							.getHighlightPredicate();
+//					pchp.setProteinHits(proteins);
+//					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+//						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+//						// re-apply highlighter
+//						treeTbl.removeHighlighter(protCountHighlighter);
+//						treeTbl.addHighlighter(protCountHighlighter);
+//					}
 				}
 
 				if (view == DbSearchResultPanel.focus.PEPTIDE) {
@@ -949,7 +959,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						((Hit) child.getUserObject()).setSelected(
 								cbtsm.isPathSelected(new TreePath(treeTblMdl.getPathToRoot(child)), true));
 					}
-					refreshChart(true);
+					// XXX: removed for improved performance
+//					refreshChart(true);
 				}
 			}
 		});
@@ -981,43 +992,43 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					}
 					refreshPeptideViews(peptides);
 					// Update protein highlighting
-					DbSearchResultPanel.ProteinHighlightPredicate pchp =
-							(DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
-					Collection<ProteinHit> proteins = new HashSet<ProteinHit>();
-					for (PeptideHit pepHit : peptides) {
-						proteins.addAll(pepHit.getProteinHits());
-					}
-					pchp.setProteinHits(proteins);
-					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-						// re-apply highlighter
-						treeTbl.removeHighlighter(protCountHighlighter);
-						treeTbl.addHighlighter(protCountHighlighter);
-					}
+//					DbSearchResultPanel.ProteinHighlightPredicate pchp =
+//							(DbSearchResultPanel.ProteinHighlightPredicate) protCountHighlighter.getHighlightPredicate();
+//					Collection<ProteinHit> proteins = new HashSet<ProteinHit>();
+//					for (PeptideHit pepHit : peptides) {
+//						proteins.addAll(pepHit.getProteinHits());
+//					}
+//					pchp.setProteinHits(proteins);
+//					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+//						CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+//						// re-apply highlighter
+//						treeTbl.removeHighlighter(protCountHighlighter);
+//						treeTbl.addHighlighter(protCountHighlighter);
+//					}
 
 					// Narrow protein selection down to highlights
-					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-						CheckBoxTreeTable treeTable = ptt.getTreeTable();
-						TreeTableModel ttm = treeTable.getTreeTableModel();
-						CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
-
-						List<TreePath> paths = new ArrayList<>();
-						PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) ttm.getRoot();
-						Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
-						while (dfe.hasMoreElements()) {
-							PhylogenyTreeTableNode treeNode = (PhylogenyTreeTableNode) dfe.nextElement();
-							if (treeNode.isProtein()) {
-								Object userObject = treeNode.getUserObject();
-								for (ProteinHit proteinHit : proteins) {
-									if (proteinHit.equals(userObject)) {
-										paths.add(treeNode.getPath());
-										break;
-									}
-								}
-							}
-						}
-						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
-					}
+//					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+//						CheckBoxTreeTable treeTable = ptt.getTreeTable();
+//						TreeTableModel ttm = treeTable.getTreeTableModel();
+//						CheckBoxTreeSelectionModel cbtsm = treeTable.getCheckBoxTreeSelectionModel();
+//
+//						List<TreePath> paths = new ArrayList<>();
+//						PhylogenyTreeTableNode root = (PhylogenyTreeTableNode) ttm.getRoot();
+//						Enumeration<TreeNode> dfe = root.depthFirstEnumeration();
+//						while (dfe.hasMoreElements()) {
+//							PhylogenyTreeTableNode treeNode = (PhylogenyTreeTableNode) dfe.nextElement();
+//							if (treeNode.isProtein()) {
+//								Object userObject = treeNode.getUserObject();
+//								for (ProteinHit proteinHit : proteins) {
+//									if (proteinHit.equals(userObject)) {
+//										paths.add(treeNode.getPath());
+//										break;
+//									}
+//								}
+//							}
+//						}
+//						cbtsm.setSelectionPaths(paths.toArray(new TreePath[0]));
+//					}
 					// Carry out selection in table view
 					for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
 						ptt.getTreeTable().setRowFilter((hideUnselected) ? new SelectionRowFilter(ptt.getTreeTable()) : null);
@@ -1087,7 +1098,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					HierarchyLevel hl = (HierarchyLevel) value;
 					ontologyData.setHierarchyLevel(hl);
 					taxonomyData.setHierarchyLevel(hl);
-					refreshChart(true);
+					// XXX: removed for improved performance
+//					refreshChart(true);
 				} else if ("hideUnknown".equals(property)) {
 					boolean doHide = (Boolean) value;
 					ontologyData.setHideUnknown(doHide);
@@ -1105,7 +1117,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 						proteinHits = taxonomyData.getProteinHits((String) value);
 					}
 					if (proteinHits != null) {
-						if (chartPane.getHierarchyLevel() == HierarchyLevel.META_PROTEIN_LEVEL) {
+						if (chartPane.getHierarchyLevel() == HierarchyLevel.SPECTRUM_LEVEL) {
 							// TODO: whats this?
 							proteinHits = ontologyData.getProteinHits("");
 						}
@@ -1266,7 +1278,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		ActionListener hierarchyListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-
 				// Determine tree table to be made visible
 				String label = ((AbstractButton) evt.getSource()).getText();
 				ProteinTreeTables ptt = ProteinTreeTables.valueOfLabel(label);
@@ -1558,24 +1569,24 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		//				chartTgl.setSelected(true);
 		//			}
 		//		});
-		chartTypeTgl.setModel(new JToggleButton.ToggleButtonModel() {
-			private ButtonModel delegate = chartTgl.getModel();
-			@Override
-			public void setRollover(boolean b) {
-				super.setRollover(b);
-				delegate.setRollover(b);
-			}
-			@Override
-			public void setArmed(boolean b) {
-				super.setArmed(b);
-				delegate.setArmed(b);
-			}
-			@Override
-			public void setPressed(boolean b) {
-				super.setPressed(b);
-				delegate.setPressed(b);
-			}
-		});
+//		chartTypeTgl.setModel(new JToggleButton.ToggleButtonModel()); {
+//			private ButtonModel delegate = new ButtonModel() ; //chartTgl.getModel();
+//			@Override
+//			public void setRollover(boolean b) {
+//				super.setRollover(b);
+//				delegate.setRollover(b);
+//			}
+//			@Override
+//			public void setArmed(boolean b) {
+//				super.setArmed(b);
+//				delegate.setArmed(b);
+//			}
+//			@Override
+//			public void setPressed(boolean b) {
+//				super.setPressed(b);
+//				delegate.setPressed(b);
+//			}
+//		});
 
 		// Create spectrum viewer button
 		JToggleButton specTgl = new JToggleButton(null, IconConstants.SPECTRUM_ICON, true);
@@ -1719,6 +1730,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 					// abort (shouldn't happen, actually)
 					return;
 				}
+				// XXX: removed for improved performance
 				refreshChart(true);
 			}
 		};
@@ -1845,7 +1857,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	 * @param proteins the protein hits containing the peptides to display
 	 */
 	protected void refreshPeptideViews(Collection<PeptideHit> peptides) {
-		
 		// Clear tables, etc.
 		TableConfig.clearTable(peptideTbl);
 		coveragePane.clear();
@@ -1853,10 +1864,10 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			TableConfig.clearTable(psmTbl);
 			spectrumPnl.clearSpectrum();
 		}
-		for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-			CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-			treeTbl.removeHighlighter(protCountHighlighter);
-		}
+//		for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+//			CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+//			treeTbl.removeHighlighter(protCountHighlighter);
+//		}
 
 		// Insert peptide nodes
 		SortableTreeTableModel treeTblMdl;
@@ -2006,7 +2017,6 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 		// TODO : check if it is ok to use the same list
 		//		ArrayList<MetaProteinHit> metaProteins = Client.getInstance().getDatabaseSearchResult().getMetaProteins();
 		// update chart data containers
-
 		
 		// goes somewhere else
 		ontologyData.init();
@@ -2027,15 +2037,16 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			// insert chart into panel
 			chartPane.setChart(chart.getChart(), true);
 			// reset protein highlighting
-			DbSearchResultPanel.ProteinHighlightPredicate pchp =
-					(DbSearchResultPanel.ProteinHighlightPredicate) this.chartSelHighlighter.getHighlightPredicate();
-			pchp.setProteinHits(new ArrayList<ProteinHit>());
-			for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
-				CheckBoxTreeTable treeTbl = ptt.getTreeTable();
-				// re-apply highlighter
-				treeTbl.removeHighlighter(this.chartSelHighlighter);
-				treeTbl.addHighlighter(this.chartSelHighlighter);
-			}
+			// REMOVED CHART TO TABLE HIGHLIGHTERS
+//			DbSearchResultPanel.ProteinHighlightPredicate pchp =
+//					(DbSearchResultPanel.ProteinHighlightPredicate) this.chartSelHighlighter.getHighlightPredicate();
+//			pchp.setProteinHits(new ArrayList<ProteinHit>());
+//			for (ProteinTreeTables ptt : ProteinTreeTables.values()) {
+//				CheckBoxTreeTable treeTbl = ptt.getTreeTable();
+//				// re-apply highlighter
+//				treeTbl.removeHighlighter(this.chartSelHighlighter);
+//				treeTbl.addHighlighter(this.chartSelHighlighter);
+//			}
 		} else {
 			System.err.println("Chart type could not be determined!");
 		}
@@ -2075,7 +2086,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 				// Insert new result data into tables
 				refreshProteinTables();
 				// Refresh chart
-				resultPnl.refreshChart(true);
+				// XXX: removed for improved performance
+//				resultPnl.refreshChart(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -2132,6 +2144,8 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								if (proteinHit.getAccession().contains(".")) {
 									uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession()
 													.trim()
+													.replaceAll("#", "_")
+													.replaceAll("=", "_")
 													.replaceAll(".", "_")
 													.replaceAll(" ", "")
 													.replaceAll("\\[", "(")
@@ -2139,6 +2153,9 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 								} else {
 									uri = URI.create("http://www.uniprot.org/uniprot/" + proteinHit.getAccession()
 													.trim().replaceAll(" ", "")
+													.replaceAll("#", "_")
+													.replaceAll("=", "_")
+													.replaceAll(" ", "")
 													.replaceAll("\\[", "(")
 													.replaceAll("\\]", ""));
 								}

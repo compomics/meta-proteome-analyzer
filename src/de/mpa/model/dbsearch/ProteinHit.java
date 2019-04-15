@@ -619,7 +619,7 @@ public class ProteinHit implements Serializable, Comparable<ProteinHit>, Taxonom
 							res.add(kw);
 						}
 					} else {
-						System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
+//						System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
 					}
 				}
 			}

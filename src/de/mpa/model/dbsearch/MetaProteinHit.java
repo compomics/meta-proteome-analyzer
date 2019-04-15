@@ -311,9 +311,9 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 							res.add(kw);
 						}
 					} else {
-						if (!kw.equals("")) {
-							System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
-						}
+//						if (!kw.equals("")) {
+//							System.err.println("ERROR: unrecognized ontology \'" + kw + "\'");
+//						}
 					}
 				}
 			}

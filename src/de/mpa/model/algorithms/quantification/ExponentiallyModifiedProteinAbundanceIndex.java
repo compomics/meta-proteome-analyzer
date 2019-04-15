@@ -40,7 +40,13 @@ public class ExponentiallyModifiedProteinAbundanceIndex implements QuantMethod {
 			// remove "*" for translation stop
 			String sequence = proteinHit.getSequence();
 			sequence = sequence.replaceAll("[*]", "");
-			insilicoPeptides= trypsin.digest(sequence, 0, 4, 1000);
+			try {
+				insilicoPeptides= trypsin.digest(sequence, 0, 4, 1000);
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+				System.err.println("sequence: " + sequence);
+				System.err.println("accession: " + proteinHit.getAccession());
+			}
 			double pAI;
 			double peptideObserved = proteinHit.getPeptideCount();
 			//TODO Control PeptideCount to misscleavages

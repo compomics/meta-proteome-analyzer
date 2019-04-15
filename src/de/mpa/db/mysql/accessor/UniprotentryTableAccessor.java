@@ -534,7 +534,7 @@ public class UniprotentryTableAccessor implements Deleteable, Retrievable, Updat
 			lStat.setObject(4, this.iKonumber);
 		}
 		if(this.iKeywords == null) {
-			lStat.setNull(5, -1);
+			lStat.setObject(5, "");
 		} else {
 			lStat.setObject(5, this.iKeywords);
 		}

@@ -125,10 +125,9 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 			if (uniprotid2uniprotentrymap.get(protID) != null) {
 				// Get the UniProt Entry
 				UniProtEntryMPA uniProtEntry = uniprotid2uniprotentrymap.get(protID);
-
+				
 				// UniProtEntry is unknown at the beginning
 				lStat.setNull(1, 4);
-
 				// Add UniProtTaxonomy
 				Long taxID = uniProtEntry.getTaxid();
 				if(taxID == null) {
@@ -142,7 +141,6 @@ public class UniprotentryAccessor extends UniprotentryTableAccessor {
 				if (ecNumberList.size() > 0) {
 					for (String ecNumber : ecNumberList) {
 						ecNumbers += ecNumber + ";";
-
 					}
 					ecNumbers = Formatter.removeLastChar(ecNumbers);
 				}
