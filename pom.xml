@@ -344,5 +344,10 @@
             <artifactId>mzjava-proteomics</artifactId>
             <version>1.1.0</version>
         </dependency>
+               <dependency>
+    <groupId>org.netbeans.api</groupId>
+    <artifactId>org-openide-util-lookup</artifactId>
+    <version>RELEASE80</version>
+</dependency>
     </dependencies>
 </project>
