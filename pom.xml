@@ -168,9 +168,9 @@
                                     <targetPath>${project.build.directory}/${project.name}-${project.version}</targetPath>
                                 </resource>
                                 <resource>
-                                    <directory>src/projects</directory>
+                                    <directory>built/projects</directory>
                                     <filtering>true</filtering>
-                                    <targetPath>${project.build.directory}/${project.name}-${project.version}/projects</targetPath>
+                                    <targetPath>${project.build.directory}/${project.name}-${project.version}/built/projects</targetPath>
                                 </resource>
                             </resources>
                         </configuration>
@@ -218,7 +218,7 @@
         <dependency>
             <groupId>uk.ac.ebi.uniprot</groupId>
             <artifactId>japi</artifactId>
-            <version>1.0.25</version>
+            <version>1.0.26</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -344,10 +344,10 @@
             <artifactId>mzjava-proteomics</artifactId>
             <version>1.1.0</version>
         </dependency>
-               <dependency>
-    <groupId>org.netbeans.api</groupId>
-    <artifactId>org-openide-util-lookup</artifactId>
-    <version>RELEASE80</version>
-</dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>RELEASE110</version>
+        </dependency>
     </dependencies>
 </project>

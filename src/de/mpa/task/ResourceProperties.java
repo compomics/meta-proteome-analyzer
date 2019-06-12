@@ -68,7 +68,7 @@ public class ResourceProperties {
 			path = getJarFilePath(this.getClass().getResource("ResourceProperties.class").getPath(), "mpa-portable");
 			inputStream = new FileInputStream(Constants.CONFIGURATION_PATH_JAR + File.separator + "algorithm-properties.txt");
 		} else {
-			path = getBasePath(this.getClass().getResource("ResourceProperties.class").getPath(), "/bin/de/mpa");
+			path = getBasePath(this.getClass().getResource("ResourceProperties.class").getPath(), "meta-proteome-analyzer");
 			inputStream = this.getClass().getResourceAsStream(Constants.CONFIGURATION_PATH + "algorithm-properties.txt");
 		}
 		
@@ -76,11 +76,12 @@ public class ResourceProperties {
 			throw new IOException("The file path contains at least one white space. Please rename your folders to avoid any white spaces...");
 		}
 		prop.load(inputStream);
-		
-		prop.setProperty("path.fasta", path + "/built/fasta");
-		prop.setProperty("path.taxonomy", path + "/built/taxonomy/");
-		prop.setProperty("path.base", path);
-		
+		prop.setProperty("path.base", getBasePath(Starter.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "meta-proteome-analyzer"));
+
+
+        prop.setProperty("path.fasta", path + "/built/fasta");
+        prop.setProperty("path.taxonomy", formatPath(path + "/built/taxonomy/"));
+
 		if (Starter.isWindows()) {
 			if (Starter.is64bit()) {
 				prop.setProperty("path.xtandem", formatPath(path + "/built/X!Tandem/windows/windows_64bit"));
@@ -108,9 +109,10 @@ public class ResourceProperties {
 		prop.setProperty("path.msgf", formatPath(path + "/built/MS-GF+"));
 		
 		// Output path settings. 
-		prop.setProperty("path.xtandem.output", formatPath(path + "/built/output/X!Tandem/"));
-		prop.setProperty("path.comet.output", formatPath(path + "/built/output/Comet/"));
-		prop.setProperty("path.msgf.output", formatPath(path + "/built/output/MS-GF+/"));
+		prop.setProperty("path.xtandem.output", formatPath(path + "/built/output/X!Tandem"));
+		prop.setProperty("path.comet.output", formatPath(path + "/built/output/Comet"));
+		prop.setProperty("path.msgf.output", formatPath(path + "/built/output/MS-GF+"));
+
 		inputStream.close();
 	}
 	
@@ -131,7 +133,7 @@ public class ResourceProperties {
     		if (!unformatted.startsWith("/")) {
     			unformatted =  "/" + unformatted;
     		}
-		} 
+		}
         return unformatted;
 	}
 	
@@ -143,11 +145,10 @@ public class ResourceProperties {
             path = path.replace("%5b", "[");
             path = path.replace("%5d", "]");
 
-            path = formatPath(path);
+            path = formatPath(path + toolName);
         } else {
             path = ".";
         }
-        
         return path;
     }
     
@@ -169,7 +170,9 @@ public class ResourceProperties {
             
             path = formatPath(path);
         } else {
-            path = ".";
+        	if (Starter.isJarExport()) {
+				path = ".";
+			}
         }
 		
         try {

@@ -89,6 +89,8 @@ public class MSGFTask extends Task {
         	procCommands.add("2");
         } else if (fragmentationMethod == FragmentationMethod.HCD) {
         	procCommands.add("3");
+        } else {
+            procCommands.add("0");
         }
         
         // Precursor Ion Tolerance 
@@ -121,7 +123,7 @@ public class MSGFTask extends Task {
         setDescription("MS-GF+ TARGET-DECOY SEARCH");
         procBuilder = new ProcessBuilder(procCommands);
         procBuilder.directory(msgfExecutable);
-        
+        System.out.println(procCommands.toString());
         // Set error out and std out to same stream
         procBuilder.redirectErrorStream(true);
 	}

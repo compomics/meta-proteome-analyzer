@@ -56,7 +56,7 @@ public class Constants {
 	/**
 	 * The application version date.
 	 */
-	public final static String VER_DATE = "13/03/2019";
+	public final static String VER_DATE = "06/2019";
 	
 	/**
 	 * The client frame minimum width in pixels.
@@ -139,7 +139,7 @@ public class Constants {
 	/**
 	 * Path string of folder containing projects. 
 	 */
-	public final static String PROJECTS_PATH = "projects";
+	public final static String PROJECTS_PATH = "built/projects";
 	
 	/**
 	 * Path string of the temporary backup database search result object.

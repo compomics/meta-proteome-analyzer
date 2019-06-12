@@ -73,7 +73,6 @@ public class Client {
 	
 	/**
 	 * Creates the singleton client instance using the specified viewer and debug mode flags.
-	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
 	private Client(boolean debug) {
@@ -91,7 +90,6 @@ public class Client {
 	
 	/**
 	 * Returns the client singleton instance using the specified viewer and debug mode flags.
-	 * @param viewer <code>true</code> if the application is to be launched in viewer mode
 	 * @param debug <code>true</code> if the application is to be launched in debug mode
 	 */
 	public static void init(boolean debug) {
@@ -102,8 +100,7 @@ public class Client {
 
 	/**
 	 * Runs the searches by retrieving a bunch of spectrum file names and the global search settings.
-	 * @param filenames The spectrum file names
-	 * @param settings Global search settings
+	 * 	 * @param settings Global search settings
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */

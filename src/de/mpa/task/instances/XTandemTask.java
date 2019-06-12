@@ -42,13 +42,7 @@ public class XTandemTask extends Task {
 	/**
 	 * Constructor for starting the X!Tandem search engine.
 	 * @param mgfFile Spectrum file
-	 * @param searchDB Search database
-	 * @param params Search parameters string
-	 * @param fragmentTol Fragment ion tolerance
-	 * @param precursorTol Precursor ion tolerance
-	 * @param nMissedCleavages Number of maximum missed cleavages
-	 * @param isPrecursorTolerancePpm Condition whether the precursor tolerance unit is PPM (true) or Dalton (false)
-	 * @param searchType Target or decoy search type
+	 * @param searchSettings Search parameters object
 	 */
 	public XTandemTask(File mgfFile, DbSearchSettings searchSettings) {
 		this.mgfFile = mgfFile;
