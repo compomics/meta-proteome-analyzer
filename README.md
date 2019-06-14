@@ -22,6 +22,14 @@
 
 ## News ##
 
+*MPA Portable version 1.9.0 (June 2019)* has been released with the following updates:
+
+* MPA now has full Maven support
+* UniProt JAPI was updated to the latest version 1.0.26 (fixing errors occurring during the retrieval of UniProt meta-information)
+* Minor bugfixes were performed
+
+---
+
 *MPA Portable version 1.8.1 (October 2018)* has been released with the following update:
 
 * UniProt JAPI was updated to the latest version 1.0.16 (fixing errors occurring during the retrieval of UniProt meta-information)
@@ -63,7 +71,7 @@
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.8.1.zip)  *MPA Portable version 1.8.1 - Windows and Linux 32-bit/64-bit - released on October 10, 2018*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.9.0.zip)  *MPA Portable version 1.9.0 - Windows and Linux 32-bit/64-bit - released on June 12, 2019*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
