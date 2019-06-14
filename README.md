@@ -71,7 +71,7 @@
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.9.0.zip)  *MPA Portable version 1.9.0 - Windows and Linux 32-bit/64-bit - released on June 12, 2019*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.9.0/mpa-portable-1.9.0.zip)  *MPA Portable version 1.9.0 - Windows and Linux 32-bit/64-bit - released on June 12, 2019*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
