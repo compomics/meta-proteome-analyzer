@@ -130,7 +130,7 @@ public class ResourceProperties {
         	unformatted = unformatted.replace("/", "\\");
         }
     	if (Starter.isUnix()) {
-    		if (!unformatted.startsWith("/")) {
+    		if (!unformatted.startsWith("/")&&!unformatted.startsWith(".")) {
     			unformatted =  "/" + unformatted;
     		}
 		}
