@@ -30,6 +30,7 @@ public class XTandemTask extends Task {
     private File parameterFile;
     private File taxonomyFile;
 	private File mgfFile;
+	private File outputFile;
 	private String searchDB;
 	private double fragmentTol;
 	private double precursorTol;
@@ -62,17 +63,75 @@ public class XTandemTask extends Task {
 		if (searchType == SearchType.TARGET) {
 			this.inputFile = new File(xTandemExecutable, INPUT_TARGET_FILE);
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+//			this.filename = algorithmProperties.getProperty("path.xtandem.output") + "//"+mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_target.xml";
+			File outputDirectory = new File(algorithmProperties.getProperty("path.xtandem.output"));
+	        if (!outputDirectory.exists()) {
+	            if (outputDirectory.mkdirs()) {
+	                System.out.println("Directory is created!");
+	            } else {
+	                System.out.println("Failed to create directory!");
+	            }
+	        }
+			outputFile = new File(filename);
+			try {
+				if(outputFile.createNewFile())
+					System.out.println("target file created.");
+				else
+					System.out.println("target file exists.");
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			buildTaxonomyFile();
 			buildInputFile();
 		} else if (searchType == SearchType.DECOY) {
 			this.inputFile = new File(xTandemExecutable, INPUT_DECOY_FILE);
 			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+//			this.filename = algorithmProperties.getProperty("path.xtandem.output") + "//"+mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_decoy.xml";
+			File outputDirectory = new File(algorithmProperties.getProperty("path.xtandem.output"));
+	        if (!outputDirectory.exists()) {
+	            if (outputDirectory.mkdirs()) {
+	                System.out.println("Directory is created!");
+	            } else {
+	                System.out.println("Failed to create directory!");
+	            }
+	        }
+			outputFile = new File(filename);
+			try {
+				if(outputFile.createNewFile())
+					System.out.println("decoy file created.");
+				else
+					System.out.println("decoy file exists.");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			searchDB = searchDB.substring(0, searchDB.indexOf(".fasta")) + "_decoy.fasta";
 			buildTaxonomyDecoyFile();
 			buildInputDecoyFile();
 		} else if (searchType == SearchType.FIRSTROUND) {
 			this.inputFile = new File(xTandemExecutable, INPUT_TARGET_FILE);
-			this.filename = algorithmProperties.getProperty("path.xtandem.output") + mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_unrestricted.xml";
+			this.filename = algorithmProperties.getProperty("path.xtandem.output") +mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_unrestricted.xml";
+//			this.filename = algorithmProperties.getProperty("path.xtandem.output") + "//"+mgfFile.getName().substring(0, mgfFile.getName().length() - 4) + "_unrestricted.xml";
+			File outputDirectory = new File(algorithmProperties.getProperty("path.xtandem.output"));
+	        if (!outputDirectory.exists()) {
+	            if (outputDirectory.mkdirs()) {
+	                System.out.println("Directory is created!");
+	            } else {
+	                System.out.println("Failed to create directory!");
+	            }
+	        }
+			outputFile = new File(filename);
+			try {
+				if(outputFile.createNewFile())
+					System.out.println("unrestricted file created.");
+				else
+					System.out.println("unrestricted file exists.");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			buildTaxonomyFile();
 			buildInputFile();
 	        // Use default X!Tandem parameters for the first search round. 
