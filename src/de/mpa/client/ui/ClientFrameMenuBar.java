@@ -162,9 +162,19 @@ public class ClientFrameMenuBar extends JMenuBar {
 			}
 		});
 
+		// Export results to Unipept
+		JMenuItem unipeptItem = new JMenuItem("Export peptides to Unipept", IconConstants.EXCEL_EXPORT_ICON);
+		unipeptItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				exportUnipept();
+			}
+		});
+
 		exportMenu.add(exportExperimentItem);
-		exportMenu.add(csvItem);	
-		
+		exportMenu.add(csvItem);
+        exportMenu.add(unipeptItem);
+
 		// Update Menu
 		JMenu updateMenu = new JMenu();		
 		updateMenu.setText("Update");
@@ -251,7 +261,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		this.add(updateMenu);
 		this.add(helpMenu);
 	}
-	
+
 	/**
 	 * This method is executed when the import MzIdentML menu item is selected. 
 	 * The user can select the destination of the imported MzIdentML file.
@@ -468,7 +478,26 @@ public class ClientFrameMenuBar extends JMenuBar {
     private void exportCSV() {
     	new ExportDialog(clientFrame, "Results Export", true, true, exportFields);
     }
-    
+
+    /**
+     * This method exports identified peptides to Unipept.
+     */
+    private void exportUnipept() {
+        // TODO: Tim, please implement this stuff here:
+        // 1. collect the peptides from the result set
+        // 2. pass it to the Unipept string URL
+        // 3. open up a browser (see code below)
+        // String url = UNIPEPT_URL;
+        //				try {
+        //					if (url != null) {
+        //						Desktop.getDesktop().browse(new URI(url));
+        //					}
+        //				} catch (Exception e) {
+        //					JXErrorPane.showDialog(ClientFrame.getInstance(),
+        //							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+        //				}
+    }
+
 	/**
 	 * This method is being executed when the help menu item is selected.
 	 */
