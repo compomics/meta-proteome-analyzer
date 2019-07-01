@@ -35,6 +35,11 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * The set of spectrum matches with distinct search spectrum IDs.
 	 */
 	private Set<SpectrumMatch> matchSet;
+
+    /**
+     * The global list of peptides found within the search result.
+     */
+	private List<PeptideHit> peptideList;
 	
 	/**
 	 * Flag to indicate whether the cached sets need to be regenerated.
@@ -156,6 +161,7 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	private void regenerateSets() {
 		proteinSet = new TreeSet<ProteinHit>();
 		peptideSet = new TreeSet<PeptideHit>();
+		//TODO for Tim: peptideList = new ArrayList<PeptideHit>();
 		matchSet = new TreeSet<SpectrumMatch>();
 		if (!this.isEmpty()) {
 			// check whether this list contains meta-proteins or proteins
@@ -166,6 +172,9 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 					proteinSet.addAll(metaProteinHit.getProteinSet());
 					peptideSet.addAll(metaProteinHit.getPeptideSet());
 					matchSet.addAll(metaProteinHit.getMatchSet());
+					// TODO: please also check whether we need this for unipept at all?
+                    // Case check what happens once the user hits the "Process results" button for the meta-protein generation: is the peptide list still the same or do need to have an update here?
+
 				}
 			} else {
 				// this list contains protein hits
@@ -173,6 +182,8 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (PeptideHit peptideHit : peptideHitList) {
 						matchSet.addAll(peptideHit.getSpectrumMatches());
+                        //TODO: use that one for the peptide list:
+                        // System.out.println(peptideHit.getSequence());
 					}
 					peptideSet.addAll(peptideHitList);
 					proteinSet.add(proteinHit);

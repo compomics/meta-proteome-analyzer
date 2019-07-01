@@ -44,8 +44,7 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	/**
 	 * Constructor for the PeptideSpectrumMatch.
 	 * @param spectrumid
-	 * @param votes
-	 * @param searchHits
+	 * @param searchHit
 	 */
 	public PeptideSpectrumMatch(long spectrumid, SearchHit searchHit) {
 		this.spectrumId = spectrumid;
