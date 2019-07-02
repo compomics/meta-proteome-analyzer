@@ -70,7 +70,8 @@ public class SixtyFourBitStringSupport {
 	 * @return a double array
 	 */
 	public static double[] decodeBase64StringToDoubles(String encodedString, ByteOrder byteOrder) {
-		byte[] byteArray = Base64.decodeBase64(encodedString);
+		byte[] bytesEncoded = encodedString.getBytes();
+		byte[] byteArray = Base64.decodeBase64(bytesEncoded);
 
         ByteBuffer bb = ByteBuffer.wrap(byteArray);
         bb.order(byteOrder);
@@ -122,7 +123,7 @@ public class SixtyFourBitStringSupport {
 	    for (Double dbl : doubles) {
 	        bb.putDouble((dbl != null) ? dbl.doubleValue() : 0.0);
 	    }
-		return Base64.encodeBase64String(bytes);
+		return Base64.encodeBase64(bytes).toString();
 	}
 	
 	/**
