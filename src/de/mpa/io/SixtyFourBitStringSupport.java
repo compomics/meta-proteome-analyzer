@@ -137,7 +137,7 @@ public class SixtyFourBitStringSupport {
 	    for (Integer intgr : ints) {
 	        bb.putInt((intgr != null) ? intgr.intValue() : 0);
 	    }
-		return Base64.encodeBase64String(bytes);
+		return Base64.encodeBase64(bytes).toString();
 	}
 
 }
