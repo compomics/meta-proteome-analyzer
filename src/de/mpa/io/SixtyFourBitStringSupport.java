@@ -100,7 +100,8 @@ public class SixtyFourBitStringSupport {
 	 * @return an int array
 	 */
 	public static int[] decodeBase64StringToInts(String encodedString, ByteOrder byteOrder) {
-		byte[] byteArray = Base64.decodeBase64(encodedString);
+		byte[] bytesEncoded = encodedString.getBytes();
+		byte[] byteArray = Base64.decodeBase64(bytesEncoded);
 
         ByteBuffer bb = ByteBuffer.wrap(byteArray);
         bb.order(byteOrder);
