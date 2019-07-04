@@ -1,11 +1,7 @@
 package de.mpa.client.model.dbsearch;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import de.mpa.client.model.SearchHit;
 import de.mpa.client.model.SpectrumMatch;
@@ -321,6 +317,15 @@ public class DbSearchResult implements Serializable {
 	}
 
 	/**
+	 * @return peptidelist
+	 */
+	public List<PeptideHit> getPeptideList() {
+		return new ArrayList<PeptideHit>(this.getMetaProteins().getPeptideSet());
+		//System.out.println(this.getMetaProteins().getPeptideList().toString());
+		//return this.visMetaProteins.getPeptideList();
+	}
+
+	/**
 	 * Returns the number of peptides with PTMs.
 	 * @return the number of modified peptides
 	 */
@@ -345,6 +350,7 @@ public class DbSearchResult implements Serializable {
 				uniquePeptides++;
 			}
 		}
+
 		return uniquePeptides;
 	}
 	

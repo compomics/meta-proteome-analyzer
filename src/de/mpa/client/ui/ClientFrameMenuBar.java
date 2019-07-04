@@ -1,6 +1,6 @@
 package de.mpa.client.ui;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +24,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import de.mpa.analysis.UnipeptAnalyzer;
+import de.mpa.analysis.UnipeptAnalyzer;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.error.ErrorLevel;
@@ -163,7 +166,7 @@ public class ClientFrameMenuBar extends JMenuBar {
 		});
 
 		// Export results to Unipept
-		JMenuItem unipeptItem = new JMenuItem("Export peptides to Unipept", IconConstants.EXCEL_EXPORT_ICON);
+		JMenuItem unipeptItem = new JMenuItem("Export peptides to Unipept", IconConstants.UNIPEPT_EXPORT_ICON);
 		unipeptItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -483,19 +486,19 @@ public class ClientFrameMenuBar extends JMenuBar {
      * This method exports identified peptides to Unipept.
      */
     private void exportUnipept() {
-        // TODO: Tim, please implement this stuff here:
-        // 1. collect the peptides from the result set
-        // 2. pass it to the Unipept string URL
-        // 3. open up a browser (see code below)
-        // String url = UNIPEPT_URL;
-        //				try {
-        //					if (url != null) {
-        //						Desktop.getDesktop().browse(new URI(url));
-        //					}
-        //				} catch (Exception e) {
-        //					JXErrorPane.showDialog(ClientFrame.getInstance(),
-        //							new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-        //				}
+    	Client client = Client.getInstance();
+
+    	UnipeptAnalyzer unipeptAnalyzer = new UnipeptAnalyzer(client.getDatabaseSearchResult().getPeptideList());
+    	URI unipeptURI = unipeptAnalyzer.getUnipeptURI();
+
+		try {
+			if (unipeptURI != null) {
+				Desktop.getDesktop().browse(unipeptURI);
+			}
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
     }
 
 	/**

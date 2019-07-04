@@ -119,14 +119,6 @@ public class PeptideSpectrumMatch extends SpectrumMatch {
 	public String getSpectrumFilename() {
 		return spectrumFilename;
 	}
-
-	/**
-	 * Returns the votes.
-	 * @return The number of votes for the search engine hits.
-	 */
-	public int getVotes() {
-		return searchHits.size();
-	}
 	
 	/**
 	 * Sets the false discovery rate
