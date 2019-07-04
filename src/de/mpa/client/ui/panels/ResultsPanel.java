@@ -1070,8 +1070,8 @@ public class ResultsPanel extends JPanel implements Busyable {
 					distPepLbl.setText("" + dbSearchResult.getDistinctPeptideCount());
 					uniqPepLbl.setText("" + dbSearchResult.getUniquePeptideCount());
 					totalProtLbl.setText("" + dbSearchResult.getProteinHitList().size());
-					
 					metaProtLbl.setText("" + dbSearchResult.getMetaProteins().size());
+
 					speciesLbl.setText("" + speciesNames.size());
 					enzymesLbl.setText("" + ecNumbers.size());
 					pathwaysLbl.setText("" + pwNodes.size());

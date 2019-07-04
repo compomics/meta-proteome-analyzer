@@ -1400,7 +1400,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 			}
 		});
 		
-				// create export buuton
+				// create export button
 		JButton exportBtn = new JButton(IconConstants.EXCEL_EXPORT_ICON);
 		exportBtn.setRolloverIcon(IconConstants.EXCEL_EXPORT_ROLLOVER_ICON);
 		exportBtn.setPressedIcon(IconConstants.EXCEL_EXPORT_PRESSED_ICON);
@@ -1877,7 +1877,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 
 	/**
 	 * Updates the peptide views from the specified protein hits.
-	 * @param proteins the protein hits containing the peptides to display
+	 * @param peptides the protein hits containing the peptides to display
 	 */
 	protected void refreshPeptideViews(Collection<PeptideHit> peptides) {
 		
@@ -2027,7 +2027,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 	/**
 	 * Convenience method to read a spectrum from the MGF file in the specified
 	 * path between the specified start and end byte positions.
-	 * @param pathname The pathname string pointing to the desired file.
+	 * @param filename The pathname string pointing to the desired file.
 	 * @param index The index of the MGF spectrum.
 	 * @return the desired spectrum or <code>null</code> if no such spectrum could be found
 	 * @throws IOException 

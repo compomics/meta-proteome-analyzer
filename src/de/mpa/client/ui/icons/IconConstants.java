@@ -384,6 +384,8 @@ public class IconConstants {
 	public static final Icon WEB_QUICKGO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/quickgo16.png"));;
 	/** <img src="../../../resources/icons/eggnog16.png"> */
 	public static final Icon WEB_EGGNOG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/eggnog16.png"));;
+	/** <img src="../../../resources/icons/unipept.png"> */
+	public static final ImageIcon UNIPEPT_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/unipept.png"));
 	
 	/**
 	 * Creates an empty item of the specified width and height.
@@ -476,7 +478,7 @@ public class IconConstants {
 	/**
 	 * Flips the provided icon along the specified axis.
 	 * @param icon the icon to be flipped
-	 * @param orientation either {@link SwingConstants.HORIZONTAL} or {@link SwingConstants.VERTICAL}
+	 * @param orientation either
 	 * @return a flipped icon
 	 */
 	public static ImageIcon createFlippedIcon(ImageIcon icon, int orientation) {
