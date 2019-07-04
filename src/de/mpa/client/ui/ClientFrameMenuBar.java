@@ -488,7 +488,7 @@ public class ClientFrameMenuBar extends JMenuBar {
     private void exportUnipept() {
     	Client client = Client.getInstance();
 
-    	UnipeptAnalyzer unipeptAnalyzer = new UnipeptAnalyzer(client.getDatabaseSearchResult().getPeptideList());
+    	UnipeptAnalyzer unipeptAnalyzer = new UnipeptAnalyzer(client.getDatabaseSearchResult().getAllPeptideHits());
     	URI unipeptURI = unipeptAnalyzer.getUnipeptURI();
 
 		try {

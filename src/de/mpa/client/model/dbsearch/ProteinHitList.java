@@ -35,11 +35,6 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	 * The set of spectrum matches with distinct search spectrum IDs.
 	 */
 	private Set<SpectrumMatch> matchSet;
-
-    /**
-     * The global list of peptides found within the search result.
-     */
-	private List<PeptideHit> peptideList;
 	
 	/**
 	 * Flag to indicate whether the cached sets need to be regenerated.
@@ -144,19 +139,6 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	}
 
 	/**
-	 * Utility method to return a list of peptide hits with all sequence
-	 * strings - including duplicated peptides
-	 * @return the peptide hit list
-	 */
-	public List<PeptideHit> getPeptideList() {
-		if (this.hasChanged) {
-			regenerateSets();
-		}
-
-		return peptideList;
-	}
-
-	/**
 	 * Utility method to return a set of spectrum matches with distinct search
 	 * spectrum IDs.
 	 * @return the spectrum match set
@@ -174,7 +156,6 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 	private void regenerateSets() {
 		proteinSet = new TreeSet<ProteinHit>();
 		peptideSet = new TreeSet<PeptideHit>();
-		peptideList = new ArrayList<PeptideHit>();
 		matchSet = new TreeSet<SpectrumMatch>();
 		if (!this.isEmpty()) {
 			// check whether this list contains meta-proteins or proteins
@@ -184,11 +165,7 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 					MetaProteinHit metaProteinHit = (MetaProteinHit) proteinHit;
 					proteinSet.addAll(metaProteinHit.getProteinSet());
 					peptideSet.addAll(metaProteinHit.getPeptideSet());
-					peptideList.addAll(metaProteinHit.getPeptideHitList());
 					matchSet.addAll(metaProteinHit.getMatchSet());
-					// TODO: please also check whether we need this for unipept at all?
-                    // Case check what happens once the user hits the "Process results" button for the meta-protein generation: is the peptide list still the same or do need to have an update here?
-
 				}
 			} else {
 				// this list contains protein hits
@@ -196,15 +173,9 @@ public class ProteinHitList extends ArrayList<ProteinHit> implements Serializabl
 					List<PeptideHit> peptideHitList = proteinHit.getPeptideHitList();
 					for (PeptideHit peptideHit : peptideHitList) {
 						matchSet.addAll(peptideHit.getSpectrumMatches());
-						//peptideList.add(peptideHit);
 					}
 					peptideSet.addAll(peptideHitList);
-					System.out.println(peptideSet.size());
-
-					peptideList.addAll(peptideHitList);
-					System.out.println(peptideList.size());
 					proteinSet.add(proteinHit);
-
 				}
 			}
 		}

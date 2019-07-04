@@ -19,7 +19,6 @@ public class UnipeptAnalyzer {
     public UnipeptAnalyzer(List<PeptideHit> peptideHits) {
         for (PeptideHit peptideHit : peptideHits) {
             peptideSequences.add(peptideHit.getSequence());
-            System.out.println(peptideHit.getSequence());
         }
         analyzeInUnipept(peptideSequences);
     }

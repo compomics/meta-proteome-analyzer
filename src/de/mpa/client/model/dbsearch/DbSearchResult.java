@@ -227,6 +227,18 @@ public class DbSearchResult implements Serializable {
 		}
 		return null;
 	}
+
+    /**
+     * Returns a list of all peptides found in the results (including duplicate entries).
+     * @return list of all peptides found in the results
+     */
+	public List<PeptideHit> getAllPeptideHits() {
+		List<PeptideHit> peptideList = new ArrayList<PeptideHit>();
+		for (ProteinHit proteinHit : this.getProteinHits().values()) {
+			peptideList.addAll(proteinHit.getPeptideHitList());
+		}
+		return peptideList;
+	}
 	
 	/**
 	 * Returns the spectrum match for a particular search spectrum ID.
@@ -314,15 +326,6 @@ public class DbSearchResult implements Serializable {
 	 */
 	public int getDistinctPeptideCount() {
 		return this.getMetaProteins().getPeptideSet().size();
-	}
-
-	/**
-	 * @return peptidelist
-	 */
-	public List<PeptideHit> getPeptideList() {
-		return new ArrayList<PeptideHit>(this.getMetaProteins().getPeptideSet());
-		//System.out.println(this.getMetaProteins().getPeptideList().toString());
-		//return this.visMetaProteins.getPeptideList();
 	}
 
 	/**
