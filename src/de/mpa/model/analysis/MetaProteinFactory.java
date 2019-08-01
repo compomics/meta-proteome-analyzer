@@ -724,7 +724,7 @@ public class MetaProteinFactory {
 			for (MetaProteinHit mp_from_stack2 : STACK2) {
 				boolean should_merge = makeComparison(mp_from_stack2, currentMetaprotein, cR, pR, tR);
 				if (should_merge) {
-					mergeTwoMetaproteins(mp_from_stack2, currentMetaprotein, taxonomyMap, taxonomyNodeMap, params);
+					mergeTwoMetaproteins(mp_from_stack2, currentMetaprotein, taxonomyMap, taxonomyNodeMap, params, result);
 					currentMetaprotein = null;
 					break;
 				}
@@ -735,7 +735,7 @@ public class MetaProteinFactory {
 				MetaProteinHit mp_from_stack1 = metaProteins.get(index);
 				boolean should_merge = makeComparison(currentMetaprotein, mp_from_stack1, cR, pR, tR);
 				if (should_merge) {
-					mergeTwoMetaproteins(currentMetaprotein, mp_from_stack1, taxonomyMap, taxonomyNodeMap, params);
+					mergeTwoMetaproteins(currentMetaprotein, mp_from_stack1, taxonomyMap, taxonomyNodeMap, params, result);
 					STACK1.remove(index);
 					break;
 				}
@@ -828,7 +828,7 @@ public class MetaProteinFactory {
 		}
 	}
 	
-	private static MetaProteinHit mergeTwoMetaproteins(MetaProteinHit merge_into_entry, MetaProteinHit entry_that_is_removed, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap, ResultParameters params) {
+	private static MetaProteinHit mergeTwoMetaproteins(MetaProteinHit merge_into_entry, MetaProteinHit entry_that_is_removed, HashMap<Long, Taxonomy> taxonomyMap, HashMap<Long, TaxonomyNode> taxonomyNodeMap, ResultParameters params, DbSearchResult result) {
 		// merge proteinlists
 		for (ProteinHit ph : entry_that_is_removed.getProteinHitList()) {
 			merge_into_entry.addProteinHit(ph);
@@ -844,7 +844,7 @@ public class MetaProteinFactory {
 				&& !merge_into_entry.getUniProtEntry().getUniProtID().equals(-1L)) {
 			uniprotList.add(merge_into_entry.getUniProtEntry());
 		}
-		UniProtEntryMPA commonUniprotEntry;
+		UniProtEntryMPA commonUniprotEntry = null;
 		if (uniprotList.size() > 1) {
 			commonUniprotEntry = UniProtUtilities.getCommonUniprotEntry(uniprotList, taxonomyMap, taxonomyNodeMap,
 					(TaxonomyUtils.TaxonomyDefinition) params.get("metaProteinTaxonomy")
@@ -852,7 +852,11 @@ public class MetaProteinFactory {
 		} else if (uniprotList.size() == 1) {
 			commonUniprotEntry = uniprotList.get(0);
 		} else {
-			commonUniprotEntry = null;
+			try {
+				commonUniprotEntry = result.createEmptyUPEntry();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		merge_into_entry.setUniprotEntry(commonUniprotEntry);
 		if (commonUniprotEntry != null) {

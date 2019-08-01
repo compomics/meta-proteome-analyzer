@@ -1,6 +1,8 @@
 package de.mpa.db.neo4j.insert;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -564,12 +566,13 @@ public class GraphDatabaseHandler {
 	 * Method sets up the indices graph.
 	 */
 	public void setupIndices() {
-		// Experiment index
-        this.experimentIndex = this.indexGraph.getIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
+
+		this.experimentIndex = this.indexGraph.getIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
 		if (this.experimentIndex == null) {
-            this.experimentIndex = this.indexGraph.createIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
+			this.experimentIndex = this.indexGraph.createIndex(NodeType.EXPERIMENTS.toString(), Vertex.class);
 			((TransactionalGraph) this.indexGraph).stopTransaction(TransactionalGraph.Conclusion.SUCCESS);
 		}
+
 
 		// Protein index
 		proteinIndex = indexGraph.getIndex(NodeType.PROTEINS.toString(), Vertex.class);

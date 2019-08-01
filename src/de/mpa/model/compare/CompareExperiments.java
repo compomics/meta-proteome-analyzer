@@ -98,7 +98,12 @@ public class CompareExperiments {
 				}
 			}
 			BufferedWriter br = new BufferedWriter(new FileWriter(new File("Compare.csv")));
-			br.write("Description");
+			if (this.typeLevel == HierarchyLevel.META_PROTEIN_LEVEL && (countLevel == HierarchyLevel.SPECTRUM_LEVEL)) {
+				br.write("Accession;Description;Keywords;EC;KO;URef50;URef90;URef100;Superkingdom;Kingdom;Phylum;Class;"
+						+ "Order;Family;Genus;Species;Subspecies");
+			} else {
+				br.write("Description");
+			}
 			for (MPAExperiment exp : this.experiments) {
 				br.write("\t" + exp.getTitle().replaceAll("\t", ";"));
 			}
@@ -142,19 +147,18 @@ public class CompareExperiments {
 				if (metaprotein.getUniProtEntry().getTaxonomyNode() != null) {
 					TaxonomyNode taxNode = metaprotein.getUniProtEntry().getTaxonomyNode();
 					if (taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName() != null) {
-						superkingdom= taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName();
+						superkingdom = taxNode.getParentNode(TaxonomyRank.SUPERKINGDOM).getName();
 					}
 					if (taxNode.getParentNode(TaxonomyRank.KINGDOM).getName() != null) {
 						kingdom = taxNode.getParentNode(TaxonomyRank.KINGDOM).getName();
 					}
 					if (taxNode.getParentNode(TaxonomyRank.PHYLUM).getName() != null) {
-						phylum = "unknown"; taxNode.getParentNode(TaxonomyRank.PHYLUM).getName();
+						phylum = taxNode.getParentNode(TaxonomyRank.PHYLUM).getName();
 					}
-
 					if (taxNode.getParentNode(TaxonomyRank.CLASS).getName() != null) {
 						classTax = taxNode.getParentNode(TaxonomyRank.CLASS).getName();
 					}
-					if (taxNode.getParentNode(TaxonomyRank.KINGDOM).getName() != null) {
+					if (taxNode.getParentNode(TaxonomyRank.ORDER).getName() != null) {
 						order = taxNode.getParentNode(TaxonomyRank.ORDER).getName();
 					}
 					if (taxNode.getParentNode(TaxonomyRank.FAMILY).getName() != null) {
@@ -199,7 +203,7 @@ public class CompareExperiments {
 					+ "\t" + ur100
 					+ "\t" + superkingdom + ";" +kingdom+ ";" +phylum+ ";" 
 					+classTax+ ";" +order+ ";" +family+ ";" +genus+ ";" +species+ ";" +subspecies;
-			mpString.replaceAll(",", "__");
+					mpString.replaceAll(",", "__");
 
 			Long[] experiments = new Long[this.experiments.size()];
 			for (int j = 0; j < this.experiments.size(); j++) {

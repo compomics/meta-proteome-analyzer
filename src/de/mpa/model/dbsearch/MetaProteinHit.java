@@ -280,7 +280,12 @@ public class MetaProteinHit implements Serializable, Comparable<MetaProteinHit>,
 	
 	@Override
 	public boolean isSelected() {
-		return this.selected;
+		for (ProteinHit prot : this.proteinHits) {
+			if (prot.isSelected()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

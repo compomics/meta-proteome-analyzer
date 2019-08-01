@@ -107,7 +107,7 @@ public class ResultExporter {
 					spectralCount += protHit.getSpectralCount();
 				}
 			}
-
+			
 			for (String keyword : metaHit.getUniProtEntry().getKeywords()) {
 				if (keyword.trim().length() > 0 && UniProtUtilities.ONTOLOGY_MAP.get(keyword) != null) {
 					if (UniProtUtilities.ONTOLOGY_MAP.get(keyword).getCategory().toString().toUpperCase()
@@ -452,6 +452,7 @@ public class ResultExporter {
 		// Filling the format with data
 		int metaProtCount = 0;
 		for (MetaProteinHit metaProtein : result.getAllMetaProteins()) {
+			System.out.println("Metaprotein : " + metaProtein.getAccession() + " Is Visible? " + metaProtein.isVisible() + " Is Selected? " + metaProtein.isSelected());
 			if (metaProtein.isVisible() && metaProtein.isSelected()) {
 				if (hasFeature[0])
 					writer.append(++metaProtCount + Constants.TSV_FILE_SEPARATOR);

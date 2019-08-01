@@ -91,9 +91,7 @@ public enum ProteinTreeTables {
 		public void insertNode(PhylogenyTreeTableNode protNode) {
 			DefaultTreeTableModel treeTblMdl =
 					(DefaultTreeTableModel) getTreeTable().getTreeTableModel();
-
 			((PhylogenyTreeTableNode) treeTblMdl.getRoot()).add(protNode);
-
 			// if this returns a proteinHit
 			Object protHit = protNode.getUserObject();
 			if (protHit instanceof ProteinHit) {

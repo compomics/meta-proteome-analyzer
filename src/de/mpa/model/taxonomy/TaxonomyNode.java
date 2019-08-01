@@ -148,13 +148,21 @@ public class TaxonomyNode implements Comparable<Object>, Serializable {
 	 */
 	public TaxonomyNode getParentNode(UniProtUtilities.TaxonomyRank rank) {
 		TaxonomyNode currentNode = this;
-			// OLD IMPLEMENTATION
 		TaxonomyNode parentNode = this;
+		
+		// Inconsistency in NCBI Tax: "Uncategorized" --> return "Unknown"
+		if (this.getID() == 0) {
+			return new TaxonomyNode(0, rank, "Unknown " + rank.name());
+		}
+		// Inconsistency in NCBI Tax: "cellular organisms" --> return "root" which is the parent node
+		if (this.getID() == 131567) {
+			return new TaxonomyNode(0, rank, "Unknown " + rank.name());
+		}
 
 		if (parentNode.getID() == 1) {
-			return this;
+//			return this;
 			// this "Unknown value needs to be checked in graphs I think
-//			return new TaxonomyNode(0, rank, "Unknown");
+			return new TaxonomyNode(0, rank, "Unknown " + rank.name());
 		}
 
 		UniProtUtilities.TaxonomyRank parentRank = parentNode.getRank();
@@ -164,8 +172,8 @@ public class TaxonomyNode implements Comparable<Object>, Serializable {
 //				System.err.println("Root reached, possibly unknown rank identifier " +
 //						"\'" + rank + "\' for " + this.getRank() + " " + this.getName() + " (" + this.getId() + ")");
 				
-				parentNode = this;
-//				parentNode = new TaxonomyNode(0, rank, "Unknown");
+//				parentNode = this;
+				parentNode = new TaxonomyNode(0, rank, "Unknown " + rank.name());
 				break;
 			}
 			parentRank = parentNode.getRank();

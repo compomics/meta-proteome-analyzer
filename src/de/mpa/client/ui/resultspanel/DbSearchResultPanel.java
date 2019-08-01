@@ -2156,6 +2156,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 													.replaceAll("#", "_")
 													.replaceAll("=", "_")
 													.replaceAll(" ", "")
+													.replaceAll("%", "")
 													.replaceAll("\\[", "(")
 													.replaceAll("\\]", ""));
 								}

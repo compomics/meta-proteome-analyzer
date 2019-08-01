@@ -332,6 +332,11 @@ public class PeptideTableAccessor implements Deleteable, Retrievable, Updateable
 		if(this.iSequence == null) {
 			lStat.setNull(2, 12);
 		} else {
+			if (this.iSequence.length() > 100) {
+				System.out.println("Peptide sequence too long: " + this.iSequence);
+				this.iSequence = this.iSequence.substring(0, 99);
+				System.out.println("Truncated to : " + this.iSequence);
+			}
 			lStat.setObject(2, this.iSequence);
 		}
 		int result = lStat.executeUpdate();

@@ -70,6 +70,11 @@ public class DbSearchResult implements Serializable {
 	 * The total amount of spectra.
 	 */
 	private int totalSpectra;
+	
+	/**
+	 * MySQL connection
+	 */
+	private Connection connection;
 
 
 	/**
@@ -121,7 +126,12 @@ public class DbSearchResult implements Serializable {
 		taxonomyNodeMap = new HashMap<Long, TaxonomyNode>();
 		// doing it in this order is important!!
 		taxonomyNodeMap.put(1L, TaxonomyUtils.createTaxonomyNode(1L, taxonomyMap, taxonomyNodeMap));
-		taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0L, taxonomyMap, taxonomyNodeMap));
+		// TODO: test if this works properly
+//		taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0L, taxonomyMap, taxonomyNodeMap));
+		// this is the "Uncategorized" Node, NCBI-ID=0, just use "root"
+		taxonomyNodeMap.put(0L, taxonomyNodeMap.get(1L));
+		// this is the "cellular organism" Node, NCBI-ID=131567, just use "root"
+		taxonomyNodeMap.put(131567L, taxonomyNodeMap.get(1L));
 		
 		
 		// experiment-wise data retrieval
@@ -279,6 +289,16 @@ public class DbSearchResult implements Serializable {
 //					}
 //				}
 				
+	}
+	
+	/**
+	 * Returns an empty up-entry to attach to metaprotins/proteins without one
+	 * 
+	 * @return UniProtEntryMPA - initialized empty
+	 * @throws SQLException 
+	 */
+	public UniProtEntryMPA createEmptyUPEntry() throws SQLException {
+		return this.makeUPEntry(-1L, connection);
 	}
 
 	/**

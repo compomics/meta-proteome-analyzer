@@ -61,7 +61,7 @@ public class Client {
 	/*
 	 * FIELDS 
 	 */
-	
+
 	/** 
 	 * Client instance.
 	 */
@@ -81,12 +81,12 @@ public class Client {
 	 * SQL database connection.
 	 */
 	private Connection conn;
-		
+
 	/**
 	 * Parameter map containing result processing-related settings.
 	 */
 	private final ResultParameters resultParams = new ResultParameters();
-	
+
 	/**
 	 * Parameter map containing connection settings.
 	 */
@@ -96,7 +96,7 @@ public class Client {
 	 * Property change support for notifying the GUI about new messages.
 	 */
 	private final PropertyChangeSupport pSupport;
-	
+
 	/**
 	 * Database search result
 	 */
@@ -130,7 +130,7 @@ public class Client {
 		fast_results = fast;
 		pSupport = new PropertyChangeSupport(this);
 	}
-	
+
 	/*
 	 * METHODS
 	 */
@@ -145,7 +145,7 @@ public class Client {
 		}
 		return Client.instance;
 	}
-	
+
 	/**
 	 * Fast results flag denotes if nsaf/emapi are calculated drastically increasing time to populate result tables. 
 	 * @return boolean false=full calculations for nsaf/empai 
@@ -224,18 +224,18 @@ public class Client {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Disconnects manually from the server.
 	 */
 	public void disconnectFromServer() {
 		this.service = null;
 		this.server = null;
-		
+
 		if (this.requestThread != null){
 			try {
 				this.requestThread.join();
-				
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -243,7 +243,7 @@ public class Client {
 		this.requestThread = null;
 
 	}
-	
+
 	/**
 	 * Checks whether the client is connected to the server - binding provider is working.
 	 * @return true if client is connected to the server otherwise false.
@@ -261,7 +261,7 @@ public class Client {
 		}
 		return false;
 	}
-	
+
 	// Thread polling the server each second.
 	private class RequestThread extends Thread {
 		@Override
@@ -298,7 +298,7 @@ public class Client {
 	public String receiveMessage() {
 		return this.server.sendMessage();
 	}
-	
+
 	/**
 	 * Sends a message to the server.
 	 * @param message Server message
@@ -357,47 +357,70 @@ public class Client {
 	public void runSearches(List<String> filenames, SearchSettings settings) throws SQLException {
 		if (filenames != null) {
 			settings.setFilenames(filenames);
-//			for (int i = 0; i < filenames.size(); i++) {
-//				settings.getFilenames().add(filenames.get(i));
-//			}
+			//			for (int i = 0; i < filenames.size(); i++) {
+			//				settings.getFilenames().add(filenames.get(i));
+			//			}
 			try {
 				this.server.runSearches(settings);
 			} catch (Exception e) {
 				JXErrorPane.showDialog(ClientFrame.getInstance(), new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			}
 		}
-		
+
 		// reestablish all connections
-		closeDBConnection();
-		connectToServer();
-		getConnection();
+		try {
+			closeDBConnection();
+		} catch (SQLException e) {
+			System.out.println("Closing SQL connection failed");
+		}
+		try {
+			getConnection();
+		} catch (SQLException e) {
+			System.out.println("Establishing SQL connection failed");
+			e.printStackTrace();
+		}
+//		try {
+//			disconnectFromServer();
+//		} catch (WebServiceException e) {
+//			System.out.println("Closing WebServer connection failed");
+//		}
+//		try {
+//			connectToServer();
+//		} catch (WebServiceException e) {
+//			System.out.println("Establishing WebServer connection failed");
+//			e.printStackTrace();
+//		}
 	}
-	
+
 
 	/**
 	 * Returns the GraphDatabaseHandler object.
 	 * @return The GraphDatabaseHandler object.
 	 */
 	public synchronized void setupGraphDatabase(boolean singleDataResult) {
-		// If graph database is already in use.
-		if (this.graphDatabaseHandler != null) {
-			// Shut down old graph database.
-			this.graphDatabaseHandler.shutDown();
-		}
-		
-		// Create a new graph database.
-		// Setup the graph database handler. 
-		GraphDatabase graphDb;
-		graphDb = new GraphDatabase("target/graphdb", true);
-		
-		// Setup the graph database handler. 
-		this.graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
+		try {
+			// If graph database is already in use.
+			if (this.graphDatabaseHandler != null) {
+				// Shut down old graph database.
+				this.graphDatabaseHandler.shutDown();
+			}
 
-		if (singleDataResult) {
-			this.graphDatabaseHandler.setData(this.dbSearchResult);
+			// Create a new graph database.
+			// Setup the graph database handler. 
+			GraphDatabase graphDb;
+			graphDb = new GraphDatabase("target/graphdb", true);
+
+			// Setup the graph database handler. 
+			this.graphDatabaseHandler = new GraphDatabaseHandler(graphDb);
+
+			if (singleDataResult) {
+				this.graphDatabaseHandler.setData(this.dbSearchResult);
+			}
+		} catch (Exception e) {
+			// do nothing
 		}
 	}
-	
+
 	/**
 	 * Queries the database to retrieve a spectrum file belonging to a specific searchspectrum entry.
 	 * @param searchspectrumID The primary key of the searchspectrum entry.
@@ -518,7 +541,7 @@ public class Client {
 	public List<MascotGenericFile> downloadSpectra(long experimentID, SpectrumFetchParameters.AnnotationType annotType, boolean fromLibrary, boolean saveToFile) throws Exception {
 		return new SpectrumExtractor(this.conn).getSpectraByExperimentID(experimentID, annotType, fromLibrary, saveToFile);
 	} 
-	
+
 	/**
 	 * fetch requested spectra from the database and write them to a file
 	 * @param path path to the file that will be written
@@ -529,17 +552,17 @@ public class Client {
 	 * @throws SQLException if an error with a database fetch occurs
 	 */
 	public void fetchAndExportSpectra(String path, 
-										long expID, 
-										boolean ident, 
-										boolean uident, 
-										String filter) throws SQLException {
+			long expID, 
+			boolean ident, 
+			boolean uident, 
+			String filter) throws SQLException {
 
 		// gather all spectra for the experiment
 		Set<Long> allSearchspectrumIds = new HashSet<Long>();
 		for (Searchspectrum searchspectrum : Searchspectrum.findFromExperimentID(expID, this.conn)) {
 			allSearchspectrumIds.add(searchspectrum.getSearchspectrumid());	
 		}
-		
+
 		// gather all identified spectra for the experiment
 		List<XTandemhit> xtandemHits = XTandemhit.getHitsFromExperimentID(expID, this.conn);
 		List<Omssahit> omssaHits = Omssahit.getHitsFromExperimentID(expID, this.conn);
@@ -550,7 +573,7 @@ public class Client {
 		for (SearchHit hit : hits) {
 			identifiedSpectra.add(hit.getFk_searchspectrumid());
 		}
-		
+
 		if (!ident) {
 			// remove identified spectra
 			allSearchspectrumIds.removeAll(identifiedSpectra);
@@ -559,7 +582,7 @@ public class Client {
 			// retain only identified spectra
 			allSearchspectrumIds.retainAll(identifiedSpectra);
 		}
-		
+
 		// set up the file stream
 		firePropertyChange("new message", null, "WRITING FETCHED DATABASE SPECTRA");
 		firePropertyChange("resetall", -1L, (long) allSearchspectrumIds.size());
@@ -587,7 +610,7 @@ public class Client {
 			status = "FAILED";
 		}
 		firePropertyChange("new message", null, "WRITING SPECTRA " + status);
-		
+
 	}
 
 	/**
@@ -597,65 +620,65 @@ public class Client {
 	 * @param pathname the string representing the desired file path and name for the result object
 	 */
 	public void exportDatabaseSearchResult(String pathname) {
-		
+
 		// TODO: method broken
-		
-//		DbSearchResult dbSearchResult = this.restoreBackupDatabaseSearchResult();
-//		
-//		Set<PeptideSpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
-//	
-//		// Dump referenced spectra to separate MGF
-//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
-//		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
-//		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
-//		String status = "FINISHED";
-//		// TODO: clean up mix of Java IO and NIO APIs
-//		try {
-//			String prefix = pathname.substring(0, pathname.indexOf('.'));
-//			File mgfFile = new File(prefix + ".mgf");
-//			FileOutputStream fos = new FileOutputStream(mgfFile);
-//			long index = 0L;
-//			for (PeptideSpectrumMatch spectrumMatch : spectrumMatches) {
-//				spectrumMatch.setStartIndex(index);
-//				MascotGenericFile mgf = getInstance().getSpectrumBySearchSpectrumID(
-//						spectrumMatch.getSearchSpectrumID());
-//				mgf.writeToStream(fos);
-//				index = mgfFile.length();
-//				spectrumMatch.setEndIndex(index);
-//				spectrumMatch.setTitle(mgf.getTitle());
-//				firePropertyChange("progressmade", false, true);
-//			}
-//			fos.flush();
-//			fos.close();
-//		} catch (Exception e) {
-//			JXErrorPane.showDialog(ClientFrame.getInstance(),
-//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-//			status = "FAILED";
-//		}
-//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
-//	
-//		// Dump results object to file
-//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
-//		status = "FINISHED";
-//		firePropertyChange("indeterminate", false, true);
-//		try {
-////			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
-////			if (!backupFile.exists()) {
-////				// technically this should never happen
-////				System.err.println("No result file backup detected, creating new one...");
-//			dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
-////			}
-//			// Copy backup file to target location
-//			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
-//		} catch (IOException e) {
-//			JXErrorPane.showDialog(ClientFrame.getInstance(),
-//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
-//			status = "FAILED";
-//		}
-//		firePropertyChange("indeterminate", true, false);
-//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
+
+		//		DbSearchResult dbSearchResult = this.restoreBackupDatabaseSearchResult();
+		//		
+		//		Set<PeptideSpectrumMatch> spectrumMatches = ((ProteinHitList) dbSearchResult.getProteinHitList()).getMatchSet();
+		//	
+		//		// Dump referenced spectra to separate MGF
+		//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA");
+		//		firePropertyChange("resetall", -1L, (long) spectrumMatches.size());
+		//		firePropertyChange("resetcur", -1L, (long) spectrumMatches.size());
+		//		String status = "FINISHED";
+		//		// TODO: clean up mix of Java IO and NIO APIs
+		//		try {
+		//			String prefix = pathname.substring(0, pathname.indexOf('.'));
+		//			File mgfFile = new File(prefix + ".mgf");
+		//			FileOutputStream fos = new FileOutputStream(mgfFile);
+		//			long index = 0L;
+		//			for (PeptideSpectrumMatch spectrumMatch : spectrumMatches) {
+		//				spectrumMatch.setStartIndex(index);
+		//				MascotGenericFile mgf = getInstance().getSpectrumBySearchSpectrumID(
+		//						spectrumMatch.getSearchSpectrumID());
+		//				mgf.writeToStream(fos);
+		//				index = mgfFile.length();
+		//				spectrumMatch.setEndIndex(index);
+		//				spectrumMatch.setTitle(mgf.getTitle());
+		//				firePropertyChange("progressmade", false, true);
+		//			}
+		//			fos.flush();
+		//			fos.close();
+		//		} catch (Exception e) {
+		//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+		//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		//			status = "FAILED";
+		//		}
+		//		firePropertyChange("new message", null, "WRITING REFERENCED SPECTRA" + status);
+		//	
+		//		// Dump results object to file
+		//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK");
+		//		status = "FINISHED";
+		//		firePropertyChange("indeterminate", false, true);
+		//		try {
+		////			File backupFile = new File(Constants.BACKUP_RESULT_PATH);
+		////			if (!backupFile.exists()) {
+		////				// technically this should never happen
+		////				System.err.println("No result file backup detected, creating new one...");
+		//			dumpDatabaseSearchResult(dbSearchResult, Constants.BACKUP_RESULT_PATH);
+		////			}
+		//			// Copy backup file to target location
+		//			Files.copy(Paths.get(Constants.BACKUP_RESULT_PATH), Paths.get(pathname), StandardCopyOption.REPLACE_EXISTING);
+		//		} catch (IOException e) {
+		//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+		//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		//			status = "FAILED";
+		//		}
+		//		firePropertyChange("indeterminate", true, false);
+		//		firePropertyChange("new message", null, "WRITING RESULT OBJECT TO DISK " + status);
 	}
-	
+
 	/**
 	 * Dumps the current database search result object to a temporary file for
 	 * result restoration/export purposes.
@@ -668,12 +691,12 @@ public class Client {
 			oos.close();
 		} catch (Exception e) {
 			// TODO: fix this 
-//			JXErrorPane.showDialog(ClientFrame.getInstance(),
-//					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
+			//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+			//					new ErrorInfo("Severe Error", e.getMessage(), e.getMessage(), null, e, ErrorLevel.SEVERE, null));
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Restores the current database search result object from the dumped temporary file.
 	 * @return the restored result object or <code>null</code> if an error occurred
@@ -687,8 +710,8 @@ public class Client {
 			ois.close();
 		} catch (Exception e) {
 			// TODO: fix this 
-//			JXErrorPane.showDialog(ClientFrame.getInstance(),
-//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+			//			JXErrorPane.showDialog(ClientFrame.getInstance(),
+			//					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
 			e.printStackTrace();
 		} 
 		return this.dbSearchResult;
@@ -740,7 +763,7 @@ public class Client {
 	public ParameterMap getConnectionParameters() {
 		return connectionParams;
 	}
-	
+
 	/**
 	 * Sets the parameter map containing connection settings.
 	 * @param connectionParams
@@ -748,7 +771,7 @@ public class Client {
 	public void setConnectionParams(ConnectionParameters connectionParams) {
 		this.connectionParams = connectionParams;
 	}
-	
+
 	/**
 	 * Returns the parameter map containing result fetching-related settings.
 	 * @return the result parameters
@@ -764,7 +787,7 @@ public class Client {
 	public GraphDatabaseHandler getGraphDatabaseHandler() {
 		return this.graphDatabaseHandler;
 	}
-	
+
 	/**
 	 * Returns the current database search result.
 	 * @return dbSearchResult The current database search result.
@@ -772,7 +795,7 @@ public class Client {
 	public DbSearchResult getDatabaseSearchResult() {
 		return this.dbSearchResult;
 	}
-	
+
 	public void newDatabaseSearchResult(ArrayList<MPAExperiment> expList) {
 		this.dbSearchResult = new DbSearchResult(expList);
 		try {
@@ -784,7 +807,7 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Shuts down the application.
 	 */
@@ -793,7 +816,7 @@ public class Client {
 		if (Client.instance.graphDatabaseHandler != null) {
 			Client.instance.graphDatabaseHandler.shutDown();
 		}
-	
+
 		try {
 			// Close SQL DB connection
 			Client.instance.closeDBConnection();

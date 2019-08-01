@@ -1014,7 +1014,7 @@ public class ExportDialog extends JDialog {
 
 				if (this.tabPane.getSelectedIndex() == 0) {
 					resultType = "Meta-Proteins";
-					// TODO TAKE CARE ABOUT THIS
+					// TAKE CARE OF THIS ?? maybe
 					ResultExporter.exportMetaProteins(selectedFile.getPath(), this.client.getDatabaseSearchResult(),
 							this.exportHeaders);
 				} else if (this.tabPane.getSelectedIndex() == 1) {

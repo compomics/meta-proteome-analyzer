@@ -104,6 +104,10 @@ public class SpectrumViewerPanel extends JPanel {
 		
 		// add spectrum
 		if (mgf != null && sequence != null) {
+			// deals with spectra without charge, sets it to two
+			if (mgf.getCharge() == 0) {
+				mgf.setCharge(2);
+			}
             this.specPnl = new SpectrumPanel(mgf) {
 				@Override
 				public void paint(Graphics g) {
