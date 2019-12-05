@@ -221,8 +221,8 @@ public class DbSearchResult implements Serializable {
 							prot.addPeptideHit(pephit);
 							pephit.addProteinHit(prot);
 							// TODO: DEBUG
-//							prot.setSequence(prot_seq);
-							prot.setSequence("");
+							prot.setSequence(prot_seq);
+//							prot.setSequence("");
 							// DEBUG END
 							prot.setDescription(prot_description);
 							prot.addExperimentID(expID);

@@ -34,11 +34,9 @@ public class NormalizedSpectralAbundanceFactor implements QuantMethod {
 				pepSum += peptideHit.getSpectralCount();
 			}
 			// Check for missing protein sequence 
-				if (proteinHit.getSequence() != null && proteinHit.getSequence().length() > 0 ) {
-					protSum += pepSum / proteinHit.getSequence().length();
-				}
-				
-
+			if (proteinHit.getSequence() != null && proteinHit.getSequence().length() > 0 ) {
+				protSum += pepSum / proteinHit.getSequence().length();
+			}
 		}
 
 		// Calculate the number of spectrum matches weighted by sequence length for protein of interest

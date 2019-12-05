@@ -115,7 +115,7 @@ public class Client {
 	/**
 	 *  if flag is set false, calculations of empai/nsaf/coverage are omitted during FetchResults
 	 */
-	private boolean fast_results = true;
+	private boolean fast_results = false;
 
 	/*
 	 * CONSTRUCTOR

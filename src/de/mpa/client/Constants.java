@@ -45,7 +45,7 @@ public class Constants {
 	 * Flag denoting whether results should be loaded including nsaf and empai
 	 * calculation. This greatly improves loading times
 	 */
-	public static final boolean fast_results = true;
+	public static final boolean fast_results = false;
 
 	/**
 	 * User directory of the MPA

@@ -119,7 +119,17 @@ public class ComparePanel extends JPanel {
 	 * Compare button instance.
 	 */
 	private JButton compareBtn;
-
+	
+	/**
+	 * HierarchyLevel at which comparison is carried out (ie metaproteins) 
+	 */
+	private ChartType levelCompared;
+	
+	/**
+	 * HierarchyLevel at which compared items are counted (ie spectra)
+	 */
+	private HierarchyLevel levelCounted;	
+	
 	/**
 	 * Constructs an experiment compare panel.
 	 */
@@ -294,7 +304,9 @@ public class ComparePanel extends JPanel {
 				} else {
 					yAxisType = (ChartType) hieroCbx.getSelectedItem();
 				}
+				ComparePanel.this.levelCompared = yAxisType;
 				HierarchyLevel zAxisType = (HierarchyLevel) countCbx.getSelectedItem();
+				ComparePanel.this.levelCounted = zAxisType;
 				ComparePanel.this.experiments = experiments;
 				ComparePanel.CompareTask compareTask = new ComparePanel.CompareTask(yAxisType, zAxisType);
 				compareTask.execute();
@@ -443,7 +455,29 @@ public class ComparePanel extends JPanel {
 							if (col > 0) {
 								bw.append(SEP);
 							}
-							bw.append(model.getColumnName(col));
+							String someHeaderString = model.getColumnName(col);
+							System.out.println(someHeaderString);
+							if (someHeaderString.trim().equals("Description")) {
+								System.out.println("Detected");
+								System.out.println(ComparePanel.this.levelCompared);
+								System.out.println(ComparePanel.this.levelCounted);
+								if (ComparePanel.this.levelCompared == HierarchyLevel.META_PROTEIN_LEVEL 
+										&& ComparePanel.this.levelCounted == HierarchyLevel.SPECTRUM_LEVEL) {
+									System.out.println("Detect MP+Spec");
+									someHeaderString = "Metaprotein Number" 
+											+ "\t" + "Description"
+											+ "\t" + "Keywords"
+											+ "\t" + "EC numbers"
+											+ "\t" + "KO numbers"
+											+ "\t" + "UniRef50"
+											+ "\t" + "UniRef90"
+											+ "\t" + "UniRef100"
+											+ "\t" + "Taxonomy"
+											+ "\t" + "Protein Accessions";
+									someHeaderString.replaceAll(",", "__");
+								}
+							}
+							bw.append(someHeaderString);
 						}
 						bw.newLine();
 
@@ -759,7 +793,7 @@ public class ComparePanel extends JPanel {
 			compareTbl.setModel(model);
 			compareTbl.setAutoCreateRowSorter(true);
 
-			compareTbl.getColumn("Description").setMinWidth(100);
+			compareTbl.getColumn("Description").setMaxWidth(200);
 
 			compareTbl.packAll();
 			compareTbl.repaint();

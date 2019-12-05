@@ -641,6 +641,7 @@ public class RunMultiBlast {
 				ProteinAccessor protAcc = proteinAccessorMap.get(protIDkey);
 				protAcc.setFK_uniProtID(addMultipleUniProtEntriesToDatabase
 						.get(protIDkey));
+				// TODO: replace with proper BLAST option 
 				protAcc.setDescription("BLAST_"
 						+ blastResult.getSelectedBLASTHits(BlastResultOption.FIRST_IDENTITY).get(0).getName()
 						+ "_" + blastResult.getSelectedBLASTHits(BlastResultOption.FIRST_IDENTITY).get(0).getAccession());

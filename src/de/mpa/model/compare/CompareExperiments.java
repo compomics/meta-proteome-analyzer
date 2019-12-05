@@ -202,8 +202,11 @@ public class CompareExperiments {
 					+ "\t" + ur90
 					+ "\t" + ur100
 					+ "\t" + superkingdom + ";" +kingdom+ ";" +phylum+ ";" 
-					+classTax+ ";" +order+ ";" +family+ ";" +genus+ ";" +species+ ";" +subspecies;
-					mpString.replaceAll(",", "__");
+					+classTax+ ";" +order+ ";" +family+ ";" +genus+ ";" +species+ ";" +subspecies + "\t";
+			for (ProteinHit protein : metaprotein.getProteinHitList()) {
+				mpString += protein.getAccession() +";"; 
+			}
+			mpString.replaceAll(",", "__");
 
 			Long[] experiments = new Long[this.experiments.size()];
 			for (int j = 0; j < this.experiments.size(); j++) {

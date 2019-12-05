@@ -2132,6 +2132,7 @@ public class DbSearchResultPanel extends JPanel implements Busyable {
 									if (nsaf < 0.0) {
 										// Calculate NSAF
 										nsaf = ProteinAnalysis.calculateLabelFree(new NormalizedSpectralAbundanceFactor(), Client.getInstance().getDatabaseSearchResult().getAllProteinHits(),	proteinHit);
+										System.out.println(nsaf);
 										proteinHit.setNSAF(nsaf);
 									}
 								} else {
