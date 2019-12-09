@@ -398,7 +398,9 @@ public class IconConstants {
 	public static final Icon WEB_QUICKGO_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/quickgo16.png"));
     /** <img src="../../../resources/icons/eggnog16.png"> */
 	public static final Icon WEB_EGGNOG_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/eggnog16.png"));
-
+	/** <img src="../../../resources/icons/unipept.png"> */
+	public static final ImageIcon UNIPEPT_EXPORT_ICON = new ImageIcon(IconConstants.class.getResource("/de/mpa/resources/icons/unipept.png"));
+	
     /**
 	 * Creates an empty item of the specified width and height.
 	 * @param width the pixel width of the icon

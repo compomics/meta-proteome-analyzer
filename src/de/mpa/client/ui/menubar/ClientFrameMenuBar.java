@@ -1,10 +1,12 @@
 package de.mpa.client.ui.menubar;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
@@ -14,6 +16,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.error.ErrorLevel;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -35,6 +41,7 @@ import de.mpa.client.ui.sharedelements.dialogs.ConfirmFileChooser;
 import de.mpa.client.ui.sharedelements.icons.IconConstants;
 import de.mpa.db.mysql.DBDumper;
 import de.mpa.model.analysis.UniProtUtilities;
+import de.mpa.model.analysis.UnipeptAnalyzer;
 
 /**
  * The main application frame's menu bar.
@@ -249,6 +256,17 @@ public class ClientFrameMenuBar extends JMenuBar {
                 }
 			}
 		});
+		
+		// Export results to Unipept
+		JMenuItem unipeptItem = new JMenuItem("Export peptides to Unipept", IconConstants.UNIPEPT_EXPORT_ICON);
+		unipeptItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				exportUnipept();
+			}
+		});
+		exportMenu.add(csvItem);
+        exportMenu.add(unipeptItem);
 
 		// Export graphML file
 		JMenuItem graphmlItem = new JMenuItem("GraphML File...", IconConstants.GRAPH_ICON);
@@ -526,5 +544,24 @@ public class ClientFrameMenuBar extends JMenuBar {
 			if (comp.getName() == "MCR") {comp.setEnabled(true);}
 						
 		}
-	}	 
+	}
+	
+    /**
+     * This method exports identified peptides to Unipept.
+     */
+    private void exportUnipept() {
+    	Client client = Client.getInstance();
+
+    	UnipeptAnalyzer unipeptAnalyzer = new UnipeptAnalyzer(client.getDatabaseSearchResult().getAllPeptideHits());
+    	URI unipeptURI = unipeptAnalyzer.getUnipeptURI();
+
+		try {
+			if (unipeptURI != null) {
+				Desktop.getDesktop().browse(unipeptURI);
+			}
+		} catch (Exception e) {
+			JXErrorPane.showDialog(ClientFrame.getInstance(),
+					new ErrorInfo("Severe Error", e.getMessage(), null, null, e, ErrorLevel.SEVERE, null));
+		}
+    }
 }
