@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.mpa.model.dbsearch.PeptideHit;
-
 public class UnipeptAnalyzer {
 
     private List<String> peptideSequences = new ArrayList<String>();
@@ -86,3 +85,5 @@ public class UnipeptAnalyzer {
         return unipeptURI;
     }
 }
+
+

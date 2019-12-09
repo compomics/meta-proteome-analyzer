@@ -490,6 +490,18 @@ public class DbSearchResult implements Serializable {
 		return peplist;
 	}
 	
+	public ArrayList<PeptideHit> getAllPeptideHitsRedundant() {
+		List<PeptideHit> pepset = new LinkedList<PeptideHit>();
+		for (MetaProteinHit mph : this.metaProteins) {
+			for (ProteinHit ph : mph.getProteinHitList()) {
+				pepset.addAll(ph.getPeptideHitList());
+			}
+		}
+		ArrayList<PeptideHit> peplist = new ArrayList<PeptideHit>();
+		peplist.addAll(pepset);
+		return peplist;
+	}
+	
 	public ArrayList<PeptideSpectrumMatch> getAllPSMS() {
 		ArrayList<PeptideHit> peplist = this.getAllPeptideHits();
 		HashMap<Long, PeptideSpectrumMatch> psmMap = new HashMap<Long, PeptideSpectrumMatch>();
