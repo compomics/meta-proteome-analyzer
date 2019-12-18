@@ -22,7 +22,7 @@
 
 ## News ##
 
-*MPA Portable version 2.0 (December 2019) has been released with the following features:
+*MPA Portable version 2.0.0 (December 2019) has been released with the following features:
 
 * The graphical user interface now supports a direct connection to the Unipept web interface (https://unipept.ugent.be/): identified peptides are directly mapped to the Unipept service (using the MPA Export menu --> Export peptides to Unipept).
 * UniProt JAPI was updated to the version 1.0.28
