@@ -22,17 +22,18 @@
 
 ## News ##
 
+*MPA Portable version 2.0 (December 2019) has been released with the following features:
+
+* The graphical user interface now supports a direct connection to the Unipept web interface (https://unipept.ugent.be/): identified peptides are directly mapped to the Unipept service (using the MPA Export menu --> Export peptides to Unipept).
+* UniProt JAPI was updated to the version 1.0.28
+
+---
+
 *MPA Portable version 1.9.0 (June 2019)* has been released with the following updates:
 
 * MPA now has full Maven support
 * UniProt JAPI was updated to the latest version 1.0.26 (fixing errors occurring during the retrieval of UniProt meta-information)
 * Minor bugfixes were performed
-
----
-
-*MPA Portable version 1.8.1 (October 2018)* has been released with the following update:
-
-* UniProt JAPI was updated to the latest version 1.0.16 (fixing errors occurring during the retrieval of UniProt meta-information)
 
 ---
 
@@ -54,24 +55,11 @@
 
 ---
 
-*MPA Portable version 1.6.0* has been released with the following new features: 
-* Added new import function for mzIdentML files: this feature supports the re-analysis of result identification data stored in mzIdentML format. 
- * Added new Import menu which contains the import function for "MPA Experiment" (see Release version 1.5.0). 
- * Added the feature to import MPA experiment files without requiring the corresponding MGF files.
- * Added the indexing of peptide sequences for FASTA databases: this feature allows to retrieve all protein identifications contained in the reference proteomes (and more than the default hits suggested by the search engines).
- 
----
-
-*MPA Portable version 1.5.0* has been released with the following updates:
-* Added "Import MPA Experiment" feature: saved experiment files (*.mpa) can now be loaded into into a project
-* Updated "Export MPA Experiment" feature: experiment files (*.mpa) are stored together with the original MS/MS spectra
-* Added "Update UniProt Entries" feature (see MetaProteomeAnalyzerCLI for details)
-* Various bugfixes and GUI improvements
 
 
 ## Downloads ##
 
-[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.9.0/mpa-portable-1.9.0.zip)  *MPA Portable version 1.9.0 - Windows and Linux 32-bit/64-bit - released on June 12, 2019*
+[[Download software]](https://github.com/compomics/meta-proteome-analyzer/releases/download/v2.0.0/mpa-portable-2.0.0.zip)  *MPA Portable version 2.0 - Windows and Linux 32-bit/64-bit - released on December 18, 2019*
 
 [[Download example data set]](https://github.com/compomics/meta-proteome-analyzer/raw/master/test/de/mpa/resources/Ebendorf1.zip)  *Microbial community sample data set (from Ebendorf biogas plant)*
 
@@ -128,7 +116,7 @@ The MPA metaproteomics software comes with the following key features:
   * **Operating system**: (Tested on Windows XP, Windows Vista, Windows 7/8/10 and various Linux systems)
   * **Memory**: The more memory, the better! (preferably 4 GB at least, but highly recommended are 8 or 16 GB of RAM)
 
-Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v1.8.1/mpa-portable-1.8.1.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
+Please [download](https://github.com/compomics/meta-proteome-analyzer/releases/download/v2.0.0/mpa-portable-2.0.0.zip) the latest version of `mpa-portable-X.Y.Z.zip` (where X, Y and Z represent the current version of the software).
 
 Before starting the MPA Portable version, please make sure that you have Java 1.8 installed. To check the currently installed java version, open a console/bash window and type:
 ```
