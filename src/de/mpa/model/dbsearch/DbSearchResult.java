@@ -127,7 +127,7 @@ public class DbSearchResult implements Serializable {
 		// doing it in this order is important!!
 		taxonomyNodeMap.put(1L, TaxonomyUtils.createTaxonomyNode(1L, taxonomyMap, taxonomyNodeMap));
 		// TODO: test if this works properly
-//		taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0L, taxonomyMap, taxonomyNodeMap));
+		/// taxonomyNodeMap.put(0L, TaxonomyUtils.createTaxonomyNode(0L, taxonomyMap, taxonomyNodeMap));
 		// this is the "Uncategorized" Node, NCBI-ID=0, just use "root"
 		taxonomyNodeMap.put(0L, taxonomyNodeMap.get(1L));
 		// this is the "cellular organism" Node, NCBI-ID=131567, just use "root"
@@ -222,7 +222,7 @@ public class DbSearchResult implements Serializable {
 							pephit.addProteinHit(prot);
 							// TODO: DEBUG
 							prot.setSequence(prot_seq);
-//							prot.setSequence("");
+							// prot.setSequence("");
 							// DEBUG END
 							prot.setDescription(prot_description);
 							prot.addExperimentID(expID);
@@ -257,38 +257,36 @@ public class DbSearchResult implements Serializable {
 		// determine total spectral count
 		this.setTotalSpectrumCount(this.countTotalSpectraFromExperimentList(conn));
 		this.setFDR(Constants.getDefaultFDR());
-		
 		//		// XXX: DEBUG OUTPUT POPULATING TABLES
-//				System.out.println("MP: " + this.metaProteins.size());
+		//				System.out.println("MP: " + this.metaProteins.size());
 		//		System.out.println("VMP: " + this.visMetaProteins.size());
-//				System.out.println("P: " + this.proteins.size());
+		//				System.out.println("P: " + this.proteins.size());
 		//		System.out.println("VP: " + this.visProteins.size());
-//				System.out.println("p: " + this.peptides.size());
+		//				System.out.println("p: " + this.peptides.size());
 		//		System.out.println("Vp: " + this.visPeptides.size());
-//				System.out.println("psm: " + this.searchHits.size());
+		//				System.out.println("psm: " + this.searchHits.size());
 		//		System.out.println("Vpsm: " + this.visSearchHits.size());
 		//		
-//				for (MetaProteinHit mp : this.getAllMetaProteins()) {
-//					
-//					System.out.println("MP : " + mp.getAccession());
-//					System.out.println("MP : " + mp.getDescription());
-//					System.out.println("MP : " + mp.getProteinHitList().size());
-//					for (ProteinHit ph : mp.getProteinHitList()) {
-//						System.out.println("P : " + ph.getAccession());
-//						System.out.println("P : " + ph.getDescription());
-//						for (PeptideHit pep : ph.getPeptideHitList()) {
-//							System.out.println("PEP : "+pep.getSequence());
-//							System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
-//							System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
-//							for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
-//								System.out.println("PSM : " + psm.getSpectrumID());
-//								System.out.println("PSM : " + psm.getTitle());
-//								System.out.println("PSM : " + psm.getSearchHits());
-//							}
-//						}
-//					}
-//				}
-				
+		//				for (MetaProteinHit mp : this.getAllMetaProteins()) {
+		//					
+		//					System.out.println("MP : " + mp.getAccession());
+		//					System.out.println("MP : " + mp.getDescription());
+		//					System.out.println("MP : " + mp.getProteinHitList().size());
+		//					for (ProteinHit ph : mp.getProteinHitList()) {
+		//						System.out.println("P : " + ph.getAccession());
+		//						System.out.println("P : " + ph.getDescription());
+		//						for (PeptideHit pep : ph.getPeptideHitList()) {
+		//							System.out.println("PEP : "+pep.getSequence());
+		//							System.out.println("PEP : "+pep.getPeptideSpectrumMatches().size());
+		//							System.out.println("TaxNode : "+pep.getTaxonomyNode().getName());
+		//							for (PeptideSpectrumMatch psm : pep.getPeptideSpectrumMatches()) {
+		//								System.out.println("PSM : " + psm.getSpectrumID());
+		//								System.out.println("PSM : " + psm.getTitle());
+		//								System.out.println("PSM : " + psm.getSearchHits());
+		//							}
+		//						}
+		//					}
+		//				}
 	}
 	
 	/**

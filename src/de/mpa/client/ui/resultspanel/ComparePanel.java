@@ -456,14 +456,9 @@ public class ComparePanel extends JPanel {
 								bw.append(SEP);
 							}
 							String someHeaderString = model.getColumnName(col);
-							System.out.println(someHeaderString);
 							if (someHeaderString.trim().equals("Description")) {
-								System.out.println("Detected");
-								System.out.println(ComparePanel.this.levelCompared);
-								System.out.println(ComparePanel.this.levelCounted);
 								if (ComparePanel.this.levelCompared == HierarchyLevel.META_PROTEIN_LEVEL 
 										&& ComparePanel.this.levelCounted == HierarchyLevel.SPECTRUM_LEVEL) {
-									System.out.println("Detect MP+Spec");
 									someHeaderString = "Metaprotein Number" 
 											+ "\t" + "Description"
 											+ "\t" + "Keywords"
