@@ -82,7 +82,10 @@ public class PropertyLoader {
 	static {
 		// load the property file
 		File propFile = new File("./config_LINUX.properties");
-
+		if (!propFile.exists() && (new File(System.getProperty("user.home") + "/.config/mpa-server/config_LINUX.properties").exists())) {
+			propFile = new File(System.getProperty("user.home") + "/.config/mpa-server/config_LINUX.properties");
+		}
+		System.out.println(System.getProperty("user.home"));
 
 		if(System.getProperty("os.name").toLowerCase().indexOf("win")!=-1)
 			propFile = new File("./config_WINDOWS.properties");
@@ -93,6 +96,8 @@ public class PropertyLoader {
 							+ new File("./").getAbsolutePath());
 			System.exit(1);
 		}
+		
+		
 
 		Properties properties = new Properties();
 		try {

@@ -486,7 +486,7 @@ public class FastaLoader {
 				// unique-accession property of protein table
 				if (entryNo % batchSize == 0 || line == null) {
 					
-					// NUR FÜR TREMBL
+					// NUR Fï¿½R TREMBL
 					ProteinAccessor.addMutlipleProteinsToDatabase(fastaEntryList, conn);
 					// Reset the fastaEntryList
 					fastaEntryList = new ArrayList<DigFASTAEntry>();

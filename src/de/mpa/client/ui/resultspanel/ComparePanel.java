@@ -471,6 +471,8 @@ public class ComparePanel extends JPanel {
 											+ "\t" + "Protein Accessions";
 									someHeaderString.replaceAll(",", "__");
 								}
+							} else {
+								someHeaderString = "EXP:" + someHeaderString; 
 							}
 							bw.append(someHeaderString);
 						}
@@ -746,6 +748,8 @@ public class ComparePanel extends JPanel {
 				this.cmpExp = new CompareExperiments(ComparePanel.this.experiments, dbSearchResult, chartType, countLevel);
 //				this.expComparison = new ExperimentComparison(ComparePanel.this.experiments, this.metaProtList, graphDatabaseHandler, chartType, countLevel);
 				this.refreshCompareTable(this.cmpExp.getResults(), ComparePanel.this.experiments);
+				client.firePropertyChange("new message", null, "COMPARISON FINISHED");
+				client.firePropertyChange("indeterminate", true, false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
