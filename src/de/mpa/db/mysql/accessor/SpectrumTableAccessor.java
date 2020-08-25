@@ -757,7 +757,7 @@ public class SpectrumTableAccessor implements Deleteable, Retrievable, Updateabl
 		String mascot_remove_id = title.split("( \\(id)")[0].trim();
 		String[] parsed_integer_values;
 		// construct the title-hash
-		if (title.contains("File") && title.contains("Spectrum")) {
+		if (title.contains("File") && title.contains("Spectrum") && !(title.contains("%"))) {
 			// normal case
 			parsed_integer_values = mascot_remove_id.split("(File)|(Spectrum)|(scans:)|(,)");
 			String hashString = parsed_integer_values[1].trim() + parsed_integer_values[2].trim() + parsed_integer_values[3].trim();
